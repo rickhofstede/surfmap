@@ -515,7 +515,19 @@
 			}				
 
 			totalGeocodingRequests = geocodingQueue.length;
-			startGeocodingController();
+			
+			// Start geocoding
+			while(geocodingQueue.length > 0) {
+				var currentPlace = geocodingQueue.pop();
+				var duplicateIndex = arrayElementIndex(geocodingQueue, currentPlace);
+				while(duplicateIndex >= 0) { // duplicate element was found in array
+					geocodingQueue.splice(duplicateIndex, 1);
+					totalGeocodingRequests--;
+					duplicateIndex = arrayElementIndex(geocodingQueue, currentPlace);
+				}
+				geocode(currentPlace);
+			}
+			
 			var intervalHandlerID = setInterval(function() {
 				var completedGeocodingRequests = successfulGeocodingRequests + erroneousGeocodingRequests;
 				
@@ -623,24 +635,6 @@
 				strippedPlace = place;
 			}
 			return strippedPlace;
-		}
-
-	   /**
-		* This function starts the geocoding controller, which checks for places that have to
-		* be geocoded and calles the geocoder asynchronously to geocode desired places.
-		*/			
-		function startGeocodingController() {
-			while(geocodingQueue.length > 0) {
-				var currentPlace = geocodingQueue.pop();
-				var duplicateIndex = arrayElementIndex(geocodingQueue, currentPlace);
-				while(duplicateIndex >= 0) { // duplicate element was found in array
-					geocodingQueue.splice(duplicateIndex, 1);
-					totalGeocodingRequests--;
-					duplicateIndex = arrayElementIndex(geocodingQueue, currentPlace);
-				}
-
-				geocode(currentPlace);
-			}
 		}
 		
 	   /**
@@ -1326,7 +1320,6 @@
 						&& lineProperties[level][i].lng1.toString().substr(0, minSizeLng) == coordinates.lng().toString().substr(0, minSizeLng)
 						&& lineProperties[level][i].lng1.toString().substr(0, minSizeLng) == lineProperties[level][i].lng2.toString().substr(0, minSizeLng)) {
 					internalTrafficMarker = 1;
-
 					break;
 				}
 			}
