@@ -5,6 +5,10 @@
 	 * University of Twente, The Netherlands
 	 *******************************/
 	require_once("../config.php");
+	require_once("../ConnectionHandler.php");
+	require_once("../MaxMind/geoipcity.inc");
+	require_once("../IP2Location/ip2location.class.php");
+	require_once($NFSEN_DIR."/conf.php");
 	
 	function dir_tree($dir) {
 		$path = '';
@@ -39,17 +43,40 @@
 	else $nfsenSourceDirOK = 0;
 	
 	// 3. Check NfSen source file existance
-	$nfsenSourceFiles = $NFSEN_SOURCE_DIR.substr($NFSEN_SOURCE_FILE_NAMING, 0, strpos($NFSEN_SOURCE_FILE_NAMING, ".") + 1);
-	$nfsenSourceFiles = str_replace("[yyyy]", date("Y"), $nfsenSourceFiles);
-	$nfsenSourceFiles = str_replace("[MM]", date("m"), $nfsenSourceFiles);
-	$nfsenSourceFiles = str_replace("[dd]", date("d"), $nfsenSourceFiles);
+	$year = date("Y");
+	$month = date("m");
+	$day = date("d");
 	$hours = intval(date("H"));
 	$hours--;
 	if(strlen($hours) == 1) {
 		$hours = "0".$hours;
 	}
-	$nfsenSourceFiles = str_replace("[hh]", $hours, $nfsenSourceFiles);
-	$files = glob($nfsenSourceFiles."*");
+	$minutes = "*";
+	$date = $year.$month.$day;
+	
+	/*
+	 Possible layouts:
+	 0 		       no hierachy levels - flat layout
+	 1 %Y/%m/%d    year/month/day
+	 2 %Y/%m/%d/%H year/month/day/hour
+	*/
+	switch($NFSEN_SUBDIR_LAYOUT) {
+		case 0:		$fileName = "nfcapd.".$date.$hours.$minutes;
+					break;
+					
+		case 1:		$fileName = $year."/".$month."/".$day."/nfcapd.".$date.$hours.$minutes;
+					break;
+					
+		case 2:		$fileName = $year."/".$month."/".$day."/".$hours."/nfcapd.".$date.$hours.$minutes;
+					break;
+				
+		default:	$fileName = "nfcapd.".$date.$hours.$minutes;
+					break;
+	}
+
+	$nfsenSourceDir = (substr($NFSEN_SOURCE_DIR, strlen($NFSEN_SOURCE_DIR) - 1) === "/") ? $NFSEN_SOURCE_DIR : $NFSEN_SOURCE_DIR."/";
+	$nfsenSourceFiles = $nfsenSourceDir."live/*/".$fileName; // Check only 'live' profile, any source (*)
+	$files = glob($nfsenSourceFiles);
 	
 	// Use 'count($files) > 1' because in some setups only 'nfcapd.current.*' is present
 	if(count($files) > 1 && @file_exists($files[0])) $nfsenSourceFileExistanceOK = 1;
@@ -92,11 +119,13 @@
 	}
 	
 	// 6. Check IP2Location DB path
-	if(@file_exists($IP2LOCATION_PATH)) $ip2LocationDBPathOK = 1;
+	$ip2LocationPath = (substr($IP2LOCATION_PATH, 0, 1) === "/") ? $IP2LOCATION_PATH : "../".$IP2LOCATION_PATH; // Check for absolute or relative path
+	if(@file_exists($ip2LocationPath)) $ip2LocationDBPathOK = 1;
 	else $ip2LocationDBPathOK = 0;
 	
 	// 7. Check MaxMind DB path
-	if(@file_exists($MAXMIND_PATH)) $maxmindDBPathOK = 1;
+	$maxMindPath = (substr($MAXMIND_PATH, 0, 1) === "/") ? $MAXMIND_PATH : "../".$MAXMIND_PATH; // Check for absolute or relative path
+	if(@file_exists($maxMindPath)) $maxmindDBPathOK = 1;
 	else $maxmindDBPathOK = 0;
 	
 	// 8. Check file permissions
@@ -121,10 +150,10 @@
 	}
 	
 	// 9. Check additional NetFlow source selector syntax
-	$additionalSrcSelectorExploded = explode(";", $NFSEN_ADDITIONAL_SRC_SELECTORS);
-	if($NFSEN_ADDITIONAL_SRC_SELECTORS == "" ||
-			(substr_count($NFSEN_ADDITIONAL_SRC_SELECTORS, ",") == 0 && substr_count($NFSEN_ADDITIONAL_SRC_SELECTORS, ":") == 0 &&
-			sizeof($additionalSrcSelectorExploded) == substr_count($NFSEN_ADDITIONAL_SRC_SELECTORS, ";") + 1) && !in_array("", $additionalSrcSelectorExploded)) {
+	$additionalSrcSelectorExploded = explode(";", $NFSEN_DEFAULT_SOURCES);
+	if($NFSEN_DEFAULT_SOURCES == "" ||
+			(substr_count($NFSEN_DEFAULT_SOURCES, ",") == 0 && substr_count($NFSEN_DEFAULT_SOURCES, ":") == 0 &&
+			sizeof($additionalSrcSelectorExploded) == substr_count($NFSEN_DEFAULT_SOURCES, ";") + 1) && !in_array("", $additionalSrcSelectorExploded)) {
 		$additionalSrcSelectorSyntaxOK = 1;
 	} else {
 		$additionalSrcSelectorSyntaxOK = 0;
@@ -151,6 +180,79 @@
 		$mbstringModuleOK = 1;
 	} else {
 		$mbstringModuleOK = 0;
+	}
+	
+	// 13. External IP address and location
+	$extIP = getenv("SERVER_ADDR");
+	if($extIP === "127.0.0.1") {
+		$extIPNAT = true;
+	} else {
+		$extIPNAT = false;
+		$internalDomainNets = explode(";", $INTERNAL_DOMAINS);
+		foreach($internalDomainNets as $subNet) {
+			if(ipAddressBelongsToNet($extIP, $subNet)) {
+				$extIPNAT = true;
+				break;
+			}
+		}
+	}
+	
+	/*
+	 * If the found (external) IP address of the server is the localhost
+	 * address or a NATed address, try do find it using WhatIsMyIP
+	 */
+	if($extIPNAT === true) {
+		try {
+			$curl_handle = curl_init();
+			curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/");
+			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
+			$extIP = curl_exec($curl_handle);
+			curl_close($curl_handle);
+		} catch (Exception $e) {}
+	}
+	
+	if($GEOLOCATION_DB === "IP2Location" && $ip2LocationDBPathOK === 1) {
+		$GEO_database = new ip2location();
+		$GEO_database->open($ip2LocationPath);
+		$data = $GEO_database->getAll($extIP);
+		
+		$extIPCountry = $data->countryLong;
+		if($extIPCountry == "-") $extIPCountry = "(Unknown)";
+		$extIPRegion = $data->region;
+		if($extIPRegion == "-") $extIPRegion = "(Unknown)";
+		$extIPCity = $data->city;
+		if($extIPCity == "-") $extIPCity = "(Unknown)";
+	} else if($GEOLOCATION_DB === "MaxMind" && $maxmindDBPathOK === 1) {
+		$GEO_database = geoip_open($maxMindPath, GEOIP_STANDARD);
+		$data = geoip_record_by_addr($GEO_database, $extIP);
+		
+		if(isset($data->country_name)) {
+			$extIPCountry = strtoupper($data->country_name);
+		}
+		if(!isset($extIPCountry) || $extIPCountry == "") $extIPCountry = "(Unknown)";
+
+		if(isset($data->country_code) && isset($data->region)
+				&& array_key_exists($data->country_code, $GEOIP_REGION_NAME)
+				&& array_key_exists($data->region, $GEOIP_REGION_NAME[$data->country_code])) {
+			$extIPRegion = strtoupper($GEOIP_REGION_NAME[$data->country_code][$data->region]);
+		}
+		if(!isset($extIPRegion) || $extIPRegion == "") $extIPRegion = "(Unknown)";
+
+		if(isset($data->city)) {
+			$extIPCity = strtoupper($data->city);
+		}
+		if(!isset($extIPCity) || $extIPCity == "") $extIPCity = "(Unknown)";
+	} else {
+		$extIPCountry = "(Unknown)";
+		$extIPRegion = "(Unknown)";
+		$extIPCity = "(Unknown)";
+	}
+	
+	if($extIPCountry === "(Unknown)") {
+		$extIPLocationOK = 0;
+	} else {
+		$extIPLocationOK = 1;
 	}
 	
 ?>
@@ -184,16 +286,17 @@
 		
 		<div id="checkitem1" class="checkitem" onclick="showHidePopup('checkitem1')">1. NfSen communication socket (<?php echo $COMMSOCKET; ?>) available.</div>
 		<div id="checkitem2" class="checkitem" onclick="showHidePopup('checkitem2')">2. NfSen source directory (<?php echo $NFSEN_SOURCE_DIR; ?>) available.</div>
-		<div id="checkitem3" class="checkitem" onclick="showHidePopup('checkitem3')">3. NfSen source file existance (<?php echo $nfsenSourceFiles; ?>*) available.</div>
+		<div id="checkitem3" class="checkitem" onclick="showHidePopup('checkitem3')">3. NfSen source files (<?php echo $nfsenSourceFiles; ?>) available.</div>
 		<div id="checkitem4" class="checkitem" onclick="showHidePopup('checkitem4')">4. GeoCoder database connection (<?php echo $geocoderDBFile ?>) available.</div>
 		<div id="checkitem5" class="checkitem" onclick="showHidePopup('checkitem5')">5. GeoCoder database writability OK ('<?php echo $geocoderDBFile ?>' should be writable).</div>
-		<div id="checkitem6" class="checkitem" onclick="showHidePopup('checkitem6')">6. IP2Location database (<?php echo $IP2LOCATION_PATH; ?>) available.</div>
-		<div id="checkitem7" class="checkitem" onclick="showHidePopup('checkitem7')">7. MaxMind database (<?php echo $MAXMIND_PATH; ?>) available.</div>
+		<div id="checkitem6" class="checkitem" onclick="showHidePopup('checkitem6')">6. IP2Location database (<?php echo $ip2LocationPath; ?>) available.</div>
+		<div id="checkitem7" class="checkitem" onclick="showHidePopup('checkitem7')">7. MaxMind database (<?php echo $maxMindPath; ?>) available.</div>
 		<div id="checkitem8" class="checkitem" onclick="showHidePopup('checkitem8')">8. Permissions of all directory contents OK.</div>
-		<div id="checkitem9" class="checkitem" onclick="showHidePopup('checkitem10')">9. Additional NetFlow source selector (<?php echo $NFSEN_ADDITIONAL_SRC_SELECTORS; ?>) syntax OK.</div>
-		<div id="checkitem10" class="checkitem" onclick="showHidePopup('checkitem11')">10. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
-		<div id="checkitem11" class="checkitem" onclick="showHidePopup('checkitem12')">11. Internal domain (<?php echo $INTERNAL_DOMAINS; ?>) syntax OK.</div>
-		<div id="checkitem12" class="checkitem" onclick="showHidePopup('checkitem13')">12. PHP 'mbstring' module available.</div>
+		<div id="checkitem9" class="checkitem" onclick="showHidePopup('checkitem9')">9. Additional NetFlow source selector (<?php echo $NFSEN_DEFAULT_SOURCES; ?>) syntax OK.</div>
+		<div id="checkitem10" class="checkitem" onclick="showHidePopup('checkitem10')">10. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
+		<div id="checkitem11" class="checkitem" onclick="showHidePopup('checkitem11')">11. Internal domain (<?php echo $INTERNAL_DOMAINS; ?>) syntax OK.</div>
+		<div id="checkitem12" class="checkitem" onclick="showHidePopup('checkitem12')">12. PHP 'mbstring' module available.</div>
+		<div id="checkitem13" class="checkitem" onclick="showHidePopup('checkitem13')">13. External IP address: <?php echo $extIP; ?><br>Geolocated country: <?php echo $extIPCountry; ?><br>Geolocated region: <?php echo $extIPRegion; ?><br>Geolocated city: <?php echo $extIPCity; ?></div>
 		
 		<div id="popupOverlay" class="popupOverlay" style="display: none;"></div>
 		<div id="popupContainer" class="popupContainer" style="display: none;">
@@ -220,6 +323,8 @@
 			var internalDomainSyntaxOK = <?php echo $internalDomainSyntaxOK; ?>;
 			
 			var mbstringModuleOK = <?php echo $mbstringModuleOK; ?>;
+			
+			var extIPLocationOK = <?php echo $extIPLocationOK; ?>;
 		
 			// 1. Check NfSen socket
 			if(nfsenSocketOK == 1) {
@@ -231,19 +336,15 @@
 			// 2. Check NfSen source directory
 			if(nfsenSourceDirOK == 1) {
 				document.getElementById("checkitem2").className += " checkitem_success";
-			} else if((mode == 1 || mode == -1) && nfsenSourceDirOK == 0) {
-				document.getElementById("checkitem2").className += " checkitem_failure";
 			} else {
-				document.getElementById("checkitem2").className += " checkitem_skip";
+				document.getElementById("checkitem2").className += " checkitem_failure";
 			}
 			
 			// 3. Check NfSen source file existance
 			if(nfsenSourceFileExistanceOK == 1) {
 				document.getElementById("checkitem3").className += " checkitem_success";
-			} else if((mode == 1 || mode == -1) && nfsenSourceFileExistanceOK == 0) {
-				document.getElementById("checkitem3").className += " checkitem_failure";
 			} else {
-				document.getElementById("checkitem3").className += " checkitem_skip";
+				document.getElementById("checkitem3").className += " checkitem_failure";
 			}
 			
 			// 4. Check Geocoder database connection
@@ -326,6 +427,14 @@
 				document.getElementById("checkitem12").className += " checkitem_skip";
 			}
 			
+			// 13. External IP address and location
+			if(extIPLocationOK == 1) {
+				document.getElementById("checkitem13").className += " checkitem_success";
+				document.getElementById("checkitem13").innerHTML += "<br><br>Copy this location information to the following settings in config.php:<br><br>- $INTERNAL_DOMAINS_COUNTRY<br>- $INTERNAL_DOMAINS_REGION<br>- $INTERNAL_DOMAINS_CITY";
+			} else {
+				document.getElementById("checkitem13").className += " checkitem_failure";
+			}
+			
 		   /**
 			* Changes the color of the button (represented by its ID) in case of an onMouseOver event.
 			*/
@@ -371,7 +480,7 @@
 					popupContainer.style.minWidth = "400px";
 					popupContainer.style.maxWidth = "400px";
 					
-					var closeButton = "<span id='popupTitleButtonsCLOSE' class='popupTitleButtons' onclick='showHidePopup()' onmouseover='changeButtonOnMouseOver(\"popupTitleButtonsCLOSE\")' onmouseout='changeButtonOnMouseOut(\"popupTitleButtonsCLOSE\")'>Close</span>";
+					var closeButton = "<span id='popupTitleButtonsCLOSE' class='popupTitleButtons' onclick='showHidePopup();' onmouseover='changeButtonOnMouseOver(\"popupTitleButtonsCLOSE\");' onmouseout='changeButtonOnMouseOut(\"popupTitleButtonsCLOSE\")'>Close</span>";
 					
 					if(type == "checkitem1") {
 						popupTitle.innerHTML = "NfSen communication socket " + closeButton;
@@ -409,6 +518,9 @@
 					} else if(type == "checkitem12") {
 						popupTitle.innerHTML = "PHP 'mbstring' module available" + closeButton;
 						popupBody.innerHTML = "In case you selected 'MaxMind' as your geolocation database, you should have PHP's 'mbstring' module installed, in order to get the MaxMind API to work.";
+					} else if(type == "checkitem13") {
+						popupTitle.innerHTML = "External IP and location" + closeButton;
+						popupBody.innerHTML = "If your PHP configuration contains your public IP address, it is likely to be geolocatable. In that case, it is shown here. If the locations are unknown, you need to do it manually.";						
 					}
 				} else {
 					popupOverlay.style.display = "none";
