@@ -10,9 +10,10 @@
 	require_once("MaxMind/geoipcity.inc");
 	require_once("IP2Location/ip2location.class.php");	
 	require_once("ConnectionHandler.php");
-	require_once("nfsenutil.php");
+	require_once($NFSEN_DIR."/conf.php");
+	require_once($NFSEN_DIR."/nfsenutil.php");
 
-	$version = "20111024";
+	$version = "v2.1 dev (20111110)";
 
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -128,7 +129,11 @@
 		} 
 		return $result_string;
 	}
-	
+
+	function ReportLog($message) {
+		// dummy function to avoid PHP errors
+	}
+
 	class LogQueue {
 		var $queue;
 		
@@ -155,6 +160,10 @@
 		
 		var $NetFlowData;
 		var $nfsenDetails;
+		var $nfsenProfile;
+		var $nfsenProfileType;
+		var $nfsenDisplayFilter; // Contains filter without internal domains
+		var $firstNfSenSource = "";
 		var $geoData;
 		var $geoCoderData;
 		
@@ -164,6 +173,8 @@
 		 *	2: invalid date/time window (selector 1)
 		 *	3: invalid date/time window (selector 2)
 		 *	4: invalid date/time window (selector 1+2)
+		 *  5: (unused)
+		 *  6: profile error
 		 */
 		var $errorCode = 0;
 		var $errorMessage = "";
@@ -238,11 +249,14 @@
    	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<title>SURFmap -- A Network Monitoring Tool Based on the Google Maps API</title>
-	<link type="text/css" href="jquery/css/cupertino/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
-	<link type="text/css" href="surfmap.css" rel="stylesheet" />
+	<link type="text/css" rel="stylesheet" href="jquery/css/start/jquery-ui-1.8.16.custom.css" />
+	<link type="text/css" rel="stylesheet" href="css/jquery.alerts.css" /> <!-- http://abeautifulsite.net/blog/2008/12/jquery-alert-dialogs/ -->
+	<link type="text/css" rel="stylesheet" href="css/surfmap.css" />
 	<script type="text/javascript" src="<?php if($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
 	<script type="text/javascript" src="jquery/js/jquery-1.6.2.min.js"></script>
 	<script type="text/javascript" src="jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
+	<script type="text/javascript" src="js/jquery.alerts.js"></script>
+	<script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
 	<script type="text/javascript" src="js/jqueryutil.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 	<script type="text/javascript" src="js/maputil.js"></script>
@@ -275,9 +289,13 @@
 		var lineColors = 4;
 		var lineColorClassification = [];
 		
-		/* Queries */
+		/* NfSen settings */
 		var nfsenQuery = "<?php echo $sessionData->query; ?>";
+		var nfsenProfile = "<?php echo $sessionData->nfsenProfile; ?>"
 		var nfsenFilter = "<?php echo $_SESSION['SURFmap']['filter']; ?>";
+		var nfsenDisplayFilter = "<?php echo $sessionData->nfsenDisplayFilter; ?>";
+		var nfsenAllSources = "<?php echo $_SESSION['SURFmap']['nfsenAllSources']; ?>".split(":");
+		var nfsenSelectedSources = "<?php echo $_SESSION['SURFmap']['nfsenSelectedSources']; ?>".split(":");
 		
 		var date1 = "<?php echo $_SESSION['SURFmap']['date1']; ?>";
 		var date2 = "<?php echo $_SESSION['SURFmap']['date2']; ?>";
@@ -299,7 +317,7 @@
 
 		var entryCount = <?php echo $_SESSION['SURFmap']['entryCount']; ?>;
 		var flowRecordCount = <?php echo $sessionData->flowRecordCount; ?>;
-		var applicationVersion = <?php echo $version; ?>; // SURFmap version number
+		var applicationVersion = "<?php echo $version; ?>"; // SURFmap version number
 		var demoMode = <?php echo $DEMO_MODE; ?>; // 0: Disabled; 1: Enabled
 		var demoModePageTitle = "<?php echo $DEMO_MODE_PAGE_TITLE; ?>";
 		var autoOpenMenu = <?php echo $AUTO_OPEN_MENU; ?>; // 0: Disabled; 1: Enabled
@@ -499,7 +517,16 @@
 			totalGeocodingRequests = geocodingQueue.length;
 			startGeocodingController();
 			var intervalHandlerID = setInterval(function() {
-				if(geocodingQueue.length == 0 && totalGeocodingRequests == (successfulGeocodingRequests + erroneousGeocodingRequests)) {
+				var completedGeocodingRequests = successfulGeocodingRequests + erroneousGeocodingRequests;
+				
+				/*
+				 * Progress bar previous stage: 40%
+				 * Progress bar next stage: 70%
+				 * Percents to fill: 70% - 40% = 30%
+				 */
+				var progress = (completedGeocodingRequests / totalGeocodingRequests) * 30;
+				setProgressBarValue("progressBar", 40 + progress, "Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
+				if(geocodingQueue.length == 0 && totalGeocodingRequests == completedGeocodingRequests) {
 					clearInterval(intervalHandlerID); 
 
 					for(var i = 0; i < geocodedPlaces.length; i++) {
@@ -552,7 +579,7 @@
 					}
 					processing();
 				}
-			}, 500);	
+			}, 100);	
 		}		
 		
 	   /**
@@ -1376,7 +1403,9 @@
 			addToLogQueue("DEBUG", "FlowRecordCount: " + flowRecordCount);
 			addToLogQueue("DEBUG", "NfSenQuery: " + nfsenQuery);
 			addToLogQueue("DEBUG", "NfSenFilter: " + nfsenFilter);
-			
+			addToLogQueue("DEBUG", "NfSenAllSources: " + nfsenAllSources);
+			addToLogQueue("DEBUG", "NfSenSelectedSources: " + nfsenSelectedSources);
+
 			addToLogQueue("DEBUG", "Date1: " + date1);
 			addToLogQueue("DEBUG", "Date2: " + date2);
 			addToLogQueue("DEBUG", "Hours1: " + hours1);
@@ -1433,7 +1462,7 @@
 				currentSURFmapZoomLevel = getSurfmapZoomLevel(initialZoomLevel);
 			}
 			map = initializeMap(mapCenter, currentZoomLevel, minZoomLevel, maxZoomLevel);
-
+			
 			google.maps.event.addListener(map, "click", function() {
 				infoWindow.close();
 			});
@@ -1478,30 +1507,34 @@
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 1. Basic initialization completed");
 
 			if(getErrorCode() == 1) {
-				generateDialog("filterError", "");
+				generateAlert("filterError");
 				addToLogQueue("INFO", "Stopped initialization due to filter error");
 				serverTransactions();
 				return;
 			} else if(getErrorCode() == 4) {
 				if(showWarningOnFileError == 1) {
-					generateDialog("fileError", "");
-				} else if($("#dialog").dialog("isOpen")) {
-					$("#dialog").dialog("destroy");
+					generateAlert("fileError");
 				}
 				addToLogQueue("INFO", "Stopped initialization due to file error");
 				serverTransactions();
 				return;
+			} else if(getErrorCode() == 6) {
+				generateAlert("profileError");
+				addToLogQueue("INFO", "Stopped initialization due to profile error");
+				serverTransactions();
+				return;
 			}
 
-			setProgressBarValue("progressBar", 30);
+			setProgressBarValue("progressBar", 30, "Importing NetFlow data...");
+			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data...");
 			importData();
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. NetFlow data imported");
+			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data... Done");
 			
-			setProgressBarValue("progressBar", 40);
+			setProgressBarValue("progressBar", 40, "Complementing flow records");
+			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records...");
 			complementFlowRecords();
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Flow records complemented");
+			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records... Done");
 			
-			setProgressBarValue("progressBar", 60);
 			setInterval("serverTransactions()", 2000);
 		}
 		
@@ -1509,31 +1542,33 @@
 		* This function contains the second stage of processing.
 		*/		
 		function processing() {
-			setProgressBarValue("progressBar", 70);
+			setProgressBarValue("progressBar", 70, "Initializing lines...");
+			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines...");
 			initializeLines();
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Lines initialized");
+			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines... Done");
 
-			setProgressBarValue("progressBar", 80);
+			setProgressBarValue("progressBar", 80, "Initializing markers...");
+			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers...");
 			initializeMarkers();
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Markers initialized");
+			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers... Done");
 
 			if(demoMode == 0) {
+				setProgressBarValue("progressBar", 90, "Initializing legend...");
+				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend...");
 				initializeLegend(currentSURFmapZoomLevel);
-				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Legend initialized");
+				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend... Done");
 			}
-			
-			setProgressBarValue("progressBar", 90);
-			
+
 			// If a gray area is present at the top or bottom of the map, change its center
 			mapCenterWithoutGray = hideGrayMapAreas();
 
-			setProgressBarValue("progressBar", 100);
+			setProgressBarValue("progressBar", 100, "Finished loading...");
 			addToLogQueue("INFO", "Initialized");
 			
-			$("#dialog").dialog("destroy");
+			$("#dialog").dialog("destroy"); // Hide progress bar
 			
 			if(getErrorCode() >= 2 && getErrorCode() <= 4) {
-				generateDialog("invalidWindow", "");
+				generateAlert("invalidWindow");
 			}
 		}
 
@@ -1589,8 +1624,35 @@
 			+ "<input type=\"checkbox\" id=\"auto-refresh\" onclick=\"manageAutoRefresh()\" />Auto-refresh</td></tr></table>";
 		
 		// Panel: Options
+		var truncatedNfSenProfile = (nfsenProfile.length > 22) ? nfsenProfile.substr(0, 22) + "..." : nfsenProfile;
+		var nfsenSourceOptions = "<optgroup label=\"Profile '" + truncatedNfSenProfile + "'\">";
+		for(var i = 0; i < nfsenAllSources.length; i++) {
+			var sourceSelected = false;
+			for(var j = 0; j < nfsenSelectedSources.length; j++) {
+				if(nfsenSelectedSources[j] == nfsenAllSources[i]) {
+					sourceSelected = true;
+				}
+			}
+
+			if(sourceSelected) {
+				nfsenSourceOptions += "<option selected>" + nfsenAllSources[i] + "</option>";
+			} else {
+				nfsenSourceOptions += "<option>" + nfsenAllSources[i] + "</option>";
+			}
+		}
+		nfsenSourceOptions += "</optgroup>";
+		
 		document.getElementById("optionPanel").innerHTML = "<form id=\"options\" method=\"GET\" action=\"index.php\">"
 			+ "<table>"
+				+ "<tr>"
+					+ "<td style=\"width:90px; \">"
+						+ "Sources"
+					+ "</td>"
+					+ "<td>"
+						+ "<select id=\"nfsensources\" name=\"nfsensources[]\" multiple=\"multiple\" style=\"height:20px;\" >" + nfsenSourceOptions + "</select>"
+					+ "</td>"
+				+ "</tr>"
+			+ "</table><br /><table>"	
 				+ "<tr>"
 					+ "<td style=\"width:90px; vertical-align:center;\">"
 						+ "<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"document.getElementById('nfsenstatorder').disabled = false;\" />Stat TopN"
@@ -1640,11 +1702,11 @@
 				+ "</tr>"
 				+ "<tr>"
 					+ "<td colspan=\"2\">"
-						+ "<textarea name=\"filter\" rows=\"5\" cols=\"26\" style=\"font-size:11px;\">" + nfsenFilter + "</textarea>"
+						+ "<textarea name=\"filter\" rows=\"2\" cols=\"26\" style=\"font-size:11px;\">" + nfsenDisplayFilter + "</textarea>"
 					+ "</td>"					
 				+ "</tr>"
 				+ "<tr>"
-					+ "<td colspan=\"2\" style=\"text-align:center;\">"
+					+ "<td colspan=\"2\" style=\"text-align:center; padding-top:5px;\">"
 						+ "<input type=\"submit\" name=\"submit\" value=\"Submit\" />"
 					+ "</td>"					
 				+ "</tr>"					
@@ -1711,9 +1773,18 @@
 		$('#datetime2').datetimepicker('setDate', new Date(date2.substr(0, 4), parseInt(date1.substr(4, 2)) - 1, date2.substr(6, 2), hours2, minutes2));
 		
 		// Initialize buttons (jQuery)
-		$("input:button, input:submit", ".settingsPane").button();
 		$('#options').submit(function() {
 		    $('input[type=submit]', this).attr('disabled', 'disabled');
+		});
+		
+		// Initialize source selector (jQuery)
+		$("#nfsensources").multiselect({
+			minWidth:135,
+			open: function(event, ui){
+				$("div.ui-multiselect-menu").css("left", "");
+				$("div.ui-multiselect-menu").css("right", "23px");
+				$("div.ui-multiselect-menu").css("width", "175px");
+			}
 		});
 		
 		// Generate progress bar (jQuery)
@@ -1749,31 +1820,7 @@
 			} else if(type == "help") {
 				document.getElementById("dialog").setAttribute("title", "Help");
 				document.getElementById("dialog").innerHTML = "Welcome to the SURFmap help. Some main principles of SURFmap are explained here.<br /><br /><table border = '0'><tr><td width = '100'><b>Marker</b></td><td>Markers represent hosts and show information about them, like IPv4 addresses and the country, region and city they're in. The information shown here depends on the selected zoom level.<hr /></td></tr><tr><td><b>Line</b></td><td>Lines represent a flow between two hosts (so between markers) and show information about that flow, like the geographical information of the two end points, the exchanged amount of packets, octets and throughput per flow. The information shown here depends on the selected zoom level.<hr /></td></tr><tr><td><b>Zoom levels table</b></td><td>This tables shows the current zoom level. The four zoom levels are also clickable, so that you can zoom in or out to a particular zoom level directly.<hr /></td></tr><tr><td><b>NfSen options</b></td><td>The main NfSen options can be set here. First, either 'List flows' or 'Stat TopN' has to be chosen. The first option lists the first N flows of the selected time slot (N and the selected time slot will be discussed later). 'Stat TopN' shows top N statistics about the network data in the selected time slot. The value of N can be set in the 'Amount' field, while the time slot can be set in the 'Date' field.</td></tr></table>";
-				showDialog("dialog", "auto", 500, "center", false);
-			} else if(type == "invalidWindow") {
-				document.getElementById("dialog").setAttribute("title", "Error");
-				
-				// The first (normal) selected date/time is invalid.
-				if(getErrorCode() == 2) {
-					document.getElementById("dialog").innerHTML = "The selected date/time window (<?php echo $sessionData->originalDate1Window.' '.$sessionData->originalTime1Window; ?>) does not exist.<br /><br />The last available/valid time window will be selected.";
-				
-				// The second (time range) selected date/time is invalid.
-				} else if(getErrorCode() == 3) {
-					document.getElementById("dialog").innerHTML = "The (second) selected date/time window (<?php echo $sessionData->originalDate2Window.' '.$sessionData->originalTime2Window; ?>) does not exist.<br /><br />The last available/valid time window will be selected.";
-				
-				// The selected date/time range is invalid (i.e., the second selected date/time is earlier than the first selected date/time).
-				} else {
-					document.getElementById("dialog").innerHTML = "An unknown error occured.";
-				}
-				showDialog("dialog", "auto", 400, "center", false);
-			} else if(type == "filterError") {
-				document.getElementById("dialog").setAttribute("title", "Error");
-				document.getElementById("dialog").innerHTML = "The filter you provided does not adhere to the expected syntax.<br /><br /><b>Filter</b>: " + nfsenFilter + "<br /><b>Error message</b>: " +  getErrorMessage() + "</br /><br />Please check <a href='http://nfdump.sourceforge.net/' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.";
-				showDialog("dialog", "auto", 400, "center", false);
-			} else if(type == "fileError") {
-				document.getElementById("dialog").setAttribute("title", "Error");
-				document.getElementById("dialog").innerHTML = "There is a problem with your profile data. Please check whether your profile is empty and/or change to another NetFlow source.";
-				showDialog("dialog", "auto", 400, "center", false);
+				showDialog("dialog", "auto", 500, "center", false);				
 			} else if(type == "license") {
 				document.getElementById("dialog").setAttribute("title", "SURFmap license");
 				document.getElementById("dialog").innerHTML = "The SURFmap project is distributed under the BSD license:<br>"
@@ -1830,9 +1877,42 @@
 				}
 			} else if(type == "progressBar") {
 				document.getElementById("dialog").setAttribute("title", "Loading...");
-				document.getElementById("dialog").innerHTML = "<div style='width:400px;' id='progressBar'></div>";
+				document.getElementById("dialog").innerHTML = "<div style='margin-top: 6px; width:400px;' id='progressBar'></div>";
 				showDialog("dialog", 80, 450, "center", true);
-				showProgressBar("progressBar", 0);
+				showProgressBar("progressBar", 0, "");
+			}
+		}
+	
+	   /**
+		* Prepares a jQuery alert.
+		*
+		* Parameters:
+		*		type - indicates which contents should be shown inside the dialog. The possible
+		*				options are:
+		*					1. 'filterError'
+		*/	
+		function generateAlert(type) {
+			if($("#dialog").dialog("isOpen")) {
+				$("#dialog").dialog("destroy");
+			}
+			
+			if(type == "filterError") {
+				jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /><b>Filter</b>: " + nfsenFilter + "<br /><b>Error message</b>: " +  getErrorMessage() + "</br /><br />Please check <a href='http://nfdump.sourceforge.net/' style='text-decoration:underline;' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.", "Filter error");
+			} else if(type == "fileError") {
+				jAlert("There is a problem with your profile data. Please check whether your profile is empty and/or change to another NetFlow source. This can be done in the 'Menu' panel by selecting other 'Sources'.", "File error");
+			} else if(type == "profileError") {
+				jAlert("You have an error in your configuration. <br /><br /><b>Error message</b>: " +  getErrorMessage(), "Error");
+			} else if(type == "invalidWindow") {
+				if(getErrorCode() == 2) {
+					// The first (normal) selected date/time is invalid.
+					jAlert("The selected date/time window (<?php echo $sessionData->originalDate1Window.' '.$sessionData->originalTime1Window; ?>) does not exist.<br /><br />The last available/valid time window will be selected.", "Error");
+				} else if(getErrorCode() == 3) {
+					// The second (time range) selected date/time is invalid.
+					jAlert("The (second) selected date/time window (<?php echo $sessionData->originalDate2Window.' '.$sessionData->originalTime2Window; ?>) does not exist.<br /><br />The last available/valid time window will be selected.", "Error");
+				} else {
+					// The selected date/time range is invalid (i.e., the second selected date/time is earlier than the first selected date/time).
+					jAlert("An unknown error occured.", "Error");
+				}
 			}
 		}
 	

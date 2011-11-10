@@ -4,6 +4,14 @@ Please check the manual for installation instructions. Run the ConfigurationChec
 
 ---
 
+Release notes [20111110]:
+- [FEATURE] Added support for source selection in user interface
+- [FEATURE] Added support for NfSen shadow profiles
+- [FEATURE] Improved alerting
+- [FEATURE] Simplified SURFmap setup
+- [BUGFIX] Improved stability when handling NfSen shadow profiles
+- [BUGFIX] Numerous bugfixes and improvements
+
 Release notes [20111024]:
 
 WARNING: please check the manual for installation instructions (Chapter 2.1).

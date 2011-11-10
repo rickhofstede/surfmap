@@ -21,6 +21,9 @@
 			if(!isset($_SESSION['SURFmap']['filter'])) $_SESSION['SURFmap']['filter'] = "";
 			if(!isset($_SESSION['SURFmap']['nfsenOption'])) $_SESSION['SURFmap']['nfsenOption'] = -1;
 			if(!isset($_SESSION['SURFmap']['nfsenStatOrder'])) $_SESSION['SURFmap']['nfsenStatOrder'] = "-1";
+			if(!isset($_SESSION['SURFmap']['nfsenAllSources'])) $_SESSION['SURFmap']['nfsenAllSources'] = "";
+			if(!isset($_SESSION['SURFmap']['nfsenSelectedSources'])) $_SESSION['SURFmap']['nfsenSelectedSources'] = "";
+			if(!isset($_SESSION['SURFmap']['nfsenPreviousProfile'])) $_SESSION['SURFmap']['nfsenPreviousProfile'] = "";
 			if(!isset($_SESSION['SURFmap']['refresh'])) $_SESSION['SURFmap']['refresh'] = 0;
 			
 			if(!isset($_SESSION['SURFmap']['date1'])) $_SESSION['SURFmap']['date1'] = "-1";
@@ -54,10 +57,9 @@
 		* Returns the NfSen query results.
 		*/
 		function retrieveDataNfSen($sessionData) {
-			global $DEMO_MODE, $DEFAULT_QUERY_TYPE, $DEMO_MODE_QUERY_TYPE_LIST_ENTRY_COUNT, 
-					$DEMO_MODE_QUERY_TYPE_STAT_ENTRY_COUNT, $DEFAULT_QUERY_TYPE_STAT_ORDER,
-				   	$GEOLOCATION_DB, $NFSEN_OUTPUT, $INTERNAL_DOMAINS, $HIDE_INTERNAL_DOMAIN_TRAFFIC, 
-					$NFSEN_PROFILE, $NFSEN_PRIMARY_SRC_SELECTOR, $NFSEN_ADDITIONAL_SRC_SELECTORS, 
+			global $DEMO_MODE, $DEFAULT_QUERY_TYPE, $DEFAULT_QUERY_TYPE_STAT_ORDER,
+				   	$GEOLOCATION_DB, $INTERNAL_DOMAINS, $HIDE_INTERNAL_DOMAIN_TRAFFIC, 
+					$NFSEN_DEFAULT_SOURCES, $NFSEN_PRIMARY_SRC_SELECTOR, $NFSEN_ADDITIONAL_SRC_SELECTORS,
 					$SORT_FLOWS_BY_START_TIME, $DEFAULT_FLOW_RECORD_COUNT, $infoLogQueue, $errorLogQueue;
 			$NetFlowData = array();
 
@@ -65,20 +67,12 @@
 			if(isset($_GET['amount']) && ereg_replace("[^0-9]", "", $_GET['amount']) > 0) {
 				$_SESSION['SURFmap']['entryCount'] = ereg_replace("[^0-9]", "", $_GET['amount']);
 			} else if($_SESSION['SURFmap']['entryCount'] == -1) { // initialization value
-				if($DEMO_MODE == 0) {
-					if($DEFAULT_FLOW_RECORD_COUNT > 0) {
-						$_SESSION['SURFmap']['entryCount'] = $DEFAULT_FLOW_RECORD_COUNT;
-					} else if($GEOLOCATION_DB == "IP2Location" || $GEOLOCATION_DB == "MaxMind") {
-						$_SESSION['SURFmap']['entryCount'] = 50;
-					} else {
-						$_SESSION['SURFmap']['entryCount'] = 20;
-					}
+				if($DEFAULT_FLOW_RECORD_COUNT > 0) {
+					$_SESSION['SURFmap']['entryCount'] = $DEFAULT_FLOW_RECORD_COUNT;
+				} else if($GEOLOCATION_DB == "IP2Location" || $GEOLOCATION_DB == "MaxMind") {
+					$_SESSION['SURFmap']['entryCount'] = 50;
 				} else {
-					if($DEFAULT_QUERY_TYPE == 0) {
-						$_SESSION['SURFmap']['entryCount'] = $DEMO_MODE_QUERY_TYPE_LIST_ENTRY_COUNT; // Flow listing
-					} else {
-						$_SESSION['SURFmap']['entryCount'] = $DEMO_MODE_QUERY_TYPE_STAT_ENTRY_COUNT; // Stat TopN
-					}
+					$_SESSION['SURFmap']['entryCount'] = 20;
 				}
 			}
 
@@ -155,6 +149,94 @@
 				}
 			}
 			
+			// ***** 3. Remove static filters from display filter *****
+			/*
+			 * This should be done separately from the procedures above,
+			 * since the static filters can also have been passed by HTTP GET
+			 */
+			$sessionData->nfsenDisplayFilter = $_SESSION['SURFmap']['filter'];
+			if(strpos($sessionData->nfsenDisplayFilter, $static_filter_internal_domain_traffic) === 0) {
+				$sessionData->nfsenDisplayFilter = str_replace($static_filter_internal_domain_traffic, "", $sessionData->nfsenDisplayFilter);
+			} else {
+				$sessionData->nfsenDisplayFilter = str_replace(" and ".$static_filter_internal_domain_traffic, "", $sessionData->nfsenDisplayFilter);
+			}
+			if(strpos($sessionData->nfsenDisplayFilter, $static_filter_broadcast_traffic) === 0) {
+				$sessionData->nfsenDisplayFilter = str_replace($static_filter_broadcast_traffic, "", $sessionData->nfsenDisplayFilter);
+			} else {
+				$sessionData->nfsenDisplayFilter = str_replace(" and ".$static_filter_broadcast_traffic, "", $sessionData->nfsenDisplayFilter);
+			}
+			if(strpos($sessionData->nfsenDisplayFilter, $static_filter_multicast_traffic) === 0) {
+				$sessionData->nfsenDisplayFilter = str_replace($static_filter_multicast_traffic, "", $sessionData->nfsenDisplayFilter);
+			} else {
+				$sessionData->nfsenDisplayFilter = str_replace(" and ".$static_filter_multicast_traffic, "", $sessionData->nfsenDisplayFilter);
+			}
+			if(strpos($sessionData->nfsenDisplayFilter, $static_filter_ipv6_traffic) === 0) {
+				$sessionData->nfsenDisplayFilter = str_replace($static_filter_ipv6_traffic, "", $sessionData->nfsenDisplayFilter);
+			} else {
+				$sessionData->nfsenDisplayFilter = str_replace(" and ".$static_filter_ipv6_traffic, "", $sessionData->nfsenDisplayFilter);
+			}
+			
+			// Profile
+			$sessionData->nfsenProfile = (substr($_SESSION['profileswitch'], 0, 2) === "./") ? substr($_SESSION['profileswitch'], 2) : $_SESSION['profileswitch'];
+			$sessionData->nfsenProfileType = ($_SESSION['profileinfo']['type'] & 4) > 0 ? 'shadow' : 'real';
+			if($_SESSION['SURFmap']['nfsenPreviousProfile'] === "") { // initialization value
+				$_SESSION['SURFmap']['nfsenPreviousProfile'] = $sessionData->nfsenProfile;
+			} else if($sessionData->nfsenProfile !== $_SESSION['SURFmap']['nfsenPreviousProfile']) {
+				// Reset selected NfSen sources on profile change
+				$_SESSION['SURFmap']['nfsenAllSources'] = "";
+				$_SESSION['SURFmap']['nfsenSelectedSources'] = "";
+			}
+			
+			// Sources
+			if($_SESSION['SURFmap']['nfsenAllSources'] === "") { // initialization value
+				// Only collect all sources when not done yet
+				foreach($_SESSION['profileinfo']['channel'] as $source) {
+					if(strlen($_SESSION['SURFmap']['nfsenAllSources']) != 0) {
+						$_SESSION['SURFmap']['nfsenAllSources'] .= ":";
+					}
+					$_SESSION['SURFmap']['nfsenAllSources'] .= $source['name'];
+				}
+			}
+			
+			if(isset($_GET['nfsensources'])) {
+				$_SESSION['SURFmap']['nfsenSelectedSources'] = "";
+				foreach($_GET['nfsensources'] as $source) {
+					if(strlen($_SESSION['SURFmap']['nfsenSelectedSources']) != 0) {
+						$_SESSION['SURFmap']['nfsenSelectedSources'] .= ":";
+					}
+					$_SESSION['SURFmap']['nfsenSelectedSources'] .= $source;
+				}
+			} else if($_SESSION['SURFmap']['nfsenSelectedSources'] === "") { // initialization value
+				if(strlen($NFSEN_DEFAULT_SOURCES) > 0) {
+					// Check for ";" is only for dealing with syntax in older versions
+					$defaultSources = explode(":", str_replace(";", ":", $NFSEN_DEFAULT_SOURCES));
+					
+					// Check whether configured default sources exist
+					foreach($defaultSources as $source) {
+						if(strpos($_SESSION['SURFmap']['nfsenAllSources'], $source) !== false) {
+							if(strlen($_SESSION['SURFmap']['nfsenSelectedSources']) != 0) {
+								$_SESSION['SURFmap']['nfsenSelectedSources'] .= ":";
+							}
+							$_SESSION['SURFmap']['nfsenSelectedSources'] .= $source;
+						}
+					}
+				}
+				
+				// If none of the configured default sources was available or no default source was configured at all
+				if($_SESSION['SURFmap']['nfsenSelectedSources'] === "") {
+					$_SESSION['SURFmap']['nfsenSelectedSources'] = $_SESSION['SURFmap']['nfsenAllSources'];
+				}
+			}
+			
+			if(strpos($_SESSION['SURFmap']['nfsenSelectedSources'], ":") === false) {
+				$sessionData->firstNfSenSource = $_SESSION['SURFmap']['nfsenSelectedSources'];
+			} else {
+				$sessionData->firstNfSenSource = substr($_SESSION['SURFmap']['nfsenSelectedSources'], 0, strpos($_SESSION['SURFmap']['nfsenSelectedSources'], ":"));
+			}
+			
+			// Set 'nfsenPreviousProfile' session variable after source initialization to current profile
+			$_SESSION['SURFmap']['nfsenPreviousProfile'] = $sessionData->nfsenProfile;
+			
 			// Latest date/time slot (depending on files available by nfcapd)
 			$sessionData->latestDate = generateDateString(5);
 			$latestTime = generateTimeString(5);
@@ -162,7 +244,8 @@
 			$sessionData->latestMinute = substr($latestTime, 3, 2);
 			
 			// In case the source files do not exist (yet) for a 5 min. buffer time, create timestamps based on 10 min. buffer time
-			if(!sourceFilesExist($sessionData->latestDate, $sessionData->latestHour, $sessionData->latestMinute)) {
+			if(!sourceFilesExist($sessionData->firstNfSenSource, $sessionData->latestDate, 
+					$sessionData->latestHour, $sessionData->latestMinute)) {
 				$sessionData->latestDate = generateDateString(10);
 				$latestTime = generateTimeString(10);
 				$sessionData->latestHour = substr($latestTime, 0, 2);
@@ -236,9 +319,10 @@
 			}
 			
 			// If the source files for the first time selector do not exist
-			if(!sourceFilesExist($_SESSION['SURFmap']['date1'], $_SESSION['SURFmap']['hours1'], $_SESSION['SURFmap']['minutes1'])) {
+			if(!sourceFilesExist($sessionData->firstNfSenSource, $_SESSION['SURFmap']['date1'],
+					$_SESSION['SURFmap']['hours1'], $_SESSION['SURFmap']['minutes1'])) {
 				$sessionData->errorCode = 2;					
-				$errorLogQueue->addToQueue("Selected time window does not exist (".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].")");
+				$errorLogQueue->addToQueue("Selected time window (1) does not exist (".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].")");
 				
 				$_SESSION['SURFmap']['date1'] = $sessionData->latestDate;
 				$_SESSION['SURFmap']['hours1'] = $sessionData->latestHour;
@@ -246,9 +330,10 @@
 			}
 
 			// If the source files for the second time selector do not exist
-			if(!sourceFilesExist($_SESSION['SURFmap']['date2'], $_SESSION['SURFmap']['hours2'], $_SESSION['SURFmap']['minutes2'])) {
+			if(!sourceFilesExist($sessionData->firstNfSenSource, $_SESSION['SURFmap']['date2'],
+					$_SESSION['SURFmap']['hours2'], $_SESSION['SURFmap']['minutes2'])) {
 				$sessionData->errorCode = 3;					
-				$errorLogQueue->addToQueue("Selected time window does not exist (".$_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2'].")");
+				$errorLogQueue->addToQueue("Selected time window (2) does not exist (".$_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2'].")");
 				
 				$_SESSION['SURFmap']['date2'] = $sessionData->latestDate;
 				$_SESSION['SURFmap']['hours2'] = $sessionData->latestHour;
@@ -301,25 +386,9 @@
 			}
 
 			$cmd_opts['args'] = "-T $run -o long";
-			$cmd_opts['type'] = "real";
-
-			if(isset($_SESSION)) {
-				$cmd_opts['profile'] = $_SESSION['profileswitch'];
-				$cmd_opts['type'] = ($_SESSION['profileinfo']['type'] & 4) > 0 ? 'shadow' : 'real';
-			} else {
-				$cmd_opts['profile'] = "./$NFSEN_PROFILE";
-			}
-			
-			$cmd_opts['srcselector'] = $NFSEN_PRIMARY_SRC_SELECTOR;
-
-			// If an additional NfSen data has been specified, the amount of sources needs to be checked
-			if($NFSEN_ADDITIONAL_SRC_SELECTORS !== "") {
-				$additionalSources = explode(";", $NFSEN_ADDITIONAL_SRC_SELECTORS);
-				foreach($additionalSources as $source) {
-					$cmd_opts['srcselector'] .= ":".$source;
-				}
-			}
-			
+			$cmd_opts['profile'] = $_SESSION['profileswitch'];
+			$cmd_opts['type'] = ($_SESSION['profileinfo']['type'] & 4) > 0 ? 'shadow' : 'real';
+			$cmd_opts['srcselector'] = $_SESSION['SURFmap']['nfsenSelectedSources'];	
 			$cmd_opts['filter'] = array($_SESSION['SURFmap']['filter']);
 
 			// Execute NfSen query
@@ -335,16 +404,15 @@
 				
 				$sessionData->flowRecordCount = 0;
 				return;
+			} else if(isset($_SESSION['error']) && isset($_SESSION['error'][0])) {
+				$sessionData->errorCode = 6; // profile error
+				$sessionData->errorMessage = $_SESSION['error'][0];
+				$sessionData->flowRecordCount = 0;
+				return;				
 			} else if(!isset($cmd_out['nfdump'])) {
 				$sessionData->errorCode = 4; // file error
 				$sessionData->flowRecordCount = 0;
 				return;
-			}
-			
-			if($NFSEN_OUTPUT == 1 && $DEMO_MODE == 0 && isset($cmd_out['nfdump'])) {
-				foreach($cmd_out['nfdump'] as $line) {
-					print $line."<br>";
-				}
 			}
 
 			if($_SESSION['SURFmap']['nfsenOption'] == 0) { // List flows
@@ -525,8 +593,8 @@
 						$GEO_database = new ip2location();
 						$GEO_database->open($IP2LOCATION_PATH);
 						
-						if($j == 0) $data = $GEO_database -> getAll($source);
-						else $data = $GEO_database -> getAll($destination);
+						if($j == 0) $data = $GEO_database->getAll($source);
+						else $data = $GEO_database->getAll($destination);
 						
 						$country = $data->countryLong;
 						if($country == "-") $country = "(Unknown)";
@@ -751,18 +819,31 @@
 	 *		minutes - Minutes for the file name (should be of the following format: mm)
 	 */
 	function generateFileName($date, $hours, $minutes) {
-		global $NFSEN_SOURCE_FILE_NAMING;
+		global $NFSEN_SUBDIR_LAYOUT;
 		
 		$year = substr($date, 0, 4);
 		$month = substr($date, 4, 2);
 		$day = substr($date, 6, 2);
-
-		$fileName = $NFSEN_SOURCE_FILE_NAMING;
-		$fileName = str_replace("[yyyy]", $year, $fileName);
-		$fileName = str_replace("[MM]", $month, $fileName);
-		$fileName = str_replace("[dd]", $day, $fileName);
-		$fileName = str_replace("[hh]", $hours, $fileName);
-		$fileName = str_replace("[mm]", $minutes, $fileName);
+		
+		/*
+		 Possible layouts:
+		 0 		       no hierachy levels - flat layout
+		 1 %Y/%m/%d    year/month/day
+		 2 %Y/%m/%d/%H year/month/day/hour
+		*/
+		switch($NFSEN_SUBDIR_LAYOUT) {
+			case 0:		$fileName = "nfcapd.".$date.$hours.$minutes;
+						break;
+						
+			case 1:		$fileName = $year."/".$month."/".$day."/nfcapd.".$date.$hours.$minutes;
+						break;
+						
+			case 2:		$fileName = $year."/".$month."/".$day."/".$hours."/nfcapd.".$date.$hours.$minutes;
+						break;
+					
+			default:	$fileName = "nfcapd.".$date.$hours.$minutes;
+						break;
+		}
 		
 		return $fileName;
 	}
@@ -826,12 +907,23 @@
 
 	/*
 	 * Verify whether the source files for the specified time window(s) exist.
+	 * Parameters:
+	 *		source - name of the source
+	 *		date - date in the following format 'YYYYMMDD'
+	 *		hours - date in the following format 'HH' (with leading zeros)
+	 *		minutes - date in the following format 'MM' (with leading zeros)
 	 */
-	function sourceFilesExist($date, $hours, $minutes) {
-		global $NFSEN_SOURCE_DIR;
+	function sourceFilesExist($source, $date, $hours, $minutes) {
+		global $NFSEN_SOURCE_DIR, $sessionData;
+		
+		// Use 'live' profile data if shadow profile has been selected
+		$actualProfile = ($sessionData->nfsenProfileType === "real") ? $sessionData->nfsenProfile : "live";
+		
+		$directory = (substr($NFSEN_SOURCE_DIR, strlen($NFSEN_SOURCE_DIR) - 1) === "/") ? $NFSEN_SOURCE_DIR : $NFSEN_SOURCE_DIR."/";
+		$directory .= $actualProfile."/".$source."/";
 		
 		$fileName = generateFileName($date, $hours, $minutes);
-		return file_exists($NFSEN_SOURCE_DIR.$fileName);
+		return file_exists($directory.$fileName);
 	}
 
 	/**

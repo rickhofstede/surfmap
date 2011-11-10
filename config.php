@@ -20,18 +20,22 @@
 	$SORT_FLOWS_BY_START_TIME=0; // Sorts flows by start time - 0: no, 1: yes [default: 0]
 	
 	// [NfSen]
-	$COMMSOCKET="/[path]/nfsen.comm"; // Path to NfSen communication socket [example: '/opt/var/run/nfsen.comm']
-	$NFSEN_PROFILE="live"; // NfSen's default profile [default: 'live']
-	$NFSEN_PRIMARY_SRC_SELECTOR="router_name"; // Primary/default NfSen source. Make sure to add only one source here! Additional sources can be added below [example: 'institution_name' or 'router_name']
-	$NFSEN_ADDITIONAL_SRC_SELECTORS=""; // Additional NfSen sources [example: 'institution_name' or ''].  Multiple sources must be separated by a semicolon [example: 'institution_1;institution2']
-	$NFSEN_SOURCE_DIR="/data/nfsen/profiles-data/$NFSEN_PROFILE/$NFSEN_PRIMARY_SRC_SELECTOR/"; // Path to NetFlow data files [example: '/data/nfsen/profiles-data/$NFSEN_PROFILE/$NFSEN_PRIMARY_SRC_SELECTOR/']
-	$NFSEN_SOURCE_FILE_NAMING = "[yyyy]/[MM]/[dd]/nfcapd.[yyyy][MM][dd][hh][mm]"; // Source file naming. Examples: 'nfcapd.[yyyy][MM][dd][hh][mm]' (to represent 'nfcapd.201010111540' for instance), or '[yyyy]/[MM]/[dd]/nfcapd.[yyyy][MM][dd][hh][mm]' (to represent 2010/10/23/10/nfcapd.201010231005 for instance)
-	$NFSEN_OUTPUT=0; // Prints the raw result of the query for debugging - 0: no, 1: yes [default: 1]
+	$NFSEN_DIR="/var/www/nfsen"; // Path to NfSen HTML directory [example: '/var/www/nfsen']
+	$NFSEN_DEFAULT_SOURCES="core-router;backup-router"; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [example: 'core-router;backup-router']
+	$NFSEN_SOURCE_DIR="/data/nfsen/profiles-data"; // Path to NetFlow data files [example: '/data/nfsen/profiles-data']
+	
+	/*
+	 Possible layouts:
+	 0 		       no hierachy levels - flat layout
+	 1 %Y/%m/%d    year/month/day
+	 2 %Y/%m/%d/%H year/month/day/hour
+	*/
+	$NFSEN_SUBDIR_LAYOUT=0; // Sub-directory layout, as configured in nfsen.conf [default: 1]
 	
 	// [GeoLocation]
 	$GEOLOCATION_DB="IP2Location"; // "IP2Location", "MaxMind" or "geoPlugin" [default: 'MaxMind']
-	$IP2LOCATION_PATH="/[path]/SURFmap/IP2Location/IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE.BIN"; // Will be ignored when $GEOLOCATION_DB is not set to "IP2Location"
-	$MAXMIND_PATH="/[path]/SURFmap/MaxMind/GeoLiteCity.dat"; // Will be ignored when $GEOLOCATION_DB is not set to "MaxMind"
+	$MAXMIND_PATH="MaxMind/GeoLiteCity.dat"; // Will be ignored when $GEOLOCATION_DB is not set to "MaxMind" [default: 'MaxMind/GeoLiteCity.dat']
+	$IP2LOCATION_PATH="IP2Location/IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE.BIN"; // Will be ignored when $GEOLOCATION_DB is not set to "IP2Location" [default: 'IP2Location/IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE.BIN']
 	
 	// [GeoCoding]
 	$USE_GEOCODER_DB=1; // Indicates whether the geocoder cache database should be used - 0: no, 1: yes [default: 1]
@@ -41,17 +45,15 @@
 	
 	// [Internal traffic]
 	$INTERNAL_DOMAINS="192.168/16;172.16/12;10.0/8"; // Use the NfSen filter subnet notation to indicate your internal domain (e.g. NATed) traffic. Multiple domains must be separated by a semicolon [example: '192.168/16;172.16/12;10.0/8']
-	$INTERNAL_DOMAINS_COUNTRY="NETHERLANDS"; // Indicates the country in which a NATed network relies. If left empty, the corresponding flow record will be ignored.
-	$INTERNAL_DOMAINS_REGION="OVERIJSSEL"; // Indicates the region in which a NATed network relies. Leave this setting empty, if unknown.
-	$INTERNAL_DOMAINS_CITY="ENSCHEDE"; // Indicates the city in which a NATed network relies. Leave this setting empty, if unknown.
+	$INTERNAL_DOMAINS_COUNTRY="NETHERLANDS"; // Indicates the country in which a NATed network relies. If left empty, matching flow records will be ignored. Consult the ConfigurationChecker for more information.
+	$INTERNAL_DOMAINS_REGION="OVERIJSSEL"; // Indicates the region in which a NATed network relies. Leave this setting empty, if unknown. Consult the ConfigurationChecker for more information.
+	$INTERNAL_DOMAINS_CITY="ENSCHEDE"; // Indicates the city in which a NATed network relies. Leave this setting empty, if unknown. Consult the ConfigurationChecker for more information.
 	$HIDE_INTERNAL_DOMAIN_TRAFFIC=1; // Indicates whether your internal domain traffic should be visualized in SURFmap - 0: no, 1: yes [default: 1]
 	$IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION=1; // Indicates whether traffic 'inside' a marker (e.g., inside a country, region or city) should be ignored in the line color classification process - 0: no, 1: yes [default: 1]
 
 	// [Demo Mode]
 	$DEMO_MODE=0; // Enables or disables SURFmap's demo mode - 0: no, 1: yes [default: 0]
 	$DEMO_MODE_DEFAULT_ZOOM_LEVEL=0; // Default SURFmap zoom level in demo mode (i.e. Country (0), Region (1), City (2), Host(3)) [default: 0]
-	$DEMO_MODE_QUERY_TYPE_LIST_ENTRY_COUNT=200; // Amount of NetFlow records to be used in demo mode with NfSen's 'Flow listing' option [default: 200]
-	$DEMO_MODE_QUERY_TYPE_STAT_ENTRY_COUNT=100; // Amount of NetFlow records to be used in demo mode with NfSen's 'Stat TopN' option [default: 100]
 	$DEMO_MODE_PAGE_TITLE="Current network traffic across the world"; // Title to be displayed in demo mode
 
 ?>
