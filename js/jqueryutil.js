@@ -97,11 +97,14 @@
 	* Parameters:
 	*		id - ID of the div element, which needs to be converted to a progress bar
 	*		initialValue - Initial value of the progress bar
+	*		initialText - Initial text in the progress bar
 	*/	
-	function showProgressBar(id, initialValue) {
+	function showProgressBar(id, initialValue, initialText) {
 		$("#" + id).progressbar({
 			value: initialValue
 		});
+		$(".ui-progressbar-value").append("<div id=\"progressBarText\" style=\"color:#797979; margin-top:3px;\">" + initialText + "</div>");
+		$(".ui-progressbar-value").css("text-align", "center");
 	}
 
    /**
@@ -110,7 +113,9 @@
 	* Parameters:
 	*		id - ID of the jQuery progress bar
 	*		value - Value to which the progress bar should be set
+	*		value - Text in the progress bar
 	*/
-	function setProgressBarValue(id, value) {
+	function setProgressBarValue(id, value, text) {
 		$("#" + id).progressbar("option", "value", value);
+		$("#progressBarText").text(text);
 	}
