@@ -1,0 +1,114 @@
+html { height: 90% }
+body { height: 90%; margin: 10px; padding: 0; font-family: Verdana; }
+a:link { color: black; text-decoration: none; }
+img { border: 0; }
+input[type=text], textarea { border-width:1px; border-style:solid; border-color:black; }
+
+.footer { font-size:65%; vertical-align:text-top; }
+.legendTextCell { padding-left:15px; float:left; }
+.legendImageCell { padding-left:25px; float:left; }
+.netflowDataDetailsTitle { font-size: 80%; font-weight: bold; background-color: #7C94B0; color: white; }
+.netflowDataDetails { font-size: 70%; }
+.informationWindowHeader { font-weight: bold; font-size: 75%; background-color: #4DB2E5; text-align: center; color:white; cursor: default; }
+.informationWindowBody { font-size: 80%; text-align: center; }
+.informationWindowFooter { font-size: 75%; text-align: center; }
+
+/* jQuery */
+.ui-accordion .ui-accordion-content { font-size:80%; padding: 0.5em 0.75em }
+.ui-accordion .ui-accordion-header a { font-size:70%; padding: .5em .5em .5em 2.5em; }
+.ui-progressbar-value { background-image: url(images/pbar-ani.gif); }
+.ui-widget { font-family: Verdana; font-size:80%; }
+.ui-widget .ui-widget { font-family: Verdana; font-size:80%; }
+.ui-widget-overlay { background: #FFFFFF; opacity: .60; filter:Alpha(Opacity=60); }
+
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { height: 25px; }
+.ui-timepicker-div dl dd { margin: -25px 10px 10px 65px; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-datepicker-current { visibility:hidden; }
+
+/* Menu panel (http://spyrestudios.com/how-to-create-a-sexy-vertical-sliding-panel-using-jquery-and-css3/) */
+.panel {
+position: absolute;
+top: 86px; right: 5px;
+display: none;
+background: #6E6E6E;
+border:1px solid #111111;
+border-radius:20px 0px 0px 20px;
+-moz-border-radius-topleft: 20px;
+-webkit-border-top-left-radius: 20px;
+-moz-border-radius-bottomleft: 20px;
+-webkit-border-bottom-left-radius: 20px;
+width: 210px;
+height: auto;
+padding: 0px 20px 20px 15px;
+filter: alpha(opacity=90);
+opacity: .90;
+}
+
+.panel {
+margin: 0 0 15px 0;
+color: #cccccc;
+}
+
+a.trigger {
+position: absolute;
+text-decoration: none;
+top: 86px; right: 5px;
+font-size: 16px;
+letter-spacing:-1px;
+font-family: verdana, helvetica, arial, sans-serif;
+color:#fff;
+padding: 15px 10px 15px 35px;
+font-weight: 700;
+background:#333333 url(images/plus.png) 15% 55% no-repeat;
+border:1px solid #444444;
+border-radius:20px 0px 0px 20px;
+-moz-border-radius-topleft: 20px;
+-webkit-border-top-left-radius: 20px;
+-moz-border-radius-bottomleft: 20px;
+-webkit-border-bottom-left-radius: 20px;
+-moz-border-radius-bottomright: 0px;
+-webkit-border-bottom-right-radius: 0px;
+display: block;
+}
+
+a.trigger:hover {
+position: absolute;
+text-decoration: none;
+top: 86px; right: 5px;
+font-size: 16px;
+letter-spacing:-1px;
+font-family: verdana, helvetica, arial, sans-serif;
+color:#fff;
+padding: 15px 10px 15px 45px;
+font-weight: 700;
+background:#222222 url(images/plus.png) 15% 55% no-repeat;
+border:1px solid #444444;
+border-radius:20px 0px 0px 20px;
+-moz-border-radius-topleft: 20px;
+-webkit-border-top-left-radius: 20px;
+-moz-border-radius-bottomleft: 20px;
+-webkit-border-bottom-left-radius: 20px;
+-moz-border-radius-bottomright: 0px;
+-webkit-border-bottom-right-radius: 0px;
+display: block;
+}
+
+a:focus {
+outline: none;
+}
+
+a.active.trigger {
+background:#222222 url(images/minus.png) 15% 55% no-repeat;
+}
+
+.panelSectionTitle {
+color:#FF192A;
+}
+
+.panelSectionContent {
+font-size: 75%;
+margin-left:10px;
+}
