@@ -13,7 +13,7 @@
 	require_once($NFSEN_DIR."/conf.php");
 	require_once($NFSEN_DIR."/nfsenutil.php");
 
-	$version = "v2.1 dev (20111110)";
+	$version = "v2.1 dev (20111111)";
 
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -260,7 +260,7 @@
 	<script type="text/javascript" src="js/jqueryutil.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 	<script type="text/javascript" src="js/maputil.js"></script>
-	<script type="text/javascript" src="js/markermanager_packed.js"></script>
+	<script type="text/javascript" src="js/markermanager.js"></script>
 	<script type="text/javascript" src="js/objects.js"></script>
 	<script type="text/javascript" src="js/util.js"></script>
 	<script type="text/javascript">
