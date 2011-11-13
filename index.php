@@ -314,6 +314,9 @@
 		var DEBUG_logQueue = [];
 		var GEOCODING_queue = [];
 		var SESSION_queue = [];
+		
+		var markerManagerInitialized = false;
+		var markersProcessed = false;
 
 		var entryCount = <?php echo $_SESSION['SURFmap']['entryCount']; ?>;
 		var flowRecordCount = <?php echo $sessionData->flowRecordCount; ?>;
@@ -940,12 +943,15 @@
 					 		+ "<a href = 'Javascript:zoom(1, 0, null)'>Zoom In</a><b> - </b><a href = 'Javascript:zoom(1, 1, null)'>Zoom Out</a><br />"
 					 		+ "<a href = 'Javascript:zoom(0, 0, null)'>Quick Zoom In</a><b> - </b><a href = 'Javascript:zoom(0, 1, null)'>Quick Zoom Out</a><br />"
 							+ "<a href='Javascript:showNetFlowDetails(\"" + flowIDsString + "\");'>Flow details</a></div>";
-					
+							
 					markers[i].push(createMarker(i, new google.maps.LatLng(markerProperties[i][j].lat, markerProperties[i][j].lng), "<div id=\"content\">" + tableHeader + tableBody + tableFooter + "</div>"));
 				}
 			}
-
-			initializeMarkerManager();
+			
+			if(markerManagerInitialized) {
+				addMarkersToMarkerManager();
+			}
+			markersProcessed = true;
 		}
 		
 	   /**
@@ -1459,6 +1465,11 @@
 			google.maps.event.addListener(map, "click", function() {
 				infoWindow.close();
 			});
+			google.maps.event.addListenerOnce(map, "bounds_changed", function() {
+				// To make sure that bounds are set after the map has been loaded
+				// If a gray area is present at the top or bottom of the map, change its center
+				mapCenterWithoutGray = hideGrayMapAreas();
+			});
 			google.maps.event.addListener(map, "dragend", function() {
 				SESSION_queue.push(new SessionData("mapCenter", map.getCenter().lat() + "," + map.getCenter().lng()));
 			});
@@ -1492,6 +1503,13 @@
 			});
 			
 			markerManager = new MarkerManager(map);
+			google.maps.event.addListener(markerManager, "loaded", function() { 
+				if(markersProcessed) {
+					addMarkersToMarkerManager();
+				}
+				markerManagerInitialized = true;
+			});
+			
 			geocoder = new google.maps.Geocoder();
 			infoWindow = new google.maps.InfoWindow({maxWidth: 1000});
 			
@@ -1544,7 +1562,7 @@
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers...");
 			initializeMarkers();
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers... Done");
-
+			
 			if(demoMode == 0) {
 				setProgressBarValue("progressBar", 90, "Initializing legend...");
 				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend...");
@@ -1552,14 +1570,11 @@
 				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend... Done");
 			}
 
-			// If a gray area is present at the top or bottom of the map, change its center
-			mapCenterWithoutGray = hideGrayMapAreas();
-
 			setProgressBarValue("progressBar", 100, "Finished loading...");
 			addToLogQueue("INFO", "Initialized");
 			
 			$("#dialog").dialog("destroy"); // Hide progress bar
-			
+
 			if(getErrorCode() >= 2 && getErrorCode() <= 4) {
 				generateAlert("invalidWindow");
 			}

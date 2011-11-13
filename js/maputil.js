@@ -110,7 +110,7 @@
 	* This function adds arrays with GMarkers to the GMarkerManager, which puts
 	* the markers on the map.
 	*/			
-	function initializeMarkerManager() {
+	function addMarkersToMarkerManager() {
 		markerManager.addMarkers(markers[0], 2, 4);
 		markerManager.addMarkers(markers[1], 5, 7);
 		markerManager.addMarkers(markers[2], 8, 10);
