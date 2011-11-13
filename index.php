@@ -13,7 +13,7 @@
 	require_once($NFSEN_DIR."/conf.php");
 	require_once($NFSEN_DIR."/nfsenutil.php");
 
-	$version = "v2.1 dev (20111111)";
+	$version = "v2.1 dev (20111113)";
 
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -343,7 +343,7 @@
 		var protocols = ["Reserved", "ICMP", "IGMP", "GGP", "Encapsulated IP", "ST", "TCP", "UCL", "EGP", "IGP", "BBN-RCC-MON", "NVP-II", "PUP", "ARGUS", "EMCON", "XNET", "CHAOS", "UDP", "MUX", "DCN-MEAS", "HMP", "PRM", "XNS-IDP", "trUNK-1", "trUNK-2", "LEAF-1", "LEAF-2", "RDP", "IRTP", "ISO-TP4", "NETBLT", "MFE-NSP", "MERIT-INP", "SEP", "3PC", "IDPR", "XTP", "DDP", "IDPR-CMTP", "TP++", "IL", "SIP", "SDRP", "SIP-SR", "SIP-FRAG", "IDRP", "RSVP", "GRE", "MHRP", "BNA", "SIPP-ESP", "SIPP-AH", "I-NLSP", "SWIPE", "NHRP", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Any host internal protocol", "CFTP", "Any local network", "SAT-EXPAK", "KRYPTOLAN", "RVD", "IPPC", "Any distributed file system", "SAT-MON", "VISA", "IPCV", "CPNX", "CPHB", "WSN", "PVP", "BR-SAT-MON", "SUN-ND", "WB-MON", "WB-EXPAK", "ISO-IP", "VMTP", "SECURE-VMTP", "VIVES", "TTP", "NSFNET-IGP", "DGP", "TCF", "IGRP", "OSPFIGP", "Sprite-RPC", "LARP", "MTP", "AX.25", "IFIP", "MICP", "SCC-SP", "ETHERIP", "ENCAP", "Any private encryption scheme", "GMTP"];
 		
 		// --- Geocoding parameters
-		var delay = 100;
+		var geocodingDelay = 100;
 		var geocodingQueue = [];
 		var geocodedPlaces = [];
 		var totalGeocodingRequests = 0; // total number of geocoding requests
@@ -641,7 +641,7 @@
 		}
 		
 	   /**
-		* This function starts calles the Google Maps API geocoder.
+		* This function starts calls to the Google Maps API GeoCoder.
 		* Parameters:
 		*	place - name of the place that has to be geocoded
 		*/			
@@ -665,13 +665,13 @@
 							GEOCODING_queue.push(geocodedPlace);
 						}
 						
-						delay = 100;
+						geocodingDelay = 100;
 						successfulGeocodingRequests++;
-					} else if(status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT){
-						delay += 100;
+					} else if(status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+						geocodingDelay += 100;
 						setTimeout(function() {
 							geocode(place);
-						}, delay);
+						}, geocodingDelay);
 					} else {
 						addToLogQueue("ERROR", "Could not find " + place + ". Reason: " + status);
 

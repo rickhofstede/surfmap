@@ -249,6 +249,10 @@
 		$extIPCity = "(Unknown)";
 	}
 	
+	$extIPCountry = stripAccentedCharacters($extIPCountry);
+	$extIPRegion = stripAccentedCharacters($extIPRegion);
+	$extIPCity = stripAccentedCharacters($extIPCity);
+	
 	if($extIPCountry === "(Unknown)") {
 		$extIPLocationOK = 0;
 	} else {
@@ -262,6 +266,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
 	<head>
 		<link rel="stylesheet" type="text/css" href="configurationchecker.css" />
+		<script type="text/javascript" src="<?php if($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
     	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 		<title>SURFmap Configuration Checker</title>
 		
@@ -280,10 +285,14 @@
 				for your setup. You can therefore ignore this.</li>
 		</ol>
 		
+		<p>The <i>Setup Guidelines</i> section below shows some proposed setting values, based
+			on your machine's location.</p>
+		
 		<p>In order to help you to fix your configuration problem, some hints are provided with each of
 			the configuration options below. To find these hints, please click on the corresponding option
 			and a help window will appear.</p>
-		
+			
+		<div id="setupguidelines" class="checkitem"><b>Setup guidelines</b><br><br>You can use the following settings in config.php:<br><br></div>
 		<div id="checkitem1" class="checkitem" onclick="showHidePopup('checkitem1')">1. NfSen communication socket (<?php echo $COMMSOCKET; ?>) available.</div>
 		<div id="checkitem2" class="checkitem" onclick="showHidePopup('checkitem2')">2. NfSen source directory (<?php echo $NFSEN_SOURCE_DIR; ?>) available.</div>
 		<div id="checkitem3" class="checkitem" onclick="showHidePopup('checkitem3')">3. NfSen source files (<?php echo $nfsenSourceFiles; ?>) available.</div>
@@ -325,6 +334,28 @@
 			var mbstringModuleOK = <?php echo $mbstringModuleOK; ?>;
 			
 			var extIPLocationOK = <?php echo $extIPLocationOK; ?>;
+			var extIPCountry = "<?php echo $extIPCountry; ?>";
+			var extIPRegion = "<?php echo $extIPRegion; ?>";
+			var extIPCity = "<?php echo $extIPCity; ?>";
+			
+			if(extIPCity != "(Unknown)") {
+				geocode(extIPCity);
+			} else if(extIPRegion != "(Unknown)") {
+				geocode(extIPRegion);
+			} else if(extIPCountry != "(Unknown)") {
+				geocode(extIPCountry);
+			}
+			
+			// Setup guidelines
+			if(extIPCountry != "(Unknown)") {
+				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_COUNTRY=" + extIPCountry + "<br>";
+			}
+			if(extIPRegion != "(Unknown)") {
+				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_REGION=" + extIPRegion + "<br>";
+			}
+			if(extIPCity != "(Unknown)") {
+				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_CITY=" + extIPCity + "<br>";
+			}
 		
 			// 1. Check NfSen socket
 			if(nfsenSocketOK == 1) {
@@ -430,7 +461,7 @@
 			// 13. External IP address and location
 			if(extIPLocationOK == 1) {
 				document.getElementById("checkitem13").className += " checkitem_success";
-				document.getElementById("checkitem13").innerHTML += "<br><br>Copy this location information to the following settings in config.php:<br><br>- $INTERNAL_DOMAINS_COUNTRY<br>- $INTERNAL_DOMAINS_REGION<br>- $INTERNAL_DOMAINS_CITY";
+				// document.getElementById("checkitem13").innerHTML += "<br><br>Copy this location information to the following settings in config.php:<br><br>- $INTERNAL_DOMAINS_COUNTRY<br>- $INTERNAL_DOMAINS_REGION<br>- $INTERNAL_DOMAINS_CITY";
 			} else {
 				document.getElementById("checkitem13").className += " checkitem_failure";
 			}
@@ -527,6 +558,31 @@
 					popupContainer.style.display = "none";
 				}
 			}
+		
+		   /**
+			* Starts calls to the Google Maps API GeoCoder. It is derived from the 'geocode()'
+			* method in index.php. Since the call to the GeoCoder is asynchronous, this method will
+			* automatically add the result to the 'Setup guidelines' section on successful completion.
+			* Parameters:
+			*	place - name of the place that has to be geocoded
+			*/		
+			function geocode(place) {
+				var coordinates = "";
+				
+				// Some geolocation databases return 'Unknown' or 'unknown' in case a location is not found or recognized.
+				if(place.indexOf("nknown") == -1) {
+					 new google.maps.Geocoder().geocode({'address': place}, function(results, status) {
+						if(status == google.maps.GeocoderStatus.OK) {
+							var lat = results[0].geometry.location.lat();
+							var lng = results[0].geometry.location.lng();
+							
+							document.getElementById("setupguidelines").innerHTML += "$MAP_CENTER=" + lat + "," + lng + "<br>";
+						}
+					});
+				}
+				return coordinates;
+			}
+			
 		</script>
 	</body>
 </html>
