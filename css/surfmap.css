@@ -2,7 +2,8 @@ html { height: 90% }
 body { height: 90%; margin: 10px; padding: 0; font-family: Verdana; }
 a:link { color: black; text-decoration: none; }
 img { border: 0; }
-input[type=text], textarea { border-width:1px; border-style:solid; border-color:black; }
+input[type=text], textarea { border-width:1px; border-style:solid; border-color:black; font-size:11px; }
+label { margin-left:2px; }
 
 .footer { font-size:65%; vertical-align:text-top; }
 .legendTextCell { padding-left:15px; float:left; }
@@ -14,8 +15,6 @@ input[type=text], textarea { border-width:1px; border-style:solid; border-color:
 .informationWindowFooter { font-size: 75%; text-align: center; }
 
 /* jQuery */
-.ui-accordion .ui-accordion-content { font-size:80%; padding: 0.5em 0.75em }
-.ui-accordion .ui-accordion-header a { font-size:70%; padding: .5em .5em .5em 2.5em; }
 .ui-progressbar-value { background-image: url(../images/pbar-ani.gif); }
 .ui-widget { font-family: Verdana; font-size:80%; }
 .ui-widget .ui-widget { font-family: Verdana; font-size:80%; }
@@ -105,7 +104,7 @@ background:#222222 url(../images/minus.png) 15% 55% no-repeat;
 }
 
 /* MultiSelect (jQuery) (http://www.erichynds.com/examples/jquery-ui-multiselect-widget/demos/) */
-.ui-multiselect { padding:0 0 0 4px; text-align:left; } /* .ui-multiselect { padding:2px 0 2px 4px; text-align:left; } */
+.ui-multiselect { padding:3px 0 2px 6px; text-align:left; } /* .ui-multiselect { padding:2px 0 2px 4px; text-align:left; } */
 .ui-multiselect span.ui-icon { float:right }
 .ui-multiselect-single .ui-multiselect-checkboxes input { position:absolute !important; top: auto !important; left:-9999px; }
 .ui-multiselect-single .ui-multiselect-checkboxes label { padding:5px !important }
@@ -134,6 +133,6 @@ color:#FF192A;
 }
 
 .panelSectionContent {
-font-size: 75%;
+font-size: 9pt;
 margin-left:10px;
 }

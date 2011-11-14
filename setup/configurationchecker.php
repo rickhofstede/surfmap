@@ -365,6 +365,7 @@
 			
 			var mbstringModuleOK = <?php echo $mbstringModuleOK; ?>;
 			
+			var extIPNAT = <?php if($extIPNAT === true) echo "true"; else echo "false"; ?>;
 			var extIPLocationOK = <?php echo $extIPLocationOK; ?>;
 			var extIPCountry = "<?php echo $extIPCountry; ?>";
 			var extIPRegion = "<?php echo $extIPRegion; ?>";
@@ -377,9 +378,11 @@
 			} else if(extIPCountry != "(Unknown)") {
 				geocode(extIPCountry);
 			}
-			
+
 			// Setup guidelines
-			if(extIPCountry != "(Unknown)") {
+			if(extIPNAT) {
+				document.getElementById("setupguidelines").style.display = "none";
+			} else if(extIPCountry != "(Unknown)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_COUNTRY=" + extIPCountry + "<br>";
 			}
 			if(extIPRegion != "(Unknown)") {

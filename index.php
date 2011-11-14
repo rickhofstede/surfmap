@@ -1589,9 +1589,9 @@
 	
 	<script type="text/javascript">
 		if(demoMode == 1) {
-			document.write("<div id=\"header-text-demo\" style=\"height:76px;font-size:200%;text-align:center;\" display=\"inline-block\" >" + demoModePageTitle + " (" + hours1 + ":" + minutes1 + ")</div>");
+			document.write("<div id=\"header-text-demo\" style=\"height:76px; font-size:30pt; text-align:center;\" display=\"inline-block\" ><p style=\"margin-top:18px;\">" + demoModePageTitle + " (" + hours1 + ":" + minutes1 + ")</p></div>");
 		} else {
-			document.write("<div id=\"header-text\" style=\"height:76px;font-size:85%;float:right;\" display=\"inline-block\" ><br><b>SURFmap</b><br><i>A network monitoring tool based on the Google Maps API</i></div>");
+			document.write("<div id=\"header-text\" style=\"height:76px; font-size:10pt; float:right;\" display=\"inline-block\"><p style=\"margin-top:18px;\"><b>SURFmap</b><br /><i>A network monitoring tool based on the Google Maps API</i></p></div>");
 		}
 	</script>
 	
@@ -1624,12 +1624,12 @@
 	<script type="text/javascript">
 		// Panel: Zoom levels
 		document.getElementById("zoomLevelPanel").innerHTML = "<table id=\"zoomLevels\"><tr><td style=\"width:85px;\">"
-			+ "<form><input type=\"radio\" id=\"countryZoomRadio\" name=\"zoomLevel\" value=\"country\" onclick=\"zoom(1, 0, 2);\" />Country<br />"
-			+ "<input type=\"radio\" id=\"regionZoomRadio\" name=\"zoomLevel\" value=\"region\" onclick=\"zoom(1, 0, 5);\" />Region<br />"
-			+ "<input type=\"radio\" id=\"cityZoomRadio\" name=\"zoomLevel\" value=\"city\" onclick=\"zoom(1, 0, 8);\" />City<br />"
-			+ "<input type=\"radio\" id=\"hostZoomRadio\" name=\"zoomLevel\" value=\"host\" onclick=\"zoom(1, 0, 11);\" />Host<br />"
+			+ "<form><input type=\"radio\" id=\"countryZoomRadio\" name=\"zoomLevel\" value=\"country\" onclick=\"zoom(1, 0, 2);\" /><label for=\"countryZoomRadio\">Country</label><br />"
+			+ "<input type=\"radio\" id=\"regionZoomRadio\" name=\"zoomLevel\" value=\"region\" onclick=\"zoom(1, 0, 5);\" /><label for=\"regionZoomRadio\">Region</label><br />"
+			+ "<input type=\"radio\" id=\"cityZoomRadio\" name=\"zoomLevel\" value=\"city\" onclick=\"zoom(1, 0, 8);\" /><label for=\"cityZoomRadio\">City</label><br />"
+			+ "<input type=\"radio\" id=\"hostZoomRadio\" name=\"zoomLevel\" value=\"host\" onclick=\"zoom(1, 0, 11);\" /><label for=\"hostZoomRadio\">Host</label><br />"
 			+ "</form></td><td style=\"vertical-align:bottom;\">"
-			+ "<input type=\"checkbox\" id=\"auto-refresh\" onclick=\"manageAutoRefresh()\" />Auto-refresh</td></tr></table>";
+			+ "<input type=\"checkbox\" id=\"auto-refresh\" onclick=\"manageAutoRefresh();\" /><label for=\"auto-refresh\">Auto-refresh</label></td></tr></table>";
 		
 		// Panel: Options
 		var truncatedNfSenProfile = (nfsenProfile.length > 22) ? nfsenProfile.substr(0, 22) + "..." : nfsenProfile;
@@ -1657,26 +1657,19 @@
 						+ "Sources"
 					+ "</td>"
 					+ "<td>"
-						+ "<select id=\"nfsensources\" name=\"nfsensources[]\" multiple=\"multiple\" style=\"height:20px;\" >" + nfsenSourceOptions + "</select>"
+						+ "<select id=\"nfsensources\" name=\"nfsensources[]\" multiple=\"multiple\" >" + nfsenSourceOptions + "</select>"
 					+ "</td>"
 				+ "</tr>"
-			+ "</table><br /><table>"	
-				+ "<tr>"
-					+ "<td style=\"width:90px; vertical-align:center;\">"
-						+ "<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"document.getElementById('nfsenstatorder').disabled = false;\" />Stat TopN"
-					+ "</td>"
-					+ "<td>"
-						+ "<select id=\"nfsenstatorder\" name=\"nfsenstatorder\"><option>flows</option><option>packets</option><option>bytes</option></select>"
-					+ "</td>"
-				+ "</tr>"
-				+ "<tr>"
-					+ "<td>"
-						+ "<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"document.getElementById('nfsenstatorder').disabled = true;\" />List Flows"
-					+ "</td>"
-					+ "<td>"
-					+ "</td>"					
-				+ "</tr>"
-			+ "</table><br /><table>"
+			+ "</table><br />"	
+				+ "<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"if(!$('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionStatTopN\">Stat TopN</label>"
+				+ "<br />"
+				+ "<div id=\"nfsenstatorder\" style=\"margin-top:10px; margin-bottom:10px; text-align:right;\">"
+					+ "<input type=\"radio\" id=\"nfsenstatorderflows\" name=\"nfsenstatorder\" value=\"flows\" /><label for=\"nfsenstatorderflows\">flows</label>"
+					+ "<input type=\"radio\" id=\"nfsenstatorderpackets\" name=\"nfsenstatorder\" value=\"packets\" /><label for=\"nfsenstatorderpackets\">packets</label>"
+					+ "<input type=\"radio\" id=\"nfsenstatorderbytes\" name=\"nfsenstatorder\" value=\"bytes\" /><label for=\"nfsenstatorderbytes\">bytes</label>"
+				+ "</div>"
+				+ "<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionListFlows\">List Flows</label>"				
+			+ "<br /><table style=\"margin-top:10px;\">"
 				+ "<tr>"
 					+ "<td style=\"width:60px;\">"
 						+ "Begin"
@@ -1721,10 +1714,10 @@
 			+ "</table></form>";
 
 		// Select the current option in the 'nfsenstatorder' selector
-		var options = document.getElementById("nfsenstatorder").options;
+		var options = $("#nfsenstatorder").children("input[name='nfsenstatorder']");
 		for(var i = 0; i < options.length; i++) {
-			if(options[i].text == nfsenStatOrder) {
-				options[i].selected = true;
+			if(options[i].id.substring(14) == nfsenStatOrder) {
+				options[i].checked = true;
 				break;
 			}
 		}
@@ -1733,7 +1726,7 @@
 			document.getElementById("nfsenoptionStatTopN").checked = true;
 		} else {
 			document.getElementById("nfsenoptionListFlows").checked = true;
-			document.getElementById('nfsenstatorder').disabled = true;
+			$('#nfsenstatorder').hide();
 		}
 		
 		if(autoRefresh > 0) {
@@ -1784,6 +1777,9 @@
 		$('#options').submit(function() {
 		    $('input[type=submit]', this).attr('disabled', 'disabled');
 		});
+		
+		// Initialize button set (jQuery)
+		$("#nfsenstatorder").buttonset();
 		
 		// Initialize source selector (jQuery)
 		$("#nfsensources").multiselect({

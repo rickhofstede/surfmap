@@ -11,6 +11,7 @@ Release notes [v2.1 dev (20111114)]:
 - [FEATURE] Simplified SURFmap setup
 - [BUGFIX] Fixed a timing bug, caused by accessing incompletely initialized JS objects
 - [BUGFIX] Improved stability when handling NfSen shadow profiles
+- [BUGFIX] Improved layout on Linux systems
 - [BUGFIX] Numerous bugfixes and improvements
 
 Release notes [20111024]:
