@@ -201,7 +201,9 @@
 	 * If the found (external) IP address of the server is the localhost
 	 * address or a NATed address, try do find it using WhatIsMyIP
 	 */
+	$extIPError = "";
 	if($extIPNAT === true) {
+		$NATIP = $extIP;
 		try {
 			if(extension_loaded("curl")) {
 				$curl_handle = curl_init();
@@ -211,8 +213,15 @@
 				$extIP = curl_exec($curl_handle);
 				curl_close($curl_handle);
 			}
+
+			// If $extIP == $NATIP, cURL is probably not installed/activated
+			if($extIP === "Too frequent!" || $extIP == $NATIP) {
+				$extIP = $NATIP;
+				$extIPError = "Unable to retrieve external IP address";
+			}
 		} catch (Exception $e) {}
 	}
+
 	
 	// Check whether the (eventually) discovered external IP address is still a NATed one
 	$extIPNAT = false;
@@ -340,7 +349,7 @@
 		<div id="checkitem10" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem10Title + '##' + checkItem10Text);">10. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
 		<div id="checkitem11" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem11Title + '##' + checkItem11Text);">11. Internal domain (<?php echo $INTERNAL_DOMAINS; ?>) syntax OK.</div>
 		<div id="checkitem12" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem12Title + '##' + checkItem12Text);">12. PHP 'mbstring' module available.</div>
-		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. External IP address: <?php echo $extIP; ?><br>Geolocated country: <?php echo $extIPCountry; ?><br>Geolocated region: <?php echo $extIPRegion; ?><br>Geolocated city: <?php echo $extIPCity; ?></div>
+		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. External IP address: <?php if($extIPError !== "") echo $extIPError; else echo $extIP; ?><br>Geolocated country: <?php echo $extIPCountry; ?><br>Geolocated region: <?php echo $extIPRegion; ?><br>Geolocated city: <?php echo $extIPCity; ?></div>
 				
 		<div id="dialog"></div>
 		
@@ -366,6 +375,7 @@
 			var mbstringModuleOK = <?php echo $mbstringModuleOK; ?>;
 			
 			var extIPNAT = <?php if($extIPNAT === true) echo "true"; else echo "false"; ?>;
+			var extIPError = "<?php echo $extIPError; ?>";
 			var extIPLocationOK = <?php echo $extIPLocationOK; ?>;
 			var extIPCountry = "<?php echo $extIPCountry; ?>";
 			var extIPRegion = "<?php echo $extIPRegion; ?>";
@@ -380,7 +390,7 @@
 			}
 
 			// Setup guidelines
-			if(extIPNAT) {
+			if(extIPNAT || extIPError != "") {
 				document.getElementById("setupguidelines").style.display = "none";
 			} else if(extIPCountry != "(Unknown)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_COUNTRY=" + extIPCountry + "<br>";
