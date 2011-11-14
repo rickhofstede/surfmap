@@ -38,7 +38,7 @@
 	if(@file_exists($COMMSOCKET)) $nfsenSocketOK = 1;
 	else $nfsenSocketOK = 0;
 	
-	// 2. Check NfSen source directory
+	// 2. Check NfSen data directory
 	if(@file_exists($NFSEN_SOURCE_DIR)) $nfsenSourceDirOK = 1;
 	else $nfsenSourceDirOK = 0;
 	
@@ -196,23 +196,34 @@
 			}
 		}
 	}
-	
+
 	/*
 	 * If the found (external) IP address of the server is the localhost
 	 * address or a NATed address, try do find it using WhatIsMyIP
 	 */
 	if($extIPNAT === true) {
 		try {
-			$curl_handle = curl_init();
-			curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/");
-			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
-			$extIP = curl_exec($curl_handle);
-			curl_close($curl_handle);
+			if(extension_loaded("curl")) {
+				$curl_handle = curl_init();
+				curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/");
+				curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
+				$extIP = curl_exec($curl_handle);
+				curl_close($curl_handle);
+			}
 		} catch (Exception $e) {}
 	}
 	
-	if($GEOLOCATION_DB === "IP2Location" && $ip2LocationDBPathOK === 1) {
+	// Check whether the (eventually) discovered external IP address is still a NATed one
+	$extIPNAT = false;
+	foreach($internalDomainNets as $subNet) {
+		if(ipAddressBelongsToNet($extIP, $subNet)) {
+			$extIPNAT = true;
+			break;
+		}
+	}
+	
+	if($extIPNAT === false && $GEOLOCATION_DB === "IP2Location" && $ip2LocationDBPathOK === 1) {
 		$GEO_database = new ip2location();
 		$GEO_database->open($ip2LocationPath);
 		$data = $GEO_database->getAll($extIP);
@@ -223,7 +234,7 @@
 		if($extIPRegion == "-") $extIPRegion = "(Unknown)";
 		$extIPCity = $data->city;
 		if($extIPCity == "-") $extIPCity = "(Unknown)";
-	} else if($GEOLOCATION_DB === "MaxMind" && $maxmindDBPathOK === 1) {
+	} else if($extIPNAT === false && $GEOLOCATION_DB === "MaxMind" && $maxmindDBPathOK === 1) {
 		$GEO_database = geoip_open($maxMindPath, GEOIP_STANDARD);
 		$data = geoip_record_by_addr($GEO_database, $extIP);
 		
@@ -261,15 +272,39 @@
 	
 ?>
 
-<!DOCtype html PUBLIC "-//W3C//Dtd XHTML 1.0 Strict//EN"
-    "http://www.w3.org/tr/xhtml1/Dtd/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+<!DOCTYPE html>
+<html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="configurationchecker.css" />
-		<script type="text/javascript" src="<?php if($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
-    	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 		<title>SURFmap Configuration Checker</title>
-		
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+		<link type="text/css" rel="stylesheet" href="../jquery/css/start/jquery-ui-1.8.16.custom.css" />
+		<link type="text/css" rel="stylesheet" href="../css/surfmap.css" />
+		<script type="text/javascript" src="<?php if($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
+		<script type="text/javascript" src="../jquery/js/jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="../jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
+		<script type="text/javascript" src="../js/jqueryutil.js"></script>
+		<style type="text/css">
+			body {
+				font-family: Verdana;
+				font-size: 80%;
+			}
+			.checkitem {
+				border-style: solid;
+				border-width: 1px;
+				margin: 10px;
+				width: 600px;
+			}
+			.checkitem_success {
+				background-color:rgb(0,255,128);
+			}
+			.checkitem_failure {
+				background-color:rgb(255,102,102);
+			}
+			.checkitem_skip {
+				background-color:rgb(102,204,255);
+			}
+			
+		</style>
 	</head>
 	<body>
 		<h1>SURFmap Configuration Checker</h1>
@@ -293,24 +328,21 @@
 			and a help window will appear.</p>
 			
 		<div id="setupguidelines" class="checkitem"><b>Setup guidelines</b><br><br>You can use the following settings in config.php:<br><br></div>
-		<div id="checkitem1" class="checkitem" onclick="showHidePopup('checkitem1')">1. NfSen communication socket (<?php echo $COMMSOCKET; ?>) available.</div>
-		<div id="checkitem2" class="checkitem" onclick="showHidePopup('checkitem2')">2. NfSen source directory (<?php echo $NFSEN_SOURCE_DIR; ?>) available.</div>
-		<div id="checkitem3" class="checkitem" onclick="showHidePopup('checkitem3')">3. NfSen source files (<?php echo $nfsenSourceFiles; ?>) available.</div>
-		<div id="checkitem4" class="checkitem" onclick="showHidePopup('checkitem4')">4. GeoCoder database connection (<?php echo $geocoderDBFile ?>) available.</div>
-		<div id="checkitem5" class="checkitem" onclick="showHidePopup('checkitem5')">5. GeoCoder database writability OK ('<?php echo $geocoderDBFile ?>' should be writable).</div>
-		<div id="checkitem6" class="checkitem" onclick="showHidePopup('checkitem6')">6. IP2Location database (<?php echo $ip2LocationPath; ?>) available.</div>
-		<div id="checkitem7" class="checkitem" onclick="showHidePopup('checkitem7')">7. MaxMind database (<?php echo $maxMindPath; ?>) available.</div>
-		<div id="checkitem8" class="checkitem" onclick="showHidePopup('checkitem8')">8. Permissions of all directory contents OK.</div>
-		<div id="checkitem9" class="checkitem" onclick="showHidePopup('checkitem9')">9. Additional NetFlow source selector (<?php echo $NFSEN_DEFAULT_SOURCES; ?>) syntax OK.</div>
-		<div id="checkitem10" class="checkitem" onclick="showHidePopup('checkitem10')">10. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
-		<div id="checkitem11" class="checkitem" onclick="showHidePopup('checkitem11')">11. Internal domain (<?php echo $INTERNAL_DOMAINS; ?>) syntax OK.</div>
-		<div id="checkitem12" class="checkitem" onclick="showHidePopup('checkitem12')">12. PHP 'mbstring' module available.</div>
-		<div id="checkitem13" class="checkitem" onclick="showHidePopup('checkitem13')">13. External IP address: <?php echo $extIP; ?><br>Geolocated country: <?php echo $extIPCountry; ?><br>Geolocated region: <?php echo $extIPRegion; ?><br>Geolocated city: <?php echo $extIPCity; ?></div>
-		
-		<div id="popupOverlay" class="popupOverlay" style="display: none;"></div>
-		<div id="popupContainer" class="popupContainer" style="display: none;">
-			      <div id="popupTitle" class="popupTitle"></div>
-				  <div id="popupBody" class="popupBody"></div>
+		<div id="checkitem1" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem1Title + '##' + checkItem1Text);">1. NfSen communication socket (<?php echo $COMMSOCKET; ?>) available.</div>
+		<div id="checkitem2" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem2Title + '##' + checkItem2Text);">2. NfSen source directory (<?php echo $NFSEN_SOURCE_DIR; ?>) available.</div>
+		<div id="checkitem3" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem3Title + '##' + checkItem3Text);">3. NfSen source files (<?php echo $nfsenSourceFiles; ?>) available.</div>
+		<div id="checkitem4" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. GeoCoder database connection (<?php echo $geocoderDBFile ?>) available.</div>
+		<div id="checkitem5" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem5Title + '##' + checkItem5Text);">5. GeoCoder database writability OK ('<?php echo $geocoderDBFile ?>' should be writable).</div>
+		<div id="checkitem6" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem6Title + '##' + checkItem6Text);">6. IP2Location database (<?php echo $ip2LocationPath; ?>) available.</div>
+		<div id="checkitem7" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem7Title + '##' + checkItem7Text);">7. MaxMind database (<?php echo $maxMindPath; ?>) available.</div>
+		<div id="checkitem8" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem8Title + '##' + checkItem8Text);">8. Permissions of all directory contents OK.</div>
+		<div id="checkitem9" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem9Title + '##' + checkItem9Text);">9. Additional NetFlow source selector (<?php echo $NFSEN_DEFAULT_SOURCES; ?>) syntax OK.</div>
+		<div id="checkitem10" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem10Title + '##' + checkItem10Text);">10. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
+		<div id="checkitem11" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem11Title + '##' + checkItem11Text);">11. Internal domain (<?php echo $INTERNAL_DOMAINS; ?>) syntax OK.</div>
+		<div id="checkitem12" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem12Title + '##' + checkItem12Text);">12. PHP 'mbstring' module available.</div>
+		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. External IP address: <?php echo $extIP; ?><br>Geolocated country: <?php echo $extIPCountry; ?><br>Geolocated region: <?php echo $extIPRegion; ?><br>Geolocated city: <?php echo $extIPCity; ?></div>
+				
+		<div id="dialog"></div>
 		
 		<script type="text/javascript">
 			var useGeocoderDB = <?php echo $USE_GEOCODER_DB; ?>;
@@ -364,7 +396,7 @@
 				document.getElementById("checkitem1").className += " checkitem_skip";
 			}
 			
-			// 2. Check NfSen source directory
+			// 2. Check NfSen data directory
 			if(nfsenSourceDirOK == 1) {
 				document.getElementById("checkitem2").className += " checkitem_success";
 			} else {
@@ -461,104 +493,49 @@
 			// 13. External IP address and location
 			if(extIPLocationOK == 1) {
 				document.getElementById("checkitem13").className += " checkitem_success";
-				// document.getElementById("checkitem13").innerHTML += "<br><br>Copy this location information to the following settings in config.php:<br><br>- $INTERNAL_DOMAINS_COUNTRY<br>- $INTERNAL_DOMAINS_REGION<br>- $INTERNAL_DOMAINS_CITY";
 			} else {
 				document.getElementById("checkitem13").className += " checkitem_failure";
 			}
 			
-		   /**
-			* Changes the color of the button (represented by its ID) in case of an onMouseOver event.
-			*/
-			function changeButtonOnMouseOver(buttonID) {
-				var button = document.getElementById(buttonID);
-				button.style.background = "#ffffff";
-				button.style.color = "#736F6E";
-				button.style.border = "1px solid #FFFFFF";
-			}
-
-		   /**
-			* Changes the color of the button (represented by its ID) in case of an onMouseOut event.
-			*/			
-			function changeButtonOnMouseOut(buttonID) {
-				var button = document.getElementById(buttonID);
-				button.style.background = "";
-				button.style.color = "";
-				button.style.border = "";
-			}			
+			var checkItem1Title = "NfSen communication socket";
+			var checkItem1Text = "The path to the NfSen communication socket can normally be found in NfSen's [conf.php] file, which is located in the NfSen's main directory. The default variable name is '$COMMSOCKET'. Check your [$NFSEN_DIR] setting value if the NfSen communication socket could not be found.";
 			
-		   /**
-			* This function shows the popup overlay in case it is hidden, or hides it is case it is
-			* shown.
-			* Parameters:
-			*		type - indicates which contents should be shown inside the popup overlay. The possible
-			*				options are:
-			*					1. 'about' - shows an about window
-			*					2. 'help' - shows the SURFmap help
-			*					3. 'invalidWindow' - shows an error message in case something is wrong with
-			*					   			the window settings
-			*/			
-			function showHidePopup(type) {
-				var popupOverlay = document.getElementById('popupOverlay');
-				var popupContainer = document.getElementById('popupContainer');
-				var popupTitle = document.getElementById('popupTitle');
-				var popupTitleButtons = document.getElementById('popupTitleButtons');
-				var popupBody = document.getElementById('popupBody');
+			var checkItem2Title = "NfSen data directory";
+			var checkItem2Text = "This path should lead to the root NfSen's network data capture folder. The default value for the [$NFSEN_SOURCE_DIR] setting is '/data/nfsen/profiles-data'. This means that the absolute path to the 'profiles-data' directory should be appointed.";
+			
+			var checkItem3Title = "NfSen source file existance";
+			var checkItem3Text = "Checks whether some nfcapd dump files can be found. This check is based again on the [$NFSEN_SOURCE_DIR] parameter. By default, the directory for the 'live' profile for an arbitrary source is verified.";
+			
+			var checkItem4Title = "GeoCoder database connection";
+			var checkItem4Text = "In case a GeoCoder (caching) database is selected to be used, a proper database connection should be configured. Since SQLite technology is used by SURFmap, the file paths in [$GEOCODER_DB_SQLITE2] and [$GEOCODER_DB_SQLITE3] should be valid.";
+			
+			var checkItem5Title = "GeoCoder database writability";
+			var checkItem5Text = "The (SQLite) database file should have the correct permissions in order to be writable.";
 
-				if(popupOverlay.style.display == "none" || popupContainer.style.display == "none") {
-					popupOverlay.style.display = "";
-					popupContainer.style.display = "";
-					popupContainer.style.top = "200px";
-					popupContainer.style.minWidth = "400px";
-					popupContainer.style.maxWidth = "400px";
-					
-					var closeButton = "<span id='popupTitleButtonsCLOSE' class='popupTitleButtons' onclick='showHidePopup();' onmouseover='changeButtonOnMouseOver(\"popupTitleButtonsCLOSE\");' onmouseout='changeButtonOnMouseOut(\"popupTitleButtonsCLOSE\")'>Close</span>";
-					
-					if(type == "checkitem1") {
-						popupTitle.innerHTML = "NfSen communication socket " + closeButton;
-						popupBody.innerHTML = "The path to the NfSen communication socket can normally be found in NfSen's [conf.php] file, which is located in the NfSen's main directory. The default variable name is '$COMMSOCKET'. The path to NfSen's communication socket should be exactly the same as in the mentioned NfSen configuration file.";	
-					} else if(type == "checkitem2") {
-						popupTitle.innerHTML = "NfSen source directory " + closeButton;
-						popupBody.innerHTML = "This path should lead to NfSen's network data capture folder. How this path should be configured, can be partially found in NfSen's [nfsen.conf] configuration file. The first part of this path is stored in the '$PROFILEDATADIR' variable. After that, you need to add the profile name and the source name.<br><br>Example:<br><b>$PROFILEDATADIR</b>: /vserver/nfsen/NFSENPROFILE<br><b>Profile name</b>: live<br><b>Source name</b>:institution<br><b>Resulting configuration</b>: /vserver/nfsen/NFSENPROFILE/live/institution";
-					} else if(type == "checkitem3") {
-						popupTitle.innerHTML = "NfSen source file existance " + closeButton;
-						popupBody.innerHTML = "This is the (prefix of the) main file name, without a date and time indication.";
-					} else if(type == "checkitem4") {
-						popupTitle.innerHTML = "GeoCoder database connection " + closeButton;
-						popupBody.innerHTML = "In case a GeoCoder (caching) database is selected to be used, a proper database connection should be configured. Please verify the host name and port number of the database server.";
-					} else if(type == "checkitem5") {
-						popupTitle.innerHTML = "GeoCoder database writability " + closeButton;
-						popupBody.innerHTML = "The (SQLite) database file should have the correct permissions in order to be writable.";
-					} else if(type == "checkitem6") {
-						popupTitle.innerHTML = "IP2Location database " + closeButton;
-						popupBody.innerHTML = "In case you selected 'IP2Location' as your geolocation database, please verify the path to the database file. Please note that this should be the absolute path to the database's binary file.";
-					} else if(type == "checkitem7") {
-						popupTitle.innerHTML = "MaxMind database " + closeButton;
-						popupBody.innerHTML = "In case you selected 'MaxMind' as your geolocation database, please verify the path to the database file. Please note that this should be the absolute path to the database's binary file.";
-					} else if(type == "checkitem8") {
-						popupTitle.innerHTML = "File permissions " + closeButton;
-						popupBody.innerHTML = "All files need to be (at least) readable by your Web server. Otherwise the PHP engine will not be able to successfully execute and process the SURFmap source files. Please make sure that all permissions are set correctly. Please note that some Web server configurations require PHP files to be executable in order to be processed.";
-					} else if(type == "checkitem9") {
-						popupTitle.innerHTML = "Additional Netflow source selector syntax " + closeButton;
-						popupBody.innerHTML = "This setting should consist of an empty String in case only the primary source needs to be used (so no additional source). If more than one additional source is used, they should be separated by a semi-colon (;).";
-					} else if(type == "checkitem10") {
-						popupTitle.innerHTML = "Map center syntax " + closeButton;
-						popupBody.innerHTML = "This setting should consist consist of two (decimal) values, separated by a comma (,). The first value represents the latitude coordinate, the second value represents the longitude coordinate. The latitude coordinate can have a value on the interval <-90.0, 90.0>, the longitude coordinate can have a value on the interval <-180.0, 180.0>.";
-					} else if(type == "checkitem11") {
-						popupTitle.innerHTML = "Internal domain syntax " + closeButton;
-						popupBody.innerHTML = "This setting contains the internal domain of the NetFlow exporter. Multiple domains need to be separated by a semi-colon (;). To be certain that the syntax is OK (the Configuration Checker only checks a few possible errors), please check it in the 'Filter' field of NfSen's \"Details\" page.";
-					} else if(type == "checkitem12") {
-						popupTitle.innerHTML = "PHP 'mbstring' module available" + closeButton;
-						popupBody.innerHTML = "In case you selected 'MaxMind' as your geolocation database, you should have PHP's 'mbstring' module installed, in order to get the MaxMind API to work.";
-					} else if(type == "checkitem13") {
-						popupTitle.innerHTML = "External IP and location" + closeButton;
-						popupBody.innerHTML = "If your PHP configuration contains your public IP address, it is likely to be geolocatable. In that case, it is shown here. If the locations are unknown, you need to do it manually.";						
-					}
-				} else {
-					popupOverlay.style.display = "none";
-					popupContainer.style.display = "none";
-				}
-			}
-		
+			var checkItem6Title = "IP2Location database";
+			var checkItem6Text = "In case you selected 'IP2Location' as your geolocation database (in [$GEOLOCATION_DB]), please verify the path to the database file. You can use both absolute and relative paths.";
+			
+			var checkItem7Title = "MaxMind database";
+			var checkItem7Text = "In case you selected 'MaxMind' as your geolocation database (in [$GEOLOCATION_DB]), please verify the path to the database file. You can use both absolute and relative paths.";
+			
+			var checkItem8Title = "File permissions";
+			var checkItem8Text = "All files need to be (at least) readable by your Web server. Otherwise the PHP engine will not be able to successfully execute and process the SURFmap source files. Please make sure that all permissions are set correctly. Please note that some Web server configurations require PHP files to be executable in order to be processed.";
+			
+			var checkItem9Title = "Additional Netflow source selector syntax";
+			var checkItem9Text = "This setting should consist of an empty String in case only the primary source needs to be used (so no additional source). If more than one additional source is used, they should be separated by a semi-colon (;).";
+
+			var checkItem10Title = "Map center syntax";
+			var checkItem10Text = "This setting should consist consist of two (decimal) values, separated by a comma (,). The first value represents the latitude coordinate, the second value represents the longitude coordinate. The latitude coordinate can have a value on the interval <-90.0, 90.0>, the longitude coordinate can have a value on the interval <-180.0, 180.0>";
+			
+			var checkItem11Title = "Internal domain syntax";
+			var checkItem11Text = "This setting contains the internal domain of the NetFlow exporter. Multiple domains need to be separated by a semi-colon (;). To be certain that the syntax is OK (the Configuration Checker only checks a few possible errors), please check it in the 'Filter' field of NfSen's \"Details\" page.";
+
+			var checkItem12Title = "PHP 'mbstring' module";
+			var checkItem12Text = "In case you selected 'MaxMind' as your geolocation database, you should have PHP's 'mbstring' module installed, in order to get the MaxMind API to work.";
+
+			var checkItem13Title = "External IP address and location";
+			var checkItem13Text = "If your PHP configuration contains your public IP address, it is likely to be geolocatable. If so, it is shown here. If the locations are unknown, you need to geolocate it manually.";
+
 		   /**
 			* Starts calls to the Google Maps API GeoCoder. It is derived from the 'geocode()'
 			* method in index.php. Since the call to the GeoCoder is asynchronous, this method will

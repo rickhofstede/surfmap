@@ -4,7 +4,7 @@ Please check the manual for installation instructions. Run the ConfigurationChec
 
 ---
 
-Release notes [v2.1 dev (20111113)]:
+Release notes [v2.1 dev (20111114)]:
 - [FEATURE] Added support for source selection in user interface
 - [FEATURE] Added support for NfSen shadow profiles
 - [FEATURE] Improved alerting

@@ -21,8 +21,8 @@
 	
 	// [NfSen]
 	$NFSEN_DIR="/var/www/nfsen"; // Path to NfSen HTML directory [example: '/var/www/nfsen']
-	$NFSEN_DEFAULT_SOURCES="core-router;backup-router"; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [example: 'core-router;backup-router']
 	$NFSEN_SOURCE_DIR="/data/nfsen/profiles-data"; // Path to NetFlow data files [example: '/data/nfsen/profiles-data']
+	$NFSEN_DEFAULT_SOURCES="core-router;backup-router"; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [example: 'core-router;backup-router']
 	
 	/*
 	 Possible layouts:
