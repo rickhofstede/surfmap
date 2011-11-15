@@ -253,7 +253,10 @@
 			}
 
 			// Dates (ordering is based on priorities)
-			if(isset($_GET['autorefresh'])) {
+			if(isset($_GET['autorefresh']) || $_SESSION['SURFmap']['date1'] == "-1") {  // initialization value
+				$sessionData->originalDate1Window = substr($sessionData->latestDate, 0, 4)."/".substr($sessionData->latestDate, 4, 2)."/".substr($sessionData->latestDate, 6, 2);
+				$sessionData->originalDate2Window = $sessionData->originalDate1Window;
+				
 				$_SESSION['SURFmap']['date1'] = $sessionData->latestDate;
 				$_SESSION['SURFmap']['date2'] = $sessionData->latestDate;
 			} else if(isset($_GET['datetime1']) || isset($_GET['datetime2'])) {
@@ -281,13 +284,16 @@
 
 					$_SESSION['SURFmap']['date2'] = $year.$month.$day;
 				}
-			} else if($_SESSION['SURFmap']['date1'] == "-1") { // initialization value
-					$_SESSION['SURFmap']['date1'] = $sessionData->latestDate;
-					$_SESSION['SURFmap']['date2'] = $sessionData->latestDate;
+			} else {
+				$sessionData->originalDate1Window = substr($_SESSION['SURFmap']['date1'], 0, 4)."/".substr($_SESSION['SURFmap']['date1'], 4, 2)."/".substr($_SESSION['SURFmap']['date1'], 6, 2);
+				$sessionData->originalDate2Window = substr($_SESSION['SURFmap']['date2'], 0, 4)."/".substr($_SESSION['SURFmap']['date2'], 4, 2)."/".substr($_SESSION['SURFmap']['date2'], 6, 2);
 			}
 			
 			// Times (ordering is based on priorities)
-			if(isset($_GET['autorefresh'])) {
+			if(isset($_GET['autorefresh']) || $_SESSION['SURFmap']['hours1'] == "-1" || $_SESSION['SURFmap']['minutes1'] == "-1") { // initialization value
+				$sessionData->originalTime1Window = $sessionData->latestHour.":".$sessionData->latestMinute;
+				$sessionData->originalTime2Window = $sessionData->originalTime1Window;
+				
 				$_SESSION['SURFmap']['hours1'] = $sessionData->latestHour;
 				$_SESSION['SURFmap']['minutes1'] = $sessionData->latestMinute;
 				$_SESSION['SURFmap']['hours2'] = $sessionData->latestHour;
@@ -311,11 +317,9 @@
 					$_SESSION['SURFmap']['hours2'] = $timeParts[0];
 					$_SESSION['SURFmap']['minutes2'] = $timeParts[1];
 				}
-			} else if($_SESSION['SURFmap']['hours1'] == "-1" || $_SESSION['SURFmap']['minutes1'] == "-1") { // initialization value
-					$_SESSION['SURFmap']['hours1'] = $sessionData->latestHour;
-					$_SESSION['SURFmap']['minutes1'] = $sessionData->latestMinute;
-					$_SESSION['SURFmap']['hours2'] = $sessionData->latestHour;
-					$_SESSION['SURFmap']['minutes2'] = $sessionData->latestMinute;
+			} else {
+				$sessionData->originalTime1Window = $_SESSION['SURFmap']['hours1'].":".$_SESSION['SURFmap']['minutes1'];
+				$sessionData->originalTime2Window = $_SESSION['SURFmap']['hours2'].":".$_SESSION['SURFmap']['minutes2'];
 			}
 			
 			// If the source files for the first time selector do not exist
@@ -332,7 +336,9 @@
 			// If the source files for the second time selector do not exist
 			if(!sourceFilesExist($sessionData->firstNfSenSource, $_SESSION['SURFmap']['date2'],
 					$_SESSION['SURFmap']['hours2'], $_SESSION['SURFmap']['minutes2'])) {
-				$sessionData->errorCode = 3;					
+				// If this is true, both selected date/time windows do not exist
+				if($sessionData->errorCode == 2) $sessionData->errorCode = 4;
+				
 				$errorLogQueue->addToQueue("Selected time window (2) does not exist (".$_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2'].")");
 				
 				$_SESSION['SURFmap']['date2'] = $sessionData->latestDate;
@@ -409,8 +415,8 @@
 				$sessionData->errorMessage = $_SESSION['error'][0];
 				$sessionData->flowRecordCount = 0;
 				return;				
-			} else if(!isset($cmd_out['nfdump'])) {
-				$sessionData->errorCode = 4; // file error
+			} else if(!isset($cmd_out['nfdump']) || sizeof($cmd_out['nfdump']) == 1) {
+				$sessionData->errorCode = 5; // no flow records error
 				$sessionData->flowRecordCount = 0;
 				return;
 			}
@@ -917,13 +923,21 @@
 		global $NFSEN_SOURCE_DIR, $sessionData;
 		
 		// Use 'live' profile data if shadow profile has been selected
-		$actualProfile = ($sessionData->nfsenProfileType === "real") ? $sessionData->nfsenProfile : "live";
+		if($sessionData->nfsenProfileType === "real") {
+			$actualProfile = $sessionData->nfsenProfile;
+			$actualSource = $source;
+		} else {
+			$actualProfile = "live";
+			$actualSource = "*";
+		}
 		
 		$directory = (substr($NFSEN_SOURCE_DIR, strlen($NFSEN_SOURCE_DIR) - 1) === "/") ? $NFSEN_SOURCE_DIR : $NFSEN_SOURCE_DIR."/";
-		$directory .= $actualProfile."/".$source."/";
+		$directory .= $actualProfile."/".$actualSource."/";
 		
 		$fileName = generateFileName($date, $hours, $minutes);
-		return file_exists($directory.$fileName);
+		$files = glob($directory.$fileName);
+		
+		return (count($files) >= 1 && @file_exists($files[0]));
 	}
 
 	/**

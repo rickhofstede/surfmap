@@ -19,17 +19,20 @@
 		
 		if(type == "filterError") {
 			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /><b>Filter</b>: " + nfsenFilter + "<br /><b>Error message</b>: " +  getErrorMessage() + "</br /><br />Please check <a href='http://nfdump.sourceforge.net/' style='text-decoration:underline;' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.", "Filter error");
-		} else if(type == "fileError") {
-			jAlert("There is a problem with your profile data. Please check whether your profile is empty and/or change to another NetFlow source. This can be done in the 'Menu' panel by selecting other 'Sources'.", "File error");
+		} else if(type == "noDataError") {
+			jAlert("No NetFlow data has been found for the selected profile, source and filter. Please change your settings.", "No data available");
 		} else if(type == "profileError") {
 			jAlert("You have an error in your configuration. <br /><br /><b>Error message</b>: " +  getErrorMessage(), "Error");
 		} else if(type == "invalidWindow") {
 			if(getErrorCode() == 2) {
 				// The first (normal) selected date/time is invalid.
-				jAlert("The selected date/time window (<?php echo $sessionData->originalDate1Window.' '.$sessionData->originalTime1Window; ?>) does not exist.<br /><br />The last available/valid time window will be selected.", "Error");
+				jAlert("The selected date/time window (" + originalDate1Window + " " + originalTime1Window + ") does not exist.<br /><br />The last available/valid time window will be selected.", "Error");
 			} else if(getErrorCode() == 3) {
 				// The second (time range) selected date/time is invalid.
-				jAlert("The (second) selected date/time window (<?php echo $sessionData->originalDate2Window.' '.$sessionData->originalTime2Window; ?>) does not exist.<br /><br />The last available/valid time window will be selected.", "Error");
+				jAlert("The (second) selected date/time window (" + originalDate2Window + " " + originalTime2Window + ") does not exist.<br /><br />The last available/valid time window will be selected.", "Error");
+			} else if(getErrorCode() == 4) {
+				// The second (time range) selected date/time is invalid.
+				jAlert("Both selected date/time windows (" + originalDate1Window + " " + originalTime1Window + " - " + originalDate2Window + " " + originalTime2Window + ") do not exist.<br /><br />The last available/valid time window will be selected.", "Error");
 			} else {
 				// The selected date/time range is invalid (i.e., the second selected date/time is earlier than the first selected date/time).
 				jAlert("An unknown error occured.", "Error");
@@ -177,7 +180,7 @@
 		$("#" + id).progressbar({
 			value: initialValue
 		});
-		$(".ui-progressbar-value").append("<div id=\"progressBarText\" style=\"color:#797979; margin-top:3px;\">" + initialText + "</div>");
+		$("<div id=\"progressBarText\" style=\"color:#797979; font-weight:bold; margin-top:3px; margin-left:10px; float:left;\">" + initialText + "</div>").insertBefore(".ui-progressbar-value");
 		$(".ui-progressbar-value").css("text-align", "center");
 	}
 

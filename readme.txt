@@ -4,11 +4,13 @@ Please check the manual for installation instructions. Run the ConfigurationChec
 
 ---
 
-Release notes [v2.1 dev (20111114)]:
+Release notes [v2.1 dev (20111115)]:
 - [FEATURE] Added support for source selection in user interface
 - [FEATURE] Added support for NfSen shadow profiles
 - [FEATURE] Improved alerting
 - [FEATURE] Simplified SURFmap setup
+- [BUGFIX] Fixed a bug causing incorrect warning messages to be shown
+- [BUGFIX] Fixed a bug causing status in the progress bar to be incorrectly wrapped
 - [BUGFIX] Fixed a timing bug, caused by accessing incompletely initialized JS objects
 - [BUGFIX] Improved stability when handling NfSen shadow profiles
 - [BUGFIX] Improved layout on Linux systems

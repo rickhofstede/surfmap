@@ -13,7 +13,7 @@
 	require_once($NFSEN_DIR."/conf.php");
 	require_once($NFSEN_DIR."/nfsenutil.php");
 
-	$version = "v2.1 dev (20111114)";
+	$version = "v2.1 dev (20111115)";
 
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -173,7 +173,7 @@
 		 *	2: invalid date/time window (selector 1)
 		 *	3: invalid date/time window (selector 2)
 		 *	4: invalid date/time window (selector 1+2)
-		 *  5: (unused)
+		 *  5: no data error
 		 *  6: profile error
 		 */
 		var $errorCode = 0;
@@ -308,7 +308,11 @@
 		var latestMinute = "<?php echo $sessionData->latestMinute; ?>";
 		var errorCode = "<?php echo $sessionData->errorCode; ?>";
 		var errorMessage = "<?php echo $sessionData->errorMessage; ?>";
-		
+		var originalDate1Window = "<?php echo $sessionData->originalDate1Window; ?>";
+		var originalTime1Window = "<?php echo $sessionData->originalTime1Window; ?>";
+		var originalDate2Window = "<?php echo $sessionData->originalDate2Window; ?>";
+		var originalTime2Window = "<?php echo $sessionData->originalTime2Window; ?>";
+
 		var INFO_logQueue = [];
 		var ERROR_logQueue = [];
 		var DEBUG_logQueue = [];
@@ -325,7 +329,7 @@
 		var demoModePageTitle = "<?php echo $DEMO_MODE_PAGE_TITLE; ?>";
 		var autoOpenMenu = <?php echo $AUTO_OPEN_MENU; ?>; // 0: Disabled; 1: Enabled
 		var debugLogging = <?php echo $LOG_DEBUG; ?>;
-		var showWarningOnFileError = <?php echo $SHOW_WARNING_ON_FILE_ERROR; ?>;
+		var showWarningOnNoData = <?php echo $SHOW_WARNING_ON_NO_DATA; ?>;
 		
 		var autoRefresh = <?php echo $_SESSION['SURFmap']['refresh']; ?>;
 		var autoRefreshID = -1;
@@ -1522,13 +1526,15 @@
 				addToLogQueue("INFO", "Stopped initialization due to filter error");
 				serverTransactions();
 				return;
-			} else if(getErrorCode() == 4) {
-				if(showWarningOnFileError == 1) {
-					generateAlert("fileError");
+			} else if(getErrorCode() == 5) {
+				if(showWarningOnNoData == 1) {
+					generateAlert("noDataError");
+				} else {
+					$("#dialog").dialog("destroy"); // Hide progress bar
 				}
-				addToLogQueue("INFO", "Stopped initialization due to file error");
+				addToLogQueue("INFO", "Stopped initialization due to no data error");
 				serverTransactions();
-				return;
+				return;				
 			} else if(getErrorCode() == 6) {
 				generateAlert("profileError");
 				addToLogQueue("INFO", "Stopped initialization due to profile error");
