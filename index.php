@@ -384,6 +384,7 @@
 		*/
 		function serverTransactions() {
 			var somethingToSend = 0;
+			
 			while(ERROR_logQueue.length > 0 || DEBUG_logQueue.length > 0 || INFO_logQueue.length > 0 || GEOCODING_queue.length > 0 || SESSION_queue.length > 0) {
 				var data, logType, message;
 				if(ERROR_logQueue.length > 0) {
@@ -399,15 +400,15 @@
 				
 				if(logType == "ERROR" || logType == "DEBUG" || logType == "INFO") {
 					somethingToSend = 1;
-					data = "transactionType=log&message=" + message.replace(" ", "_") + "&logType=" + logType + "&id=" + Math.random();
+					data = "transactionType=log&message=" + message.replace(" ", "_") + "&logType=" + logType + "&token=" + Math.random();
 				} else if(GEOCODING_queue.length > 0) {
 					somethingToSend = 1;
 					var placeToStore = GEOCODING_queue.shift();
-					data = "transactionType=geocoder&location=" + placeToStore.place.replace(" ", "_") + "&lat=" + placeToStore.lat + "&lng=" + placeToStore.lng + "&id=" + Math.random();
+					data = "transactionType=geocoder&location=" + placeToStore.place.replace(" ", "_") + "&lat=" + placeToStore.lat + "&lng=" + placeToStore.lng + "&token=" + Math.random();
 				} else if(SESSION_queue.length > 0) {
 					somethingToSend = 1;
 					var sessionData = SESSION_queue.shift();
-					data = "transactionType=session&type=" + sessionData.type + "&value=" + sessionData.value + "&id=" + Math.random();
+					data = "transactionType=session&type=" + sessionData.type + "&value=" + sessionData.value + "&token=" + Math.random();
 				}
 
 				// If there is something to send to the server
