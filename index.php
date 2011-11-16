@@ -258,7 +258,7 @@
 	<script type="text/javascript" src="js/jquery.alerts.js"></script>
 	<script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
 	<script type="text/javascript" src="js/jqueryutil.js"></script>
-	<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script> <!-- http://trentrichardson.com/examples/timepicker/ -->
 	<script type="text/javascript" src="js/maputil.js"></script>
 	<script type="text/javascript" src="js/markermanager.js"></script>
 	<script type="text/javascript" src="js/objects.js"></script>
@@ -1589,12 +1589,12 @@
 	
 	<script type="text/javascript">
 		/*
-		 * IE8 does not properly support an iFrame width/height of 100% 
+		 * IE8/IE9 does not properly support an iFrame width/height of 100% 
 		 * when "<meta http-equiv="X-UA-Compatible" content="IE=edge" />" is used.
 		 * http://brondsema.net/blog/index.php/2007/06/06/100_height_iframe
 		 */
 		if($("meta[http-equiv='X-UA-Compatible'][content='IE=edge']").length > 0 && // Check whether the problematic meta-tag has been set
-				$.browser.msie && parseInt($.browser.version) == 8) {
+				$.browser.msie && parseInt($.browser.version) >= 8) {
 			var clientHeight = parent.document.documentElement.clientHeight;
 			parent.document.getElementById("surfmapParentIFrame").style.height = clientHeight +"px";
 		}

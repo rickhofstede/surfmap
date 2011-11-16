@@ -8,7 +8,7 @@ label { margin-left:2px; }
 .footer { font-size:65%; vertical-align:text-top; }
 .legendTextCell { padding-left:15px; float:left; }
 .legendImageCell { padding-left:25px; float:left; }
-.netflowDataDetailsTitle { font-size: 80%; font-weight: bold; background-color: #7C94B0; color: white; }
+.netflowDataDetailsTitle { font-size: 80%; font-weight: bold; background-color: #46A3CA; color: white; }
 .netflowDataDetails { font-size: 70%; }
 .informationWindowHeader { font-weight: bold; font-size: 75%; background-color: #4DB2E5; text-align: center; color:white; cursor: default; }
 .informationWindowBody { font-size: 80%; text-align: center; }
