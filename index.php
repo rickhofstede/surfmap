@@ -1601,8 +1601,7 @@
 		 * http://brondsema.net/blog/index.php/2007/06/06/100_height_iframe
 		 */
 		if($("meta[http-equiv='X-UA-Compatible'][content='IE=edge']").length > 0 && // Check whether the problematic meta-tag has been set
-				($.browser.msie && parseInt($.browser.version) == 8
-				|| $.browser.mozilla && parseFloat($.browser.version) < 1.9)) {
+				$.browser.msie && parseInt($.browser.version) == 8) {
 			var clientHeight = parent.document.documentElement.clientHeight;
 			parent.document.getElementById("surfmapParentIFrame").style.height = clientHeight +"px";
 		}

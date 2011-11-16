@@ -12,7 +12,7 @@ Release notes [v2.1 dev (20111116)]:
 - [BUGFIX] Fixed a bug causing incorrect warning messages to be shown
 - [BUGFIX] Fixed a bug causing status in the progress bar to be incorrectly wrapped
 - [BUGFIX] Fixed a timing bug, caused by accessing incompletely initialized JS objects
-- [BUGFIX] Improved compatibility with Internet Explorer 8 and Firefox 2
+- [BUGFIX] Improved compatibility with Internet Explorer 8
 - [BUGFIX] Improved stability when handling NfSen shadow profiles
 - [BUGFIX] Improved layout on Linux systems
 - [BUGFIX] Numerous bugfixes and improvements
