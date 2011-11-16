@@ -265,14 +265,12 @@
 	<script type="text/javascript" src="js/util.js"></script>
 	<script type="text/javascript">
 		var COUNTRY = 0; var REGION = 1; var CITY = 2; var HOST = 3;
-		var map, markerManager, geocoder, infoWindow, currentZoomLevel, currentSURFmapZoomLevel;
-		var initialZoomLevel = <?php if($_SESSION['SURFmap']['zoomLevel'] != "-1") { echo $_SESSION['SURFmap']['zoomLevel']; } else { echo '2'; } ?>;
-		var demoModeInitialSURFmapZoomLevel = <?php echo $DEMO_MODE_DEFAULT_ZOOM_LEVEL; ?>;
+		var map, markerManager, geocoder, infoWindow, currentZoomLevel, currentSURFmapZoomLevel, initialZoomLevel;
+		var initialZoomLevel = <?php echo $_SESSION['SURFmap']['zoomLevel']; ?>;
+		var initialSURFmapZoomLevel = <?php echo $DEFAULT_ZOOM_LEVEL; ?>;
 		var mapCenter = "<?php if($_SESSION['SURFmap']['mapCenter'] != "-1") {echo $_SESSION['SURFmap']['mapCenter'];} else {echo $MAP_CENTER;} ?>";
 			mapCenter = new google.maps.LatLng(parseFloat(mapCenter.substring(0, mapCenter.indexOf(","))), parseFloat(mapCenter.substring(mapCenter.indexOf(",") + 1)));
 		var mapCenterWithoutGray; // Map center, for which the map doesn't show gray areas
-		var minZoomLevel = 2;
-		var maxZoomLevel = 13;
 
 		var flowRecords = [];
 		var lines = new Array(4); // 4 zoom levels
@@ -1458,14 +1456,14 @@
 			readPHPLogQueue("INFO");
 			readPHPLogQueue("ERROR");
 			
-			if(demoMode == 1) {
-				currentSURFmapZoomLevel = demoModeInitialSURFmapZoomLevel;
-				currentZoomLevel = getGoogleMapsZoomLevel(demoModeInitialSURFmapZoomLevel) + 1;
+			if(initialZoomLevel == -1) {
+				currentSURFmapZoomLevel = initialSURFmapZoomLevel;
+				currentZoomLevel = getGoogleMapsZoomLevel(currentSURFmapZoomLevel);
 			} else {
 				currentZoomLevel = initialZoomLevel;
 				currentSURFmapZoomLevel = getSurfmapZoomLevel(initialZoomLevel);
 			}
-			map = initializeMap(mapCenter, currentZoomLevel, minZoomLevel, maxZoomLevel);
+			map = initializeMap(mapCenter, currentZoomLevel, 2, 13);
 			
 			google.maps.event.addListener(map, "click", function() {
 				infoWindow.close();
@@ -1596,7 +1594,7 @@
 	
 	<script type="text/javascript">
 		/*
-		 * IE8 and FF2 do not properly support an iFrame width/height of 100% 
+		 * IE8 does not properly support an iFrame width/height of 100% 
 		 * when "<meta http-equiv="X-UA-Compatible" content="IE=edge" />" is used.
 		 * http://brondsema.net/blog/index.php/2007/06/06/100_height_iframe
 		 */

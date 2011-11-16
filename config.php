@@ -12,6 +12,7 @@
 	$DEFAULT_FLOW_RECORD_COUNT=-1; // Default amount of flow records to be selected - '-1': let SURFmap decide depending on the selected geolocation service [default: -1]
 	$DEFAULT_QUERY_TYPE=1; // Default NfSen option - 0: Flow listing, 1: Stat TopN
 	$DEFAULT_QUERY_TYPE_STAT_ORDER="bytes"; // Indicates the field on which statistics should be based, 'flows', 'packets' or 'bytes' [default: 'bytes']
+	$DEFAULT_ZOOM_LEVEL=0; // Default SURFmap zoom level (i.e. Country (0), Region (1), City (2), Host(3)) [default: 0]
 	$LOG_DEBUG=0; // If enabled, debug logging is printed to the log file [default: 0]
 	$LOG_ERRORS_ONLY=0; // If enabled, only log messages of type 'ERROR' are written to the log file [default: 0]
 	$AUTO_OPEN_MENU=0; // If enabled, the settings menu will open automatically when SURFmap is loaded [default: 0]
@@ -53,7 +54,6 @@
 
 	// [Demo Mode]
 	$DEMO_MODE=0; // Enables or disables SURFmap's demo mode - 0: no, 1: yes [default: 0]
-	$DEMO_MODE_DEFAULT_ZOOM_LEVEL=0; // Default SURFmap zoom level in demo mode (i.e. Country (0), Region (1), City (2), Host(3)) [default: 0]
 	$DEMO_MODE_PAGE_TITLE="Current network traffic across the world"; // Title to be displayed in demo mode
 
 ?>

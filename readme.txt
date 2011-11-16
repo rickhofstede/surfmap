@@ -9,6 +9,7 @@ Release notes [v2.1 dev (20111116)]:
 - [FEATURE] Added support for NfSen shadow profiles
 - [FEATURE] Improved alerting
 - [FEATURE] Simplified SURFmap setup
+- [FEATURE] Added an option to set the default zoom level
 - [BUGFIX] Fixed a bug causing incorrect warning messages to be shown
 - [BUGFIX] Fixed a bug causing status in the progress bar to be incorrectly wrapped
 - [BUGFIX] Fixed a timing bug, caused by accessing incompletely initialized JS objects
