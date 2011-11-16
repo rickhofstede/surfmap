@@ -13,7 +13,7 @@
 	require_once($NFSEN_DIR."/conf.php");
 	require_once($NFSEN_DIR."/nfsenutil.php");
 
-	$version = "v2.1 dev (20111115)";
+	$version = "v2.1 dev (20111116)";
 
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1595,6 +1595,18 @@
 		<a href="http://www.utwente.nl/en" target="_blank"><img src="images/UT_Logo.png" style="height:76px;width:280px;float:right;" alt="University of Twente"/></a>
 	
 	<script type="text/javascript">
+		/*
+		 * IE8 and FF2 do not properly support an iFrame width/height of 100% 
+		 * when "<meta http-equiv="X-UA-Compatible" content="IE=edge" />" is used.
+		 * http://brondsema.net/blog/index.php/2007/06/06/100_height_iframe
+		 */
+		if($("meta[http-equiv='X-UA-Compatible'][content='IE=edge']").length > 0 && // Check whether the problematic meta-tag has been set
+				($.browser.msie && parseInt($.browser.version) == 8
+				|| $.browser.mozilla && parseFloat($.browser.version) < 1.9)) {
+			var clientHeight = parent.document.documentElement.clientHeight;
+			parent.document.getElementById("surfmapParentIFrame").style.height = clientHeight +"px";
+		}
+	
 		if(demoMode == 1) {
 			document.write("<div id=\"header-text-demo\" style=\"height:76px; font-size:30pt; text-align:center;\" display=\"inline-block\" ><p style=\"margin-top:18px;\">" + demoModePageTitle + " (" + hours1 + ":" + minutes1 + ")</p></div>");
 		} else {
