@@ -13,7 +13,7 @@
 	require_once($NFSEN_DIR."/conf.php");
 	require_once($NFSEN_DIR."/nfsenutil.php");
 
-	$version = "v2.1 dev (20111116)";
+	$version = "v2.1 stable (20111116)";
 
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
