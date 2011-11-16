@@ -279,11 +279,7 @@
 		var markers = new Array(4); // 4 zoom levels
 		var markerProperties = new Array(4); // 4 zoom levels	
 
-		var green = "#00cc00";
-		var yellow = "#ffff00";
-		var orange = "#ff6600";
-		var red = "#ff0000";
-		var black = "#000000";
+		var green = "#00cc00"; var yellow = "#ffff00"; var orange = "#ff6600"; var red = "#ff0000"; var black = "#000000";
 		var lineColors = 4;
 		var lineColorClassification = [];
 		
@@ -338,9 +334,8 @@
 		var greenIcon = new google.maps.MarkerImage("images/green_marker.png", new google.maps.Size(20, 34));
 		
 		// NfSen parameters
+		var nfsenOption = <?php echo $_SESSION['SURFmap']['nfsenOption']; ?>; // 0: List flows; 1: Top StatN
 		var nfsenStatOrder = "<?php echo $_SESSION['SURFmap']['nfsenStatOrder']; ?>"; // flows, packets or octets
-		nfsenStatOrder = (nfsenStatOrder == "" ? "flows" : nfsenStatOrder);
-		var nfsenOption = <?php echo $_SESSION['SURFmap']['nfsenOption']; ?>; // nfsenOption; 0: List flows; nfsenOption 1: Top StatN
 
 		var protocols = ["Reserved", "ICMP", "IGMP", "GGP", "Encapsulated IP", "ST", "TCP", "UCL", "EGP", "IGP", "BBN-RCC-MON", "NVP-II", "PUP", "ARGUS", "EMCON", "XNET", "CHAOS", "UDP", "MUX", "DCN-MEAS", "HMP", "PRM", "XNS-IDP", "trUNK-1", "trUNK-2", "LEAF-1", "LEAF-2", "RDP", "IRTP", "ISO-TP4", "NETBLT", "MFE-NSP", "MERIT-INP", "SEP", "3PC", "IDPR", "XTP", "DDP", "IDPR-CMTP", "TP++", "IL", "SIP", "SDRP", "SIP-SR", "SIP-FRAG", "IDRP", "RSVP", "GRE", "MHRP", "BNA", "SIPP-ESP", "SIPP-AH", "I-NLSP", "SWIPE", "NHRP", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Any host internal protocol", "CFTP", "Any local network", "SAT-EXPAK", "KRYPTOLAN", "RVD", "IPPC", "Any distributed file system", "SAT-MON", "VISA", "IPCV", "CPNX", "CPHB", "WSN", "PVP", "BR-SAT-MON", "SUN-ND", "WB-MON", "WB-EXPAK", "ISO-IP", "VMTP", "SECURE-VMTP", "VIVES", "TTP", "NSFNET-IGP", "DGP", "TCF", "IGRP", "OSPFIGP", "Sprite-RPC", "LARP", "MTP", "AX.25", "IFIP", "MICP", "SCC-SP", "ETHERIP", "ENCAP", "Any private encryption scheme", "GMTP"];
 		
@@ -1234,7 +1229,7 @@
 		* Determines the line color ranges based on the current flow property (either flows, packets or bytes).
 		* Parameters:
 		*	level - a SURFmap zoom level
-		*	property - either flows, packets or bytes
+		*	property - either 'flows', 'packets' or 'bytes'
 		*/
 		function determineLineColorRanges(level, property) {
 			var min = 1;
@@ -1886,20 +1881,18 @@
 		*		zoom_level - a SURFmap zoom level
 		*/
 		function initializeLegend(zoomLevel) {
-			determineLineColorRanges(zoomLevel, nfsenStatOrder);
-			document.getElementById("legend_based_on").innerHTML = "Number of observed " + nfsenStatOrder;
-			
-			if(nfsenStatOrder == "bytes") {
-				document.getElementById("legend_green").innerHTML = "[ " + applySIScale(lineColorClassification[0]) + ", " + applySIScale(lineColorClassification[1]) + " >";
-				document.getElementById("legend_yellow").innerHTML = "[ " + applySIScale(lineColorClassification[1]) + ", " + applySIScale(lineColorClassification[2]) + " >";
-				document.getElementById("legend_orange").innerHTML = "[ " + applySIScale(lineColorClassification[2]) + ", " + applySIScale(lineColorClassification[3]) + " >";
-				document.getElementById("legend_red").innerHTML = "[ " + applySIScale(lineColorClassification[3]) + ", " + applySIScale(lineColorClassification[4]) + " ]";
-			} else {
-				document.getElementById("legend_green").innerHTML = "[ " + lineColorClassification[0] + ", " + lineColorClassification[1] + " >";
-				document.getElementById("legend_yellow").innerHTML = "[ " + lineColorClassification[1] + ", " + lineColorClassification[2] + " >";
-				document.getElementById("legend_orange").innerHTML = "[ " + lineColorClassification[2] + ", " + lineColorClassification[3] + " >";
-				document.getElementById("legend_red").innerHTML = "[ " + lineColorClassification[3] + ", " + lineColorClassification[4] + " ]";
+			if(nfsenOption == 0) { // List flows
+				determineLineColorRanges(zoomLevel, "flows");
+				document.getElementById("legend_based_on").innerHTML = "Number of observed flows:";
+			} else { // Stat TopN
+				determineLineColorRanges(zoomLevel, nfsenStatOrder);
+				document.getElementById("legend_based_on").innerHTML = "Number of observed " + nfsenStatOrder + ":";
 			}
+			
+			document.getElementById("legend_green").innerHTML = "[ " + applySIScale(lineColorClassification[0]) + ", " + applySIScale(lineColorClassification[1]) + " >";
+			document.getElementById("legend_yellow").innerHTML = "[ " + applySIScale(lineColorClassification[1]) + ", " + applySIScale(lineColorClassification[2]) + " >";
+			document.getElementById("legend_orange").innerHTML = "[ " + applySIScale(lineColorClassification[2]) + ", " + applySIScale(lineColorClassification[3]) + " >";
+			document.getElementById("legend_red").innerHTML = "[ " + applySIScale(lineColorClassification[3]) + ", " + applySIScale(lineColorClassification[4]) + " ]";
 		}
 		
 	   /*

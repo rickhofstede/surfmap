@@ -109,22 +109,22 @@
 	*			   1000000 -> 1 M
 				   1000 -> 1 k
 	* Parameters:
-	*		octets - the amount of octets that needs to be converted
+	*		number - the amount of packets/octets,flows etc. that needs to be converted
 	*/	
-	function applySIScale(octets) {
-		var newOctets;
+	function applySIScale(number) {
+		var newNumber;
 		
-		if((octets / 1000000000) > 1) {
-			newOctets = (octets / 1000000000).toFixed(1) + " G";
-		} else if((octets / 1000000) > 1) {
-			newOctets = (octets / 1000000).toFixed(1) + " M";
-		} else if((octets / 1000) > 1) {
-			newOctets = (octets / 1000).toFixed(1) + " k";
+		if((number / 1000000000) > 1) {
+			newNumber = (number / 1000000000).toFixed(1) + " G";
+		} else if((number / 1000000) > 1) {
+			newNumber = (number / 1000000).toFixed(1) + " M";
+		} else if((number / 1000) > 1) {
+			newNumber = (number / 1000).toFixed(1) + " k";
 		} else {
-			newOctets = octets;
+			newNumber = number;
 		}
 		
-		return newOctets;
+		return newNumber;
 	}
 
    /**
