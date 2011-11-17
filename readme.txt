@@ -8,6 +8,7 @@ Release notes [v2.2 dev (20111117)]:
 - [FEATURE] It's now possible to copy date/time from one input field to another
 - [FEATURE] A warning message can be shown on potential heavy query
 - [FEATURE] Improved progress bar layout
+- [BUGFIX] Several bug fixes and improvements
 
 Release notes [v2.1 stable (20111116)]:
 

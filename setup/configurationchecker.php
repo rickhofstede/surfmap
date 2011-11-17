@@ -47,7 +47,7 @@
 	$month = date("m");
 	$day = date("d");
 	$hours = intval(date("H"));
-	$hours--;
+	$hours = ($hours > 0) ? $hours - 1 : 23;
 	if(strlen($hours) == 1) {
 		$hours = "0".$hours;
 	}
