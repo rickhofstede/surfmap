@@ -18,6 +18,7 @@
 	$AUTO_OPEN_MENU=0; // If enabled, the settings menu will open automatically when SURFmap is loaded [default: 0]
 	$FORCE_HTTPS=1; // If enabled, HTTPS will be used to contact Google for retrieving the maps [default: 1]
 	$SHOW_WARNING_ON_NO_DATA=1; // If enabled, a warning message is shown in the user interface to inform about the issue [default: 1]
+	$SHOW_WARNING_ON_HEAVY_QUERY=1; // If enabled, a warning message is shown in the user interface to inform about apotential heavy query [default: 1]
 	$SORT_FLOWS_BY_START_TIME=0; // Sorts flows by start time - 0: no, 1: yes [default: 0]
 	
 	// [NfSen]

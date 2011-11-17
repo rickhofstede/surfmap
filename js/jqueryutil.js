@@ -33,10 +33,11 @@
 			} else if(getErrorCode() == 4) {
 				// The second (time range) selected date/time is invalid.
 				jAlert("Both selected date/time windows (" + originalDate1Window + " " + originalTime1Window + " - " + originalDate2Window + " " + originalTime2Window + ") do not exist.<br /><br />The last available/valid time window will be selected.", "Error");
-			} else {
-				// The selected date/time range is invalid (i.e., the second selected date/time is earlier than the first selected date/time).
-				jAlert("An unknown error occured.", "Error");
 			}
+		} else if(type = "noSourcesSelectedError") {
+			jAlert("You have no source selected, while you should have selected at least one.", "Error");
+		} else {
+			jAlert("An unknown error occured.", "Error");
 		}
 	}
 

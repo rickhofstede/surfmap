@@ -256,7 +256,7 @@
 	<script type="text/javascript" src="jquery/js/jquery-1.6.2.min.js"></script>
 	<script type="text/javascript" src="jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery.alerts.js"></script>
-	<script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
+	<script type="text/javascript" src="js/jquery.multiselect.min.js"></script> <!-- http://www.erichynds.com/examples/jquery-ui-multiselect-widget/demos/ -->
 	<script type="text/javascript" src="js/jqueryutil.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script> <!-- http://trentrichardson.com/examples/timepicker/ -->
 	<script type="text/javascript" src="js/maputil.js"></script>
@@ -324,6 +324,7 @@
 		var autoOpenMenu = <?php echo $AUTO_OPEN_MENU; ?>; // 0: Disabled; 1: Enabled
 		var debugLogging = <?php echo $LOG_DEBUG; ?>;
 		var showWarningOnNoData = <?php echo $SHOW_WARNING_ON_NO_DATA; ?>;
+		var showWarningOnHeavyQuery = <?php echo $SHOW_WARNING_ON_HEAVY_QUERY; ?>;
 		
 		var autoRefresh = <?php echo $_SESSION['SURFmap']['refresh']; ?>;
 		var autoRefreshID = -1;
@@ -1716,11 +1717,12 @@
 				+ "</tr>"
 				+ "<tr>"
 					+ "<td colspan=\"2\">"
-						+ "<textarea name=\"filter\" rows=\"2\" cols=\"26\" style=\"font-size:11px;\">" + nfsenDisplayFilter + "</textarea>"
+						+ "<textarea name=\"filter\" rows=\"2\" cols=\"26\" style=\"font-size:11px;\" onblur=\"checkHeavyQuery();\">" + nfsenDisplayFilter + "</textarea>"
 					+ "</td>"					
 				+ "</tr>"
 				+ "<tr>"
 					+ "<td colspan=\"2\" style=\"text-align:center; padding-top:5px;\">"
+						+ "<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you probably selected a heavy query!</div>"
 						+ "<input type=\"submit\" name=\"submit\" value=\"Submit\" />"
 					+ "</td>"					
 				+ "</tr>"					
@@ -1788,7 +1790,13 @@
 		
 		// Initialize buttons (jQuery)
 		$('#options').submit(function() {
-		    $('input[type=submit]', this).attr('disabled', 'disabled');
+			if($("#nfsensources").multiselect("widget").find("input:checked").length == 0) {
+				generateAlert("noSourcesSelectedError");
+				return false;
+			} else {
+		    	$('input[type=submit]', this).attr('disabled', 'disabled');
+				return true;
+			}
 		});
 		
 		// Initialize button set (jQuery)
@@ -1797,15 +1805,37 @@
 		// Initialize source selector (jQuery)
 		$("#nfsensources").multiselect({
 			minWidth:135,
-			open: function(event, ui){
+			header: true,
+			open: function() {
 				$("div.ui-multiselect-menu").css("left", "");
 				$("div.ui-multiselect-menu").css("right", "23px");
 				$("div.ui-multiselect-menu").css("width", "175px");
+			},
+			close: function() {
+				checkHeavyQuery();
 			}
 		});
 		
 		// Generate progress bar (jQuery)
 		generateDialog("progressBar", "");
+		
+	   /**
+		* Checks whether a (suspected) heavy query has been selected. This is done based on the amount
+		* of selected sources and the filter length.
+		*/		
+		function checkHeavyQuery() {
+			var heavyQuery = false;
+			if($("#nfsensources").multiselect("widget").find("input:checked").length > 2
+					|| $("textarea[name=filter]").val().length > 100) {
+				heavyQuery = true;
+			}
+
+			if(showWarningOnHeavyQuery && heavyQuery) {
+				$("#heavyquerymessage").show();
+			} else {
+				$("#heavyquerymessage").hide();
+			}
+		}		
 		
 	   /**
 		* Shows the NfSen flow output / overview (depends on whether or not it is already present) in a dialog.
