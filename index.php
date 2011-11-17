@@ -13,7 +13,7 @@
 	require_once($NFSEN_DIR."/conf.php");
 	require_once($NFSEN_DIR."/nfsenutil.php");
 
-	$version = "v2.1 stable (20111116)";
+	$version = "v2.2 dev (20111117)";
 
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1684,17 +1684,19 @@
 				+ "<tr>"
 					+ "<td style=\"width:60px;\">"
 						+ "Begin"
+						+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; float:right; cursor:pointer;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'end' time to here\" onclick=\"$('#datetime1').datetimepicker('setDate', new Date($('#datetime2').datetimepicker('getDate')));\"></span></div>"						
 					+ "</td>"
 					+ "<td>"
-						+ "<input type=\"text\" id=\"datetime1\" name=\"datetime1\" style=\"width:122px; padding:2px 0px 2px 5px;\" />"
+						+ "<input type=\"text\" id=\"datetime1\" name=\"datetime1\" style=\"width:120px; padding:2px 0px 2px 5px;\" />"
 					+ "</td>"					
 				+ "</tr>"
 				+ "<tr>"
 					+ "<td>"
 						+ "End"
+						+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; float:right; cursor:pointer;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'begin' time to here\" onclick=\"$('#datetime2').datetimepicker('setDate', new Date($('#datetime1').datetimepicker('getDate')));\"></span></div>"						
 					+ "</td>"
 					+ "<td>"
-						+ "<input type=\"text\" id=\"datetime2\" name=\"datetime2\" style=\"width:122px; padding:2px 0px 2px 5px;\" />"
+						+ "<input type=\"text\" id=\"datetime2\" name=\"datetime2\" style=\"width:120px; padding:2px 0px 2px 5px;\" />"
 					+ "</td>"
 				+ "</tr>"
 				+ "<tr>"
