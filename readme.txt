@@ -6,6 +6,7 @@ Please check the manual for installation instructions. Run the ConfigurationChec
 
 Release notes [v2.2 dev (20111117)]:
 - [FEATURE] It's now possible to copy date/time from one input field to another
+- [FEATURE] Improved progress bar layout
 
 Release notes [v2.1 stable (20111116)]:
 

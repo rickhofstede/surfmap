@@ -131,9 +131,9 @@
 			}
 		} else if(type == "progressBar") {
 			document.getElementById("dialog").setAttribute("title", "Loading...");
-			document.getElementById("dialog").innerHTML = "<div style='margin-top: 6px; width:400px;' id='progressBar'></div>";
+			document.getElementById("dialog").innerHTML = "<div style='margin-top: 6px; width:400px;' id='progressbar'></div>";
 			showDialog("dialog", 80, 450, "center", true);
-			showProgressBar("progressBar", 0, "");
+			showProgressBar("progressbar", 0, "");
 		} else if(type == "configurationCheckerHelp") {
 			var splittedString = text.split("##");
 			document.getElementById("dialog").setAttribute("title", splittedString[0]);
@@ -180,7 +180,7 @@
 		$("#" + id).progressbar({
 			value: initialValue
 		});
-		$("<div id=\"progressBarText\" style=\"color:#797979; font-weight:bold; margin-top:3px; margin-left:10px; float:left;\">" + initialText + "</div>").insertBefore(".ui-progressbar-value");
+		$("<div id=\"progressbartext\" style=\"color:#797979; font-weight:bold; margin-top:3px; margin-left:10px; float:left;\">" + initialText + "</div>").insertBefore(".ui-progressbar-value");
 		$(".ui-progressbar-value").css("text-align", "center");
 	}
 
@@ -190,9 +190,16 @@
 	* Parameters:
 	*		id - ID of the jQuery progress bar
 	*		value - Value to which the progress bar should be set
-	*		value - Text in the progress bar
+	*		text - Text in the progress bar
 	*/
 	function setProgressBarValue(id, value, text) {
 		$("#" + id).progressbar("option", "value", value);
-		$("#progressBarText").text(text);
+		$("#progressbartext").text(text);
+		
+		/*
+		 * 10: minimal margin
+		 * 140: 150px is the required margin to center message (140 = 150 - 10)
+		 */
+		var marginValue = 10 + ((parseInt(value) / 100) * 140);
+		$("#progressbartext").css("margin-left", marginValue + "px");
 	}

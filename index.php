@@ -538,7 +538,7 @@
 				 * Percents to fill: 70% - 40% = 30%
 				 */
 				var progress = (completedGeocodingRequests / totalGeocodingRequests) * 30;
-				setProgressBarValue("progressBar", 40 + progress, "Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
+				setProgressBarValue("progressbar", 40 + progress, "Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
 				if(geocodingQueue.length == 0 && totalGeocodingRequests == completedGeocodingRequests) {
 					clearInterval(intervalHandlerID); 
 
@@ -1447,7 +1447,7 @@
 		*/
 		function initialize() {
 			if(debugLogging == 1) printDebugLogging();
-			setProgressBarValue("progressBar", 10);
+			setProgressBarValue("progressbar", 10);
 			readPHPLogQueue("INFO");
 			readPHPLogQueue("ERROR");
 			
@@ -1511,7 +1511,7 @@
 			geocoder = new google.maps.Geocoder();
 			infoWindow = new google.maps.InfoWindow({maxWidth: 1000});
 			
-			setProgressBarValue("progressBar", 20);
+			setProgressBarValue("progressbar", 20);
 			changeZoomLevelPanel(0, currentSURFmapZoomLevel);
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 1. Basic initialization completed");
 
@@ -1536,12 +1536,12 @@
 				return;
 			}
 
-			setProgressBarValue("progressBar", 30, "Importing NetFlow data...");
+			setProgressBarValue("progressbar", 30, "Importing NetFlow data...");
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data...");
 			importData();
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data... Done");
 			
-			setProgressBarValue("progressBar", 40, "Complementing flow records");
+			setProgressBarValue("progressbar", 40, "Complementing flow records");
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records...");
 			complementFlowRecords();
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records... Done");
@@ -1553,24 +1553,24 @@
 		* This function contains the second stage of processing.
 		*/		
 		function processing() {
-			setProgressBarValue("progressBar", 70, "Initializing lines...");
+			setProgressBarValue("progressbar", 70, "Initializing lines...");
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines...");
 			initializeLines();
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines... Done");
 
-			setProgressBarValue("progressBar", 80, "Initializing markers...");
+			setProgressBarValue("progressbar", 80, "Initializing markers...");
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers...");
 			initializeMarkers();
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers... Done");
 			
 			if(demoMode == 0) {
-				setProgressBarValue("progressBar", 90, "Initializing legend...");
+				setProgressBarValue("progressbar", 90, "Initializing legend...");
 				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend...");
 				initializeLegend(currentSURFmapZoomLevel);
 				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend... Done");
 			}
 
-			setProgressBarValue("progressBar", 100, "Finished loading...");
+			setProgressBarValue("progressbar", 100, "Finished loading...");
 			addToLogQueue("INFO", "Initialized");
 			
 			$("#dialog").dialog("destroy"); // Hide progress bar
