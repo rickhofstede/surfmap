@@ -31,7 +31,7 @@
 	 1 %Y/%m/%d    year/month/day
 	 2 %Y/%m/%d/%H year/month/day/hour
 	*/
-	$NFSEN_SUBDIR_LAYOUT=0; // Sub-directory layout, as configured in nfsen.conf [default: 1]
+	$NFSEN_SUBDIR_LAYOUT=1; // Sub-directory layout, as configured in nfsen.conf [default: 1]
 	
 	// [GeoLocation]
 	$GEOLOCATION_DB="MaxMind"; // "IP2Location", "MaxMind" or "geoPlugin" [default: 'MaxMind']
