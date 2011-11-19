@@ -10,6 +10,7 @@
 	require_once("MaxMind/geoipcity.inc");
 	require_once("IP2Location/ip2location.class.php");	
 	require_once("ConnectionHandler.php");
+	require_once("sessionhandler.php");
 	require_once($NFSEN_DIR."/conf.php");
 	require_once($NFSEN_DIR."/nfsenutil.php");
 
@@ -21,9 +22,9 @@
 	$infoLogQueue = new LogQueue();
 	$errorLogQueue = new LogQueue();
 	$connectionHandler = new ConnectionHandler();
-
 	$sessionData = new SessionData();
-	$connectionHandler->retrieveDataNfSen($sessionData);
+	$sessionHandler = new SessionHandler();
+	$connectionHandler->retrieveDataNfSen();
 	
 	$geoData = $connectionHandler->retrieveDataGeolocation($sessionData->flowRecordCount, $sessionData->NetFlowData);
 	$geoCoderData = $connectionHandler->retrieveDataGeocoderDB($geoData, $sessionData->flowRecordCount);
