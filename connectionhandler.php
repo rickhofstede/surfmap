@@ -1,6 +1,6 @@
 <?php
 	/*******************************
-	 * ConnectionHandler.php [SURFmap]
+	 * connectionhandler.php [SURFmap]
 	 * Author: Rick Hofstede
 	 * University of Twente, The Netherlands
 	 *******************************/
