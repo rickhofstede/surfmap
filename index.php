@@ -8,8 +8,9 @@
 	require_once("config.php");
 	require_once("geoPlugin/geoplugin.class.php");
 	require_once("MaxMind/geoipcity.inc");
-	require_once("IP2Location/ip2location.class.php");	
+	require_once("IP2Location/ip2location.class.php");
 	require_once("ConnectionHandler.php");
+	require_once("loghandler.php");
 	require_once("sessionhandler.php");
 	require_once($NFSEN_DIR."/conf.php");
 	require_once($NFSEN_DIR."/nfsenutil.php");
@@ -19,11 +20,10 @@
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
 	
-	$infoLogQueue = new LogQueue();
-	$errorLogQueue = new LogQueue();
-	$connectionHandler = new ConnectionHandler();
+	$logHandler = new LogHandler();
+	$connectionHandler = new ConnectionHandler($logHandler);
 	$sessionData = new SessionData();
-	$sessionHandler = new SessionHandler($infoLogQueue, $errorLogQueue);
+	$sessionHandler = new SessionHandler($logHandler);
 	
 	$connectionHandler->retrieveDataNfSen();
 	$geoData = $connectionHandler->retrieveDataGeolocation($sessionData->flowRecordCount, $sessionData->NetFlowData);
@@ -129,56 +129,6 @@
 			}
 		} 
 		return $result_string;
-	}
-
-	function ReportLog($message) {
-		// dummy function to avoid PHP errors
-	}
-
-	class LogQueue {
-		var $queue;
-		
-		function addToQueue($message) {
-			if(strlen($this->queue) == 0) {
-				$this->queue = $message;
-			} else {
-				$this->queue .= "_".$message;
-			}
-		}
-		
-	}
-
-	// Stores session data that shouldn't be stored in the PHP session data
-	class SessionData {
-		var $flowRecordCount;
-		var $query;
-		var $latestDate;
-		var $latestHour;
-		var $latestMinute;
-		var $originalDate1Window;
-		var $originalTime1Window;
-		var $originalDate2Window;
-		var $originalTime2Window;
-		
-		var $NetFlowData;
-		var $nfsenProfile;
-		var $nfsenProfileType;
-		var $nfsenDisplayFilter; // Contains filter without internal domains
-		var $firstNfSenSource = "";
-		var $geoData;
-		var $geoCoderData;
-		
-		/*
-		 * 	0: no error
-		 *	1: filter error
-		 *	2: invalid date/time window (selector 1)
-		 *	3: invalid date/time window (selector 2)
-		 *	4: invalid date/time window (selector 1+2)
-		 *  5: no data error
-		 *  6: profile error
-		 */
-		var $errorCode = 0;
-		var $errorMessage = "";
 	}
 	
 	class NetFlowFlow {
@@ -437,15 +387,13 @@
 			var logString;
 			
 			if(type == "INFO") {
-				logString = "<?php echo $infoLogQueue->queue; ?>";
+				logString = "<?php echo $logHandler->getInfo(); ?>";
 			} else if(type == "ERROR") {
-				logString = "<?php echo $errorLogQueue->queue; ?>";
-			} else {
-				alert("Type error in readPHPLogQueue()");
+				logString = "<?php echo $logHandler->getError(); ?>";
 			}
 			
 			if(logString.length > 0) {
-				var logArray = logString.split("_");
+				var logArray = logString.split("##");
 				for(var i = 0; i < logArray.length; i++) {
 					addToLogQueue(type, logArray[i]);
 				}

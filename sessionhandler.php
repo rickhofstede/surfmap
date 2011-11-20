@@ -10,9 +10,8 @@
 		/**
 		 * Constructs a new SessionHandler object.
 		 */
-		function __construct($infoLogQueue, $errorLogQueue) {
-			$this->infoLogQueue = $infoLogQueue;
-			$this->errorLogQueue = $errorLogQueue;
+		function __construct($logHandler) {
+			$this->logHandler = $logHandler;
 			
 			session_start();
 			
@@ -44,6 +43,8 @@
 			$this->setFilter();
 			$this->setNfSenProfileAndSources();
 			$this->setDatesAndTimes();
+			
+			session_write_close();
 		}
 		
 		/**
@@ -347,7 +348,7 @@
 			if(!sourceFilesExist($sessionData->firstNfSenSource, $_SESSION['SURFmap']['date1'],
 					$_SESSION['SURFmap']['hours1'], $_SESSION['SURFmap']['minutes1'])) {
 				$sessionData->errorCode = 2;					
-				$this->errorLogQueue->addToQueue("Selected time window (1) does not exist (".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].")");
+				$this->logHandler->writeError("Selected time window (1) does not exist (".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].")");
 				
 				$_SESSION['SURFmap']['date1'] = $sessionData->latestDate;
 				$_SESSION['SURFmap']['hours1'] = $sessionData->latestHour;
@@ -360,7 +361,7 @@
 				// If this is true, both selected date/time windows do not exist
 				if($sessionData->errorCode == 2) $sessionData->errorCode = 4;
 				
-				$this->errorLogQueue->addToQueue("Selected time window (2) does not exist (".$_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2'].")");
+				$this->logHandler->writeError("Selected time window (2) does not exist (".$_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2'].")");
 				
 				$_SESSION['SURFmap']['date2'] = $sessionData->latestDate;
 				$_SESSION['SURFmap']['hours2'] = $sessionData->latestHour;
@@ -370,7 +371,7 @@
 			if(!isTimeRangeIsPositive($_SESSION['SURFmap']['date1'], $_SESSION['SURFmap']['hours1'], 
 					$_SESSION['SURFmap']['minutes1'], $_SESSION['SURFmap']['date2'],
 					$_SESSION['SURFmap']['hours2'], $_SESSION['SURFmap']['minutes2'])) {
-				$this->infoLogQueue->addToQueue("Selected date/time range is not valid (".
+				$this->logHandler->writeInfo("Selected date/time range is not valid (".
 						$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].
 						$_SESSION['SURFmap']['minutes1']." - ".$_SESSION['SURFmap']['date2'].
 						$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2']."). ".
@@ -388,7 +389,7 @@
 				$_SESSION['SURFmap']['hours2'] = $tempHours1;
 				$_SESSION['SURFmap']['minutes2'] = $tempMinutes1;
 				
-				$this->infoLogQueue->addToQueue("New date/time range: ".
+				$this->logHandler->writeInfo("New date/time range: ".
 						$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].
 						$_SESSION['SURFmap']['minutes1']." - ".$_SESSION['SURFmap']['date2'].
 						$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2']."");
@@ -396,6 +397,41 @@
 		}
 	
 	}
+	
+	/*
+	 * Stores session data that shouldn't be stored in the PHP session data
+	 */
+	class SessionData {
+		var $flowRecordCount;
+		var $query;
+		var $latestDate;
+		var $latestHour;
+		var $latestMinute;
+		var $originalDate1Window;
+		var $originalTime1Window;
+		var $originalDate2Window;
+		var $originalTime2Window;
+		
+		var $NetFlowData;
+		var $nfsenProfile;
+		var $nfsenProfileType;
+		var $nfsenDisplayFilter; // Contains filter without internal domains
+		var $firstNfSenSource = "";
+		var $geoData;
+		var $geoCoderData;
+		
+		/*
+		 * 	0: no error
+		 *	1: filter error
+		 *	2: invalid date/time window (selector 1)
+		 *	3: invalid date/time window (selector 2)
+		 *	4: invalid date/time window (selector 1+2)
+		 *  5: no data error
+		 *  6: profile error
+		 */
+		var $errorCode = 0;
+		var $errorMessage = "";
+	}	
 	
 	/**
 	 * Generates a date String (yyyymmdd) from either 1) a date selector in the

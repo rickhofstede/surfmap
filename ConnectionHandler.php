@@ -11,8 +11,10 @@
 		/**
 		 * Constructs a new ConnectionHandler object.
 		 */
-		function __construct() {
+		function __construct($logHandler) {
 			global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE2, $GEOCODER_DB_SQLITE3;
+			
+			$this->logHandler = $logHandler;
 			
 			if($USE_GEOCODER_DB) {
 				try {
@@ -32,19 +34,15 @@
 		* Returns the NfSen query results.
 		*/
 		function retrieveDataNfSen() {
-			global $sessionData, $DEMO_MODE, $DEFAULT_QUERY_TYPE, $DEFAULT_QUERY_TYPE_STAT_ORDER,
-				   	$GEOLOCATION_DB, $INTERNAL_DOMAINS, $HIDE_INTERNAL_DOMAIN_TRAFFIC, 
-					$NFSEN_DEFAULT_SOURCES, $NFSEN_PRIMARY_SRC_SELECTOR, $NFSEN_ADDITIONAL_SRC_SELECTORS,
-					$SORT_FLOWS_BY_START_TIME, $DEFAULT_FLOW_RECORD_COUNT, $infoLogQueue, $errorLogQueue;
-			$NetFlowData = array();
-
+			global $sessionData, $SORT_FLOWS_BY_START_TIME;
+			
 			// Queries
 			if($_SESSION['SURFmap']['nfsenOption'] == 0) {
-				$run = " -R nfcapd.".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].
+				$run = "-R nfcapd.".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].
 						":nfcapd.".$_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2'].
 						" -c ".$_SESSION['SURFmap']['entryCount'];
 			} else {
-				$run = " -R nfcapd.".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].
+				$run = "-R nfcapd.".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].
 						":nfcapd.".$_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2'].
 						" -n ".$_SESSION['SURFmap']['entryCount']." -s record/".$_SESSION['SURFmap']['nfsenStatOrder'].
 						" -A proto,srcip,srcport,dstip,dstport";
@@ -84,6 +82,7 @@
 				return;
 			}
 
+			$NetFlowData = array();
 			if($_SESSION['SURFmap']['nfsenOption'] == 0) { // List flows
 				// Calculate flowRecordCount, for the case that less flow records are returned than the actual entryCount
 				$sessionData->flowRecordCount = sizeof($cmd_out['nfdump']) - 5; // Five lines are always present (header & footer)
