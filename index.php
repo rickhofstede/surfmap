@@ -9,7 +9,7 @@
 	require_once("geoPlugin/geoplugin.class.php");
 	require_once("MaxMind/geoipcity.inc");
 	require_once("IP2Location/ip2location.class.php");
-	require_once("ConnectionHandler.php");
+	require_once("connectionhandler.php");
 	require_once("loghandler.php");
 	require_once("sessionhandler.php");
 	require_once($NFSEN_DIR."/conf.php");
