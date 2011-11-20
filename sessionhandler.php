@@ -10,7 +10,10 @@
 		/**
 		 * Constructs a new SessionHandler object.
 		 */
-		function __construct() {
+		function __construct($infoLogQueue, $errorLogQueue) {
+			$this->infoLogQueue = $infoLogQueue;
+			$this->errorLogQueue = $errorLogQueue;
+			
 			session_start();
 			
 			// Prepare session variable
@@ -40,12 +43,15 @@
 			$this->setNfSenStatOrder();
 			$this->setFilter();
 			$this->setNfSenProfileAndSources();
+			$this->setDatesAndTimes();
 		}
 		
 		/**
 		 * Writes the 'entryCount' for this session to the session variable.
 		 */		
 		function setEntryCount() {
+			global $DEFAULT_FLOW_RECORD_COUNT, $GEOLOCATION_DB;
+			
 			if(isset($_GET['amount']) && ereg_replace("[^0-9]", "", $_GET['amount']) > 0) {
 				$_SESSION['SURFmap']['entryCount'] = ereg_replace("[^0-9]", "", $_GET['amount']);
 			} else if($_SESSION['SURFmap']['entryCount'] == -1) { // initialization value
@@ -63,6 +69,8 @@
 		 * Writes the 'nfsenOption' for this session to the session variable.
 		 */		
 		function setNfSenOption() {
+			global $DEFAULT_QUERY_TYPE;
+			
 			if(isset($_GET['nfsenoption'])) {
 				$_SESSION['SURFmap']['nfsenOption'] = $_GET['nfsenoption'];
 			} else if($_SESSION['SURFmap']['nfsenOption'] == -1) { // initialization value
@@ -74,6 +82,8 @@
 		 * Writes the 'nfsenStatOrder' for this session to the session variable.
 		 */		
 		function setNfSenStatOrder() {
+			global $DEFAULT_QUERY_TYPE_STAT_ORDER;
+			
 			if(isset($_GET['nfsenoption']) && $_GET['nfsenoption'] == 1 && isset($_GET['nfsenstatorder'])) {
 				$_SESSION['SURFmap']['nfsenStatOrder'] = $_GET['nfsenstatorder'];
 			} else if($_SESSION['SURFmap']['nfsenStatOrder'] == "-1") { // initialization value
@@ -178,8 +188,8 @@
 		 * sources.
 		 */		
 		function setNfSenProfileAndSources() {
-			global $sessionData;
-			
+			global $NFSEN_DEFAULT_SOURCES, $sessionData;
+
 			$sessionData->nfsenProfile = (substr($_SESSION['profileswitch'], 0, 2) === "./") ? substr($_SESSION['profileswitch'], 2) : $_SESSION['profileswitch'];
 			$sessionData->nfsenProfileType = ($_SESSION['profileinfo']['type'] & 4) > 0 ? 'shadow' : 'real';
 			
@@ -246,6 +256,8 @@
 		 * current session.
 		 */		
 		function setDatesAndTimes() {
+			global $sessionData;
+			
 			// Latest date/time slot (depending on files available by nfcapd)
 			$sessionData->latestDate = generateDateString(5);
 			$latestTime = generateTimeString(5);
@@ -335,7 +347,7 @@
 			if(!sourceFilesExist($sessionData->firstNfSenSource, $_SESSION['SURFmap']['date1'],
 					$_SESSION['SURFmap']['hours1'], $_SESSION['SURFmap']['minutes1'])) {
 				$sessionData->errorCode = 2;					
-				$errorLogQueue->addToQueue("Selected time window (1) does not exist (".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].")");
+				$this->errorLogQueue->addToQueue("Selected time window (1) does not exist (".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].")");
 				
 				$_SESSION['SURFmap']['date1'] = $sessionData->latestDate;
 				$_SESSION['SURFmap']['hours1'] = $sessionData->latestHour;
@@ -348,7 +360,7 @@
 				// If this is true, both selected date/time windows do not exist
 				if($sessionData->errorCode == 2) $sessionData->errorCode = 4;
 				
-				$errorLogQueue->addToQueue("Selected time window (2) does not exist (".$_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2'].")");
+				$this->errorLogQueue->addToQueue("Selected time window (2) does not exist (".$_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2'].")");
 				
 				$_SESSION['SURFmap']['date2'] = $sessionData->latestDate;
 				$_SESSION['SURFmap']['hours2'] = $sessionData->latestHour;
@@ -358,7 +370,7 @@
 			if(!isTimeRangeIsPositive($_SESSION['SURFmap']['date1'], $_SESSION['SURFmap']['hours1'], 
 					$_SESSION['SURFmap']['minutes1'], $_SESSION['SURFmap']['date2'],
 					$_SESSION['SURFmap']['hours2'], $_SESSION['SURFmap']['minutes2'])) {
-				$infoLogQueue->addToQueue("Selected date/time range is not valid (".
+				$this->infoLogQueue->addToQueue("Selected date/time range is not valid (".
 						$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].
 						$_SESSION['SURFmap']['minutes1']." - ".$_SESSION['SURFmap']['date2'].
 						$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2']."). ".
@@ -376,13 +388,216 @@
 				$_SESSION['SURFmap']['hours2'] = $tempHours1;
 				$_SESSION['SURFmap']['minutes2'] = $tempMinutes1;
 				
-				$infoLogQueue->addToQueue("New date/time range: ".
+				$this->infoLogQueue->addToQueue("New date/time range: ".
 						$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].
 						$_SESSION['SURFmap']['minutes1']." - ".$_SESSION['SURFmap']['date2'].
 						$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2']."");
 			}
 		}
-		
+	
 	}
+	
+	/**
+	 * Generates a date String (yyyymmdd) from either 1) a date selector in the
+	 * SURFmap interface, or 2) the last available date for which an nfcapd dump
+	 * file is available on the file system.
+	 * Parameters:
+	 *		bufferTime - buffer time between the real time and the most recent
+	 *						profile update, in minutes (default: 5)
+	 */
+	function generateDateString($bufferTime) {
+		$unprocessed_date = date("Ymd");
+
+		// If time is in interval [00:00, 00:{bufferTime}>, the date has to contain the previous day (and eventually month and year)
+		if(date("H") == 00 && date("i") < $bufferTime) {
+			$year = substr($unprocessed_date, 0, 4);
+			$month = substr($unprocessed_date, 4, 2);
+			$day = substr($unprocessed_date, 6, 2);
+
+			if($month == 01 && $day == 01) {
+				$year--;
+				$month = 12;
+				$day = 31;
+			} else if(checkdate($month, $day - 1, $year)) {
+				$day--;
+			} else if(checkdate($month - 1, 31, $year)) {
+				$day = 31;
+				$month--;
+			} else if(checkdate($month - 1, 30, $year)) {
+				$day = 30;
+				$month--;
+			} else if(checkdate($month - 1, 29, $year)) {
+				$day = 29;
+				$month--;
+			} else if(checkdate($month - 1, 28, $year)) {
+				$day = 28;
+				$month--;
+			}
+
+			if(strlen($day) < 2) $day = "0".$day;
+			if(strlen($month) < 2) $month = "0".$month;
+
+			$date = $year.$month.$day;
+		} else {
+			$date = $unprocessed_date;
+		}
+		
+		return $date;
+	}
+
+	/**
+	 * Generates a time String (hhmm) from either 1) a time selector in the
+	 * SURFmap interface, or 2) the last available time for which an nfcapd dump
+	 * file is available on the file system.
+	 * Parameters:
+	 *		bufferTime - buffer time between the real time and the most recent
+	 *						profile update, in minutes (default: 5)
+	 */
+	function generateTimeString($bufferTime) {
+		$hours = date("H");
+		$minutes = date("i") - (date("i") % 5);
+
+		if($minutes < $bufferTime) {
+			if($hours != 00) {
+				$hours--; // 'previous' hour of "00" is "23"
+			} else {
+				$hours = 23;
+			}
+
+			$minutes = 60 - ($bufferTime - $minutes);
+		} else {
+			$minutes = $minutes - $bufferTime;
+		}
+		
+		if(strlen($hours) < 2) $hours = "0".$hours;
+		if(strlen($minutes) < 2) $minutes = "0".$minutes;
+
+		return $hours.":".$minutes;
+	}
+	
+	/**
+	 * Generates a file name based on the specified file name format (in config.php)
+	 * and the specified parameters.
+	 * Parameters:
+	 *		date - Date for the file name (should be of the following format: yyyyMMdd)
+	 *		hours - Hours for the file name (should be of the following format: hh)
+	 *		minutes - Minutes for the file name (should be of the following format: mm)
+	 */
+	function generateFileName($date, $hours, $minutes) {
+		global $NFSEN_SUBDIR_LAYOUT;
+		
+		$year = substr($date, 0, 4);
+		$month = substr($date, 4, 2);
+		$day = substr($date, 6, 2);
+		
+		/*
+		 Possible layouts:
+		 0 		       no hierachy levels - flat layout
+		 1 %Y/%m/%d    year/month/day
+		 2 %Y/%m/%d/%H year/month/day/hour
+		*/
+		switch($NFSEN_SUBDIR_LAYOUT) {
+			case 0:		$fileName = "nfcapd.".$date.$hours.$minutes;
+						break;
+						
+			case 1:		$fileName = $year."/".$month."/".$day."/nfcapd.".$date.$hours.$minutes;
+						break;
+						
+			case 2:		$fileName = $year."/".$month."/".$day."/".$hours."/nfcapd.".$date.$hours.$minutes;
+						break;
+					
+			default:	$fileName = "nfcapd.".$date.$hours.$minutes;
+						break;
+		}
+		
+		return $fileName;
+	}
+	
+	/**
+	 * Checks whether the 2nd timestamp is later (in time) than the first timestamp.
+	 */	
+	function isTimeRangeIsPositive($date1, $hours1, $minutes1, $date2, $hours2, $minutes2) {
+		$result = false;
+
+		// the resulting time stamp is in GMT (instead of GMT+1), but that shouldn't be a problem; only the difference between the time stamps is important
+		if(mktime($hours1, $minutes1, 0, substr($date1, 4, 2), substr($date1, 6, 2), 
+				substr($date1, 0, 4)) <= mktime($hours2, $minutes2, 0, substr($date2, 4, 2), substr($date2, 6, 2), 
+				substr($date2, 0, 4))) {
+			$result = true;		
+		}
+		
+		return $result;
+	}
+
+	/**
+	 * Checks whether the specified IPv4 address belongs to the specified IP
+	 * address range (net).
+	 * Parameters:
+	 *		ipAddress - IPv4 address in octet notation (e.g. '192.168.1.1')
+	 * 		ipNet - IPv4 subnet range, in nfdump filter notation
+	 */
+	function ipAddressBelongsToNet($ipAddress, $ipNet) {
+		if(substr_count($ipAddress, ".") != 3) return false; // A valid IPv4 address should have 3 dots
+		if(substr_count($ipAddress, ".") < 1 && substr_count($ipAddress, "/") != 1) return false; // A valid IPv4 subNet should have at least 1 dot and exactly 1 slash
+		
+		$ipAddressOctets = explode(".", $ipAddress);
+		$netMaskIndex = strpos($ipNet, "/");
+		
+		// Add ".0" in order to obtain a subnet notation with 3 dots
+		for($i = 0; $i < (3 - substr_count($ipAddress, ".")); $i++) {
+			str_replace("/", ".0/", $ipNet);
+		}
+
+		$subNetOctets = explode(".", substr($ipNet, 0, $netMaskIndex));
+		$netMask = intval(substr($ipNet, $netMaskIndex + 1));
+		
+		$completeOctets = floor($netMask / 8); // Check all 'complete' octets
+		for($i = 0; $i < $completeOctets; $i++) {
+			if($ipAddressOctets[$i] != $subNetOctets[$i]) {
+				return false;
+			}
+		}
+		
+		$incompleteOctetSize = $netMask % 8; // Check whether an 'incomplete' octet is present in the net mask and what its size is
+		if(($incompleteOctetSize) > 0) {
+			$binIPAddress = decbin($ipAddressOctets[$completeOctets]);
+			$binSubNet = decbin($subNetOctets[$completeOctets]);
+			
+			if(bindec(substr(decbin($ipAddressOctets[$completeOctets]), 0, $incompleteOctetSize)) !=
+					bindec(substr(decbin($subNetOctets[$completeOctets]), 0, $incompleteOctetSize))) return false;
+		}
+
+		return true;
+	}
+
+	/*
+	 * Verify whether the source files for the specified time window(s) exist.
+	 * Parameters:
+	 *		source - name of the source
+	 *		date - date in the following format 'YYYYMMDD'
+	 *		hours - date in the following format 'HH' (with leading zeros)
+	 *		minutes - date in the following format 'MM' (with leading zeros)
+	 */
+	function sourceFilesExist($source, $date, $hours, $minutes) {
+		global $NFSEN_SOURCE_DIR, $sessionData;
+		
+		// Use 'live' profile data if shadow profile has been selected
+		if($sessionData->nfsenProfileType === "real") {
+			$actualProfile = $sessionData->nfsenProfile;
+			$actualSource = $source;
+		} else {
+			$actualProfile = "live";
+			$actualSource = "*";
+		}
+		
+		$directory = (substr($NFSEN_SOURCE_DIR, strlen($NFSEN_SOURCE_DIR) - 1) === "/") ? $NFSEN_SOURCE_DIR : $NFSEN_SOURCE_DIR."/";
+		$directory .= $actualProfile."/".$actualSource."/";
+		
+		$fileName = generateFileName($date, $hours, $minutes);
+		$files = glob($directory.$fileName);
+		
+		return (count($files) >= 1 && @file_exists($files[0]));
+	}
+	
 
 ?>

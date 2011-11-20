@@ -14,7 +14,7 @@
 	require_once($NFSEN_DIR."/conf.php");
 	require_once($NFSEN_DIR."/nfsenutil.php");
 
-	$version = "v2.2 dev (20111117)";
+	$version = "v2.2 dev (20111120)";
 
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -23,9 +23,9 @@
 	$errorLogQueue = new LogQueue();
 	$connectionHandler = new ConnectionHandler();
 	$sessionData = new SessionData();
-	$sessionHandler = new SessionHandler();
-	$connectionHandler->retrieveDataNfSen();
+	$sessionHandler = new SessionHandler($infoLogQueue, $errorLogQueue);
 	
+	$connectionHandler->retrieveDataNfSen();
 	$geoData = $connectionHandler->retrieveDataGeolocation($sessionData->flowRecordCount, $sessionData->NetFlowData);
 	$geoCoderData = $connectionHandler->retrieveDataGeocoderDB($geoData, $sessionData->flowRecordCount);
 	
@@ -148,6 +148,7 @@
 		
 	}
 
+	// Stores session data that shouldn't be stored in the PHP session data
 	class SessionData {
 		var $flowRecordCount;
 		var $query;
@@ -160,7 +161,6 @@
 		var $originalTime2Window;
 		
 		var $NetFlowData;
-		var $nfsenDetails;
 		var $nfsenProfile;
 		var $nfsenProfileType;
 		var $nfsenDisplayFilter; // Contains filter without internal domains
