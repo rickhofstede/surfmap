@@ -26,9 +26,9 @@
 	$sessionData = new SessionData();
 	$sessionHandler = new SessionHandler($logHandler);
 	
-	$connectionHandler->retrieveDataNfSen();
-	$geoData = $connectionHandler->retrieveDataGeolocation($sessionData->flowRecordCount, $sessionData->NetFlowData);
-	$geoCoderData = $connectionHandler->retrieveDataGeocoderDB($geoData, $sessionData->flowRecordCount);
+	$sessionData->NetFlowData = $connectionHandler->retrieveDataNfSen();
+	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->flowRecordCount, $sessionData->NetFlowData);
+	$sessionData->geoCoderData = $connectionHandler->retrieveDataGeocoderDB($sessionData->geoLocationData, $sessionData->flowRecordCount);
 	
 	function stringifyNetFlowData($NetFlowData, $NetFlowDataRecords, $type) {
 		$delimiter = "__";
@@ -106,7 +106,7 @@
 	}
 	
 	function stringifyGeoCoderData($type) {
-		global $geoCoderData, $sessionData;
+		global $sessionData;
 		
 		$delimiter = "___";
 		$sub_delimiter = "__";
@@ -115,18 +115,45 @@
 		
 		if($type == "COUNTRY") {
 			for($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				if($i == ($sessionData->flowRecordCount - 1)) $result_string .= $geoCoderData[$i]->srcCountry[0].$sub_sub_delimiter.$geoCoderData[$i]->srcCountry[1].$sub_delimiter.$geoCoderData[$i]->dstCountry[0].$sub_sub_delimiter.$geoCoderData[$i]->dstCountry[1];
-				else $result_string .= $geoCoderData[$i]->srcCountry[0].$sub_sub_delimiter.$geoCoderData[$i]->srcCountry[1].$sub_delimiter.$geoCoderData[$i]->dstCountry[0].$sub_sub_delimiter.$geoCoderData[$i]->dstCountry[1].$delimiter;
+				if($i == ($sessionData->flowRecordCount - 1)) {
+					$result_string .= $sessionData->geoCoderData[$i]->srcCountry[0].$sub_sub_delimiter
+						.$sessionData->geoCoderData[$i]->srcCountry[1].$sub_delimiter
+						.$sessionData->geoCoderData[$i]->dstCountry[0].$sub_sub_delimiter
+						.$sessionData->geoCoderData[$i]->dstCountry[1];
+				} else {
+					$result_string .= $sessionData->geoCoderData[$i]->srcCountry[0].$sub_sub_delimiter
+						.$sessionData->geoCoderData[$i]->srcCountry[1].$sub_delimiter
+						.$sessionData->geoCoderData[$i]->dstCountry[0].$sub_sub_delimiter
+						.$sessionData->geoCoderData[$i]->dstCountry[1].$delimiter;
+				}
 			}
 		} else if ($type == "REGION") {
 			for($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				if($i == ($sessionData->flowRecordCount - 1)) $result_string .= $geoCoderData[$i]->srcRegion[0].$sub_sub_delimiter.$geoCoderData[$i]->srcRegion[1].$sub_delimiter.$geoCoderData[$i]->dstRegion[0].$sub_sub_delimiter.$geoCoderData[$i]->dstRegion[1];
-				else $result_string .= $geoCoderData[$i]->srcRegion[0].$sub_sub_delimiter.$geoCoderData[$i]->srcRegion[1].$sub_delimiter.$geoCoderData[$i]->dstRegion[0].$sub_sub_delimiter.$geoCoderData[$i]->dstRegion[1].$delimiter;
+				if($i == ($sessionData->flowRecordCount - 1)) {
+					$result_string .= $sessionData->geoCoderData[$i]->srcRegion[0].$sub_sub_delimiter
+						.$sessionData->geoCoderData[$i]->srcRegion[1].$sub_delimiter
+						.$sessionData->geoCoderData[$i]->dstRegion[0].$sub_sub_delimiter
+						.$sessionData->geoCoderData[$i]->dstRegion[1];
+				} else {
+					$result_string .= $sessionData->geoCoderData[$i]->srcRegion[0].$sub_sub_delimiter
+						.$sessionData->geoCoderData[$i]->srcRegion[1].$sub_delimiter
+						.$sessionData->geoCoderData[$i]->dstRegion[0].$sub_sub_delimiter
+						.$sessionData->geoCoderData[$i]->dstRegion[1].$delimiter;
+				}
 			}
 		} else if ($type == "CITY") {
 			for($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				if($i == ($sessionData->flowRecordCount - 1)) $result_string .= $geoCoderData[$i]->srcCity[0].$sub_sub_delimiter.$geoCoderData[$i]->srcCity[1].$sub_delimiter.$geoCoderData[$i]->dstCity[0].$sub_sub_delimiter.$geoCoderData[$i]->dstCity[1];
-				else $result_string .= $geoCoderData[$i]->srcCity[0].$sub_sub_delimiter.$geoCoderData[$i]->srcCity[1].$sub_delimiter.$geoCoderData[$i]->dstCity[0].$sub_sub_delimiter.$geoCoderData[$i]->dstCity[1].$delimiter;
+				if($i == ($sessionData->flowRecordCount - 1)) {
+					$result_string .= $sessionData->geoCoderData[$i]->srcCity[0].$sub_sub_delimiter
+						.$sessionData->geoCoderData[$i]->srcCity[1]
+						.$sub_delimiter.$sessionData->geoCoderData[$i]->dstCity[0]
+						.$sub_sub_delimiter.$sessionData->geoCoderData[$i]->dstCity[1];
+				} else {
+					$result_string .= $sessionData->geoCoderData[$i]->srcCity[0].$sub_sub_delimiter
+						.$sessionData->geoCoderData[$i]->srcCity[1].$sub_delimiter.
+						$sessionData->geoCoderData[$i]->dstCity[0].$sub_sub_delimiter.
+						$sessionData->geoCoderData[$i]->dstCity[1].$delimiter;
+				}
 			}
 		} 
 		return $result_string;
@@ -355,9 +382,9 @@
 			var flows = stringToArray("<?php echo stringifyNetFlowData($sessionData->NetFlowData, $sessionData->flowRecordCount, 'FLOWS'); ?>", "FLOWS", flowRecordCount);
 
 			// GeoLocation data
-			var countries = stringToArray("<?php echo stringifyGeoData($geoData, $sessionData->flowRecordCount, 'COUNTRY'); ?>", "COUNTRY", flowRecordCount);
-			var regions = stringToArray("<?php echo stringifyGeoData($geoData, $sessionData->flowRecordCount, 'REGION'); ?>", "REGION", flowRecordCount);
-			var cities = stringToArray("<?php echo stringifyGeoData($geoData, $sessionData->flowRecordCount, 'CITY'); ?>", "CITY", flowRecordCount);
+			var countries = stringToArray("<?php echo stringifyGeoData($sessionData->geoLocationData, $sessionData->flowRecordCount, 'COUNTRY'); ?>", "COUNTRY", flowRecordCount);
+			var regions = stringToArray("<?php echo stringifyGeoData($sessionData->geoLocationData, $sessionData->flowRecordCount, 'REGION'); ?>", "REGION", flowRecordCount);
+			var cities = stringToArray("<?php echo stringifyGeoData($sessionData->geoLocationData, $sessionData->flowRecordCount, 'CITY'); ?>", "CITY", flowRecordCount);
 			
 			// GeoCoder data
 			var countryLatLngs = stringToArray("<?php echo stringifyGeoCoderData('COUNTRY'); ?>", "GeoCoder_COUNTRY", flowRecordCount);

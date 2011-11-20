@@ -203,7 +203,7 @@
 				}
 			}
 
-			$sessionData->NetFlowData = $NetFlowData;
+			return $NetFlowData;
 		}
 		
 		/**

@@ -66,4 +66,39 @@
 		}
 	}
 
+	/*
+	 * Stores session data that shouldn't be stored in the PHP session data
+	 */
+	class SessionData {
+		var $flowRecordCount;
+		var $query;
+		var $latestDate;
+		var $latestHour;
+		var $latestMinute;
+		var $originalDate1Window;
+		var $originalTime1Window;
+		var $originalDate2Window;
+		var $originalTime2Window;
+		
+		var $NetFlowData;
+		var $nfsenProfile;
+		var $nfsenProfileType;
+		var $nfsenDisplayFilter; // Contains filter without internal domains
+		var $firstNfSenSource = "";
+		var $geoLocationData;
+		var $geoCoderData;
+		
+		/*
+		 * 	0: no error
+		 *	1: filter error
+		 *	2: invalid date/time window (selector 1)
+		 *	3: invalid date/time window (selector 2)
+		 *	4: invalid date/time window (selector 1+2)
+		 *  5: no data error
+		 *  6: profile error
+		 */
+		var $errorCode = 0;
+		var $errorMessage = "";
+	}
+
 ?>
