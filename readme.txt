@@ -9,6 +9,7 @@ Release notes [v2.2 dev (20111117)]:
 - [FEATURE] A warning message can be shown on potential heavy query
 - [FEATURE] Improved progress bar layout
 - [FEATURE] Improved menu panel layout stability and consistency
+- [BUGFIX] Fixed a UTF-8 encoding issue
 - [BUGFIX] Several bug fixes and improvements
 
 Release notes [v2.1 stable (20111116)]:
