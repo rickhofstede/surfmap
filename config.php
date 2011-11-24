@@ -23,7 +23,7 @@
 	
 	// [NfSen]
 	$NFSEN_CONF="/etc/nfsen.conf"; // Path to NfSen configuration file [example: '/etc/nfsen.conf']
-	$NFSEN_DEFAULT_SOURCES="core-router;backup-router"; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [example: 'core-router;backup-router']
+	$NFSEN_DEFAULT_SOURCES=""; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [default: '', example: 'core-router;backup-router']
 	
 	// [GeoLocation]
 	$GEOLOCATION_DB="MaxMind"; // "IP2Location", "MaxMind" or "geoPlugin" [default: 'MaxMind']
