@@ -181,12 +181,16 @@
 		$NATIP = $extIP;
 		try {
 			if(extension_loaded("curl")) {
-				$curl_handle = curl_init();
-				curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/");
-				curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
-				$extIP = curl_exec($curl_handle);
-				curl_close($curl_handle);
+				for($i = 0; $i < 3; $i++) {
+					$curl_handle = curl_init();
+					curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/");
+					curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+					curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
+					$extIP = curl_exec($curl_handle);
+					curl_close($curl_handle);
+					
+					if($extIP !== "") break;
+				}
 			}
 
 			/*
@@ -315,7 +319,7 @@
 			the configuration options below. To find these hints, please click on the corresponding option
 			and a help window will appear.</p>
 			
-		<div id="setupguidelines" class="checkitem"><b>Setup guidelines</b><br><br>You can use the following settings in config.php:<br><br></div>
+		<div id="setupguidelines" class="checkitem"><b>Setup guidelines</b><br /><br />You can use the following settings in config.php:<br /><br /></div>
 		<div id="checkitem1" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem1Title + '##' + checkItem1Text);">1. NfSen configuration file (<?php echo $NFSEN_CONF; ?>) availability.</div>
 		<div id="checkitem2" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem2Title + '##' + checkItem2Text);">2. NfSen communication socket available.</div>
 		<div id="checkitem3" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem3Title + '##' + checkItem3Text);">3. NfSen source directory available.</div>
@@ -328,9 +332,10 @@
 		<div id="checkitem10" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem10Title + '##' + checkItem10Text);">10. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
 		<div id="checkitem11" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem11Title + '##' + checkItem11Text);">11. Internal domain (<?php echo $INTERNAL_DOMAINS; ?>) syntax OK.</div>
 		<div id="checkitem12" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem12Title + '##' + checkItem12Text);">12. PHP 'mbstring' module available.</div>
-		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. External IP address: <?php if($extIPError !== "") echo $extIPError; else echo $extIP; ?><br>Geolocated country: <?php echo $extIPCountry; ?><br>Geolocated region: <?php echo $extIPRegion; ?><br>Geolocated city: <?php echo $extIPCity; ?></div>
+		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. External IP address: <?php if($extIPError !== "") echo $extIPError; else echo $extIP; ?><br />Geolocated country: <?php echo $extIPCountry; ?><br />Geolocated region: <?php echo $extIPRegion; ?><br />Geolocated city: <?php echo $extIPCity; ?></div>
 				
 		<div id="dialog"></div>
+		<div id="configdata" style="display:none;"></div>
 		
 		<script type="text/javascript">
 			var useGeocoderDB = <?php echo $USE_GEOCODER_DB; ?>;
@@ -372,14 +377,15 @@
 			if(extIPNAT || extIPError != "") {
 				document.getElementById("setupguidelines").style.display = "none";
 			} else if(extIPCountry != "(Unknown)") {
-				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_COUNTRY=" + extIPCountry + "<br>";
+				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_COUNTRY=\"" + extIPCountry + "\";<br />";
 			}
 			if(extIPRegion != "(Unknown)") {
-				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_REGION=" + extIPRegion + "<br>";
+				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_REGION=\"" + extIPRegion + "\";<br />";
 			}
 			if(extIPCity != "(Unknown)") {
-				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_CITY=" + extIPCity + "<br>";
+				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_CITY=\"" + extIPCity + "\";<br />";
 			}
+			document.getElementById("configdata").innerHTML = extIPCountry + "," + extIPRegion + "," + extIPCity;
 			
 			// 1. NfSen configuration file (nfsen.conf) availability
 			if(nfsenConfigReadable == 1) {
@@ -443,12 +449,12 @@
 				document.getElementById("checkitem8").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem8").className += " checkitem_failure";
-				document.getElementById("checkitem8").innerHTML += "<br><br>Files with wrong permissions:<br>---<br>";
+				document.getElementById("checkitem8").innerHTML += "<br /><br />Files with wrong permissions:<br />---<br />";
 				for(i in filesWithWrongPerm) {
 					// Delimiter between tuples: '___'
 					// Delimiter inside tuple (between file name/path and permissions): '__'
 					currentTuple = filesWithWrongPerm[i].split("__");
-					document.getElementById("checkitem8").innerHTML += currentTuple[0] + " (" + currentTuple[1] + ")<br>";
+					document.getElementById("checkitem8").innerHTML += currentTuple[0] + " (" + currentTuple[1] + ")<br />";
 				}
 			}
 			
@@ -545,7 +551,10 @@
 							var lat = results[0].geometry.location.lat();
 							var lng = results[0].geometry.location.lng();
 							
-							document.getElementById("setupguidelines").innerHTML += "$MAP_CENTER=" + lat + "," + lng + "<br>";
+							document.getElementById("setupguidelines").innerHTML += "$MAP_CENTER=\"" + lat + "," + lng + "\";<br />";
+							document.getElementById("configdata").innerHTML += "," + lat + "," + lng;
+						} else {
+							document.getElementById("configdata").innerHTML += ",(Unknown),(Unknown)";
 						}
 					});
 				}

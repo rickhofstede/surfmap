@@ -4,7 +4,7 @@ Please check the manual for installation instructions. Run the ConfigurationChec
 
 ---
 
-Release notes [v2.2 dev (20111123)]:
+Release notes [v2.2 dev (20111124)]:
 
 WARNING: the configuration file of previous versions is not compatible with this release!
 
@@ -12,6 +12,7 @@ WARNING: the configuration file of previous versions is not compatible with this
 - [FEATURE] A warning message can be shown on potential heavy query
 - [FEATURE] Improved progress bar layout
 - [FEATURE] Improved menu panel layout stability and consistency
+- [FEATURE] Improved stability of ConfigurationChecker
 - [FEATURE] Simplified installation and setup
 - [BUGFIX] Fixed a bug which could cause green markers not to be shown
 - [BUGFIX] Fixed a bug which caused SQLite DB locking errors with some PHP PDO drivers
