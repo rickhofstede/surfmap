@@ -364,14 +364,6 @@
 			var extIPCountry = "<?php echo $extIPCountry; ?>";
 			var extIPRegion = "<?php echo $extIPRegion; ?>";
 			var extIPCity = "<?php echo $extIPCity; ?>";
-			
-			if(extIPCity != "(Unknown)") {
-				geocode(extIPCity);
-			} else if(extIPRegion != "(Unknown)") {
-				geocode(extIPRegion);
-			} else if(extIPCountry != "(Unknown)") {
-				geocode(extIPCountry);
-			}
 
 			// Setup guidelines
 			if(extIPNAT || extIPError != "") {
@@ -386,6 +378,16 @@
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_CITY=\"" + extIPCity + "\";<br />";
 			}
 			document.getElementById("configdata").innerHTML = extIPCountry + "," + extIPRegion + "," + extIPCity;
+			
+			if(extIPCity != "(Unknown)") {
+				geocode(extIPCity);
+			} else if(extIPRegion != "(Unknown)") {
+				geocode(extIPRegion);
+			} else if(extIPCountry != "(Unknown)") {
+				geocode(extIPCountry);
+			} else {
+				document.getElementById("configdata").innerHTML += ",(Unknown),(Unknown)";
+			}
 			
 			// 1. NfSen configuration file (nfsen.conf) availability
 			if(nfsenConfigReadable == 1) {
