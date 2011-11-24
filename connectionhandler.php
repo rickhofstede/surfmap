@@ -5,6 +5,10 @@
 	 * University of Twente, The Netherlands
 	 *******************************/
 	
+	require_once("geoPlugin/geoplugin.class.php");
+	require_once("MaxMind/geoipcity.inc");
+	require_once("IP2Location/ip2location.class.php");
+	
 	class ConnectionHandler {
 		var $GeocoderDatabase;
 		
@@ -29,7 +33,7 @@
 				} catch(PDOException $e) {}
 			}
 		}
-		
+				
 	   /**
 		* Returns the NfSen query results.
 		*/
@@ -53,8 +57,8 @@
 			}
 
 			$cmd_opts['args'] = "-T $run -o long";
-			$cmd_opts['profile'] = $_SESSION['profileswitch'];
-			$cmd_opts['type'] = ($_SESSION['profileinfo']['type'] & 4) > 0 ? 'shadow' : 'real';
+			$cmd_opts['profile'] = $_SESSION['SURFmap']['nfsenProfile'];
+			$cmd_opts['type'] = $_SESSION['SURFmap']['nfsenProfileType'];
 			$cmd_opts['srcselector'] = $_SESSION['SURFmap']['nfsenSelectedSources'];	
 			$cmd_opts['filter'] = array($_SESSION['SURFmap']['filter']);
 
@@ -81,7 +85,7 @@
 				$sessionData->flowRecordCount = 0;
 				return;
 			}
-
+			
 			$NetFlowData = array();
 			if($_SESSION['SURFmap']['nfsenOption'] == 0) { // List flows
 				// Calculate flowRecordCount, for the case that less flow records are returned than the actual entryCount
@@ -391,6 +395,81 @@
 		}
 		
 	}
+	
+	/**
+	 * Reads settings from the NfSen configuration
+	 * file nfsen.conf (example location: '/etc/nfsen.conf').
+	 * In case paths are contained as a setting value, the last slash ('/)
+	 * will be stripped. Returns an array with the setting tuples, or 'false'
+	 * in case the NfSen config could not be read.
+	 */		
+	function readNfSenConfig() {
+		global $NFSEN_CONF;
+
+		$configValues = array();
+		$comment = "#";
+
+		if($fp = fopen($NFSEN_CONF, "r")) {
+			while(!feof($fp)) {
+				$line = trim(fgets($fp));
+				if($line && !ereg("^$comment", $line) && strpos($line, "=") && strpos($line, ";")) {
+			    	$optionTuple = explode("=", $line);
+					$option = substr(trim($optionTuple[0]), 1);
+					$value = trim($optionTuple[1]);
+					$value = substr($value, 0, strlen($value) - 1); // remove ';'
+
+					$subVarPos = strpos($value, "\${");
+					if($subVarPos) {
+						$subVarPos = $subVarPos;
+						$subVar = substr($value, $subVarPos, strpos($value, "}", $subVarPos) - $subVarPos + 1);
+						$value = str_replace($subVar, $configValues[substr($subVar, 2, strlen($subVar) - 3)], $value); // remove '${' and '}'
+					}
+					$value = str_replace("\"", "", $value);
+					$value = str_replace("'", "", $value);
+					$value = str_replace("//", "/", $value);
+					
+					if(substr($value, strlen($value) - 1) == "/") {
+						$value = substr($value, 0, strlen($value) - 1);
+					}
+			    	$configValues[$option] = $value;
+			 	}
+			}
+			fclose($fp);
+		} else {
+			error_log("[SURFmap | ERROR] NfSen configuration file ($NFSEN_CONF) couldn't be found or opened. Please check for file existence and permissions.");
+		}
+
+		return (sizeof($configValues) == 0) ? false : $configValues;
+	}	
+	
+	/*
+	 * Verify whether the source files for the specified time window(s) exist.
+	 * Parameters:
+	 *		source - name of the source
+	 *		date - date in the following format 'YYYYMMDD'
+	 *		hours - date in the following format 'HH' (with leading zeros)
+	 *		minutes - date in the following format 'MM' (with leading zeros)
+	 */
+	function sourceFilesExist($source, $date, $hours, $minutes) {
+		global $nfsenConfig, $sessionData;
+		
+		// Use 'live' profile data if shadow profile has been selected
+		if($_SESSION['SURFmap']['nfsenProfileType'] === "real") {
+			$actualProfile = $_SESSION['SURFmap']['nfsenProfile'];
+			$actualSource = $source;
+		} else {
+			$actualProfile = "live";
+			$actualSource = "*";
+		}
+		
+		$directory = (substr($nfsenConfig['PROFILEDATADIR'], strlen($nfsenConfig['PROFILEDATADIR']) - 1) === "/") ? $nfsenConfig['PROFILEDATADIR'] : $nfsenConfig['PROFILEDATADIR']."/";
+		$directory .= $actualProfile."/".$actualSource."/";
+		
+		$fileName = generateFileName($date, $hours, $minutes);
+		$files = glob($directory.$fileName);
+		
+		return (count($files) >= 1 && @file_exists($files[0]));
+	}	
 
 	/**
 	 * Removes special characters (e.g. tabs, EndOfTransmission).

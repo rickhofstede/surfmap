@@ -10,16 +10,20 @@
 		/**
 		 * Constructs a new SessionHandler object.
 		 */
-		function __construct($logHandler) {
-			$this->logHandler = $logHandler;
+		function __construct($logHandler, $profile = "", $profileType = "", $allSources = "") {
+			global $sessionData;
 			
-			session_start();
+			$this->logHandler = $logHandler;
+
+			if(!session_id()) session_start();
 			
 			// Prepare session variable
 			if(!isset($_SESSION['SURFmap']['entryCount'])) $_SESSION['SURFmap']['entryCount'] = -1;
 			if(!isset($_SESSION['SURFmap']['filter'])) $_SESSION['SURFmap']['filter'] = "";
 			if(!isset($_SESSION['SURFmap']['nfsenOption'])) $_SESSION['SURFmap']['nfsenOption'] = -1;
 			if(!isset($_SESSION['SURFmap']['nfsenStatOrder'])) $_SESSION['SURFmap']['nfsenStatOrder'] = "-1";
+			if(!isset($_SESSION['SURFmap']['nfsenProfile'])) $_SESSION['SURFmap']['nfsenProfile'] = "";
+			if(!isset($_SESSION['SURFmap']['nfsenProfileType'])) $_SESSION['SURFmap']['nfsenProfileType'] = "";
 			if(!isset($_SESSION['SURFmap']['nfsenAllSources'])) $_SESSION['SURFmap']['nfsenAllSources'] = "";
 			if(!isset($_SESSION['SURFmap']['nfsenSelectedSources'])) $_SESSION['SURFmap']['nfsenSelectedSources'] = "";
 			if(!isset($_SESSION['SURFmap']['nfsenPreviousProfile'])) $_SESSION['SURFmap']['nfsenPreviousProfile'] = "";
@@ -37,13 +41,19 @@
 			// Prevent frontend from refreshing page every 5 minutes
 			$_SESSION['refresh'] = 0;
 			
+			if($profile !== "" && $profileType !== "" && $allSources !== "") {
+				$_SESSION['SURFmap']['nfsenProfile'] = $profile;
+				$_SESSION['SURFmap']['nfsenProfileType'] = ($profileType & 4) > 0 ? "shadow" : "real";
+				$_SESSION['SURFmap']['nfsenAllSources'] = $allSources;
+			}
+			
 			$this->setEntryCount();
 			$this->setNfSenOption();
 			$this->setNfSenStatOrder();
 			$this->setFilter();
 			$this->setNfSenProfileAndSources();
 			$this->setDatesAndTimes();
-			
+
 			session_write_close();
 		}
 		
@@ -53,7 +63,9 @@
 		function setEntryCount() {
 			global $DEFAULT_FLOW_RECORD_COUNT, $GEOLOCATION_DB;
 			
-			if(isset($_GET['amount']) && ereg_replace("[^0-9]", "", $_GET['amount']) > 0) {
+			if(PHP_SAPI === "cli") {
+				$_SESSION['SURFmap']['entryCount'] = 500;
+			} else if(isset($_GET['amount']) && ereg_replace("[^0-9]", "", $_GET['amount']) > 0) {
 				$_SESSION['SURFmap']['entryCount'] = ereg_replace("[^0-9]", "", $_GET['amount']);
 			} else if($_SESSION['SURFmap']['entryCount'] == -1) { // initialization value
 				if($DEFAULT_FLOW_RECORD_COUNT > 0) {
@@ -191,18 +203,23 @@
 		function setNfSenProfileAndSources() {
 			global $NFSEN_DEFAULT_SOURCES, $sessionData;
 
-			$sessionData->nfsenProfile = (substr($_SESSION['profileswitch'], 0, 2) === "./") ? substr($_SESSION['profileswitch'], 2) : $_SESSION['profileswitch'];
-			$sessionData->nfsenProfileType = ($_SESSION['profileinfo']['type'] & 4) > 0 ? 'shadow' : 'real';
+			if(isset($_SESSION['profileswitch'])) {
+				$_SESSION['SURFmap']['nfsenProfile'] = $_SESSION['profileswitch'];
+			}
+			
+			if(isset($_SESSION['profileinfo']['type'])) {
+				$_SESSION['SURFmap']['nfsenProfileType'] = ($_SESSION['profileinfo']['type'] & 4) > 0 ? "shadow" : "real";
+			}
 			
 			if($_SESSION['SURFmap']['nfsenPreviousProfile'] === "") { // initialization value
-				$_SESSION['SURFmap']['nfsenPreviousProfile'] = $sessionData->nfsenProfile;
-			} else if($sessionData->nfsenProfile !== $_SESSION['SURFmap']['nfsenPreviousProfile']) {
+				$_SESSION['SURFmap']['nfsenPreviousProfile'] = $_SESSION['SURFmap']['nfsenProfile'];
+			} else if($_SESSION['SURFmap']['nfsenProfile'] !== $_SESSION['SURFmap']['nfsenPreviousProfile']) {
 				// Reset selected NfSen sources on profile change
 				$_SESSION['SURFmap']['nfsenAllSources'] = "";
 				$_SESSION['SURFmap']['nfsenSelectedSources'] = "";
 			}
 			
-			if($_SESSION['SURFmap']['nfsenAllSources'] === "") { // initialization value
+			if(isset($_SESSION['profileinfo']['channel']) && $_SESSION['SURFmap']['nfsenAllSources'] === "") { // initialization value
 				// Only collect all sources when not done yet
 				foreach($_SESSION['profileinfo']['channel'] as $source) {
 					if(strlen($_SESSION['SURFmap']['nfsenAllSources']) != 0) {
@@ -211,7 +228,7 @@
 					$_SESSION['SURFmap']['nfsenAllSources'] .= $source['name'];
 				}
 			}
-			
+
 			if(isset($_GET['nfsensources'])) {
 				$_SESSION['SURFmap']['nfsenSelectedSources'] = "";
 				foreach($_GET['nfsensources'] as $source) {
@@ -235,7 +252,7 @@
 						}
 					}
 				}
-				
+
 				// If none of the configured default sources was available or no default source was configured at all
 				if($_SESSION['SURFmap']['nfsenSelectedSources'] === "") {
 					$_SESSION['SURFmap']['nfsenSelectedSources'] = $_SESSION['SURFmap']['nfsenAllSources'];
@@ -249,7 +266,7 @@
 			}
 			
 			// Set 'nfsenPreviousProfile' session variable after source initialization to current profile
-			$_SESSION['SURFmap']['nfsenPreviousProfile'] = $sessionData->nfsenProfile;
+			$_SESSION['SURFmap']['nfsenPreviousProfile'] = $_SESSION['SURFmap']['nfsenProfile'];
 		}		
 		
 		/**
@@ -485,7 +502,7 @@
 	 *		minutes - Minutes for the file name (should be of the following format: mm)
 	 */
 	function generateFileName($date, $hours, $minutes) {
-		global $NFSEN_SUBDIR_LAYOUT;
+		global $nfsenConfig;
 		
 		$year = substr($date, 0, 4);
 		$month = substr($date, 4, 2);
@@ -497,7 +514,7 @@
 		 1 %Y/%m/%d    year/month/day
 		 2 %Y/%m/%d/%H year/month/day/hour
 		*/
-		switch($NFSEN_SUBDIR_LAYOUT) {
+		switch(intval($nfsenConfig['SUBDIRLAYOUT'])) {
 			case 0:		$fileName = "nfcapd.".$date.$hours.$minutes;
 						break;
 						
@@ -570,35 +587,5 @@
 
 		return true;
 	}
-
-	/*
-	 * Verify whether the source files for the specified time window(s) exist.
-	 * Parameters:
-	 *		source - name of the source
-	 *		date - date in the following format 'YYYYMMDD'
-	 *		hours - date in the following format 'HH' (with leading zeros)
-	 *		minutes - date in the following format 'MM' (with leading zeros)
-	 */
-	function sourceFilesExist($source, $date, $hours, $minutes) {
-		global $NFSEN_SOURCE_DIR, $sessionData;
-		
-		// Use 'live' profile data if shadow profile has been selected
-		if($sessionData->nfsenProfileType === "real") {
-			$actualProfile = $sessionData->nfsenProfile;
-			$actualSource = $source;
-		} else {
-			$actualProfile = "live";
-			$actualSource = "*";
-		}
-		
-		$directory = (substr($NFSEN_SOURCE_DIR, strlen($NFSEN_SOURCE_DIR) - 1) === "/") ? $NFSEN_SOURCE_DIR : $NFSEN_SOURCE_DIR."/";
-		$directory .= $actualProfile."/".$actualSource."/";
-		
-		$fileName = generateFileName($date, $hours, $minutes);
-		$files = glob($directory.$fileName);
-		
-		return (count($files) >= 1 && @file_exists($files[0]));
-	}
-	
 
 ?>

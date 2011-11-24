@@ -4,11 +4,17 @@ Please check the manual for installation instructions. Run the ConfigurationChec
 
 ---
 
-Release notes [v2.2 dev (20111117)]:
+Release notes [v2.2 dev (20111123)]:
+
+WARNING: the configuration file of previous versions is not compatible with this release!
+
 - [FEATURE] It's now possible to copy date/time from one input field to another
 - [FEATURE] A warning message can be shown on potential heavy query
 - [FEATURE] Improved progress bar layout
 - [FEATURE] Improved menu panel layout stability and consistency
+- [FEATURE] Simplified installation and setup
+- [BUGFIX] Fixed a bug which could cause green markers not to be shown
+- [BUGFIX] Fixed a bug which caused SQLite DB locking errors with some PHP PDO drivers
 - [BUGFIX] Fixed a UTF-8 encoding issue
 - [BUGFIX] Several bug fixes and improvements
 

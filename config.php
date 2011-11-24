@@ -22,17 +22,8 @@
 	$SORT_FLOWS_BY_START_TIME=0; // Sorts flows by start time - 0: no, 1: yes [default: 0]
 	
 	// [NfSen]
-	$NFSEN_DIR="/var/www/nfsen"; // Path to NfSen HTML directory [example: '/var/www/nfsen']
-	$NFSEN_SOURCE_DIR="/data/nfsen/profiles-data"; // Path to NetFlow data files [example: '/data/nfsen/profiles-data']
+	$NFSEN_CONF="/etc/nfsen.conf"; // Path to NfSen configuration file [example: '/etc/nfsen.conf']
 	$NFSEN_DEFAULT_SOURCES="core-router;backup-router"; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [example: 'core-router;backup-router']
-	
-	/*
-	 Possible layouts:
-	 0 		       no hierachy levels - flat layout
-	 1 %Y/%m/%d    year/month/day
-	 2 %Y/%m/%d/%H year/month/day/hour
-	*/
-	$NFSEN_SUBDIR_LAYOUT=1; // Sub-directory layout, as configured in nfsen.conf [default: 1]
 	
 	// [GeoLocation]
 	$GEOLOCATION_DB="MaxMind"; // "IP2Location", "MaxMind" or "geoPlugin" [default: 'MaxMind']

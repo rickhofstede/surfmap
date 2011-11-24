@@ -186,15 +186,21 @@
 	}
 
    /**
+	* Gets the value of the jQuery progress bar.
+	*/
+	function getProgressBarValue() {
+		return $("#progressbar").progressbar("value");
+	}
+
+   /**
 	* Sets the value of the jQuery progress bar to the specified value.
 	*
 	* Parameters:
-	*		id - ID of the jQuery progress bar
 	*		value - Value to which the progress bar should be set
 	*		text - Text in the progress bar
 	*/
-	function setProgressBarValue(id, value, text) {
-		$("#" + id).progressbar("option", "value", value);
+	function setProgressBarValue(value, text) {
+		$("#progressbar").progressbar("option", "value", value);
 		$("#progressbartext").text(text);
 		
 		/*

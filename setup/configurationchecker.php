@@ -4,12 +4,11 @@
 	 * Author: Rick Hofstede
 	 * University of Twente, The Netherlands
 	 *******************************/
-	require_once("../config.php");
-	require_once("../ConnectionHandler.php");
-	require_once("../MaxMind/geoipcity.inc");
-	require_once("../IP2Location/ip2location.class.php");
-	require_once($NFSEN_DIR."/conf.php");
 	
+	require_once("../config.php");
+	require_once("../connectionhandler.php");
+	require_once("../sessionhandler.php");
+
 	function dir_tree($dir) {
 		$path = '';
 	   	$stack[] = $dir;
@@ -34,53 +33,27 @@
 		return $path;
 	}
 	
-	// 1. Check NfSen socket
-	if(@file_exists($COMMSOCKET)) $nfsenSocketOK = 1;
-	else $nfsenSocketOK = 0;
+	$nfsenConfigReadable = 0;
+	$nfsenSocketOK = 0;
+	$nfsenSourceDirOK = 0;
 	
-	// 2. Check NfSen data directory
-	if(@file_exists($NFSEN_SOURCE_DIR)) $nfsenSourceDirOK = 1;
-	else $nfsenSourceDirOK = 0;
-	
-	// 3. Check NfSen source file existance
-	$year = date("Y");
-	$month = date("m");
-	$day = date("d");
-	$hours = intval(date("H"));
-	$hours = ($hours > 0) ? $hours - 1 : 23;
-	if(strlen($hours) == 1) {
-		$hours = "0".$hours;
+	// 1. NfSen configuration file (nfsen.conf) availability
+	if(is_readable($NFSEN_CONF)) {
+		$nfsenConfigReadable = 1;
+		
+		$nfsenConfig = readNfSenConfig();
+		require_once($nfsenConfig['HTMLDIR']."/conf.php");
+		
+		// 2. Check NfSen socket
+		if(@file_exists($COMMSOCKET)) {
+			$nfsenSocketOK = 1;
+		}
+		
+		// 3. Check NfSen data directory
+		if(@file_exists($nfsenConfig['PROFILEDATADIR'])) {
+			$nfsenSourceDirOK = 1;
+		}
 	}
-	$minutes = "*";
-	$date = $year.$month.$day;
-	
-	/*
-	 Possible layouts:
-	 0 		       no hierachy levels - flat layout
-	 1 %Y/%m/%d    year/month/day
-	 2 %Y/%m/%d/%H year/month/day/hour
-	*/
-	switch($NFSEN_SUBDIR_LAYOUT) {
-		case 0:		$fileName = "nfcapd.".$date.$hours.$minutes;
-					break;
-					
-		case 1:		$fileName = $year."/".$month."/".$day."/nfcapd.".$date.$hours.$minutes;
-					break;
-					
-		case 2:		$fileName = $year."/".$month."/".$day."/".$hours."/nfcapd.".$date.$hours.$minutes;
-					break;
-				
-		default:	$fileName = "nfcapd.".$date.$hours.$minutes;
-					break;
-	}
-
-	$nfsenSourceDir = (substr($NFSEN_SOURCE_DIR, strlen($NFSEN_SOURCE_DIR) - 1) === "/") ? $NFSEN_SOURCE_DIR : $NFSEN_SOURCE_DIR."/";
-	$nfsenSourceFiles = $nfsenSourceDir."live/*/".$fileName; // Check only 'live' profile, any source (*)
-	$files = glob($nfsenSourceFiles);
-	
-	// Use 'count($files) > 1' because in some setups only 'nfcapd.current.*' is present
-	if(count($files) > 1 && @file_exists($files[0])) $nfsenSourceFileExistanceOK = 1;
-	else $nfsenSourceFileExistanceOK = 0;
 	
 	try {
 		// 4. Check Geocoder database connection
@@ -101,14 +74,15 @@
 			$geocoderDBConnection->exec("INSERT INTO geocoder VALUES (".$geocoderDBConnection->quote("_TEST_").", 1.0, -1.0)");
 			$queryResult = $geocoderDBConnection->query("SELECT * FROM geocoder WHERE location = ".$geocoderDBConnection->quote("_TEST_"));
 			$row = $queryResult->fetch(PDO::FETCH_ASSOC);
+			unset($queryResult);
 
-			if($row) {
+			$deleteCount = $geocoderDBConnection->exec("DELETE FROM geocoder WHERE location = ".$geocoderDBConnection->quote("_TEST_"));
+			
+			if($row && $deleteCount == 1) {
 				$geocoderDatabaseOK = 1;
 			} else {
 				$geocoderDatabaseOK = 0;
 			}
-		
-			$geocoderDBConnection->exec("DELETE FROM geocoder WHERE location = ".$geocoderDBConnection->quote("_TEST_"));
 		} else {
 			$geocoderDatabaseConnectionOK = 0;
 			$geocoderDatabaseOK = 0;
@@ -184,6 +158,7 @@
 	
 	// 13. External IP address and location
 	$extIP = getenv("SERVER_ADDR");
+	$internalDomainNets = array();
 	if($extIP === "127.0.0.1") {
 		$extIPNAT = true;
 	} else {
@@ -214,8 +189,13 @@
 				curl_close($curl_handle);
 			}
 
-			// If $extIP == $NATIP, cURL is probably not installed/activated
-			if($extIP === "Too frequent!" || $extIP == $NATIP) {
+			/*
+			 * The first condition is included in the second condition, but it's kept
+			 * here to keep in mind that this String can be returned by the service.
+			 *
+			 * If $extIP == $NATIP, cURL is probably not installed/activated.
+			 */
+			if($extIP === "Too frequent!" || substr_count($extIP, ".") != 3  || $extIP == $NATIP) {
 				$extIP = $NATIP;
 				$extIPError = "Unable to retrieve external IP address";
 			}
@@ -272,7 +252,6 @@
 	$extIPCountry = stripAccentedCharacters($extIPCountry);
 	$extIPRegion = stripAccentedCharacters($extIPRegion);
 	$extIPCity = stripAccentedCharacters($extIPCity);
-	
 	if($extIPCountry === "(Unknown)") {
 		$extIPLocationOK = 0;
 	} else {
@@ -337,11 +316,11 @@
 			and a help window will appear.</p>
 			
 		<div id="setupguidelines" class="checkitem"><b>Setup guidelines</b><br><br>You can use the following settings in config.php:<br><br></div>
-		<div id="checkitem1" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem1Title + '##' + checkItem1Text);">1. NfSen communication socket (<?php echo $COMMSOCKET; ?>) available.</div>
-		<div id="checkitem2" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem2Title + '##' + checkItem2Text);">2. NfSen source directory (<?php echo $NFSEN_SOURCE_DIR; ?>) available.</div>
-		<div id="checkitem3" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem3Title + '##' + checkItem3Text);">3. NfSen source files (<?php echo $nfsenSourceFiles; ?>) available.</div>
-		<div id="checkitem4" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. GeoCoder database connection (<?php echo $geocoderDBFile ?>) available.</div>
-		<div id="checkitem5" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem5Title + '##' + checkItem5Text);">5. GeoCoder database writability OK ('<?php echo $geocoderDBFile ?>' should be writable).</div>
+		<div id="checkitem1" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem1Title + '##' + checkItem1Text);">1. NfSen configuration file (<?php echo $NFSEN_CONF; ?>) availability.</div>
+		<div id="checkitem2" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem2Title + '##' + checkItem2Text);">2. NfSen communication socket available.</div>
+		<div id="checkitem3" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem3Title + '##' + checkItem3Text);">3. NfSen source directory available.</div>
+		<div id="checkitem4" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. GeoCoder database connection (<?php echo $geocoderDBFile; ?>) available.</div>
+		<div id="checkitem5" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem5Title + '##' + checkItem5Text);">5. GeoCoder database writability OK ('<?php echo $geocoderDBFile; ?>' should be writable).</div>
 		<div id="checkitem6" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem6Title + '##' + checkItem6Text);">6. IP2Location database (<?php echo $ip2LocationPath; ?>) available.</div>
 		<div id="checkitem7" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem7Title + '##' + checkItem7Text);">7. MaxMind database (<?php echo $maxMindPath; ?>) available.</div>
 		<div id="checkitem8" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem8Title + '##' + checkItem8Text);">8. Permissions of all directory contents OK.</div>
@@ -357,9 +336,9 @@
 			var useGeocoderDB = <?php echo $USE_GEOCODER_DB; ?>;
 			var geolocationDB = "<?php echo $GEOLOCATION_DB; ?>";
 		
+			var nfsenConfigReadable = <?php echo $nfsenConfigReadable; ?>;
 			var nfsenSocketOK = <?php echo $nfsenSocketOK; ?>;
 			var nfsenSourceDirOK = <?php echo $nfsenSourceDirOK; ?>;
-			var nfsenSourceFileExistanceOK = <?php echo $nfsenSourceFileExistanceOK; ?>;
 			var geocoderDatabaseConnectionOK = <?php echo $geocoderDatabaseConnectionOK; ?>;
 			var geocoderDatabaseOK = <?php echo $geocoderDatabaseOK; ?>;
 			var ip2LocationDatabaseOK = <?php echo $ip2LocationDBPathOK; ?>;
@@ -401,23 +380,23 @@
 			if(extIPCity != "(Unknown)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_CITY=" + extIPCity + "<br>";
 			}
-		
-			// 1. Check NfSen socket
-			if(nfsenSocketOK == 1) {
+			
+			// 1. NfSen configuration file (nfsen.conf) availability
+			if(nfsenConfigReadable == 1) {
 				document.getElementById("checkitem1").className += " checkitem_success";
 			} else {
-				document.getElementById("checkitem1").className += " checkitem_skip";
+				document.getElementById("checkitem1").className += " checkitem_failure";
 			}
-			
-			// 2. Check NfSen data directory
-			if(nfsenSourceDirOK == 1) {
+		
+			// 2. Check NfSen socket
+			if(nfsenSocketOK == 1) {
 				document.getElementById("checkitem2").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem2").className += " checkitem_failure";
 			}
 			
-			// 3. Check NfSen source file existance
-			if(nfsenSourceFileExistanceOK == 1) {
+			// 3. Check NfSen data directory
+			if(nfsenSourceDirOK == 1) {
 				document.getElementById("checkitem3").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem3").className += " checkitem_failure";
@@ -510,14 +489,14 @@
 				document.getElementById("checkitem13").className += " checkitem_failure";
 			}
 			
-			var checkItem1Title = "NfSen communication socket";
-			var checkItem1Text = "The path to the NfSen communication socket can normally be found in NfSen's [conf.php] file, which is located in the NfSen's main directory. The default variable name is '$COMMSOCKET'. Check your [$NFSEN_DIR] setting value if the NfSen communication socket could not be found.";
+			var checkItem1Title = "NfSen configuration file (nfsen.conf) availability";
+			var checkItem1Text = "Check whether the NfSen configuration file is either not available at all, or not readable by the user executing your Web server.";
 			
-			var checkItem2Title = "NfSen data directory";
-			var checkItem2Text = "This path should lead to the root NfSen's network data capture folder. The default value for the [$NFSEN_SOURCE_DIR] setting is '/data/nfsen/profiles-data'. This means that the absolute path to the 'profiles-data' directory should be appointed.";
+			var checkItem2Title = "NfSen communication socket";
+			var checkItem2Text = "The path to the NfSen communication socket can normally be found in NfSen's [conf.php] file, which is located in the NfSen's main directory. The default variable name is '$COMMSOCKET'.";
 			
-			var checkItem3Title = "NfSen source file existance";
-			var checkItem3Text = "Checks whether some nfcapd dump files can be found. This check is based again on the [$NFSEN_SOURCE_DIR] parameter. By default, the directory for the 'live' profile for an arbitrary source is verified.";
+			var checkItem3Title = "NfSen data directory";
+			var checkItem3Text = "This path should lead to the root NfSen's network data capture folder and should be configured properly in [nfsen.conf] (NfSen main configuration file).";
 			
 			var checkItem4Title = "GeoCoder database connection";
 			var checkItem4Text = "In case a GeoCoder (caching) database is selected to be used, a proper database connection should be configured. Since SQLite technology is used by SURFmap, the file paths in [$GEOCODER_DB_SQLITE2] and [$GEOCODER_DB_SQLITE3] should be valid.";

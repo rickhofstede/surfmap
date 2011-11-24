@@ -81,8 +81,6 @@
 		var $originalTime2Window;
 		
 		var $NetFlowData;
-		var $nfsenProfile;
-		var $nfsenProfileType;
 		var $nfsenDisplayFilter; // Contains filter without internal domains
 		var $firstNfSenSource = "";
 		var $geoLocationData;

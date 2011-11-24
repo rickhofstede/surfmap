@@ -7,16 +7,16 @@
 
 	require_once("config.php");
 	require_once("objects.php");
-	require_once("geoPlugin/geoplugin.class.php");
-	require_once("MaxMind/geoipcity.inc");
-	require_once("IP2Location/ip2location.class.php");
 	require_once("connectionhandler.php");
 	require_once("loghandler.php");
 	require_once("sessionhandler.php");
-	require_once($NFSEN_DIR."/conf.php");
-	require_once($NFSEN_DIR."/nfsenutil.php");
+	
+	$nfsenConfig = readNfSenConfig();
+	
+	require_once($nfsenConfig['HTMLDIR']."/conf.php");
+	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.2 dev (20111120)";
+	$version = "v2.2 dev (20111123)";
 
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -158,7 +158,7 @@
 		} 
 		return $result_string;
 	}
-	
+
 ?>
 
 <!DOCTYPE html>
@@ -203,7 +203,7 @@
 		
 		/* NfSen settings */
 		var nfsenQuery = "<?php echo $sessionData->query; ?>";
-		var nfsenProfile = "<?php echo $sessionData->nfsenProfile; ?>"
+		var nfsenProfile = "<?php echo $_SESSION['SURFmap']['nfsenProfile'] ?>"
 		var nfsenFilter = "<?php echo $_SESSION['SURFmap']['filter']; ?>";
 		var nfsenDisplayFilter = "<?php echo $sessionData->nfsenDisplayFilter; ?>";
 		var nfsenAllSources = "<?php echo $_SESSION['SURFmap']['nfsenAllSources']; ?>".split(":");
@@ -455,7 +455,7 @@
 				 * Percents to fill: 70% - 40% = 30%
 				 */
 				var progress = (completedGeocodingRequests / totalGeocodingRequests) * 30;
-				setProgressBarValue("progressbar", 40 + progress, "Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
+				setProgressBarValue(40 + progress, "Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
 				if(geocodingQueue.length == 0 && totalGeocodingRequests == completedGeocodingRequests) {
 					clearInterval(intervalHandlerID); 
 
@@ -1226,20 +1226,10 @@
 			var internalTrafficMarker = 0;
 			
 			for(var i = 0; i < lines[level].length; i++) {
-				var minSizeLat = Math.min(
-						lineProperties[level][i].lat1.toString().length, 
-						lineProperties[level][i].lat2.toString().length, 
-						coordinates.lat().toString().length);
-	
-				var minSizeLng = Math.min( 
-						lineProperties[level][i].lng1.toString().length,
-						lineProperties[level][i].lng2.toString().length,
-						coordinates.lng().toString().length);	
-
-				if(lineProperties[level][i].lat1.toString().substr(0, minSizeLat) == coordinates.lat().toString().substr(0, minSizeLat) 
-						&& lineProperties[level][i].lat1.toString().substr(0, minSizeLat) == lineProperties[level][i].lat2.toString().substr(0, minSizeLat)
-						&& lineProperties[level][i].lng1.toString().substr(0, minSizeLng) == coordinates.lng().toString().substr(0, minSizeLng)
-						&& lineProperties[level][i].lng1.toString().substr(0, minSizeLng) == lineProperties[level][i].lng2.toString().substr(0, minSizeLng)) {
+				if(parseFloat(lineProperties[level][i].lat1).toFixed(5) == parseFloat(coordinates.lat()).toFixed(5)
+						&& parseFloat(lineProperties[level][i].lat1).toFixed(5) == parseFloat(lineProperties[level][i].lat2).toFixed(5)
+						&& parseFloat(lineProperties[level][i].lng1).toFixed(5) == parseFloat(coordinates.lng()).toFixed(5)
+						&& parseFloat(lineProperties[level][i].lng1).toFixed(5) == parseFloat(lineProperties[level][i].lng2).toFixed(5)) {
 					internalTrafficMarker = 1;
 					break;
 				}
@@ -1364,7 +1354,7 @@
 		*/
 		function initialize() {
 			if(debugLogging == 1) printDebugLogging();
-			setProgressBarValue("progressbar", 10);
+			setProgressBarValue(10);
 			readPHPLogQueue("INFO");
 			readPHPLogQueue("ERROR");
 			
@@ -1428,7 +1418,7 @@
 			geocoder = new google.maps.Geocoder();
 			infoWindow = new google.maps.InfoWindow({maxWidth: 1000});
 			
-			setProgressBarValue("progressbar", 20);
+			setProgressBarValue(20);
 			changeZoomLevelPanel(0, currentSURFmapZoomLevel);
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 1. Basic initialization completed");
 
@@ -1453,12 +1443,12 @@
 				return;
 			}
 
-			setProgressBarValue("progressbar", 30, "Importing NetFlow data...");
+			setProgressBarValue(30, "Importing NetFlow data...");
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data...");
 			importData();
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data... Done");
 			
-			setProgressBarValue("progressbar", 40, "Complementing flow records");
+			setProgressBarValue(40, "Complementing flow records");
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records...");
 			complementFlowRecords();
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records... Done");
@@ -1470,24 +1460,26 @@
 		* This function contains the second stage of processing.
 		*/		
 		function processing() {
-			setProgressBarValue("progressbar", 70, "Initializing lines...");
+			setProgressBarValue(70, "Initializing lines...");
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines...");
 			initializeLines();
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines... Done");
 
-			setProgressBarValue("progressbar", 80, "Initializing markers...");
+			setProgressBarValue(80, "Initializing markers...");
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers...");
 			initializeMarkers();
 			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers... Done");
 			
 			if(demoMode == 0) {
-				setProgressBarValue("progressbar", 90, "Initializing legend...");
+				setProgressBarValue(90, "Initializing legend...");
 				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend...");
 				initializeLegend(currentSURFmapZoomLevel);
 				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend... Done");
 			}
+			
+			checkForHeavyQuery();
 
-			setProgressBarValue("progressbar", 100, "Finished loading...");
+			setProgressBarValue(100, "Finished loading...");
 			addToLogQueue("INFO", "Initialized");
 			
 			$("#dialog").dialog("destroy"); // Hide progress bar
@@ -1627,7 +1619,7 @@
 				+ "</tr>"
 				+ "<tr>"
 					+ "<td>"
-						+ "<textarea name=\"filter\" rows=\"2\" cols=\"26\" style=\"font-size:11px;\" onkeyup=\"checkHeavyQuery();\">" + nfsenDisplayFilter + "</textarea>"
+						+ "<textarea name=\"filter\" rows=\"2\" cols=\"26\" style=\"font-size:11px;\" onkeyup=\"checkForHeavyQuery();\">" + nfsenDisplayFilter + "</textarea>"
 					+ "</td>"					
 				+ "</tr>"
 				+ "<tr>"
@@ -1705,6 +1697,10 @@
 				return false;
 			} else {
 		    	$('input[type=submit]', this).attr('disabled', 'disabled');
+				$(".trigger").trigger("click");
+				generateDialog("progressBar", "");
+				setProgressBarValue(20, "Querying NetFlow data...");
+				setInterval("setProgressBarValue(Math.min(getProgressBarValue() + 1, 90), \"Querying NetFlow data...\");", 500);
 				return true;
 			}
 		});
@@ -1722,7 +1718,7 @@
 				$("div.ui-multiselect-menu").css("width", "175px");
 			},
 			close: function() {
-				checkHeavyQuery();
+				checkForHeavyQuery();
 			}
 		});
 		
@@ -1733,7 +1729,7 @@
 		* Checks whether a (suspected) heavy query has been selected. This is done based on the amount
 		* of selected sources and the filter length.
 		*/		
-		function checkHeavyQuery() {
+		function checkForHeavyQuery() {
 			var heavyQuery = false;
 			if($("#nfsensources").multiselect("widget").find("input:checked").length > 2
 					|| $("textarea[name=filter]").val().length > 100) {
