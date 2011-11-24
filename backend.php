@@ -114,6 +114,6 @@
 		time_nanosleep(0, 500000000);
 	}
 	
-	echo "successful: $successfulGeocodings, erroneous: $erroneousGeocodings, total: ".sizeof($geocodingQueue);
+	echo "successful: $successfulGeocodings, erroneous: $erroneousGeocodings, total: ".sizeof($geocodingQueue).", flow records: ".$sessionData->flowRecordCount;
 	
 ?>

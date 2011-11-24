@@ -294,7 +294,7 @@
 			}
 
 			// Dates (ordering is based on priorities)
-			if(isset($_GET['autorefresh']) || $_SESSION['SURFmap']['date1'] == "-1") {  // initialization value
+			if(PHP_SAPI === "cli" || isset($_GET['autorefresh']) || $_SESSION['SURFmap']['date1'] == "-1") {  // initialization value
 				$sessionData->originalDate1Window = substr($sessionData->latestDate, 0, 4)."/".substr($sessionData->latestDate, 4, 2)."/".substr($sessionData->latestDate, 6, 2);
 				$sessionData->originalDate2Window = $sessionData->originalDate1Window;
 				
@@ -331,7 +331,7 @@
 			}
 			
 			// Times (ordering is based on priorities)
-			if(isset($_GET['autorefresh']) || $_SESSION['SURFmap']['hours1'] == "-1" || $_SESSION['SURFmap']['minutes1'] == "-1") { // initialization value
+			if(PHP_SAPI === "cli" || isset($_GET['autorefresh']) || $_SESSION['SURFmap']['hours1'] == "-1" || $_SESSION['SURFmap']['minutes1'] == "-1") { // initialization value
 				$sessionData->originalTime1Window = $sessionData->latestHour.":".$sessionData->latestMinute;
 				$sessionData->originalTime2Window = $sessionData->originalTime1Window;
 				
