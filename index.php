@@ -1509,9 +1509,9 @@
 		}
 	
 		if(demoMode == 1) {
-			document.write("<div id=\"header-text-demo\" style=\"height:76px; font-size:30pt; text-align:center;\" display=\"inline-block\" ><p style=\"margin-top:18px;\">" + demoModePageTitle + " (" + hours1 + ":" + minutes1 + ")</p></div>");
+			document.write("<div id=\"header-text-demo\" style=\"height:76px; font-size:30pt; text-align:center;\"><p style=\"margin-top:18px;\">" + demoModePageTitle + " (" + hours1 + ":" + minutes1 + ")</p></div>");
 		} else {
-			document.write("<div id=\"header-text\" style=\"height:76px; font-size:10pt; float:right;\" display=\"inline-block\"><p style=\"margin-top:18px;\"><b>SURFmap</b><br /><i>A network monitoring tool based on the Google Maps API</i></p></div>");
+			document.write("<div id=\"header-text\" style=\"height:76px; font-size:10pt; float:right;\"><p style=\"margin-top:18px;\"><b>SURFmap</b><br /><i>A network monitoring tool based on the Google Maps API</i></p></div>");
 		}
 	</script>
 	
@@ -1589,46 +1589,29 @@
 					+ "<input type=\"radio\" id=\"nfsenstatorderbytes\" name=\"nfsenstatorder\" value=\"bytes\" /><label for=\"nfsenstatorderbytes\">bytes</label>"
 				+ "</div>"
 				+ "<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionListFlows\">List Flows</label>"				
-			+ "<br /><table style=\"margin-top:10px;\">"
-				+ "<tr>"
-					+ "<td>"
-						+ "<span style=\"float:left;\">Begin</span>"				
-						+ "<input type=\"text\" id=\"datetime1\" class=\"datetimeinput\" name=\"datetime1\" />"
-						+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'end' time to here\" onclick=\"$('#datetime1').datetimepicker('setDate', new Date($('#datetime2').datetimepicker('getDate')));\"></span></div>"						
-					+ "</td>"					
-				+ "</tr>"
-				+ "<tr>"
-					+ "<td>"
-						+ "<span style=\"float:left;\">End</span>"
-						+ "<input type=\"text\" id=\"datetime2\" class=\"datetimeinput\" name=\"datetime2\" />"
-						+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'begin' time to here\" onclick=\"$('#datetime2').datetimepicker('setDate', new Date($('#datetime1').datetimepicker('getDate')));\"></span></div>"						
-					+ "</td>"
-				+ "</tr>"
-				+ "<tr>"
-					+ "<td>"
-						+ "<span style=\"float:left;\">Limit to</span>"
-						+ "<span style=\"width:126px; float:right;\"><input type=\"text\" id=\"flowsinput\" name=\"amount\" style=\"width:35px; padding:2px 0px 2px 0px; text-align:center;\" maxlength=\"4\" value=\"" + entryCount + "\" /><label for=\"flowsinput\"> flows</label><span>"
-					+ "</td>"					
-				+ "</tr>"
-				+ "<tr>"
-					+ "<td>"
-						+ "Filter"
-					+ "</td>"
-					+ "<td>"
-					+ "</td>"					
-				+ "</tr>"
-				+ "<tr>"
-					+ "<td>"
-						+ "<textarea name=\"filter\" rows=\"2\" cols=\"26\" style=\"font-size:11px;\" onkeyup=\"checkForHeavyQuery();\">" + nfsenDisplayFilter + "</textarea>"
-					+ "</td>"					
-				+ "</tr>"
-				+ "<tr>"
-					+ "<td style=\"text-align:center; padding-top:5px;\">"
-						+ "<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've probably selected a heavy query!</div>"
-						+ "<input type=\"submit\" name=\"submit\" value=\"Submit\" />"
-					+ "</td>"					
-				+ "</tr>"					
-			+ "</table></form>";
+			+ "<br />"
+			+ "<div style=\"margin-top:10px; width:195px;\">"
+				+ "<span style=\"float:left;\">Begin</span>"				
+				+ "<input type=\"text\" id=\"datetime1\" class=\"datetimeinput\" name=\"datetime1\" />"
+				+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'end' time to here\" onclick=\"$('#datetime1').datetimepicker('setDate', new Date($('#datetime2').datetimepicker('getDate')));\"></span></div>"						
+			+ "</div><br />"
+			+ "<div style=\"margin-top:10px; width:195px;\">"
+				+ "<span style=\"float:left;\">End</span>"
+				+ "<input type=\"text\" id=\"datetime2\" class=\"datetimeinput\" name=\"datetime2\" />"
+				+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'begin' time to here\" onclick=\"$('#datetime2').datetimepicker('setDate', new Date($('#datetime1').datetimepicker('getDate')));\"></span></div>"				
+			+ "</div><br />"
+			+ "<div style=\"margin-top:10px; width:195px;\">"
+				+ "<span style=\"float:left;\">Limit to</span>"
+				+ "<span style=\"width:127px; float:right;\"><input type=\"text\" id=\"flowsinput\" name=\"amount\" style=\"width:35px; padding:2px 0px 2px 0px; text-align:center;\" maxlength=\"4\" value=\"" + entryCount + "\" /><label for=\"flowsinput\"> flows</label><span>"	
+			+ "</div><br />"
+			+ "<div style=\"margin-top:10px; width:195px;\">"
+				+ "<span style=\"float:left;\">Filter</span><br />"
+				+ "<textarea name=\"filter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\" onkeyup=\"checkForHeavyQuery();\">" + nfsenDisplayFilter + "</textarea>"
+			+ "</div><br />"
+			+ "<div style=\"text-align:center; width:195px;\">"
+				+ "<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've probably selected a heavy query!</div>"
+				+ "<input type=\"submit\" name=\"submit\" value=\"Submit\" />"
+			+ "</div></form>";
 
 		// Select the current option in the 'nfsenstatorder' selector
 		var options = $("#nfsenstatorder").children("input[name='nfsenstatorder']");
