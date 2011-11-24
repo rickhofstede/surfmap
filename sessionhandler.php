@@ -84,7 +84,9 @@
 		function setNfSenOption() {
 			global $DEFAULT_QUERY_TYPE;
 			
-			if(isset($_GET['nfsenoption'])) {
+			if(PHP_SAPI === "cli") {
+				$_SESSION['SURFmap']['nfsenOption'] = 0;
+			} else if(isset($_GET['nfsenoption'])) {
 				$_SESSION['SURFmap']['nfsenOption'] = $_GET['nfsenoption'];
 			} else if($_SESSION['SURFmap']['nfsenOption'] == -1) { // initialization value
 				$_SESSION['SURFmap']['nfsenOption'] = $DEFAULT_QUERY_TYPE;
