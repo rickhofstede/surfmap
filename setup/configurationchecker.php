@@ -262,6 +262,57 @@
 		$extIPLocationOK = 1;
 	}
 	
+	if($extIPCity != "(Unknown)") {
+		$latLng = geocode($extIPCity);
+	} else if($extIPRegion != "(Unknown)") {
+		$latLng = geocode($extIPRegion);
+	} else if($extIPCountry != "(Unknown)") {
+		$latLng = geocode($extIPCountry);
+	}
+	
+	$locationString = $extIPCountry.",".$extIPRegion.",".$extIPCity;
+	if(isset($latLng) && is_array($latLng)) {
+		$locationString .= ",".$latLng[0].",".$latLng[1];
+	} else {
+		$locationString .= ",,";
+	}
+	
+	/**
+	 * Starts calls to the Google Maps API GeoCoder. It is derived from the 'geocode()'
+	 * method in [index.php].
+	 * Return:
+	 *		array(lat, lng) on success, or 'false' (bool) on failure
+	 */	
+	function geocode($place) {
+		$requestURL = "http://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
+		
+		// Prefer cURL over the 'simplexml_load_file' command, for increased stability
+		if(extension_loaded("curl")) {
+			$curl_handle = curl_init();
+			curl_setopt($curl_handle, CURLOPT_URL, $requestURL);
+			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
+			$result = curl_exec($curl_handle);
+			curl_close($curl_handle);
+			$xml = simplexml_load_string($result);
+		} else {
+			$xml = simplexml_load_file($requestURL);
+		}
+		
+		$status = $xml->status;
+		if(isset($xml->result->geometry)) {
+			$lat = $xml->result->geometry->location->lat;
+		    $lng = $xml->result->geometry->location->lng;
+		}
+		
+		if($status == "OVER_QUERY_LIMIT") {
+			time_nanosleep(0, 1000000000);
+			geocode($place);
+		}
+		
+		return ($status == "OK" && isset($lat) && isset($lng)) ? array($lat, $lng) : false;
+	}
+	
 ?>
 
 <!DOCTYPE html>
@@ -335,7 +386,7 @@
 		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. External IP address: <?php if($extIPError !== "") echo $extIPError; else echo $extIP; ?><br />Geolocated country: <?php echo $extIPCountry; ?><br />Geolocated region: <?php echo $extIPRegion; ?><br />Geolocated city: <?php echo $extIPCity; ?></div>
 				
 		<div id="dialog"></div>
-		<div id="configdata" style="display:none;"></div>
+		<div id="configdata" style="display:none;"><?php echo $locationString; ?></div>
 		
 		<script type="text/javascript">
 			var useGeocoderDB = <?php echo $USE_GEOCODER_DB; ?>;
@@ -364,6 +415,7 @@
 			var extIPCountry = "<?php echo $extIPCountry; ?>";
 			var extIPRegion = "<?php echo $extIPRegion; ?>";
 			var extIPCity = "<?php echo $extIPCity; ?>";
+			var extIPCoordinates = "<?php if(is_array($latLng)) { echo $latLng[0].','.$latLng[1]; } else { echo ''; } ?>";
 
 			// Setup guidelines
 			if(extIPNAT || extIPError != "") {
@@ -377,18 +429,10 @@
 			if(extIPCity != "(Unknown)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_CITY=\"" + extIPCity + "\";<br />";
 			}
-			document.getElementById("configdata").innerHTML = extIPCountry + "," + extIPRegion + "," + extIPCity;
-			
-			if(extIPCity != "(Unknown)") {
-				geocode(extIPCity);
-			} else if(extIPRegion != "(Unknown)") {
-				geocode(extIPRegion);
-			} else if(extIPCountry != "(Unknown)") {
-				geocode(extIPCountry);
-			} else {
-				document.getElementById("configdata").innerHTML += ",(Unknown),(Unknown)";
+			if(extIPCoordinates != "") {
+				document.getElementById("setupguidelines").innerHTML += "$MAP_CENTER=\"" + extIPCoordinates + "\";<br />";
 			}
-			
+
 			// 1. NfSen configuration file (nfsen.conf) availability
 			if(nfsenConfigReadable == 1) {
 				document.getElementById("checkitem1").className += " checkitem_success";
@@ -535,34 +579,6 @@
 
 			var checkItem13Title = "External IP address and location";
 			var checkItem13Text = "If your PHP configuration contains your public IP address, it is likely to be geolocatable. If so, it is shown here. If the locations are unknown, you need to geolocate it manually.";
-
-		   /**
-			* Starts calls to the Google Maps API GeoCoder. It is derived from the 'geocode()'
-			* method in index.php. Since the call to the GeoCoder is asynchronous, this method will
-			* automatically add the result to the 'Setup guidelines' section on successful completion.
-			* Parameters:
-			*	place - name of the place that has to be geocoded
-			*/		
-			function geocode(place) {
-				var coordinates = "";
-				
-				// Some geolocation databases return 'Unknown' or 'unknown' in case a location is not found or recognized.
-				if(place.indexOf("nknown") == -1) {
-					 new google.maps.Geocoder().geocode({'address': place}, function(results, status) {
-						if(status == google.maps.GeocoderStatus.OK) {
-							var lat = results[0].geometry.location.lat();
-							var lng = results[0].geometry.location.lng();
-							
-							document.getElementById("setupguidelines").innerHTML += "$MAP_CENTER=\"" + lat + "," + lng + "\";<br />";
-							document.getElementById("configdata").innerHTML += "," + lat + "," + lng;
-						} else {
-							document.getElementById("configdata").innerHTML += ",(Unknown),(Unknown)";
-						}
-					});
-				}
-				return coordinates;
-			}
-			
 		</script>
 	</body>
 </html>

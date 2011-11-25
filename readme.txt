@@ -4,7 +4,7 @@ Please check the manual for installation instructions. Run the ConfigurationChec
 
 ---
 
-Release notes [v2.2 dev (20111124)]:
+Release notes [v2.2 dev (20111125)]:
 
 WARNING: the configuration file of previous versions is not compatible with this release!
 
