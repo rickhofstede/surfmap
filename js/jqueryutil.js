@@ -71,11 +71,11 @@
 			else if(GEOLOCATION_DB == "geoPlugin") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/geoplugin.jpg' alt='geoPlugin' style='width:130px;' /></td></tr></table><br />";
 			
 			document.getElementById("dialog").innerHTML += "<div style='font-size:80%;'>Application version: " + applicationVersion + "</div>";	
-			showDialog("dialog", "auto", 350, "center", false);
+			showDialog("auto", 350, "center", false, true);
 		} else if(type == "help") {
 			document.getElementById("dialog").setAttribute("title", "Help");
 			document.getElementById("dialog").innerHTML = "Welcome to the SURFmap help. Some main principles of SURFmap are explained here.<br /><br /><table border = '0'><tr><td width = '100'><b>Marker</b></td><td>Markers represent hosts and show information about them, like IPv4 addresses and the country, region and city they're in. The information shown here depends on the selected zoom level.<hr /></td></tr><tr><td><b>Line</b></td><td>Lines represent a flow between two hosts (so between markers) and show information about that flow, like the geographical information of the two end points, the exchanged amount of packets, octets and throughput per flow. The information shown here depends on the selected zoom level.<hr /></td></tr><tr><td><b>Zoom levels table</b></td><td>This tables shows the current zoom level. The four zoom levels are also clickable, so that you can zoom in or out to a particular zoom level directly.<hr /></td></tr><tr><td><b>NfSen options</b></td><td>The main NfSen options can be set here. First, either 'List flows' or 'Stat TopN' has to be chosen. The first option lists the first N flows of the selected time slot (N and the selected time slot will be discussed later). 'Stat TopN' shows top N statistics about the network data in the selected time slot. The value of N can be set in the 'Amount' field, while the time slot can be set in the 'Date' field.</td></tr></table>";
-			showDialog("dialog", "auto", 500, "center", false);				
+			showDialog("auto", 500, "center", false, true);				
 		} else if(type == "license") {
 			document.getElementById("dialog").setAttribute("title", "SURFmap license");
 			document.getElementById("dialog").innerHTML = "The SURFmap project is distributed under the BSD license:<br>"
@@ -107,7 +107,7 @@
 				+ "CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) <br>"
 				+ "ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE <br>"
 				+ "POSSIBILITY OF SUCH DAMAGE.<br>";
-			showDialog("dialog", "auto", "auto", "center", false);
+			showDialog("auto", "auto", "center", false, true);
 		} else if(type == "netflowDetails") {
 			document.getElementById("dialog").setAttribute("title", "Details");
 			document.getElementById("dialog").innerHTML = text;
@@ -126,20 +126,20 @@
 			var dialogHeight = (headerHeight + (tableRows * rowHeight) > 450) ? 450 : headerHeight + (tableRows * rowHeight);
 
 			if(nfsenOption == 1) {
-				showDialog("dialog", dialogHeight, "auto", "center", false);
+				showDialog(dialogHeight, "auto", "center", false, true);
 			} else {
-				showDialog("dialog", dialogHeight, "auto", "center", false);
+				showDialog(dialogHeight, "auto", "center", false, true);
 			}
 		} else if(type == "progressBar") {
 			document.getElementById("dialog").setAttribute("title", "Loading...");
 			document.getElementById("dialog").innerHTML = "<div style='margin-top: 6px; width:400px;' id='progressbar'></div>";
-			showDialog("dialog", 80, 450, "center", true);
+			showDialog(80, 450, "center", true, false);
 			showProgressBar("progressbar", 0, "");
 		} else if(type == "configurationCheckerHelp") {
 			var splittedString = text.split("##");
 			document.getElementById("dialog").setAttribute("title", splittedString[0]);
 			document.getElementById("dialog").innerHTML = splittedString[1];
-			showDialog("dialog", "auto", 350, "center", false);
+			showDialog("auto", 350, "center", false, true);
 		}
 	}
 	
@@ -147,15 +147,15 @@
 	* Shows the actual dialog using jQuery.
 	*
 	* Parameters:
-	*		id - ID of the div element, which needs to be converted to a dialog
 	*		height - Height of the jQuery dialog, can also be 'auto'
 	*		width - Width of the jQuery dialog, can also be 'auto'
 	*		position - Position of the dialog. Can be 'top', 'bottom', 'left', 'right', 'center'
 	*	    hideCloseButton - Hides the close button (X) when the dialog is opened
+	*		closeOnEsc - (bool) Enables/disables the 'ESC' button to dismiss the dialog
 	*/	
-	function showDialog(id, height, width, position, hideCloseButton) {
+	function showDialog(height, width, position, hideCloseButton, closeOnEsc) {
 		// When dialog is closed, set it back to initial state
-		$("#" + id).dialog({
+		$("#dialog").dialog({
 			open: function(event, ui) {
 				if(hideCloseButton == true) $('.ui-dialog-titlebar-close').hide();
 			},
@@ -165,7 +165,8 @@
 			modal: true,
 			position: position,
 			width: width,
-			height: height
+			height: height,
+			closeOnEscape: closeOnEsc
 		});
 	}
 
