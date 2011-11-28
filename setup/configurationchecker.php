@@ -292,7 +292,12 @@
 	 *		array(lat, lng) on success, or 'false' (bool) on failure
 	 */	
 	function geocode($place) {
-		$requestURL = "http://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
+		$requestURL = "://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
+		if($FORCE_HTTPS) {
+			$requestURL = "https".$requestURL;
+		} else {
+			$requestURL = "http".$requestURL;
+		}
 		
 		// Prefer cURL over the 'simplexml_load_file' command, for increased stability
 		if(extension_loaded("curl")) {
