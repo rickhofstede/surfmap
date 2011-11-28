@@ -66,7 +66,7 @@
 			global $DEFAULT_FLOW_RECORD_COUNT, $GEOLOCATION_DB;
 			
 			if(PHP_SAPI === "cli") {
-				$_SESSION['SURFmap']['entryCount'] = 500;
+				$_SESSION['SURFmap']['entryCount'] = 100;
 			} else if(isset($_GET['amount']) && ereg_replace("[^0-9]", "", $_GET['amount']) > 0) {
 				$_SESSION['SURFmap']['entryCount'] = ereg_replace("[^0-9]", "", $_GET['amount']);
 			} else if($_SESSION['SURFmap']['entryCount'] == -1) { // initialization value
@@ -86,9 +86,7 @@
 		function setNfSenOption() {
 			global $DEFAULT_QUERY_TYPE;
 			
-			if(PHP_SAPI === "cli") {
-				$_SESSION['SURFmap']['nfsenOption'] = 0;
-			} else if(isset($_GET['nfsenoption'])) {
+			if(isset($_GET['nfsenoption'])) {
 				$_SESSION['SURFmap']['nfsenOption'] = $_GET['nfsenoption'];
 			} else if($_SESSION['SURFmap']['nfsenOption'] == -1) { // initialization value
 				$_SESSION['SURFmap']['nfsenOption'] = $DEFAULT_QUERY_TYPE;
