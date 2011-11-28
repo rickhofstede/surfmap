@@ -157,8 +157,7 @@
 	}
 	
 	// 13. External IP address and location
-	$extIP = getenv("SERVER_ADDR");
-	$internalDomainNets = array();
+	$extIP = (!getenv("SERVER_ADDR")) ? "127.0.0.1" : getenv("SERVER_ADDR");
 	if($extIP === "127.0.0.1") {
 		$extIPNAT = true;
 	} else {
@@ -189,7 +188,12 @@
 					$extIP = curl_exec($curl_handle);
 					curl_close($curl_handle);
 					
-					if($extIP !== "") break;
+					if($extIP === "Too frequent!" || $extIP === "") {
+						sleep(10);
+						continue;
+					} else {
+						break;
+					}
 				}
 			}
 
@@ -209,10 +213,12 @@
 	
 	// Check whether the (eventually) discovered external IP address is still a NATed one
 	$extIPNAT = false;
-	foreach($internalDomainNets as $subNet) {
-		if(ipAddressBelongsToNet($extIP, $subNet)) {
-			$extIPNAT = true;
-			break;
+	if(isset($internalDomainNets)) {
+		foreach($internalDomainNets as $subNet) {
+			if(ipAddressBelongsToNet($extIP, $subNet)) {
+				$extIPNAT = true;
+				break;
+			}
 		}
 	}
 	
@@ -274,7 +280,7 @@
 	if(isset($latLng) && is_array($latLng)) {
 		$locationString .= ",".$latLng[0].",".$latLng[1];
 	} else {
-		$locationString .= ",,";
+		$locationString .= ",(Unknown),(Unknown)";
 	}
 	
 	/**
@@ -415,7 +421,7 @@
 			var extIPCountry = "<?php echo $extIPCountry; ?>";
 			var extIPRegion = "<?php echo $extIPRegion; ?>";
 			var extIPCity = "<?php echo $extIPCity; ?>";
-			var extIPCoordinates = "<?php if(is_array($latLng)) { echo $latLng[0].','.$latLng[1]; } else { echo ''; } ?>";
+			var extIPCoordinates = "<?php if(isset($latLng) && is_array($latLng)) { echo $latLng[0].','.$latLng[1]; } else { echo ''; } ?>";
 
 			// Setup guidelines
 			if(extIPNAT || extIPError != "") {
@@ -578,7 +584,7 @@
 			var checkItem12Text = "In case you selected 'MaxMind' as your geolocation database, you should have PHP's 'mbstring' module installed, in order to get the MaxMind API to work.";
 
 			var checkItem13Title = "External IP address and location";
-			var checkItem13Text = "If your PHP configuration contains your public IP address, it is likely to be geolocatable. If so, it is shown here. If the locations are unknown, you need to geolocate it manually.";
+			var checkItem13Text = "If your PHP configuration contains your public IP address, it is likely to be geolocatable. In that case, it is shown here. If the locations are unknown, you need to geolocate it manually.";
 		</script>
 	</body>
 </html>
