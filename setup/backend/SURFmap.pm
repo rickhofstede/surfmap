@@ -9,8 +9,8 @@ use Sys::Syslog;
 
 our $VERSION = 130;
 
-my($enableBackEndGeocoding) = 1;
-my($LOG_DEBUG) = 1;
+my($enableBackEndGeocoding) = 0;
+my($LOG_DEBUG) = 0;
 my($SURFMAP_PATH) = '/var/www/SURFmap/';
 
 #
