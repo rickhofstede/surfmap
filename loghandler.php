@@ -1,9 +1,11 @@
 <?php
-	/*******************************
-	 * loghandler.php [SURFmap]
-	 * Author: Rick Hofstede
-	 * University of Twente, The Netherlands
-	 *******************************/
+/*******************************
+ * loghandler.php [SURFmap]
+ * Author: Rick Hofstede
+ * University of Twente, The Netherlands
+ *
+ * LICENSE TERMS: outlined in BSD-license.html
+ *******************************/
 	
 	class LogHandler {
 		

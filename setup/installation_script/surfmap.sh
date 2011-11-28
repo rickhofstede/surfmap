@@ -2,84 +2,102 @@
 #
 # Simple script to install SURFmap plugin.
 #
+# Copyright (C) 2011 INVEA-TECH a.s.
+# Author(s): Pavel CELEDA <celeda@invea-tech.com>
+#
+# LICENSE TERMS - 3-clause BSD license
+#
 # $Id:$
 #
 
-SNAPSHOT=SURFmap_20111024.zip
+SURFMAP_REL=SURFmap_v2.2.tar.gz
 GEO_DB=GeoLiteCity.dat.gz
-NFSEN_DIR=/data/nfsen
-SURFMAP_DIR=/var/www/shtml/nfsen
-SURFMAP_CFG=${SURFMAP_DIR}/SURFmap/config.php
-MYLOC_CFG=/tmp/mylocation.txt
-MYIP=`curl -s http://www.whatismyip.org || echo 195.113.224.158`
 
-stripsed () {
-	str="${1//\//\\/}"		# replace sed special characters
-	str="${str/[/\[}"		# replace sed special characters
-	str="${str/]/\]}"		# replace sed special characters
+err () {
+	echo "ERROR : ${*}"
+	exit 1
 }
 
+echo "SURFmap installation script"
+echo "---------------------------"
+
+# discover NfSen configuration
+NFSEN_VARFILE=/tmp/nfsen-tmp.conf
+NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep -m1 nfsend | cut -d' ' -f3) | grep libexec | cut -d'"' -f2)
+if [  -z ${NFSEN_LIBEXECDIR} ]; then
+	err "NfSen not running!"
+fi
+NFSEN_CONF=$(cat ${NFSEN_LIBEXECDIR}/NfConf.pm | grep \/nfsen.conf | cut -d'"' -f2)
+
+# parse nfsen.conf file
+cat ${NFSEN_CONF} | grep -v \# | egrep '\$BASEDIR|\$BINDIR|\$HTMLDIR|\$FRONTEND_PLUGINDIR|\$BACKEND_PLUGINDIR' | tr -d ';' | tr -d ' ' | cut -c2- > ${NFSEN_VARFILE}
+. ${NFSEN_VARFILE}
+rm -rf ${NFSEN_VARFILE}
+
+SURFMAP_CONF=${HTMLDIR}/SURFmap/config.php
+
 # download files from Internet
-if [ ! -f  ${SNAPSHOT} ]; then
-	echo "Downloading SURFmap - http://surfmap.sf.net/"
-	wget http://downloads.sourceforge.net/project/surfmap/source/${SNAPSHOT}
+if [ ! -f  ${SURFMAP_REL} ]; then
+	echo "Downloading SURFmap plugin tar ball - http://surfmap.sf.net/"
+	wget http://downloads.sourceforge.net/project/surfmap/source/${SURFMAP_REL}
 fi
 
 if [ ! -f  ${GEO_DB} ]; then
-	echo "Downloading Geo Database - http://geolite.maxmind.com"
+	echo "Downloading MaxMind Geo Database - http://geolite.maxmind.com"
 	wget http://geolite.maxmind.com/download/geoip/database/${GEO_DB}
 fi
 
-# remove old SURFmap version
-echo "Removing old SURFmap installation from ${SURFMAP_DIR}"
-rm -rf ${SURFMAP_DIR}/SURFmap
+# backup old SURFmap installation
+if [ -d ${HTMLDIR}/SURFmap ]; then
+	SURFMAP_BACKUPDIR=${HTMLDIR}/SURFmap-$(date +%s)
+	echo "Backuping old SURFmap installation to ${SURFMAP_BACKUPDIR}"
+	mv ${HTMLDIR}/SURFmap ${SURFMAP_BACKUPDIR}
+fi
 
-# unzip SURFmap plugin
-echo "Installing new SURFmap plugin to ${SURFMAP_DIR}"
-unzip -q -X ${SNAPSHOT} -d /tmp/
-mv /tmp/SURFmap_* ${SURFMAP_DIR}/SURFmap
+# unpack SURFmap plugin
+echo "Installing SURFmap plugin to ${HTMLDIR}/SURFmap"
+tar zxfp ${SURFMAP_REL} --directory=${HTMLDIR}
 
-# gunzip GeoLocation database
-echo "Installing MaxMing GeoDatabase to ${SURFMAP_DIR}/MaxMind"
-gunzip -c ${GEO_DB} > ${SURFMAP_DIR}/SURFmap/MaxMind/`basename ${GEO_DB} .gz`
+# unpack GeoLocation database
+echo "Installing MaxMind Geo Database to ${HTMLDIR}/SURFmap/MaxMind"
+gunzip -c ${GEO_DB} > ${HTMLDIR}/SURFmap/MaxMind/$(basename ${GEO_DB} .gz)
 
-# get my location
-echo "GeoLocating public IP address ${MYIP}"
-php -f mylocation.php ${SURFMAP_DIR}/SURFmap/MaxMind ${MYIP} > ${MYLOC_CFG}
-. ${MYLOC_CFG}
+# update config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
+echo "Updating plugin configuration file ${SURFMAP_CONF}"
+sed -i "s,$(grep NFSEN_CONF ${SURFMAP_CONF} | cut -d'"' -f2),${NFSEN_CONF},g" ${SURFMAP_CONF}
 
-# fill my location in SURFmap configuration file
-OLDENTRY=`grep MAP_CENTER ${SURFMAP_CFG} | cut -d\" -f2`
-sed -i "s/${OLDENTRY}/${MAP_CENTER}/g" ${SURFMAP_CFG}
+# get my location information
+echo -n "Geocoding plugin location - "
+cd ${HTMLDIR}/SURFmap/setup
+MY_LOC=$(php configurationchecker.php | grep configdata | cut -d'>' -f2 | cut -d'<' -f1)
+echo "${MY_LOC}"
+cd - > /dev/null
 
-OLDENTRY=`grep INTERNAL_DOMAINS_COUNTRY ${SURFMAP_CFG} | cut -d\" -f2`
-sed -i "s/${OLDENTRY}/${INTERNAL_DOMAINS_COUNTRY}/g" ${SURFMAP_CFG}
+# fill my location in plugin configuration file
+OLDENTRY=$(grep INTERNAL_DOMAINS_COUNTRY ${SURFMAP_CONF} | cut -d'"' -f2)
+sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
 
-OLDENTRY=`grep INTERNAL_DOMAINS_REGION ${SURFMAP_CFG} | cut -d\" -f2`
-sed -i "s/${OLDENTRY}/${INTERNAL_DOMAINS_REGION}/g" ${SURFMAP_CFG}
+OLDENTRY=$(grep INTERNAL_DOMAINS_REGION ${SURFMAP_CONF} | cut -d'"' -f2)
+sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f2)/g" ${SURFMAP_CONF}
 
-OLDENTRY=`grep INTERNAL_DOMAINS_CITY ${SURFMAP_CFG} | cut -d\" -f2`
-sed -i "s/${OLDENTRY}/${INTERNAL_DOMAINS_CITY}/g" ${SURFMAP_CFG}
+OLDENTRY=$(grep INTERNAL_DOMAINS_CITY ${SURFMAP_CONF} | cut -d'"' -f2)
+sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f3)/g" ${SURFMAP_CONF}
 
-# set missing parameters in SURFmap configuration file
-stripsed `grep COMMSOCKET ${SURFMAP_CFG} | cut -d\" -f2`
-OLDENTRY=${str}
-stripsed ${NFSEN_DIR}/var/run/nfsen.comm	
-NEWENTRY=${str}
-sed -i "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CFG}
+OLDENTRY=$(grep MAP_CENTER ${SURFMAP_CONF} | cut -d'"' -f2)
+sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f4-)/g" ${SURFMAP_CONF}
 
-sed -i "s/router_name/p3000/g" ${SURFMAP_CFG}
+# install backend and frontend plugin files
+echo "Installing backend and frontend plugin files - SURFmap.pm, SURFmap.php"
+cp ${HTMLDIR}/SURFmap/setup/backend/SURFmap.pm ${BACKEND_PLUGINDIR}
+cp ${HTMLDIR}/SURFmap/setup/frontend/SURFmap.php ${FRONTEND_PLUGINDIR}
 
-OLDENTRY=`grep -m1 GEOLOCATION_DB ${SURFMAP_CFG} | cut -d\" -f2`
-sed -i "s/${OLDENTRY}/MaxMind/g" ${SURFMAP_CFG}
+# enable plugin
+echo "Updating NfSen configuration file ${NFSEN_CONF}"
+sed -i "/SURFmap/d" ${NFSEN_CONF}
 
-stripsed `grep MAXMIND_PATH ${SURFMAP_CFG} | cut -d\" -f2`
-OLDENTRY=${str}
-stripsed ${SURFMAP_DIR}/SURFmap/MaxMind/`basename ${GEO_DB} .gz`
-NEWENTRY=${str}
-sed -i "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CFG}
+OLDENTRY=$(grep \@plugins ${NFSEN_CONF})
+sed -i "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
 
-echo "Non-proceeded tasks backend/frontend configuration, nfsen restart"
-
-rm -rf ${MYLOC_CFG}
+# restart/reload NfSen
+echo "Please restart/reload NfSen to finish installation e.g. sudo ${BINDIR}/nfsen reload"
 

@@ -1,9 +1,11 @@
 <?php
-	/*******************************
-	 * objects.php [SURFmap]
-	 * Author: Rick Hofstede
-	 * University of Twente, The Netherlands
-	 *******************************/
+/*******************************
+ * objects.php [SURFmap]
+ * Author: Rick Hofstede
+ * University of Twente, The Netherlands
+ *
+ * LICENSE TERMS: outlined in BSD-license.html
+ *******************************/
 	
 	class NetFlowFlow {
 		var $ipv4_src;

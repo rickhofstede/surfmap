@@ -1,9 +1,11 @@
 <?php
-	/*******************************
-	 * config.php [SURFmap]
-	 * Author: Rick Hofstede
-	 * University of Twente, The Netherlands
-	 *******************************/
+/*******************************
+ * config.php [SURFmap]
+ * Author: Rick Hofstede
+ * University of Twente, The Netherlands
+ *
+ * LICENSE TERMS: outlined in BSD-license.html
+ *******************************/
 	
 	// [Application parameters]
 	$MAP_CENTER="52.217,6.9"; // Center of the map, specified by latitude and longitude coordinates; coordinates should be separated by a comma (,) [default: '52.217,6.9']
