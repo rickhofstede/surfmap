@@ -1,3 +1,11 @@
+/*******************************
+ * surfmap.css [SURFmap]
+ * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+ * University of Twente, The Netherlands
+ *
+ * LICENSE TERMS: outlined in BSD-license.html
+ *******************************/
+
 html { height: 90% }
 body { height: 90%; margin: 10px; padding: 0; font-family: Verdana; }
 a:link { color: black; text-decoration: none; }

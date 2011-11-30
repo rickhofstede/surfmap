@@ -23,10 +23,11 @@ echo "---------------------------"
 
 # discover NfSen configuration
 NFSEN_VARFILE=/tmp/nfsen-tmp.conf
-NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep -m1 nfsend | cut -d' ' -f3) | grep libexec | cut -d'"' -f2)
-if [  -z ${NFSEN_LIBEXECDIR} ]; then
-	err "NfSen not running!"
+if [ ! -n "$(ps axo command | grep [n]fsend | grep -v nfsend-comm)" ]; then
+	err "NfSen - nfsend not running. Can not detect nfsen.conf location!"
 fi
+
+NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep [n]fsend | grep -v nfsend-comm | cut -d' ' -f3) | grep libexec | cut -d'"' -f2)
 NFSEN_CONF=$(cat ${NFSEN_LIBEXECDIR}/NfConf.pm | grep \/nfsen.conf | cut -d'"' -f2)
 
 # parse nfsen.conf file
@@ -34,7 +35,7 @@ cat ${NFSEN_CONF} | grep -v \# | egrep '\$BASEDIR|\$BINDIR|\$HTMLDIR|\$FRONTEND_
 . ${NFSEN_VARFILE}
 rm -rf ${NFSEN_VARFILE}
 
-SURFMAP_CONF=${HTMLDIR}/SURFmap/config.php
+SURFMAP_CONF=${FRONTEND_PLUGINDIR}/SURFmap/config.php
 
 # download files from Internet
 if [ ! -f  ${SURFMAP_REL} ]; then
@@ -48,19 +49,19 @@ if [ ! -f  ${GEO_DB} ]; then
 fi
 
 # backup old SURFmap installation
-if [ -d ${HTMLDIR}/SURFmap ]; then
-	SURFMAP_BACKUPDIR=${HTMLDIR}/SURFmap-$(date +%s)
+if [ -d ${FRONTEND_PLUGINDIR}/SURFmap ]; then
+	SURFMAP_BACKUPDIR=${FRONTEND_PLUGINDIR}/SURFmap-$(date +%s)
 	echo "Backuping old SURFmap installation to ${SURFMAP_BACKUPDIR}"
-	mv ${HTMLDIR}/SURFmap ${SURFMAP_BACKUPDIR}
+	mv ${FRONTEND_PLUGINDIR}/SURFmap ${SURFMAP_BACKUPDIR}
 fi
 
 # unpack SURFmap plugin
-echo "Installing SURFmap plugin to ${HTMLDIR}/SURFmap"
-tar zxfp ${SURFMAP_REL} --directory=${HTMLDIR}
+echo "Installing SURFmap plugin to ${FRONTEND_PLUGINDIR}/SURFmap"
+tar zxfp ${SURFMAP_REL} --directory=${FRONTEND_PLUGINDIR}
 
 # unpack GeoLocation database
-echo "Installing MaxMind Geo Database to ${HTMLDIR}/SURFmap/MaxMind"
-gunzip -c ${GEO_DB} > ${HTMLDIR}/SURFmap/MaxMind/$(basename ${GEO_DB} .gz)
+echo "Installing MaxMind Geo Database to ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind"
+gunzip -c ${GEO_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind/$(basename ${GEO_DB} .gz)
 
 # update config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
 echo "Updating plugin configuration file ${SURFMAP_CONF}"
@@ -68,9 +69,15 @@ sed -i "s,$(grep NFSEN_CONF ${SURFMAP_CONF} | cut -d'"' -f2),${NFSEN_CONF},g" ${
 
 # get my location information
 echo -n "Geocoding plugin location - "
-cd ${HTMLDIR}/SURFmap/setup
+cd ${FRONTEND_PLUGINDIR}/SURFmap/setup
 MY_LOC=$(php configurationchecker.php | grep configdata | cut -d'>' -f2 | cut -d'<' -f1)
 echo "${MY_LOC}"
+
+while [ "${MY_LOC}" == "(Unknown),(Unknown),(Unknown),," ]; do
+	MY_LOC=$(php configurationchecker.php | grep configdata | cut -d'>' -f2 | cut -d'<' -f1)
+	echo "Geocoding plugin location - ${MY_LOC}"
+done
+
 cd - > /dev/null
 
 # fill my location in plugin configuration file
@@ -88,8 +95,8 @@ sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f4-)/g" ${SURFMAP_CONF}
 
 # install backend and frontend plugin files
 echo "Installing backend and frontend plugin files - SURFmap.pm, SURFmap.php"
-cp ${HTMLDIR}/SURFmap/setup/backend/SURFmap.pm ${BACKEND_PLUGINDIR}
-cp ${HTMLDIR}/SURFmap/setup/frontend/SURFmap.php ${FRONTEND_PLUGINDIR}
+cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/backend/SURFmap.pm ${BACKEND_PLUGINDIR}
+cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/frontend/SURFmap.php ${FRONTEND_PLUGINDIR}
 
 # enable plugin
 echo "Updating NfSen configuration file ${NFSEN_CONF}"

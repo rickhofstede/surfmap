@@ -1,6 +1,6 @@
 /*******************************
  * jqueryutil.js [SURFmap]
- * Author: Rick Hofstede
+ * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
  * University of Twente, The Netherlands
  *
  * LICENSE TERMS: BSD-license.html
