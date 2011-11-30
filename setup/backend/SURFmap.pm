@@ -4,6 +4,7 @@
 package SURFmap;
 
 use strict;
+use NfConf;
 use NfProfile;
 use Sys::Syslog;
 
@@ -11,7 +12,7 @@ our $VERSION = 130;
 
 my($enableBackEndGeocoding) = 0;
 my($LOG_DEBUG) = 0;
-my($SURFMAP_PATH) = '/var/www/SURFmap/';
+my($SURFMAP_PATH) = "$NfConf::FRONTEND_PLUGINDIR"."/SURFmap/";
 
 #
 # The Init function is called when the plugin is loaded. It's purpose is to give the plugin 
@@ -52,7 +53,7 @@ sub run {
 	my $timeslot     = $$argref{'timeslot'};
 	
 	my %profileinfo  = NfProfile::ReadProfile($profile, $profilegroup);
-	my $allsources  = join ':', keys %{$profileinfo{'channel'}};
+	my $allsources   = join ':', keys %{$profileinfo{'channel'}};
 
 	if($enableBackEndGeocoding == 1) {
 		unless(-e $SURFMAP_PATH && -d $SURFMAP_PATH) {
