@@ -79,7 +79,7 @@ sub run {
 		
 		# Check whether the geocoding completed with errors when successful geocodings == 0 and the total
 		# amount of geocodings > 0
-		if($phpOutput !~ m/successful/i || ($phpOutput =~ m/successful: 0/i && $phpOutput !~ m/total: 0/i)) {
+		if($phpOutput !~ m/successful/i || ($phpOutput =~ m/successful: 0/i && $phpOutput =~ m/skipped: 0/i && $phpOutput !~ m/total: 0/i)) {
 			syslog("info", "[SURFmap Back-end]: Done (with errors)");
 		} else {
 			syslog("info", "[SURFmap Back-end]: Done");
