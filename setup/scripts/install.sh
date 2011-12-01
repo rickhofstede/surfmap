@@ -10,7 +10,9 @@
 # $Id:$
 #
 
-SURFMAP_REL=SURFmap_v2.2.tar.gz
+SURFMAP_VER=$(wget --spider http://sourceforge.net/projects/surfmap/files/latest/download?source=files 2>&1 | grep -m1 '.tar.gz' | sed 's/.*SURFmap_v//; s/.tar.gz.*//')		# get latest version number
+SURFMAP_VER=2.2			# comment this line in production release
+SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
 GEO_DB=GeoLiteCity.dat.gz
 
 err () {
@@ -31,11 +33,20 @@ NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep [n]fsend | grep -v nfsend-comm |
 NFSEN_CONF=$(cat ${NFSEN_LIBEXECDIR}/NfConf.pm | grep \/nfsen.conf | cut -d'"' -f2)
 
 # parse nfsen.conf file
-cat ${NFSEN_CONF} | grep -v \# | egrep '\$BASEDIR|\$BINDIR|\$HTMLDIR|\$FRONTEND_PLUGINDIR|\$BACKEND_PLUGINDIR' | tr -d ';' | tr -d ' ' | cut -c2- > ${NFSEN_VARFILE}
+cat ${NFSEN_CONF} | grep -v \# | egrep '\$BASEDIR|\$BINDIR|\$HTMLDIR|\$FRONTEND_PLUGINDIR|\$BACKEND_PLUGINDIR|\$WWWGROUP|\$WWWUSER|\$USER' | tr -d ';' | tr -d ' ' | cut -c2- | sed 's,/",",g' > ${NFSEN_VARFILE}
 . ${NFSEN_VARFILE}
 rm -rf ${NFSEN_VARFILE}
 
 SURFMAP_CONF=${FRONTEND_PLUGINDIR}/SURFmap/config.php
+
+# check permissions to install SURFmap plugin - you must be ${USER} or root
+if [ "$(id -u)" != "$(id -u ${USER})" ] && [ "$(id -u)" != "0" ]; then
+	err "You do not have sufficient permissions to install plugin on this server!"
+fi
+
+if [ "$(id -u)" = "$(id -u ${USER})" ]; then
+	WWWUSER=${USER}		# we are installing as normal user
+fi
 
 # download files from Internet
 if [ ! -f  ${SURFMAP_REL} ]; then
@@ -56,14 +67,25 @@ if [ -d ${FRONTEND_PLUGINDIR}/SURFmap ]; then
 fi
 
 # unpack SURFmap plugin
-echo "Installing SURFmap plugin to ${FRONTEND_PLUGINDIR}/SURFmap"
-tar zxfp ${SURFMAP_REL} --directory=${FRONTEND_PLUGINDIR}
+echo "Installing SURFmap plugin version ${SURFMAP_VER} to ${FRONTEND_PLUGINDIR}/SURFmap"
+tar zxf ${SURFMAP_REL} --directory=${FRONTEND_PLUGINDIR}
+
+# install backend and frontend plugin files
+echo "Installing backend and frontend plugin files - SURFmap.pm, SURFmap.php"
+cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/backend/SURFmap.pm ${BACKEND_PLUGINDIR}
+cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/frontend/SURFmap.php ${FRONTEND_PLUGINDIR}
 
 # unpack GeoLocation database
 echo "Installing MaxMind Geo Database to ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind"
 gunzip -c ${GEO_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind/$(basename ${GEO_DB} .gz)
 
-# update config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
+# set permissions - owner and group
+echo "Setting plugin files permissions - user \"${WWWUSER}\" and group \"${WWWGROUP}\""
+chown -R ${WWWUSER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap
+chown ${WWWUSER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap.php
+chown ${WWWUSER}:${WWWGROUP} ${BACKEND_PLUGINDIR}/SURFmap.pm
+
+# update plugin configuration file - config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
 echo "Updating plugin configuration file ${SURFMAP_CONF}"
 sed -i "s,$(grep NFSEN_CONF ${SURFMAP_CONF} | cut -d'"' -f2),${NFSEN_CONF},g" ${SURFMAP_CONF}
 
@@ -73,7 +95,7 @@ cd ${FRONTEND_PLUGINDIR}/SURFmap/setup
 MY_LOC=$(php configurationchecker.php | grep configdata | cut -d'>' -f2 | cut -d'<' -f1)
 echo "${MY_LOC}"
 
-while [ "${MY_LOC}" == "(Unknown),(Unknown),(Unknown),," ]; do
+while [ "${MY_LOC}" = "(Unknown),(Unknown),(Unknown),(Unknown),(Unknown)" ]; do
 	MY_LOC=$(php configurationchecker.php | grep configdata | cut -d'>' -f2 | cut -d'<' -f1)
 	echo "Geocoding plugin location - ${MY_LOC}"
 done
@@ -92,11 +114,6 @@ sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f3)/g" ${SURFMAP_CONF}
 
 OLDENTRY=$(grep MAP_CENTER ${SURFMAP_CONF} | cut -d'"' -f2)
 sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f4-)/g" ${SURFMAP_CONF}
-
-# install backend and frontend plugin files
-echo "Installing backend and frontend plugin files - SURFmap.pm, SURFmap.php"
-cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/backend/SURFmap.pm ${BACKEND_PLUGINDIR}
-cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/frontend/SURFmap.php ${FRONTEND_PLUGINDIR}
 
 # enable plugin
 echo "Updating NfSen configuration file ${NFSEN_CONF}"
