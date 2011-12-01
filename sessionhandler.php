@@ -65,17 +65,15 @@
 		function setEntryCount() {
 			global $DEFAULT_FLOW_RECORD_COUNT, $GEOLOCATION_DB;
 			
-			if(PHP_SAPI === "cli") {
-				$_SESSION['SURFmap']['entryCount'] = 100;
-			} else if(isset($_GET['amount']) && ereg_replace("[^0-9]", "", $_GET['amount']) > 0) {
+			if(isset($_GET['amount']) && ereg_replace("[^0-9]", "", $_GET['amount']) > 0) {
 				$_SESSION['SURFmap']['entryCount'] = ereg_replace("[^0-9]", "", $_GET['amount']);
 			} else if($_SESSION['SURFmap']['entryCount'] == -1) { // initialization value
 				if($DEFAULT_FLOW_RECORD_COUNT > 0) {
 					$_SESSION['SURFmap']['entryCount'] = $DEFAULT_FLOW_RECORD_COUNT;
 				} else if($GEOLOCATION_DB == "IP2Location" || $GEOLOCATION_DB == "MaxMind") {
-					$_SESSION['SURFmap']['entryCount'] = 50;
+					$_SESSION['SURFmap']['entryCount'] = 100;
 				} else {
-					$_SESSION['SURFmap']['entryCount'] = 20;
+					$_SESSION['SURFmap']['entryCount'] = 25;
 				}
 			}
 		}
