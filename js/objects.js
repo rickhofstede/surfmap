@@ -98,3 +98,8 @@
 		this.type = type;
 		this.value = value;
 	}
+	
+	function StatData(type, value) {
+		this.type = type;
+		this.value = value;
+	}

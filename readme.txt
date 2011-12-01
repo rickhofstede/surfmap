@@ -4,7 +4,7 @@ Please check the manual for installation instructions. Run the ConfigurationChec
 
 ---
 
-Release notes [v2.2 dev (20111130)]:
+Release notes [v2.2 dev (20111201)]:
 
 WARNING: the configuration file of previous versions is not compatible with this release!
 
@@ -13,6 +13,7 @@ WARNING: the configuration file of previous versions is not compatible with this
 - [FEATURE] Improved progress bar layout
 - [FEATURE] Improved menu panel layout stability and consistency
 - [FEATURE] Improved stability of ConfigurationChecker
+- [FEATURE] SURFmap keeps track of geocoding history, in order to not become blocked by the Google GeoCoder service
 - [FEATURE] Simplified installation and setup
 - [BUGFIX] Fixed a bug which could cause green markers not to be shown
 - [BUGFIX] Fixed a bug which caused SQLite DB locking errors with some PHP PDO drivers

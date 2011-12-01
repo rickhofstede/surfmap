@@ -18,7 +18,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.2 dev (20111130)";
+	$version = "v2.2 dev (20111201)";
 
 	// Initialize session
 	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -29,8 +29,8 @@
 	$sessionHandler = new SessionHandler($logHandler);
 	
 	$sessionData->NetFlowData = $connectionHandler->retrieveDataNfSen();
-	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->flowRecordCount, $sessionData->NetFlowData);
-	$sessionData->geoCoderData = $connectionHandler->retrieveDataGeocoderDB($sessionData->geoLocationData, $sessionData->flowRecordCount);
+	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->NetFlowData);
+	$sessionData->geoCoderData = $connectionHandler->retrieveDataGeocoderDB($sessionData->geoLocationData);
 	
 	function stringifyNetFlowData($NetFlowData, $NetFlowDataRecords, $type) {
 		$delimiter = "__";
@@ -232,6 +232,7 @@
 		var DEBUG_logQueue = [];
 		var GEOCODING_queue = [];
 		var SESSION_queue = [];
+		var STAT_queue = [];
 		
 		var markerManagerInitialized = false;
 		var markersProcessed = false;
@@ -245,6 +246,7 @@
 		var debugLogging = <?php echo $LOG_DEBUG; ?>;
 		var showWarningOnNoData = <?php echo $SHOW_WARNING_ON_NO_DATA; ?>;
 		var showWarningOnHeavyQuery = <?php echo $SHOW_WARNING_ON_HEAVY_QUERY; ?>;
+		var geocoderRequests = <?php echo $sessionData->geocoderRequests; ?>; // Geocoder request history for current day
 		
 		var autoRefresh = <?php echo $_SESSION['SURFmap']['refresh']; ?>;
 		var autoRefreshID = -1;
@@ -264,9 +266,9 @@
 		var geocodingDelay = 100;
 		var geocodingQueue = [];
 		var geocodedPlaces = [];
-		var totalGeocodingRequests = 0; // total number of geocoding requests
 		var successfulGeocodingRequests = 0; // successful geocoding requests
 		var erroneousGeocodingRequests = 0; // erroneous geocoding requests
+		var skippedGeocodingRequests = 0; // erroneous geocoding requests
 		var outputGeocodingErrorMessage = 0; // indicates if an geocoding error message has been shown to the user (this should happen only once)
 		var WRITE_DATA_TO_GEOCODER_DB = <?php echo $WRITE_DATA_TO_GEOCODER_DB; ?>;
 		// --- End of Geocoding parameters
@@ -284,7 +286,6 @@
 				ERROR_logQueue.push(message);
 			} else if(type == "DEBUG") {
 				DEBUG_logQueue.push(message);
-			} else {
 			}
 		}
 		
@@ -299,8 +300,9 @@
 		function serverTransactions() {
 			var somethingToSend = 0;
 			
-			while(ERROR_logQueue.length > 0 || DEBUG_logQueue.length > 0 || INFO_logQueue.length > 0 || GEOCODING_queue.length > 0 || SESSION_queue.length > 0) {
-				var data, logType, message;
+			while(ERROR_logQueue.length > 0 || DEBUG_logQueue.length > 0 || INFO_logQueue.length > 0 
+					|| GEOCODING_queue.length > 0 || SESSION_queue.length > 0 || STAT_queue.length > 0) {
+				var logType, message;
 				if(ERROR_logQueue.length > 0) {
 					message = ERROR_logQueue.shift();
 					logType = "ERROR";
@@ -312,6 +314,7 @@
 					logType = "INFO";
 				}
 				
+				var data;
 				if(logType == "ERROR" || logType == "DEBUG" || logType == "INFO") {
 					somethingToSend = 1;
 					data = "transactionType=log&message=" + message.replace(" ", "_") + "&logType=" + logType + "&token=" + Math.random();
@@ -323,6 +326,10 @@
 					somethingToSend = 1;
 					var sessionData = SESSION_queue.shift();
 					data = "transactionType=session&type=" + sessionData.type + "&value=" + sessionData.value + "&token=" + Math.random();
+				} else if(STAT_queue.length > 0) {
+					somethingToSend = 1;
+					var statData = STAT_queue.shift();
+					data = "transactionType=stat&type=" + statData.type + "&value=" + statData.value + "&token=" + Math.random();
 				}
 
 				// If there is something to send to the server
@@ -432,9 +439,9 @@
 				if(flowRecords[i].dstRegionLat == -1) geocodingQueue.push(flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion);
 				if(flowRecords[i].srcCityLat == -1) geocodingQueue.push(flowRecords[i].srcCountry + ", " + flowRecords[i].srcCity);
 				if(flowRecords[i].dstCityLat == -1) geocodingQueue.push(flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity);
-			}				
+			}		
 
-			totalGeocodingRequests = geocodingQueue.length;
+			var totalGeocodingRequests = geocodingQueue.length;
 			
 			// Start geocoding
 			while(geocodingQueue.length > 0) {
@@ -449,7 +456,7 @@
 			}
 			
 			var intervalHandlerID = setInterval(function() {
-				var completedGeocodingRequests = successfulGeocodingRequests + erroneousGeocodingRequests;
+				var completedGeocodingRequests = successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests;
 				
 				/*
 				 * Progress bar previous stage: 40%
@@ -561,7 +568,7 @@
 		* This function starts calls to the Google Maps API GeoCoder.
 		* Parameters:
 		*	place - name of the place that has to be geocoded
-		*/			
+		*/
 		function geocode(place) {
 			if(place == "INVALID IPV4 ADDRESS" && !outputGeocodingErrorMessage) {
 				outputGeocodingErrorMessage = 1;
@@ -569,7 +576,7 @@
 			}
 
 			// Some geolocation databases return 'Unknown' or 'unknown' in case a location is not found or recognized.
-			if(place.indexOf("nknown") == -1) {
+			if(place.indexOf("nknown") == -1 && (geocoderRequests + successfulGeocodingRequests + erroneousGeocodingRequests) <= 2000) {
 				geocoder.geocode({'address': place}, function(results, status) {
 					if(status == google.maps.GeocoderStatus.OK) {
 						addToLogQueue("INFO", "Geocoded " + place + " successfully");
@@ -582,10 +589,10 @@
 							GEOCODING_queue.push(geocodedPlace);
 						}
 						
-						geocodingDelay = 100;
+						geocodingDelay = 250;
 						successfulGeocodingRequests++;
 					} else if(status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
-						geocodingDelay += 100;
+						geocodingDelay += 500;
 						setTimeout(function() {
 							geocode(place);
 						}, geocodingDelay);
@@ -598,7 +605,7 @@
 				});
 			} else {
 				geocodedPlaces.push(new GeocodedPlace(place, 0, 0));
-				erroneousGeocodingRequests++;
+				skippedGeocodingRequests++;
 			}
 		}
 		
@@ -1311,7 +1318,8 @@
 			addToLogQueue("DEBUG", "NfSenFilter: " + nfsenFilter);
 			addToLogQueue("DEBUG", "NfSenAllSources: " + nfsenAllSources);
 			addToLogQueue("DEBUG", "NfSenSelectedSources: " + nfsenSelectedSources);
-
+			addToLogQueue("DEBUG", "GeocoderRequests: " + geocoderRequests);
+			
 			addToLogQueue("DEBUG", "Date1: " + date1);
 			addToLogQueue("DEBUG", "Date2: " + date2);
 			addToLogQueue("DEBUG", "Hours1: " + hours1);
@@ -1480,6 +1488,9 @@
 			}
 			
 			checkForHeavyQuery();
+			if(successfulGeocodingRequests + erroneousGeocodingRequests > 0) {
+				STAT_queue.push(new StatData("totalGeocodingRequests", successfulGeocodingRequests + erroneousGeocodingRequests));
+			}
 
 			setProgressBarValue(100, "Finished loading...");
 			addToLogQueue("INFO", "Initialized");
@@ -1857,10 +1868,10 @@
 		*/		
 		function manageAutoRefresh() {
 			if(document.getElementById("auto-refresh").checked) {
-				SESSION_queue.push(new SessionData('refresh', 300));
+				SESSION_queue.push(new SessionData("refresh", 300));
 				autoRefreshID = setTimeout("window.location.replace(\"index.php?autorefresh=1\")", 300000);
 			} else {
-				SESSION_queue.push(new SessionData('refresh', 0));
+				SESSION_queue.push(new SessionData("refresh", 0));
 				clearTimeout(autoRefreshID);
 			}
 		}

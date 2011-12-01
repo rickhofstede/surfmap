@@ -7,7 +7,7 @@
  * LICENSE TERMS: outlined in BSD-license.html
  *******************************/
 	
-	class NetFlowFlow {
+	class FlowRecord {
 		var $ipv4_src;
 		var $ipv4_dst;
 		var $port_src;
@@ -83,10 +83,11 @@
 		var $originalTime2Window;
 		
 		var $NetFlowData;
-		var $nfsenDisplayFilter; // Contains filter without internal domains
+		var $nfsenDisplayFilter; // Filter string without static filters
 		var $firstNfSenSource = "";
 		var $geoLocationData;
 		var $geoCoderData;
+		var $geocoderRequests = 0; // Geocoder request history for current day
 		
 		/*
 		 * 	0: no error

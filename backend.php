@@ -32,8 +32,8 @@
 	$sessionHandler = new SessionHandler($logHandler, $profile, $profileType, $allSources);
 
 	$sessionData->NetFlowData = $connectionHandler->retrieveDataNfSen();
-	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->flowRecordCount, $sessionData->NetFlowData);
-	$sessionData->geoCoderData = $connectionHandler->retrieveDataGeocoderDB($sessionData->geoLocationData, $sessionData->flowRecordCount);
+	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->NetFlowData);
+	$sessionData->geoCoderData = $connectionHandler->retrieveDataGeocoderDB($sessionData->geoLocationData);
 
 	$geocodingQueue = array();
 	for($i = 0; $i < sizeof($sessionData->geoCoderData); $i++) {
@@ -78,50 +78,55 @@
 		$geocodingQueue = array_slice($geocodingQueue, 0, 100);
 	}
 
-	$successfulGeocodings = 0;
-	$erroneousGeocodings = 0;
+	$successfulGeocodingRequests = 0;
+	$erroneousGeocodingRequests = 0;
+	$skippedGeocodingRequests = 0;
 
 	foreach($geocodingQueue as $place) {
-		$requestURL = "://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
-		if($FORCE_HTTPS) {
-			$requestURL = "https".$requestURL;
+		if($sessionData->geocoderRequests + $successfulGeocodingRequests + $erroneousGeocodingRequests <= 2000) {
+			$requestURL = "://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
+			if($FORCE_HTTPS) {
+				$requestURL = "https".$requestURL;
+			} else {
+				$requestURL = "http".$requestURL;
+			}
+
+			// Prefer cURL over the 'simplexml_load_file' command, for increased stability
+			if(extension_loaded("curl")) {
+				$curl_handle = curl_init();
+				curl_setopt($curl_handle, CURLOPT_URL, $requestURL);
+				curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
+				$result = curl_exec($curl_handle);
+				curl_close($curl_handle);
+				$xml = simplexml_load_string($result);
+			} else {
+				$xml = simplexml_load_file($requestURL);
+			}
+
+			$status = $xml->status;
+			if(isset($xml->result->geometry)) {
+				$lat = $xml->result->geometry->location->lat;
+			    $lng = $xml->result->geometry->location->lng;
+			}
+
+			if($status == "OK" && isset($lat) && isset($lng)) {
+				storeGeocodedLocation($place, $lat, $lng);
+				$successfulGeocodingRequests++;
+			} else if($status == "OVER_QUERY_LIMIT") {
+				time_nanosleep(0, 999999999);
+				array_push($geocodingQueue, $place);
+			} else {
+				$erroneousGeocodingRequests++;
+			}
+
+			time_nanosleep(0, 500000000);
 		} else {
-			$requestURL = "http".$requestURL;
+			$skippedGeocodingRequests++;
 		}
-		
-		
-		// Prefer cURL over the 'simplexml_load_file' command, for increased stability
-		if(extension_loaded("curl")) {
-			$curl_handle = curl_init();
-			curl_setopt($curl_handle, CURLOPT_URL, $requestURL);
-			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
-			$result = curl_exec($curl_handle);
-			curl_close($curl_handle);
-			$xml = simplexml_load_string($result);
-		} else {
-			$xml = simplexml_load_file($requestURL);
-		}
-		
-		$status = $xml->status;
-		if(isset($xml->result->geometry)) {
-			$lat = $xml->result->geometry->location->lat;
-		    $lng = $xml->result->geometry->location->lng;
-		}
-		
-		if($status == "OK" && isset($lat) && isset($lng)) {
-			writeToGeocoderDB($place, $lat, $lng);
-			$successfulGeocodings++;
-		} else if($status == "OVER_QUERY_LIMIT") {
-			time_nanosleep(0, 1000000000);
-			array_push($geocodingQueue, $place);
-		} else {
-			$erroneousGeocodings++;
-		}
-		
-		time_nanosleep(0, 500000000);
 	}
 	
-	echo "successful: $successfulGeocodings, erroneous: $erroneousGeocodings, total: ".sizeof($geocodingQueue).", flow records: ".$sessionData->flowRecordCount;
+	storeGeocodingStat($successfulGeocodingRequests + $erroneousGeocodingRequests);
+	echo "successful: $successfulGeocodingRequests, erroneous: $erroneousGeocodingRequests, skipped: $skippedGeocodingRequests, total: ".sizeof($geocodingQueue).", flow records: ".$sessionData->flowRecordCount;
 	
 ?>

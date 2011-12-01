@@ -94,7 +94,7 @@
 				$sessionData->flowRecordCount = sizeof($cmd_out['nfdump']) - 5; // Five lines are always present (header & footer)
 				
 				for($i = 1; $i <= $sessionData->flowRecordCount; $i++) {
-					$flow = new NetFlowFlow();
+					$flow = new FlowRecord();
 					$line_array = split(" ", stripSpecialCharacters($cmd_out['nfdump'][$i]));
 
 					$factor_array = array();
@@ -152,7 +152,7 @@
 				$sessionData->flowRecordCount = sizeof($cmd_out['nfdump']) - 8; // 8 lines are always present (header & footer)
 				
 				for($i = 3; $i < $sessionData->flowRecordCount + 3; $i++) {
-					$flow = new NetFlowFlow();
+					$flow = new FlowRecord();
 
 					$line_array = split(" ", stripSpecialCharacters($cmd_out['nfdump'][$i]));
 
@@ -216,14 +216,14 @@
 		 * Retrieves data from a Geolocation data provider, which is
 		 * in the case of SURFmap either 'IP2Location' or 'GeoPlugin'.
 		 */
-		function retrieveDataGeolocation($entryCount, $NetFlowData) {
+		function retrieveDataGeolocation($NetFlowData) {
 			global $GEOLOCATION_DB, $IP2LOCATION_PATH, $MAXMIND_PATH, $GEOIP_REGION_NAME, // $GEOIP_REGION_NAME is part of the MaxMind API
 					$INTERNAL_DOMAINS, $INTERNAL_DOMAINS_COUNTRY, $INTERNAL_DOMAINS_REGION, $INTERNAL_DOMAINS_CITY;
 
 			$GeoData = array();
 			$internalDomainNets = explode(";", $INTERNAL_DOMAINS);
 
-			for($i = 0; $i < $entryCount; $i++) {
+			for($i = 0; $i < count($NetFlowData); $i++) {
 				$source = $NetFlowData[$i]->ipv4_src;
 				$destination = $NetFlowData[$i]->ipv4_dst;
 
@@ -321,12 +321,12 @@
 		/**
 		 * Retrieves data from the Geocoder caching database (optional).
 		 */
-		function retrieveDataGeocoderDB($GeoData, $entryCount) {
-			global $USE_GEOCODER_DB, $GEOCODER_DB_TABLE_NAME;
+		function retrieveDataGeocoderDB($GeoData) {
+			global $USE_GEOCODER_DB, $GEOCODER_DB_TABLE_NAME, $sessionData;
 			
 			$GeoCoderData = array();
 
-			for($i = 0; $i < $entryCount; $i++) { // all considered flows ($entryCount)
+			for($i = 0; $i < count($GeoData); $i++) {
 				$coordinates = new FlowCoordinates();
 
 				for($j = 0; $j < 2; $j++) { // source / destination
@@ -336,6 +336,7 @@
 						if($USE_GEOCODER_DB) {
 							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName));
 							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
+							unset($queryResult);
 
 							if($row) { // Country name was found in our GeoCoder database
 								$coordinates->writeVariable($j, 0, array($row['latitude'], $row['longitude']));
@@ -355,6 +356,7 @@
 						if($USE_GEOCODER_DB) {
 							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName.", ".$regionName));
 							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
+							unset($queryResult);
 							
 							if($row) { // Region name was found in our GeoCoder database
 								$coordinates->writeVariable($j, 1, array($row['latitude'], $row['longitude']));
@@ -374,6 +376,7 @@
 						if($USE_GEOCODER_DB) {
 							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName.", ".$cityName));
 							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
+							unset($queryResult);
 							
 							if($row) { // City name was found in our GeoCoder database
 								$coordinates->writeVariable($j, 2, array($row['latitude'], $row['longitude']));
@@ -391,6 +394,19 @@
 					$coordinates->dstHost = $coordinates->dstCity;
 				}
 				array_push($GeoCoderData, $coordinates);
+			}
+			
+			// Check geocoder request history for current day
+			if($USE_GEOCODER_DB) {
+				$queryResult = $this->GeocoderDatabase->query("SELECT * FROM history WHERE date = ".$this->GeocoderDatabase->quote(date("Y-m-d")));
+				$row = $queryResult->fetch(PDO::FETCH_ASSOC);
+				unset($queryResult);
+				
+				if($row === false) { // No entry in DB
+					$sessionData->geocoderRequests = 0;
+				} else {
+					$sessionData->geocoderRequests = $row['requests'];
+				}
 			}
 
 			return $GeoCoderData;
