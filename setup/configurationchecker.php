@@ -387,7 +387,7 @@
 		<div id="checkitem1" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem1Title + '##' + checkItem1Text);">1. NfSen configuration file (<?php echo $NFSEN_CONF; ?>) availability.</div>
 		<div id="checkitem2" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem2Title + '##' + checkItem2Text);">2. NfSen communication socket available.</div>
 		<div id="checkitem3" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem3Title + '##' + checkItem3Text);">3. NfSen source directory available.</div>
-		<div id="checkitem4" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. GeoCoder database connection (<?php if(isset($geocoderDBFile) { echo $geocoderDBFile; } else { echo ""; } ?>) available.</div>
+		<div id="checkitem4" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. GeoCoder database connection (<?php if(isset($geocoderDBFile)) { echo $geocoderDBFile; } else { echo ""; } ?>) available.</div>
 		<div id="checkitem5" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem5Title + '##' + checkItem5Text);">5. GeoCoder database writability OK ('<?php echo $geocoderDBFile; ?>' should be writable).</div>
 		<div id="checkitem6" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem6Title + '##' + checkItem6Text);">6. IP2Location database (<?php echo $ip2LocationPath; ?>) available.</div>
 		<div id="checkitem7" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem7Title + '##' + checkItem7Text);">7. MaxMind database (<?php echo $maxMindPath; ?>) available.</div>

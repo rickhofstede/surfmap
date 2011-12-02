@@ -90,30 +90,35 @@ echo "Updating plugin configuration file ${SURFMAP_CONF}"
 sed -i "s,$(grep NFSEN_CONF ${SURFMAP_CONF} | cut -d'"' -f2),${NFSEN_CONF},g" ${SURFMAP_CONF}
 
 # get my location information
-echo -n "Geocoding plugin location - "
 cd ${FRONTEND_PLUGINDIR}/SURFmap/setup
-MY_LOC=$(php configurationchecker.php | grep configdata | cut -d'>' -f2 | cut -d'<' -f1)
-echo "${MY_LOC}"
 
-while [ "${MY_LOC}" = "(Unknown),(Unknown),(Unknown),(Unknown),(Unknown)" ]; do
+i=0
+while true; do
 	MY_LOC=$(php configurationchecker.php | grep configdata | cut -d'>' -f2 | cut -d'<' -f1)
 	echo "Geocoding plugin location - ${MY_LOC}"
+
+	i=$(( i + 1 ))		# check 5 times before we give up
+	if [ ${i} = 5 ] || [ "${MY_LOC}" != "(Unknown),(Unknown),(Unknown),(Unknown),(Unknown)" ]; then
+		break
+	fi
 done
 
 cd - > /dev/null
 
 # fill my location in plugin configuration file
-OLDENTRY=$(grep INTERNAL_DOMAINS_COUNTRY ${SURFMAP_CONF} | cut -d'"' -f2)
-sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
+if [ "${MY_LOC}" != "(Unknown),(Unknown),(Unknown),(Unknown),(Unknown)" ]; then
+	OLDENTRY=$(grep INTERNAL_DOMAINS_COUNTRY ${SURFMAP_CONF} | cut -d'"' -f2)
+	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
 
-OLDENTRY=$(grep INTERNAL_DOMAINS_REGION ${SURFMAP_CONF} | cut -d'"' -f2)
-sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f2)/g" ${SURFMAP_CONF}
+	OLDENTRY=$(grep INTERNAL_DOMAINS_REGION ${SURFMAP_CONF} | cut -d'"' -f2)
+	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f2)/g" ${SURFMAP_CONF}
 
-OLDENTRY=$(grep INTERNAL_DOMAINS_CITY ${SURFMAP_CONF} | cut -d'"' -f2)
-sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f3)/g" ${SURFMAP_CONF}
+	OLDENTRY=$(grep INTERNAL_DOMAINS_CITY ${SURFMAP_CONF} | cut -d'"' -f2)
+	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f3)/g" ${SURFMAP_CONF}
 
-OLDENTRY=$(grep MAP_CENTER ${SURFMAP_CONF} | cut -d'"' -f2)
-sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f4-)/g" ${SURFMAP_CONF}
+	OLDENTRY=$(grep MAP_CENTER ${SURFMAP_CONF} | cut -d'"' -f2)
+	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f4-)/g" ${SURFMAP_CONF}
+fi
 
 # enable plugin
 echo "Updating NfSen configuration file ${NFSEN_CONF}"
