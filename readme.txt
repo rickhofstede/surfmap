@@ -15,6 +15,8 @@ WARNING: the configuration file of previous versions is not compatible with this
 - [FEATURE] Improved stability of ConfigurationChecker
 - [FEATURE] SURFmap keeps track of geocoding history, in order to not become blocked by the Google GeoCoder service
 - [FEATURE] Simplified installation and setup
+- [BUGFIX] Fixed a bug in the line color classification
+- [BUGFIX] Fixed a bug in the flow complementation process
 - [BUGFIX] Fixed a bug which could cause green markers not to be shown
 - [BUGFIX] Fixed a bug which caused SQLite DB locking errors with some PHP PDO drivers
 - [BUGFIX] Fixed a UTF-8 encoding issue

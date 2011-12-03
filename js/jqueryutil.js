@@ -186,6 +186,7 @@
 		});
 		$("<div id=\"progressbartext\" style=\"color:#797979; font-weight:bold; margin-top:3px; margin-left:10px; float:left;\">" + initialText + "</div>").insertBefore(".ui-progressbar-value");
 		$(".ui-progressbar-value").css("text-align", "center");
+		$("#progressbartext").css("margin-left", "145px");
 	}
 
    /**
@@ -205,11 +206,4 @@
 	function setProgressBarValue(value, text) {
 		$("#progressbar").progressbar("option", "value", value);
 		$("#progressbartext").text(text);
-		
-		/*
-		 * 10: minimal margin
-		 * 140: 150px is the required margin to center message (140 = 150 - 10)
-		 */
-		var marginValue = 5 + ((parseInt(value) / 100) * 140);
-		$("#progressbartext").css("margin-left", marginValue + "px");
 	}

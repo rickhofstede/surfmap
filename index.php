@@ -433,33 +433,34 @@
 		*/			
 		function complementFlowRecords() {
 			for (var i = 0; i < flowRecordCount; i++) {
-				if (flowRecords[i].srcCountryLat == -1) {
-					if (flowRecords[i].srcCountry.indexOf("nknown") == -1) {
-						geocodingQueue.push(flowRecords[i].srcCountry);
-					} else {
-						flowRecords[i].srcCountryLat = 0;
-						flowRecords[i].srcCountryLng = 0;
-					}
+				var entry = flowRecords[i].srcCountry;
+				if (flowRecords[i].srcCountryLat == -1 && entry.indexOf("nknown") == -1	&& arrayElementIndex(geocodingQueue, entry)) {
+					geocodingQueue.push(entry);
 				}
-				if (flowRecords[i].dstCountryLat == -1) {
-					if (flowRecords[i].dstCountry.indexOf("nknown") == -1) {
-						geocodingQueue.push(flowRecords[i].dstCountry);
-					} else {
-						flowRecords[i].dstCountryLat = 0;
-						flowRecords[i].dstCountryLng = 0;
-					}
+				
+				entry = flowRecords[i].dstCountry;
+				if (flowRecords[i].dstCountryLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry)) {
+					geocodingQueue.push(entry);
 				}
-				if (flowRecords[i].srcRegionLat == -1 && flowRecords[i].srcRegion.indexOf("nknown") == -1) {
-					geocodingQueue.push(flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion);
+				
+				entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion;
+				if (flowRecords[i].srcRegionLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry)) {
+					geocodingQueue.push(entry);
 				}
-				if (flowRecords[i].dstRegionLat == -1 && flowRecords[i].dstRegion.indexOf("nknown") == -1) {
-					geocodingQueue.push(flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion);
+				
+				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion
+				if (flowRecords[i].dstRegionLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry)) {
+					geocodingQueue.push(entry);
 				}
-				if (flowRecords[i].srcCityLat == -1 && flowRecords[i].srcCity.indexOf("nknown") == -1) {
-					geocodingQueue.push(flowRecords[i].srcCountry + ", " + flowRecords[i].srcCity);
+				
+				entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcCity
+				if (flowRecords[i].srcCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry)) {
+					geocodingQueue.push(entry);
 				}
-				if (flowRecords[i].dstCityLat == -1 && flowRecords[i].dstCity.indexOf("nknown") == -1) {
-					geocodingQueue.push(flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity);
+				
+				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity
+				if (flowRecords[i].dstCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry)) {
+					geocodingQueue.push(entry);
 				}
 			}
 
@@ -467,14 +468,7 @@
 			
 			// Start geocoding
 			while (geocodingQueue.length > 0) {
-				var currentPlace = geocodingQueue.pop();
-				var duplicateIndex = arrayElementIndex(geocodingQueue, currentPlace);
-				while (duplicateIndex >= 0) { // duplicate element was found in array
-					geocodingQueue.splice(duplicateIndex, 1);
-					totalGeocodingRequests--;
-					duplicateIndex = arrayElementIndex(geocodingQueue, currentPlace);
-				}
-				geocode(currentPlace);
+				geocode(geocodingQueue.pop());
 			}
 
 			var intervalHandlerID = setInterval(function() {
@@ -489,7 +483,19 @@
 				setProgressBarValue(40 + progress, "Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
 				if (geocodingQueue.length == 0 && totalGeocodingRequests == completedGeocodingRequests) {
 					clearInterval(intervalHandlerID); 
+					
+					for (var i = 0; i < flowRecordCount; i++) {
+						if (flowRecords[i].srcCountry.indexOf("nknown") > -1) {
+							flowRecords[i].srcCountryLat = 0;
+							flowRecords[i].srcCountryLng = 0;
+						}
+						if (flowRecords[i].dstCountry.indexOf("nknown") > -1) {
+							flowRecords[i].dstCountryLat = 0;
+							flowRecords[i].dstCountryLng = 0;
+						}
+					}
 
+					// Apply geocoded places to flow records
 					for (var i = 0; i < geocodedPlaces.length; i++) {
 						for (var j = 0; j < flowRecordCount; j++) {
 							if (flowRecords[j].srcCountry == geocodedPlaces[i].place && flowRecords[j].srcCountryLat == -1) {
@@ -521,23 +527,24 @@
 
 					for (var i = 0; i < flowRecordCount; i++) {
 						// If no latitude/longitude coordinates are present on certain level, take the ones from the upper level
-						if (flowRecords[i].srcRegionLat == 0 && flowRecords[i].srcRegionLng == 0) {
+						if (flowRecords[i].srcRegionLat == -1 && flowRecords[i].srcRegionLng == -1) {
 							flowRecords[i].srcRegionLat = flowRecords[i].srcCountryLat;
 							flowRecords[i].srcRegionLng = flowRecords[i].srcCountryLng;
 						}
-						if (flowRecords[i].dstRegionLat == 0 && flowRecords[i].dstRegionLng == 0) {
+						if (flowRecords[i].dstRegionLat == -1 && flowRecords[i].dstRegionLng == -1) {
 							flowRecords[i].dstRegionLat = flowRecords[i].dstCountryLat;
 							flowRecords[i].dstRegionLng = flowRecords[i].dstCountryLng;
 						}
-						if (flowRecords[i].srcCityLat == 0 && flowRecords[i].srcCityLng == 0) {
+						if (flowRecords[i].srcCityLat == -1 && flowRecords[i].srcCityLng == -1) {
 							flowRecords[i].srcCityLat = flowRecords[i].srcRegionLat;
 							flowRecords[i].srcCityLng = flowRecords[i].srcRegionLng;
 						}
-						if (flowRecords[i].dstCityLat == 0 && flowRecords[i].dstCityLng == 0) {
+						if (flowRecords[i].dstCityLat == -1 && flowRecords[i].dstCityLng == -1) {
 							flowRecords[i].dstCityLat = flowRecords[i].dstRegionLat;
 							flowRecords[i].dstCityLng = flowRecords[i].dstRegionLng;
 						}
 					}
+					
 					processing();
 				}
 			}, 100);	
@@ -611,7 +618,7 @@
 							GEOCODING_queue.push(geocodedPlace);
 						}
 						
-						geocodingDelay = 250;
+						geocodingDelay = 200;
 						successfulGeocodingRequests++;
 					} else if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
 						geocodingDelay += 500;
@@ -1065,7 +1072,11 @@
 				}
 
 				lines[i] = []; // Initialize lines storage
-				determineLineColorRanges(i, nfsenStatOrder);
+				if (nfsenOption == 0) { // List flows
+					determineLineColorRanges(i, "flows");
+				} else { // Stat TopN
+					determineLineColorRanges(i, nfsenStatOrder);
+				}
 				
 				for (var j = 0; j < lineProperties[i].length; j++) {
 					var tableHeader = "<table style='width: 500px;'><thead class='informationWindowHeader'><tr>";
@@ -1153,7 +1164,7 @@
 					
 					var lineTotal = 0;
 					for (var k = 0; k < lineProperties[i][j].lineRecords.length; k++) {
-						if (nfsenStatOrder == "flows") {
+						if (nfsenOption == 0 || nfsenStatOrder == "flows") {
 							lineTotal += parseInt(lineProperties[i][j].lineRecords[k].flows);
 						} else if (nfsenStatOrder == "packets") {
 							lineTotal += parseInt(lineProperties[i][j].lineRecords[k].packets);
@@ -1180,16 +1191,15 @@
 		*	property - either 'flows', 'packets' or 'bytes'
 		*/
 		function determineLineColorRanges(level, property) {
-			var min = 1;
-			var max = 1;
-			
+			var min = -1;
+			var max = -1;
+
 			for (var i = 0; i < lineProperties[level].length; i++) {
 				var lineTotal = 0;
 				
 				if (property == "flows") {
 					for (var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
 						if (!(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 && lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName)) {
-							oldLineTotal = lineTotal;
 							lineTotal += parseInt(lineProperties[level][i].lineRecords[j].flows);
 						}
 					}
@@ -1207,8 +1217,21 @@
 					}
 				}
 
-				if (lineTotal < min) min = lineTotal;
-				else if (lineTotal > max) max = lineTotal;
+				if(lineTotal > 0) {
+					if(min == -1 && max == -1) { // initialization values
+						min = lineTotal;
+						max = lineTotal;
+					} else if (lineTotal < min) {
+						min = lineTotal;
+					} else if (lineTotal > max) {
+						max = lineTotal;
+					}
+				}
+			}
+
+			if(min == -1 && max == -1) { // initialization values
+				min = 1;
+				max = 1;	
 			}
 
 			var delta = max - min;
@@ -1220,21 +1243,21 @@
 		}
 		
 	   /**
-		* Returns the actual line color of a line, based on the classification made in determineLineColorRanges().
+		* Returns the actual line color of a line, based on the classification made in 'determineLineColorRanges'.
 		* Parameters:
 		*	lineTotal - sum of either flows, packets or bytes of the specific line
 		*/
 		function determineLineColor(lineTotal) {
 			if (lineColors == 2) {
-				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return orange;
-				else if (lineTotal >= lineColorClassification[1] && lineTotal <= lineColorClassification[2]) return red;
+				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return green;
+				else if (lineTotal >= lineColorClassification[1] && lineTotal <= lineColorClassification[2]) return orange;
 				else return red;
 			} else if (lineColors == 3) {
-				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return yellow;
+				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return green;
 				else if (lineTotal >= lineColorClassification[1] && lineTotal < lineColorClassification[2]) return orange;
 				else if (lineTotal >= lineColorClassification[2] && lineTotal <= lineColorClassification[3]) return red;
 				else return red;
-			} else if (lineColors == 4) {				
+			} else if (lineColors == 4) {
 				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return green;
 				else if (lineTotal >= lineColorClassification[1] && lineTotal < lineColorClassification[2]) return yellow;
 				else if (lineTotal >= lineColorClassification[2] && lineTotal < lineColorClassification[3]) return orange;
@@ -1838,11 +1861,11 @@
 		*/
 		function initializeLegend(zoomLevel) {
 			if (nfsenOption == 0) { // List flows
-				determineLineColorRanges(zoomLevel, "flows");
 				document.getElementById("legend_based_on").innerHTML = "Number of observed flows:";
+				determineLineColorRanges(zoomLevel, "flows");
 			} else { // Stat TopN
-				determineLineColorRanges(zoomLevel, nfsenStatOrder);
 				document.getElementById("legend_based_on").innerHTML = "Number of observed " + nfsenStatOrder + ":";
+				determineLineColorRanges(zoomLevel, nfsenStatOrder);
 			}
 			
 			document.getElementById("legend_green").innerHTML = "[ " + applySIScale(lineColorClassification[0]) + ", " + applySIScale(lineColorClassification[1]) + " >";
