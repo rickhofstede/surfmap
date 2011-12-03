@@ -210,6 +210,6 @@
 		 * 10: minimal margin
 		 * 140: 150px is the required margin to center message (140 = 150 - 10)
 		 */
-		var marginValue = 10 + ((parseInt(value) / 100) * 140);
+		var marginValue = 5 + ((parseInt(value) / 100) * 140);
 		$("#progressbartext").css("margin-left", marginValue + "px");
 	}

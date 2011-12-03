@@ -433,11 +433,21 @@
 		*/			
 		function complementFlowRecords() {
 			for (var i = 0; i < flowRecordCount; i++) {
-				if (flowRecords[i].srcCountryLat == -1 && flowRecords[i].srcCountry.indexOf("nknown") == -1) {
-					geocodingQueue.push(flowRecords[i].srcCountry);
+				if (flowRecords[i].srcCountryLat == -1) {
+					if (flowRecords[i].srcCountry.indexOf("nknown") == -1) {
+						geocodingQueue.push(flowRecords[i].srcCountry);
+					} else {
+						flowRecords[i].srcCountryLat = 0;
+						flowRecords[i].srcCountryLng = 0;
+					}
 				}
-				if (flowRecords[i].dstCountryLat == -1 && flowRecords[i].dstCountry.indexOf("nknown") == -1) {
-					geocodingQueue.push(flowRecords[i].dstCountry);
+				if (flowRecords[i].dstCountryLat == -1) {
+					if (flowRecords[i].dstCountry.indexOf("nknown") == -1) {
+						geocodingQueue.push(flowRecords[i].dstCountry);
+					} else {
+						flowRecords[i].dstCountryLat = 0;
+						flowRecords[i].dstCountryLng = 0;
+					}
 				}
 				if (flowRecords[i].srcRegionLat == -1 && flowRecords[i].srcRegion.indexOf("nknown") == -1) {
 					geocodingQueue.push(flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion);
@@ -451,7 +461,7 @@
 				if (flowRecords[i].dstCityLat == -1 && flowRecords[i].dstCity.indexOf("nknown") == -1) {
 					geocodingQueue.push(flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity);
 				}
-			}		
+			}
 
 			var totalGeocodingRequests = geocodingQueue.length;
 			
@@ -466,7 +476,7 @@
 				}
 				geocode(currentPlace);
 			}
-			
+
 			var intervalHandlerID = setInterval(function() {
 				var completedGeocodingRequests = successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests;
 				
@@ -510,19 +520,6 @@
 					}
 
 					for (var i = 0; i < flowRecordCount; i++) {
-						/*
-						 * If source or destination country is unknown (and therefore not geocoded),
-						 * make sure it's ignored in processing later on by setting lat & lng to 0.
-						 */
-						if (flowRecords[i].srcCountryLat == -1 && flowRecords[i].srcCountry.indexOf("nknown") != -1) {
-							flowRecords[i].srcCountryLat = 0;
-							flowRecords[i].srcCountryLng = 0;
-						}
-						if (flowRecords[i].dstCountryLat == -1 && flowRecords[i].dstCountry.indexOf("nknown") != -1) {
-							flowRecords[i].dstCountryLat = 0;
-							flowRecords[i].dstCountryLng = 0;
-						}
-						
 						// If no latitude/longitude coordinates are present on certain level, take the ones from the upper level
 						if (flowRecords[i].srcRegionLat == 0 && flowRecords[i].srcRegionLng == 0) {
 							flowRecords[i].srcRegionLat = flowRecords[i].srcCountryLat;
