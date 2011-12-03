@@ -32,8 +32,8 @@
 		var $dstHost;
 		
 		function writeVariable($endPoint, $level, $value) {
-			if($endPoint == 0) { // source
-				switch($level) {
+			if ($endPoint == 0) { // source
+				switch ($level) {
 					case 0:	$this->srcCountry = $value;
 							break;
 					
@@ -49,7 +49,7 @@
 					default:break;
 				}
 			} else { // destination
-				switch($level) {
+				switch ($level) {
 					case 0:	$this->dstCountry = $value;
 							break;
 					

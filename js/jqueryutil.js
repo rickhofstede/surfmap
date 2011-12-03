@@ -15,28 +15,28 @@
 	*					1. 'filterError'
 	*/	
 	function generateAlert(type) {
-		if($("#dialog").dialog("isOpen")) {
+		if ($("#dialog").dialog("isOpen")) {
 			$("#dialog").dialog("destroy");
 		}
 		
-		if(type == "filterError") {
+		if (type == "filterError") {
 			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /><b>Filter</b>: " + nfsenFilter + "<br /><b>Error message</b>: " +  getErrorMessage() + "</br /><br />Please check <a href='http://nfdump.sourceforge.net/' style='text-decoration:underline;' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.", "Filter error");
-		} else if(type == "noDataError") {
+		} else if (type == "noDataError") {
 			jAlert("No NetFlow data has been found for the selected profile, source and filter. Please change your settings.", "No data available");
-		} else if(type == "profileError") {
+		} else if (type == "profileError") {
 			jAlert("You have an error in your configuration. <br /><br /><b>Error message</b>: " +  getErrorMessage(), "Error");
-		} else if(type == "invalidWindow") {
-			if(getErrorCode() == 2) {
+		} else if (type == "invalidWindow") {
+			if (getErrorCode() == 2) {
 				// The first (normal) selected date/time is invalid.
 				jAlert("The selected date/time window (" + originalDate1Window + " " + originalTime1Window + ") does not exist.<br /><br />The last available/valid time window will be selected.", "Error");
-			} else if(getErrorCode() == 3) {
+			} else if (getErrorCode() == 3) {
 				// The second (time range) selected date/time is invalid.
 				jAlert("The (second) selected date/time window (" + originalDate2Window + " " + originalTime2Window + ") does not exist.<br /><br />The last available/valid time window will be selected.", "Error");
-			} else if(getErrorCode() == 4) {
+			} else if (getErrorCode() == 4) {
 				// The second (time range) selected date/time is invalid.
 				jAlert("Both selected date/time windows (" + originalDate1Window + " " + originalTime1Window + " - " + originalDate2Window + " " + originalTime2Window + ") do not exist.<br /><br />The last available/valid time window will be selected.", "Error");
 			}
-		} else if(type = "noSourcesSelectedError") {
+		} else if (type = "noSourcesSelectedError") {
 			jAlert("You have no source selected, while you should have selected at least one.", "Error");
 		} else {
 			jAlert("An unknown error occured.", "Error");
@@ -60,25 +60,25 @@
 	*		text - text which should be indicated inside the dialog
 	*/			
 	function generateDialog(type, text) {
-		if($("#dialog").dialog("isOpen")) {
+		if ($("#dialog").dialog("isOpen")) {
 			$("#dialog").dialog("destroy");
 		}
 		
-		if(type == "about") {
+		if (type == "about") {
 			document.getElementById("dialog").setAttribute("title", "About");
 			document.getElementById("dialog").innerHTML = "SURFmap has been developed by:<br /><br />Rick Hofstede<br />Anna Sperotto, Tiago Fioreze<br /><br /><i>University of Twente, The Netherlands</i><br /><br />SURFmap is available on <a href=\"http://sourceforge.net/p/surfmap\" target=\"_blank\" style=\"text-decoration:underline;\">SourceForge</a> and is distributed under the <a href=\"javascript:generateDialog('license')\" style=\"text-decoration:underline;\">BSD license</a>.<br /><br />Special thanks to Pavel Celeda from INVEA-TECH, for his valuable contributions.<br /><br />";
 
-			if(GEOLOCATION_DB == "IP2Location") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/ip2location.gif' alt='IP2Location' style='width:130px;' /></td></tr></table><br />";
-			else if(GEOLOCATION_DB == "MaxMind") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/maxmind.png' alt='MaxMind' style='width:130px;' /></td></tr></table><br />";
-			else if(GEOLOCATION_DB == "geoPlugin") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/geoplugin.jpg' alt='geoPlugin' style='width:130px;' /></td></tr></table><br />";
+			if (GEOLOCATION_DB == "IP2Location") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/ip2location.gif' alt='IP2Location' style='width:130px;' /></td></tr></table><br />";
+			else if (GEOLOCATION_DB == "MaxMind") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/maxmind.png' alt='MaxMind' style='width:130px;' /></td></tr></table><br />";
+			else if (GEOLOCATION_DB == "geoPlugin") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/geoplugin.jpg' alt='geoPlugin' style='width:130px;' /></td></tr></table><br />";
 			
 			document.getElementById("dialog").innerHTML += "<div style='font-size:80%;'>Application version: " + applicationVersion + "</div>";	
 			showDialog("auto", 350, "center", false, true);
-		} else if(type == "help") {
+		} else if (type == "help") {
 			document.getElementById("dialog").setAttribute("title", "Help");
 			document.getElementById("dialog").innerHTML = "Welcome to the SURFmap help. Some main principles of SURFmap are explained here.<br /><br /><table border = '0'><tr><td width = '100'><b>Marker</b></td><td>Markers represent hosts and show information about them, like IPv4 addresses and the country, region and city they're in. The information shown here depends on the selected zoom level.<hr /></td></tr><tr><td><b>Line</b></td><td>Lines represent a flow between two hosts (so between markers) and show information about that flow, like the geographical information of the two end points, the exchanged amount of packets, octets and throughput per flow. The information shown here depends on the selected zoom level.<hr /></td></tr><tr><td><b>Zoom levels table</b></td><td>This tables shows the current zoom level. The four zoom levels are also clickable, so that you can zoom in or out to a particular zoom level directly.<hr /></td></tr><tr><td><b>NfSen options</b></td><td>The main NfSen options can be set here. First, either 'List flows' or 'Stat TopN' has to be chosen. The first option lists the first N flows of the selected time slot (N and the selected time slot will be discussed later). 'Stat TopN' shows top N statistics about the network data in the selected time slot. The value of N can be set in the 'Amount' field, while the time slot can be set in the 'Date' field.</td></tr></table>";
 			showDialog("auto", 500, "center", false, true);				
-		} else if(type == "license") {
+		} else if (type == "license") {
 			document.getElementById("dialog").setAttribute("title", "SURFmap license");
 			document.getElementById("dialog").innerHTML = "The SURFmap project is distributed under the BSD license:<br>"
 				+ "<br>"
@@ -110,7 +110,7 @@
 				+ "ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE <br>"
 				+ "POSSIBILITY OF SUCH DAMAGE.<br>";
 			showDialog("auto", "auto", "center", false, true);
-		} else if(type == "netflowDetails") {
+		} else if (type == "netflowDetails") {
 			document.getElementById("dialog").setAttribute("title", "Details");
 			document.getElementById("dialog").innerHTML = text;
 			
@@ -127,17 +127,17 @@
 			var rowHeight = 15;
 			var dialogHeight = (headerHeight + (tableRows * rowHeight) > 450) ? 450 : headerHeight + (tableRows * rowHeight);
 
-			if(nfsenOption == 1) {
+			if (nfsenOption == 1) {
 				showDialog(dialogHeight, "auto", "center", false, true);
 			} else {
 				showDialog(dialogHeight, "auto", "center", false, true);
 			}
-		} else if(type == "progressBar") {
+		} else if (type == "progressBar") {
 			document.getElementById("dialog").setAttribute("title", "Loading...");
 			document.getElementById("dialog").innerHTML = "<div style='margin-top: 6px; width:400px;' id='progressbar'></div>";
 			showDialog(80, 450, "center", true, false);
 			showProgressBar("progressbar", 0, "");
-		} else if(type == "configurationCheckerHelp") {
+		} else if (type == "configurationCheckerHelp") {
 			var splittedString = text.split("##");
 			document.getElementById("dialog").setAttribute("title", splittedString[0]);
 			document.getElementById("dialog").innerHTML = splittedString[1];
@@ -159,7 +159,7 @@
 		// When dialog is closed, set it back to initial state
 		$("#dialog").dialog({
 			open: function(event, ui) {
-				if(hideCloseButton == true) $('.ui-dialog-titlebar-close').hide();
+				if (hideCloseButton == true) $('.ui-dialog-titlebar-close').hide();
 			},
 			close: function(event, ui) {
 				$("#dialog").dialog("destroy");

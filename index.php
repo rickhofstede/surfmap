@@ -18,10 +18,10 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.2 dev (20111202)";
+	$version = "v2.2 dev (20111203)";
 
 	// Initialize session
-	if(!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
+	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
 	
 	$logHandler = new LogHandler();
 	$connectionHandler = new ConnectionHandler($logHandler);
@@ -37,42 +37,42 @@
 		$sub_delimiter = "_"; 
 		$result_string = "";
 
-		if($type == "IP") {
-			for($i = 0; $i < $NetFlowDataRecords; $i++) {
+		if ($type == "IP") {
+			for ($i = 0; $i < $NetFlowDataRecords; $i++) {
 				$src_IP = $NetFlowData[$i]->ipv4_src;
 				$dst_IP = $NetFlowData[$i]->ipv4_dst;
 				
-				if($i == ($NetFlowDataRecords - 1)) $result_string .= $src_IP.$sub_delimiter.$dst_IP;
+				if ($i == ($NetFlowDataRecords - 1)) $result_string .= $src_IP.$sub_delimiter.$dst_IP;
 				else $result_string .= $src_IP.$sub_delimiter.$dst_IP.$delimiter;
 			}
-		} else if($type == "PACKETS") {
-			for($i = 0; $i < $NetFlowDataRecords; $i++) {
-				if($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->packets;
+		} else if ($type == "PACKETS") {
+			for ($i = 0; $i < $NetFlowDataRecords; $i++) {
+				if ($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->packets;
 				else $result_string .= $NetFlowData[$i]->packets.$delimiter;
 			}
-		} else if($type == "OCTETS") {
-			for($i = 0; $i < $NetFlowDataRecords; $i++) {
-				if($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->octets;
+		} else if ($type == "OCTETS") {
+			for ($i = 0; $i < $NetFlowDataRecords; $i++) {
+				if ($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->octets;
 				else $result_string .= $NetFlowData[$i]->octets.$delimiter;
 			}
-		} else if($type == "DURATION") {
-			for($i = 0; $i < $NetFlowDataRecords; $i++) {
-				if($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->duration;
+		} else if ($type == "DURATION") {
+			for ($i = 0; $i < $NetFlowDataRecords; $i++) {
+				if ($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->duration;
 				else $result_string .= $NetFlowData[$i]->duration.$delimiter;
 			}
-		} else if($type == "PROTOCOL") {
-			for($i = 0; $i < $NetFlowDataRecords; $i++) {
-				if($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->protocol;
+		} else if ($type == "PROTOCOL") {
+			for ($i = 0; $i < $NetFlowDataRecords; $i++) {
+				if ($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->protocol;
 				else $result_string .= $NetFlowData[$i]->protocol.$delimiter;
 			}	
-		} else if($type == "PORT") {
-			for($i = 0; $i < $NetFlowDataRecords; $i++) {
-				if($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->port_src.$sub_delimiter.$NetFlowData[$i]->port_dst;
+		} else if ($type == "PORT") {
+			for ($i = 0; $i < $NetFlowDataRecords; $i++) {
+				if ($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->port_src.$sub_delimiter.$NetFlowData[$i]->port_dst;
 				else $result_string .= $NetFlowData[$i]->port_src.$sub_delimiter.$NetFlowData[$i]->port_dst.$delimiter;
 			}
-		} else if($type == "FLOWS") {
-			for($i = 0; $i < $NetFlowDataRecords; $i++) {
-				if($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->flows;
+		} else if ($type == "FLOWS") {
+			for ($i = 0; $i < $NetFlowDataRecords; $i++) {
+				if ($i == ($NetFlowDataRecords - 1)) $result_string .= $NetFlowData[$i]->flows;
 				else $result_string .= $NetFlowData[$i]->flows.$delimiter;
 			}																
 		} else echo "Type error in stringifyNetFlowData() [PHP]";
@@ -85,19 +85,19 @@
 		$sub_delimiter = "_"; 
 		$result_string = "";
 		
-		if($type == "COUNTRY") {
-			for($i = 0; $i < $NetFlowDataRecords; $i++) {
-				if($i == ($NetFlowDataRecords - 1)) $result_string .= $array[$i][0]['COUNTRY'].$sub_delimiter.$array[$i][1]['COUNTRY'];
+		if ($type == "COUNTRY") {
+			for ($i = 0; $i < $NetFlowDataRecords; $i++) {
+				if ($i == ($NetFlowDataRecords - 1)) $result_string .= $array[$i][0]['COUNTRY'].$sub_delimiter.$array[$i][1]['COUNTRY'];
 				else $result_string .= $array[$i][0]['COUNTRY'].$sub_delimiter.$array[$i][1]['COUNTRY'].$delimiter;
 			}
 		} else if ($type == "REGION") {
-			for($i = 0; $i < $NetFlowDataRecords; $i++) {
-				if($i == ($NetFlowDataRecords - 1)) $result_string .= $array[$i][0]['REGION'].$sub_delimiter.$array[$i][1]['REGION'];
+			for ($i = 0; $i < $NetFlowDataRecords; $i++) {
+				if ($i == ($NetFlowDataRecords - 1)) $result_string .= $array[$i][0]['REGION'].$sub_delimiter.$array[$i][1]['REGION'];
 				else $result_string .= $array[$i][0]['REGION'].$sub_delimiter.$array[$i][1]['REGION'].$delimiter;
 			}
 		} else if ($type == "CITY") {
-			for($i = 0; $i < $NetFlowDataRecords; $i++) {
-				if($i == ($NetFlowDataRecords - 1)) $result_string .= $array[$i][0]['CITY'].$sub_delimiter.$array[$i][1]['CITY'];
+			for ($i = 0; $i < $NetFlowDataRecords; $i++) {
+				if ($i == ($NetFlowDataRecords - 1)) $result_string .= $array[$i][0]['CITY'].$sub_delimiter.$array[$i][1]['CITY'];
 				else $result_string .= $array[$i][0]['CITY'].$sub_delimiter.$array[$i][1]['CITY'].$delimiter;
 			}							
 		} else {
@@ -115,9 +115,9 @@
 		$sub_sub_delimiter = "_"; 
 		$result_string = "";
 		
-		if($type == "COUNTRY") {
-			for($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				if($i == ($sessionData->flowRecordCount - 1)) {
+		if ($type == "COUNTRY") {
+			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
+				if ($i == ($sessionData->flowRecordCount - 1)) {
 					$result_string .= $sessionData->geoCoderData[$i]->srcCountry[0].$sub_sub_delimiter
 						.$sessionData->geoCoderData[$i]->srcCountry[1].$sub_delimiter
 						.$sessionData->geoCoderData[$i]->dstCountry[0].$sub_sub_delimiter
@@ -130,8 +130,8 @@
 				}
 			}
 		} else if ($type == "REGION") {
-			for($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				if($i == ($sessionData->flowRecordCount - 1)) {
+			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
+				if ($i == ($sessionData->flowRecordCount - 1)) {
 					$result_string .= $sessionData->geoCoderData[$i]->srcRegion[0].$sub_sub_delimiter
 						.$sessionData->geoCoderData[$i]->srcRegion[1].$sub_delimiter
 						.$sessionData->geoCoderData[$i]->dstRegion[0].$sub_sub_delimiter
@@ -144,8 +144,8 @@
 				}
 			}
 		} else if ($type == "CITY") {
-			for($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				if($i == ($sessionData->flowRecordCount - 1)) {
+			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
+				if ($i == ($sessionData->flowRecordCount - 1)) {
 					$result_string .= $sessionData->geoCoderData[$i]->srcCity[0].$sub_sub_delimiter
 						.$sessionData->geoCoderData[$i]->srcCity[1]
 						.$sub_delimiter.$sessionData->geoCoderData[$i]->dstCity[0]
@@ -172,7 +172,7 @@
 	<link type="text/css" rel="stylesheet" href="jquery/css/start/jquery-ui-1.8.16.custom.css" />
 	<link type="text/css" rel="stylesheet" href="css/jquery.alerts.css" /> <!-- http://abeautifulsite.net/blog/2008/12/jquery-alert-dialogs/ -->
 	<link type="text/css" rel="stylesheet" href="css/surfmap.css" />
-	<script type="text/javascript" src="<?php if($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
+	<script type="text/javascript" src="<?php if ($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
 	<script type="text/javascript" src="jquery/js/jquery-1.6.2.min.js"></script>
 	<script type="text/javascript" src="jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery.alerts.js"></script>
@@ -188,7 +188,7 @@
 		var map, markerManager, geocoder, infoWindow, currentZoomLevel, currentSURFmapZoomLevel, initialZoomLevel;
 		var initialZoomLevel = <?php echo $_SESSION['SURFmap']['zoomLevel']; ?>;
 		var initialSURFmapZoomLevel = <?php echo $DEFAULT_ZOOM_LEVEL; ?>;
-		var mapCenter = "<?php if($_SESSION['SURFmap']['mapCenter'] != "-1") {echo $_SESSION['SURFmap']['mapCenter'];} else {echo $MAP_CENTER;} ?>";
+		var mapCenter = "<?php if ($_SESSION['SURFmap']['mapCenter'] != "-1") {echo $_SESSION['SURFmap']['mapCenter'];} else {echo $MAP_CENTER;} ?>";
 			mapCenter = new google.maps.LatLng(parseFloat(mapCenter.substring(0, mapCenter.indexOf(","))), parseFloat(mapCenter.substring(mapCenter.indexOf(",") + 1)));
 		var mapCenterWithoutGray; // Map center, for which the map doesn't show gray areas
 
@@ -280,11 +280,11 @@
 		*	message - the log message that has to be written to the log file
 		*/
 		function addToLogQueue(type, message) {
-			if(type == "INFO") {
+			if (type == "INFO") {
 				INFO_logQueue.push(message);
-			} else if(type == "ERROR") {
+			} else if (type == "ERROR") {
 				ERROR_logQueue.push(message);
-			} else if(type == "DEBUG") {
+			} else if (type == "DEBUG") {
 				DEBUG_logQueue.push(message);
 			}
 		}
@@ -300,40 +300,40 @@
 		function serverTransactions() {
 			var somethingToSend = 0;
 			
-			while(ERROR_logQueue.length > 0 || DEBUG_logQueue.length > 0 || INFO_logQueue.length > 0 
+			while (ERROR_logQueue.length > 0 || DEBUG_logQueue.length > 0 || INFO_logQueue.length > 0 
 					|| GEOCODING_queue.length > 0 || SESSION_queue.length > 0 || STAT_queue.length > 0) {
 				var logType, message;
-				if(ERROR_logQueue.length > 0) {
+				if (ERROR_logQueue.length > 0) {
 					message = ERROR_logQueue.shift();
 					logType = "ERROR";
-				} else if(DEBUG_logQueue.length > 0) {
+				} else if (DEBUG_logQueue.length > 0) {
 					message = DEBUG_logQueue.shift();
 					logType = "DEBUG";
-				} else if(INFO_logQueue.length > 0) {
+				} else if (INFO_logQueue.length > 0) {
 					message = INFO_logQueue.shift();
 					logType = "INFO";
 				}
 				
 				var data;
-				if(logType == "ERROR" || logType == "DEBUG" || logType == "INFO") {
+				if (logType == "ERROR" || logType == "DEBUG" || logType == "INFO") {
 					somethingToSend = 1;
 					data = "transactionType=log&message=" + message.replace(" ", "_") + "&logType=" + logType + "&token=" + Math.random();
-				} else if(GEOCODING_queue.length > 0) {
+				} else if (GEOCODING_queue.length > 0) {
 					somethingToSend = 1;
 					var placeToStore = GEOCODING_queue.shift();
 					data = "transactionType=geocoder&location=" + placeToStore.place.replace(" ", "_") + "&lat=" + placeToStore.lat + "&lng=" + placeToStore.lng + "&token=" + Math.random();
-				} else if(SESSION_queue.length > 0) {
+				} else if (SESSION_queue.length > 0) {
 					somethingToSend = 1;
 					var sessionData = SESSION_queue.shift();
 					data = "transactionType=session&type=" + sessionData.type + "&value=" + sessionData.value + "&token=" + Math.random();
-				} else if(STAT_queue.length > 0) {
+				} else if (STAT_queue.length > 0) {
 					somethingToSend = 1;
 					var statData = STAT_queue.shift();
 					data = "transactionType=stat&type=" + statData.type + "&value=" + statData.value + "&token=" + Math.random();
 				}
 
 				// If there is something to send to the server
-				if(somethingToSend == 1) {
+				if (somethingToSend == 1) {
 					$.ajax({
 						type: "GET",
 						url: "servertransaction.php",
@@ -343,7 +343,7 @@
 						},
 						success: function(msg) {
 							var splittedResult = msg.split("##");
-							if(splittedResult.length == 3 && splittedResult[0] == "OK" && splittedResult[1] == "geocoder") {
+							if (splittedResult.length == 3 && splittedResult[0] == "OK" && splittedResult[1] == "geocoder") {
 								addToLogQueue("INFO", splittedResult[2] + " was successfully stored in GeoCoder DB");
 							}
 						}
@@ -362,15 +362,15 @@
 		function readPHPLogQueue(type) {
 			var logString;
 			
-			if(type == "INFO") {
+			if (type == "INFO") {
 				logString = "<?php echo $logHandler->getInfo(); ?>";
-			} else if(type == "ERROR") {
+			} else if (type == "ERROR") {
 				logString = "<?php echo $logHandler->getError(); ?>";
 			}
 			
-			if(logString.length > 0) {
+			if (logString.length > 0) {
 				var logArray = logString.split("##");
-				for(var i = 0; i < logArray.length; i++) {
+				for (var i = 0; i < logArray.length; i++) {
 					addToLogQueue(type, logArray[i]);
 				}
 			}
@@ -400,12 +400,12 @@
 			var regionLatLngs = stringToArray("<?php echo stringifyGeoCoderData('REGION'); ?>", "GeoCoder_REGION", flowRecordCount);
 			var cityLatLngs = stringToArray("<?php echo stringifyGeoCoderData('CITY'); ?>", "GeoCoder_CITY", flowRecordCount);
 
-			for(var i = 0; i < flowRecordCount; i++) {
+			for (var i = 0; i < flowRecordCount; i++) {
 				flowRecords[i] = new FlowRecord(IPs[i][0], ports[i][0], IPs[i][1], ports[i][1], protocols[i]);
 				flowRecords[i].packets = packets[i];
 				flowRecords[i].octets = octets[i];
 				flowRecords[i].duration = durations[i];
-				if(nfsenOption == 1) flowRecords[i].flows = flows[i];
+				if (nfsenOption == 1) flowRecords[i].flows = flows[i];
 				flowRecords[i].srcCountry = countries[i][0];
 				flowRecords[i].srcCountryLat = countryLatLngs[i][0][0];
 				flowRecords[i].srcCountryLng = countryLatLngs[i][0][1];
@@ -432,22 +432,34 @@
 		* zoom level X can be complemented by geolocation information for the same place at zoom level X+1.
 		*/			
 		function complementFlowRecords() {
-			for(var i = 0; i < flowRecordCount; i++) {
-				if(flowRecords[i].srcCountryLat == -1) geocodingQueue.push(flowRecords[i].srcCountry);
-				if(flowRecords[i].dstCountryLat == -1) geocodingQueue.push(flowRecords[i].dstCountry);
-				if(flowRecords[i].srcRegionLat == -1) geocodingQueue.push(flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion);
-				if(flowRecords[i].dstRegionLat == -1) geocodingQueue.push(flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion);
-				if(flowRecords[i].srcCityLat == -1) geocodingQueue.push(flowRecords[i].srcCountry + ", " + flowRecords[i].srcCity);
-				if(flowRecords[i].dstCityLat == -1) geocodingQueue.push(flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity);
+			for (var i = 0; i < flowRecordCount; i++) {
+				if (flowRecords[i].srcCountryLat == -1 && flowRecords[i].srcCountry.indexOf("nknown") == -1) {
+					geocodingQueue.push(flowRecords[i].srcCountry);
+				}
+				if (flowRecords[i].dstCountryLat == -1 && flowRecords[i].dstCountry.indexOf("nknown") == -1) {
+					geocodingQueue.push(flowRecords[i].dstCountry);
+				}
+				if (flowRecords[i].srcRegionLat == -1 && flowRecords[i].srcRegion.indexOf("nknown") == -1) {
+					geocodingQueue.push(flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion);
+				}
+				if (flowRecords[i].dstRegionLat == -1 && flowRecords[i].dstRegion.indexOf("nknown") == -1) {
+					geocodingQueue.push(flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion);
+				}
+				if (flowRecords[i].srcCityLat == -1 && flowRecords[i].srcCity.indexOf("nknown") == -1) {
+					geocodingQueue.push(flowRecords[i].srcCountry + ", " + flowRecords[i].srcCity);
+				}
+				if (flowRecords[i].dstCityLat == -1 && flowRecords[i].dstCity.indexOf("nknown") == -1) {
+					geocodingQueue.push(flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity);
+				}
 			}		
 
 			var totalGeocodingRequests = geocodingQueue.length;
 			
 			// Start geocoding
-			while(geocodingQueue.length > 0) {
+			while (geocodingQueue.length > 0) {
 				var currentPlace = geocodingQueue.pop();
 				var duplicateIndex = arrayElementIndex(geocodingQueue, currentPlace);
-				while(duplicateIndex >= 0) { // duplicate element was found in array
+				while (duplicateIndex >= 0) { // duplicate element was found in array
 					geocodingQueue.splice(duplicateIndex, 1);
 					totalGeocodingRequests--;
 					duplicateIndex = arrayElementIndex(geocodingQueue, currentPlace);
@@ -465,53 +477,66 @@
 				 */
 				var progress = (completedGeocodingRequests / totalGeocodingRequests) * 30;
 				setProgressBarValue(40 + progress, "Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
-				if(geocodingQueue.length == 0 && totalGeocodingRequests == completedGeocodingRequests) {
+				if (geocodingQueue.length == 0 && totalGeocodingRequests == completedGeocodingRequests) {
 					clearInterval(intervalHandlerID); 
 
-					for(var i = 0; i < geocodedPlaces.length; i++) {
-						for(var j = 0; j < flowRecordCount; j++) {
-							if(flowRecords[j].srcCountry == geocodedPlaces[i].place && flowRecords[j].srcCountryLat == -1) {
+					for (var i = 0; i < geocodedPlaces.length; i++) {
+						for (var j = 0; j < flowRecordCount; j++) {
+							if (flowRecords[j].srcCountry == geocodedPlaces[i].place && flowRecords[j].srcCountryLat == -1) {
 								flowRecords[j].srcCountryLat = geocodedPlaces[i].lat;
 								flowRecords[j].srcCountryLng = geocodedPlaces[i].lng;
 							}
-							if(flowRecords[j].dstCountry == geocodedPlaces[i].place && flowRecords[j].dstCountryLat == -1) {
+							if (flowRecords[j].dstCountry == geocodedPlaces[i].place && flowRecords[j].dstCountryLat == -1) {
 								flowRecords[j].dstCountryLat = geocodedPlaces[i].lat;
 								flowRecords[j].dstCountryLng = geocodedPlaces[i].lng;
 							}
-							if(flowRecords[j].srcCountry + ", " + flowRecords[j].srcRegion == geocodedPlaces[i].place && flowRecords[j].srcRegionLat == -1) {
+							if (flowRecords[j].srcCountry + ", " + flowRecords[j].srcRegion == geocodedPlaces[i].place && flowRecords[j].srcRegionLat == -1) {
 								flowRecords[j].srcRegionLat = geocodedPlaces[i].lat;
 								flowRecords[j].srcRegionLng = geocodedPlaces[i].lng;
 							}
-							if(flowRecords[j].dstCountry + ", " + flowRecords[j].dstRegion == geocodedPlaces[i].place && flowRecords[j].dstRegionLat == -1) {
+							if (flowRecords[j].dstCountry + ", " + flowRecords[j].dstRegion == geocodedPlaces[i].place && flowRecords[j].dstRegionLat == -1) {
 								flowRecords[j].dstRegionLat = geocodedPlaces[i].lat;
 								flowRecords[j].dstRegionLng = geocodedPlaces[i].lng;
 							}
-							if(flowRecords[j].srcCountry + ", " + flowRecords[j].srcCity == geocodedPlaces[i].place && flowRecords[j].srcCityLat == -1) {
+							if (flowRecords[j].srcCountry + ", " + flowRecords[j].srcCity == geocodedPlaces[i].place && flowRecords[j].srcCityLat == -1) {
 								flowRecords[j].srcCityLat = geocodedPlaces[i].lat;
 								flowRecords[j].srcCityLng = geocodedPlaces[i].lng;
 							}
-							if(flowRecords[j].dstCountry + ", " + flowRecords[j].dstCity == geocodedPlaces[i].place && flowRecords[j].dstCityLat == -1) {
+							if (flowRecords[j].dstCountry + ", " + flowRecords[j].dstCity == geocodedPlaces[i].place && flowRecords[j].dstCityLat == -1) {
 								flowRecords[j].dstCityLat = geocodedPlaces[i].lat;
 								flowRecords[j].dstCityLng = geocodedPlaces[i].lng;
 							}
 						}
 					}
 
-					for(var i = 0; i < flowRecordCount; i++) {
+					for (var i = 0; i < flowRecordCount; i++) {
+						/*
+						 * If source or destination country is unknown (and therefore not geocoded),
+						 * make sure it's ignored in processing later on by setting lat & lng to 0.
+						 */
+						if (flowRecords[i].srcCountryLat == -1 && flowRecords[i].srcCountry.indexOf("nknown") != -1) {
+							flowRecords[i].srcCountryLat = 0;
+							flowRecords[i].srcCountryLng = 0;
+						}
+						if (flowRecords[i].dstCountryLat == -1 && flowRecords[i].dstCountry.indexOf("nknown") != -1) {
+							flowRecords[i].dstCountryLat = 0;
+							flowRecords[i].dstCountryLng = 0;
+						}
+						
 						// If no latitude/longitude coordinates are present on certain level, take the ones from the upper level
-						if(flowRecords[i].srcRegionLat == 0 && flowRecords[i].srcRegionLng == 0) {
+						if (flowRecords[i].srcRegionLat == 0 && flowRecords[i].srcRegionLng == 0) {
 							flowRecords[i].srcRegionLat = flowRecords[i].srcCountryLat;
 							flowRecords[i].srcRegionLng = flowRecords[i].srcCountryLng;
 						}
-						if(flowRecords[i].dstRegionLat == 0 && flowRecords[i].dstRegionLng == 0) {
+						if (flowRecords[i].dstRegionLat == 0 && flowRecords[i].dstRegionLng == 0) {
 							flowRecords[i].dstRegionLat = flowRecords[i].dstCountryLat;
 							flowRecords[i].dstRegionLng = flowRecords[i].dstCountryLng;
 						}
-						if(flowRecords[i].srcCityLat == 0 && flowRecords[i].srcCityLng == 0) {
+						if (flowRecords[i].srcCityLat == 0 && flowRecords[i].srcCityLng == 0) {
 							flowRecords[i].srcCityLat = flowRecords[i].srcRegionLat;
 							flowRecords[i].srcCityLng = flowRecords[i].srcRegionLng;
 						}
-						if(flowRecords[i].dstCityLat == 0 && flowRecords[i].dstCityLng == 0) {
+						if (flowRecords[i].dstCityLat == 0 && flowRecords[i].dstCityLng == 0) {
 							flowRecords[i].dstCityLat = flowRecords[i].dstRegionLat;
 							flowRecords[i].dstCityLng = flowRecords[i].dstRegionLng;
 						}
@@ -529,17 +554,17 @@
 		function determineProtocolName(number) {
 			var protocol;
 			
-			if(number == 1) {
+			if (number == 1) {
 				protocol = "ICMP";
-			} else if(number == 6) {
+			} else if (number == 6) {
 				protocol = "TCP";
-			} else if(number == 17) {
+			} else if (number == 17) {
 				protocol = "UDP";
-			} else if(number == 47) {
+			} else if (number == 47) {
 				protocol = "GRE";
-			} else if(number == 50) {
+			} else if (number == 50) {
 				protocol = "ESP";
-			} else if(number == 51) {
+			} else if (number == 51) {
 				protocol = "AH";
 			} else {
 				protocol = protocols[number];
@@ -556,7 +581,7 @@
 		*/
 		function stripGeocoderMetaData(place) {
 			var strippedPlace;
-			if(place.lastIndexOf(", ") != -1) {
+			if (place.lastIndexOf(", ") != -1) {
 				strippedPlace = place.substr(place.lastIndexOf(", ") + 2);
 			} else {
 				strippedPlace = place;
@@ -570,34 +595,34 @@
 		*	place - name of the place that has to be geocoded
 		*/
 		function geocode(place) {
-			if(place == "INVALID IPV4 ADDRESS" && !outputGeocodingErrorMessage) {
+			if (place == "INVALID IPV4 ADDRESS" && !outputGeocodingErrorMessage) {
 				outputGeocodingErrorMessage = 1;
 				alert("You are trying to visualize an invalid IP address (i.e., multicast addresses or IPv6 addresses). Please try to use another information source or subset.");
 			}
 
 			// Some geolocation databases return 'Unknown' or 'unknown' in case a location is not found or recognized.
-			if(place.indexOf("nknown") == -1 && (geocoderRequests + successfulGeocodingRequests + erroneousGeocodingRequests) <= 2000) {
+			if (geocoderRequests + successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests <= 2250) {
 				geocoder.geocode({'address': place}, function(results, status) {
-					if(status == google.maps.GeocoderStatus.OK) {
+					if (status == google.maps.GeocoderStatus.OK) {
 						addToLogQueue("INFO", "Geocoded " + place + " successfully");
 						
 						// Store geocoded location in cache DB
 						var geocodedPlace = new GeocodedPlace(place, results[0].geometry.location.lat(), results[0].geometry.location.lng());
 						geocodedPlaces.push(geocodedPlace);
 						
-						if(WRITE_DATA_TO_GEOCODER_DB == 1) {
+						if (WRITE_DATA_TO_GEOCODER_DB == 1) {
 							GEOCODING_queue.push(geocodedPlace);
 						}
 						
 						geocodingDelay = 250;
 						successfulGeocodingRequests++;
-					} else if(status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+					} else if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
 						geocodingDelay += 500;
 						setTimeout(function() {
 							geocode(place);
 						}, geocodingDelay);
 					} else {
-						addToLogQueue("ERROR", "Could not find " + place + ". Reason: " + status);
+						addToLogQueue("ERROR", "Geocoder could not find " + place + ". Reason: " + status);
 
 						geocodedPlaces.push(new GeocodedPlace(place, 0, 0));
 						erroneousGeocodingRequests++;
@@ -619,8 +644,8 @@
 		*/		
 		function markerRecordExists(level, markerID, name) {
 			var markerRecordIndex = -1;
-			for(var i = 0; i < markerProperties[level][markerID].markerRecords.length; i++) {
-				if(markerProperties[level][markerID].markerRecords[i].name == name) {
+			for (var i = 0; i < markerProperties[level][markerID].markerRecords.length; i++) {
+				if (markerProperties[level][markerID].markerRecords[i].name == name) {
 					markerRecordIndex = i;
 					break;
 				}
@@ -639,8 +664,8 @@
 		*/		
 		function lineRecordExists(level, lineID, srcName, dstName) {
 			var lineRecordIndex = -1;
-			for(var i = 0; i < lineProperties[level][lineID].lineRecords.length; i++) {
-				if(lineProperties[level][lineID].lineRecords[i].srcName == srcName && lineProperties[level][lineID].lineRecords[i].dstName == dstName) {
+			for (var i = 0; i < lineProperties[level][lineID].lineRecords.length; i++) {
+				if (lineProperties[level][lineID].lineRecords[i].srcName == srcName && lineProperties[level][lineID].lineRecords[i].dstName == dstName) {
 					lineRecordIndex = i;
 					break;
 				}
@@ -654,48 +679,48 @@
 		function initializeMarkers() {
 			var MAX_INFO_WINDOW_LINES = 13, existValue;
 			
-			for(var i = 0; i < 4; i++) { // Zoom levels
+			for (var i = 0; i < 4; i++) { // Zoom levels
 				markerProperties[i] = []; // Initialize markerProperties storage
 
-				for(var j = 0; j < flowRecordCount; j++) {
-					if((flowRecords[j].srcCountryLat == 0 && flowRecords[j].srcCountryLng == 0) || (flowRecords[j].dstCountryLat == 0 && flowRecords[j].dstCountryLng == 0)) {
+				for (var j = 0; j < flowRecordCount; j++) {
+					if ((flowRecords[j].srcCountryLat == 0 && flowRecords[j].srcCountryLng == 0) || (flowRecords[j].dstCountryLat == 0 && flowRecords[j].dstCountryLng == 0)) {
 						continue;
 					}
 					
-					for(var k = 0; k < 2; k++) { // Both ends of a line
+					for (var k = 0; k < 2; k++) { // Both ends of a line
 						var currentLat = -1;
 						var currentLng = -1;
 						var currentName = "";
 						
-						if(i == COUNTRY && k == 0) {
+						if (i == COUNTRY && k == 0) {
 							currentLat = flowRecords[j].srcCountryLat;
 							currentLng = flowRecords[j].srcCountryLng;
 							currentName = flowRecords[j].srcRegion;
-						} else if(i == COUNTRY && k == 1) {
+						} else if (i == COUNTRY && k == 1) {
 							currentLat = flowRecords[j].dstCountryLat;
 							currentLng = flowRecords[j].dstCountryLng;
 							currentName = flowRecords[j].dstRegion;
-						} else if(i == REGION && k == 0) {
+						} else if (i == REGION && k == 0) {
 							currentLat = flowRecords[j].srcRegionLat;
 							currentLng = flowRecords[j].srcRegionLng;
 							currentName = flowRecords[j].srcCity;
-						} else if(i == REGION && k == 1) {
+						} else if (i == REGION && k == 1) {
 							currentLat = flowRecords[j].dstRegionLat;
 							currentLng = flowRecords[j].dstRegionLng;
 							currentName = flowRecords[j].dstCity;
-						} else if(i == CITY && k == 0) {
+						} else if (i == CITY && k == 0) {
 							currentLat = flowRecords[j].srcCityLat;
 							currentLng = flowRecords[j].srcCityLng;
 							currentName = flowRecords[j].srcCity;
-						} else if(i == CITY && k == 1) {
+						} else if (i == CITY && k == 1) {
 							currentLat = flowRecords[j].dstCityLat;
 							currentLng = flowRecords[j].dstCityLng;
 							currentName = flowRecords[j].dstCity;
-						} else if(i == HOST && k == 0) {
+						} else if (i == HOST && k == 0) {
 							currentLat = flowRecords[j].srcCityLat;
 							currentLng = flowRecords[j].srcCityLng;
 							currentName = flowRecords[j].srcIP;
-						} else if(i == HOST && k == 1) {
+						} else if (i == HOST && k == 1) {
 							currentLat = flowRecords[j].dstCityLat;
 							currentLng = flowRecords[j].dstCityLng;
 							currentName = flowRecords[j].dstIP;
@@ -703,15 +728,15 @@
 						}
 
 						existValue = markerExists(i, currentLat, currentLng);
-						if(existValue == -1) { // Marker does not exist
+						if (existValue == -1) { // Marker does not exist
 							var properties = new MarkerProperties(currentLat, currentLng);
 							var record = new MarkerRecord(currentName);
 
-							if(i == HOST) {
+							if (i == HOST) {
 								record.protocol = flowRecords[j].protocol;
 								record.flows = flowRecords[j].flows;
 								
-								if(k == 0) {
+								if (k == 0) {
 									record.IP = flowRecords[j].srcIP;	
 									record.port = flowRecords[j].srcPort;
 									record.countryName = flowRecords[j].srcCountry;
@@ -732,13 +757,13 @@
 							markerProperties[i].push(properties);
 						} else { // Marker exists
 							var existValue2 = markerRecordExists(i, existValue, currentName);
-							if(existValue2 == -1) { // Name is not present in a record
+							if (existValue2 == -1) { // Name is not present in a record
 								var record = new MarkerRecord(currentName);
 								
-								if(i == HOST) {
+								if (i == HOST) {
 									record.protocol = flowRecords[j].protocol;
 									record.flows = flowRecords[j].flows;
-									if(k == 0) {
+									if (k == 0) {
 										record.IP = flowRecords[j].srcIP;	
 										record.port = flowRecords[j].srcPort;
 										record.countryName = flowRecords[j].srcCountry;
@@ -758,17 +783,17 @@
 								markerProperties[i][existValue].markerRecords.push(record);
 							} else { // Name is present in a record
 								// Check whether host is a new host or not (by using IP addresses)
-								if(i == HOST) {
+								if (i == HOST) {
 									markerProperties[i][existValue].markerRecords[existValue2].flows = parseInt(markerProperties[i][existValue].markerRecords[existValue2].flows) 
 											+ parseInt(flowRecords[j].flows);
 								} else {
 									var newHost = 1;
-									for(var x = 0; x < j; x++) {
+									for (var x = 0; x < j; x++) {
 										// Check whether the current IP address was present in an earlier (processed) flow record already
-										if((k == 0 && (flowRecords[j].srcIP == flowRecords[x].srcIP || flowRecords[j].srcIP == flowRecords[x].dstIP)) 
+										if ((k == 0 && (flowRecords[j].srcIP == flowRecords[x].srcIP || flowRecords[j].srcIP == flowRecords[x].dstIP)) 
 												|| (k == 1 && (flowRecords[j].dstIP == flowRecords[x].srcIP || flowRecords[j].dstIP == flowRecords[x].dstIP))) {
 											// Check whether the earlier found record was indeed processed (i.e. it doesn't contain 'unknown' locations)
-											if(flowRecords[x].srcCountryLat != 0 && flowRecords[x].srcCountryLng != 0 
+											if (flowRecords[x].srcCountryLat != 0 && flowRecords[x].srcCountryLng != 0 
 													&& flowRecords[x].dstCountryLat != 0 && flowRecords[x].dstCountryLng != 0) {
 												newHost = 0;
 												break;
@@ -778,7 +803,7 @@
 									
 									markerProperties[i][existValue].markerRecords[existValue2].flowRecordIDs.push(j);
 
-									if(newHost == 1) {
+									if (newHost == 1) {
 										markerProperties[i][existValue].markerRecords[existValue2].hosts++;
 									}
 								}
@@ -789,11 +814,11 @@
 
 				markers[i] = []; // Initialize marker storage
 				
-				for(var j = 0; j < markerProperties[i].length; j++) {
+				for (var j = 0; j < markerProperties[i].length; j++) {
 					var tableHeader;
-					if(i == COUNTRY) {
+					if (i == COUNTRY) {
 						tableHeader = "<table style='width: 200px;'><thead class='informationWindowHeader'><tr><th>Region</th><th>Hosts</th></tr></thead>";
-					} else if(i == REGION || i == CITY) {
+					} else if (i == REGION || i == CITY) {
 						tableHeader = "<table style='width: 200px;'><thead class='informationWindowHeader'><tr><th>City</th><th>Hosts</th></tr></thead>";
 					} else { // i == HOST
 						tableHeader = "<table style='width: 400px;'><thead class='informationWindowHeader'><tr><th>IP</th><th>Flows</th><th>Protocol</th><th>Port</th><th>Location</th></tr></thead>";
@@ -801,25 +826,25 @@
 					
 					var orderArray = new Array(); // Contains an ordered list of markerRecord IDs (array indices)
 					orderArray.push(0); // The first element to be considered is always the biggest/smallest
-					if(i == COUNTRY || i == REGION || i == CITY) { // Sorted by hosts
-						for(var k = 1; k < markerProperties[i][j].markerRecords.length; k++) {
-							for(var l = 0; l < orderArray.length; l++) {
-								if(markerProperties[i][j].markerRecords[k].hosts >= markerProperties[i][j].markerRecords[orderArray[l]].hosts) {
+					if (i == COUNTRY || i == REGION || i == CITY) { // Sorted by hosts
+						for (var k = 1; k < markerProperties[i][j].markerRecords.length; k++) {
+							for (var l = 0; l < orderArray.length; l++) {
+								if (markerProperties[i][j].markerRecords[k].hosts >= markerProperties[i][j].markerRecords[orderArray[l]].hosts) {
 									orderArray.splice(l, 0, k);
 									break;
-								} else if(l == orderArray.length - 1) {
+								} else if (l == orderArray.length - 1) {
 									orderArray.splice(orderArray.length, 0, k);
 									break;
 								}
 							}
 						}
 					} else { // i == HOST, sorted by flows
-						for(var k = 1; k < markerProperties[i][j].markerRecords.length; k++) {
-							for(var l = 0; l < orderArray.length; l++) {
-								if(markerProperties[i][j].markerRecords[k].flows >= markerProperties[i][j].markerRecords[orderArray[l]].flows) {
+						for (var k = 1; k < markerProperties[i][j].markerRecords.length; k++) {
+							for (var l = 0; l < orderArray.length; l++) {
+								if (markerProperties[i][j].markerRecords[k].flows >= markerProperties[i][j].markerRecords[orderArray[l]].flows) {
 									orderArray.splice(l, 0, k);
 									break;
-								} else if(l == orderArray.length - 1) {
+								} else if (l == orderArray.length - 1) {
 									orderArray.splice(orderArray.length, 0, k);
 									break;
 								}
@@ -829,12 +854,12 @@
 					
 					var flowIDsString = ""; // Contains IDs of the flows that are aggregated in the current marker
 					var tableBody = "<tbody class='informationWindowBody'>";
-					for(var k = 0; k < orderArray.length; k++) {
+					for (var k = 0; k < orderArray.length; k++) {
 						var orderArrayIndex = orderArray[k];
-						if(i == COUNTRY) {
+						if (i == COUNTRY) {
 							tableBody += "<tr><td>" + formatName(markerProperties[i][j].markerRecords[orderArrayIndex].name) + "</td>";
 							tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].hosts + "</td></tr>";
-						} else if(i == REGION || i == CITY) {
+						} else if (i == REGION || i == CITY) {
 							tableBody += "<tr><td>" + formatName(markerProperties[i][j].markerRecords[orderArrayIndex].name) + "</td>";
 							tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].hosts + "</td></tr>";
 						} else { // i == HOST
@@ -842,7 +867,7 @@
 							
 							// TODO Handle case where more than MAX_INFO_WINDOW_LINES lines are present in information window
 							
-							if(k == 0) {
+							if (k == 0) {
 								tableBody += "<tr><td>" + markerProperties[i][j].markerRecords[orderArrayIndex].name + "</td>";
 								tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].flows + "</td>";
 								tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].protocol + "</td>";
@@ -855,8 +880,8 @@
 								tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].port + "</td></tr>";
 							}
 						}
-						for(var l = 0; l < markerProperties[i][j].markerRecords[orderArrayIndex].flowRecordIDs.length; l++) {
-							if(flowIDsString != "") flowIDsString += "_";
+						for (var l = 0; l < markerProperties[i][j].markerRecords[orderArrayIndex].flowRecordIDs.length; l++) {
+							if (flowIDsString != "") flowIDsString += "_";
 							flowIDsString += markerProperties[i][j].markerRecords[orderArrayIndex].flowRecordIDs[l];
 						}
 					}
@@ -872,7 +897,7 @@
 				}
 			}
 			
-			if(markerManagerInitialized) {
+			if (markerManagerInitialized) {
 				addMarkersToMarkerManager();
 			}
 			markersProcessed = true;
@@ -882,31 +907,31 @@
 		* This function initializes all lines for all zoom levels.
 		*/			
 		function initializeLines() {
-			for(var i = 0; i < 4; i++) { // Zoom levels
+			for (var i = 0; i < 4; i++) { // Zoom levels
 				lineProperties[i] = []; // Initialize lineProperties storage
 				
-				for(var j = 0; j < flowRecordCount; j++) {
+				for (var j = 0; j < flowRecordCount; j++) {
 					var existValue;
 					switch(i) {
-						case COUNTRY: 	if((flowRecords[j].srcCountryLat == 0 && flowRecords[j].srcCountryLng == 0) || (flowRecords[j].dstCountryLat == 0 && flowRecords[j].dstCountryLng == 0)) {
+						case COUNTRY: 	if ((flowRecords[j].srcCountryLat == 0 && flowRecords[j].srcCountryLng == 0) || (flowRecords[j].dstCountryLat == 0 && flowRecords[j].dstCountryLng == 0)) {
 											continue;
 										}
 										existValue = lineExists(i, flowRecords[j].srcCountryLat, flowRecords[j].srcCountryLng, flowRecords[j].dstCountryLat, flowRecords[j].dstCountryLng);
 										break;
 										
-						case REGION: 	if((flowRecords[j].srcRegionLat == 0 && flowRecords[j].srcRegionLng == 0) || (flowRecords[j].dstRegionLat == 0 && flowRecords[j].dstRegionLng == 0)) {
+						case REGION: 	if ((flowRecords[j].srcRegionLat == 0 && flowRecords[j].srcRegionLng == 0) || (flowRecords[j].dstRegionLat == 0 && flowRecords[j].dstRegionLng == 0)) {
 											continue;
 										}
 										existValue = lineExists(i, flowRecords[j].srcRegionLat, flowRecords[j].srcRegionLng, flowRecords[j].dstRegionLat, flowRecords[j].dstRegionLng);
 										break;
 										
-						default: 		if((flowRecords[j].srcCityLat == 0 && flowRecords[j].srcCityLng == 0) || (flowRecords[j].dstCityLat == 0 && flowRecords[j].dstCityLng == 0)) {
+						default: 		if ((flowRecords[j].srcCityLat == 0 && flowRecords[j].srcCityLng == 0) || (flowRecords[j].dstCityLat == 0 && flowRecords[j].dstCityLng == 0)) {
 											continue;
 										}
 										existValue = lineExists(i, flowRecords[j].srcCityLat, flowRecords[j].srcCityLng, flowRecords[j].dstCityLat, flowRecords[j].dstCityLng);
 					}
 					
-					if(existValue == -1) { // Line does not exist
+					if (existValue == -1) { // Line does not exist
 						var properties;
 						var record;
 						
@@ -945,7 +970,7 @@
 						record.duration = flowRecords[j].duration;
 
 						record.throughput = record.octets / record.duration;
-						if(record.throughput == "NaN" || record.throughput == "Infinity") {
+						if (record.throughput == "NaN" || record.throughput == "Infinity") {
 							record.throughput = 0;
 						} else {
 							record.throughput = record.throughput.toFixed(2);
@@ -953,7 +978,7 @@
 
 						record.flowRecordIDs.push(j);
 
-						if(nfsenOption == 1) {
+						if (nfsenOption == 1) {
 							record.flows = flowRecords[j].flows;
 						}
 
@@ -975,7 +1000,7 @@
 											break;
 						}
 
-						if(existValue2 == -1) { // Source and destination are not present in one record
+						if (existValue2 == -1) { // Source and destination are not present in one record
 							switch(i) {
 								case COUNTRY: 	record = new LineRecord(flowRecords[j].srcCountry, flowRecords[j].dstCountry);
 												break;
@@ -1007,7 +1032,7 @@
 							record.duration = flowRecords[j].duration;
 
 							record.throughput = record.octets / record.duration;
-							if(record.throughput == "NaN" || record.throughput == "Infinity") {
+							if (record.throughput == "NaN" || record.throughput == "Infinity") {
 								record.throughput = 0;
 							} else {
 								record.throughput = record.throughput.toFixed(2);
@@ -1015,7 +1040,7 @@
 
 							record.flowRecordIDs.push(j);
 
-							if(nfsenOption == 1) {
+							if (nfsenOption == 1) {
 								record.flows = flowRecords[j].flows;
 							}
 							lineProperties[i][existValue].lineRecords.push(record);
@@ -1025,7 +1050,7 @@
 							lineProperties[i][existValue].lineRecords[existValue2].duration = parseFloat(lineProperties[i][existValue].lineRecords[existValue2].duration) + parseFloat(flowRecords[j].duration);
 
 							lineProperties[i][existValue].lineRecords[existValue2].throughput = lineProperties[i][existValue].lineRecords[existValue2].octets / lineProperties[i][existValue].lineRecords[existValue2].duration;
-							if(lineProperties[i][existValue].lineRecords[existValue2].throughput == "NaN" || lineProperties[i][existValue].lineRecords[existValue2].throughput == "Infinity") {
+							if (lineProperties[i][existValue].lineRecords[existValue2].throughput == "NaN" || lineProperties[i][existValue].lineRecords[existValue2].throughput == "Infinity") {
 								lineProperties[i][existValue].lineRecords[existValue2].throughput = 0;
 							} else {
 								lineProperties[i][existValue].lineRecords[existValue2].throughput = lineProperties[i][existValue].lineRecords[existValue2].throughput.toFixed(2);
@@ -1033,7 +1058,7 @@
 
 							lineProperties[i][existValue].lineRecords[existValue2].flowRecordIDs.push(j);
 
-							if(nfsenOption == 1) {
+							if (nfsenOption == 1) {
 								lineProperties[i][existValue].lineRecords[existValue2].flows = parseInt(lineProperties[i][existValue].lineRecords[existValue2].flows) + parseInt(flowRecords[j].flows);
 							} else {
 								lineProperties[i][existValue].lineRecords[existValue2].flows++;
@@ -1045,7 +1070,7 @@
 				lines[i] = []; // Initialize lines storage
 				determineLineColorRanges(i, nfsenStatOrder);
 				
-				for(var j = 0; j < lineProperties[i].length; j++) {
+				for (var j = 0; j < lineProperties[i].length; j++) {
 					var tableHeader = "<table style='width: 500px;'><thead class='informationWindowHeader'><tr>";
 					tableHeader += "<th>Source</th>";
 					tableHeader += "<th>Destination</th>";
@@ -1056,13 +1081,13 @@
 
 					var orderArray = new Array(); // Contains an ordered list of lineRecord IDs (array indices)
 					orderArray.push(0); // The first element to be considered is always the biggest/smallest
-					for(var k = 1; k < lineProperties[i][j].lineRecords.length; k++) {
-						for(var l = 0; l < orderArray.length; l++) {
+					for (var k = 1; k < lineProperties[i][j].lineRecords.length; k++) {
+						for (var l = 0; l < orderArray.length; l++) {
 							// Ordering in information window is done based on flows
-							if(lineProperties[i][j].lineRecords[k].flows >= lineProperties[i][j].lineRecords[orderArray[l]].flows) {
+							if (lineProperties[i][j].lineRecords[k].flows >= lineProperties[i][j].lineRecords[orderArray[l]].flows) {
 								orderArray.splice(l, 0, k);
 								break;
-							} else if(l == orderArray.length - 1) {
+							} else if (l == orderArray.length - 1) {
 								orderArray.splice(orderArray.length, 0, k);
 								break;
 							}
@@ -1071,16 +1096,16 @@
 					
 					var flowIDsString = ""; // Contains IDs of the flows that are aggregated in the current line
 					var tableBody = "<tbody class='informationWindowBody' style='vertical-align:text-top;'>";
-					for(var k = 0; k < orderArray.length; k++) {
+					for (var k = 0; k < orderArray.length; k++) {
 						var orderArrayIndex = orderArray[k];
-						if(i == COUNTRY) {
+						if (i == COUNTRY) {
 							tableBody += "<tr><td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcName) + "</b></td>";
 							tableBody += "<td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</b></td>";
 							tableBody += "<td>" + lineProperties[i][j].lineRecords[orderArrayIndex].flows + "</td>";
 							tableBody += "<td>" + applySIScale(lineProperties[i][j].lineRecords[orderArrayIndex].packets) + "</td>";
 							tableBody += "<td>" + applySIScale(lineProperties[i][j].lineRecords[orderArrayIndex].octets) + "</td>";
 							tableBody += "<td>" + formatThroughput(lineProperties[i][j].lineRecords[orderArrayIndex].throughput) + "</td></tr>";
-						} else if(i == REGION) {
+						} else if (i == REGION) {
 							tableBody += "<tr><td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcParentCountryName) + "</b></td>";
 							tableBody += "<td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentCountryName) + "</b></td>";
 							tableBody += "<td rowspan='2'>" + lineProperties[i][j].lineRecords[orderArrayIndex].flows + "</td>";
@@ -1089,7 +1114,7 @@
 							tableBody += "<td rowspan='2'>" + formatThroughput(lineProperties[i][j].lineRecords[orderArrayIndex].throughput) + "</td></tr>";
 							tableBody += "<tr><td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcName) + "</td>";
 							tableBody += "<td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</td></tr>";
-						} else if(i == CITY) {
+						} else if (i == CITY) {
 							tableBody += "<tr><td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcParentCountryName) + "</b></td>";
 							tableBody += "<td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentCountryName) + "</b></td>";
 							tableBody += "<td rowspan='3'>" + lineProperties[i][j].lineRecords[orderArrayIndex].flows + "</td>";
@@ -1115,8 +1140,8 @@
 							tableBody += "<td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</td></tr>";
 						}
 
-						for(var l = 0; l < lineProperties[i][j].lineRecords[orderArrayIndex].flowRecordIDs.length; l++) {
-							if(flowIDsString != "") flowIDsString += "_";
+						for (var l = 0; l < lineProperties[i][j].lineRecords[orderArrayIndex].flowRecordIDs.length; l++) {
+							if (flowIDsString != "") flowIDsString += "_";
 							flowIDsString += lineProperties[i][j].lineRecords[orderArrayIndex].flowRecordIDs[l];
 						}
 					}
@@ -1130,12 +1155,12 @@
 					 		+ "<a href='Javascript:goToLineEndPoint(" + i + ", " + j + ", \"source\");' title='" + formatName(lineProperties[i][j].lineRecords[0].srcName) + "'>Go to source</a><b> - </b><a href='Javascript:goToLineEndPoint(" + i + ", " + j + ", \"destination\");' title='" + formatName(lineProperties[i][j].lineRecords[0].dstName) + "'>Go to destination</a></div>";
 					
 					var lineTotal = 0;
-					for(var k = 0; k < lineProperties[i][j].lineRecords.length; k++) {
-						if(nfsenStatOrder == "flows") {
+					for (var k = 0; k < lineProperties[i][j].lineRecords.length; k++) {
+						if (nfsenStatOrder == "flows") {
 							lineTotal += parseInt(lineProperties[i][j].lineRecords[k].flows);
-						} else if(nfsenStatOrder == "packets") {
+						} else if (nfsenStatOrder == "packets") {
 							lineTotal += parseInt(lineProperties[i][j].lineRecords[k].packets);
-						} else if(nfsenStatOrder == "bytes") {
+						} else if (nfsenStatOrder == "bytes") {
 							lineTotal += parseInt(lineProperties[i][j].lineRecords[k].octets);
 						} else {
 							alert("Type error in initializeLines()!")
@@ -1161,38 +1186,38 @@
 			var min = 1;
 			var max = 1;
 			
-			for(var i = 0; i < lineProperties[level].length; i++) {
+			for (var i = 0; i < lineProperties[level].length; i++) {
 				var lineTotal = 0;
 				
-				if(property == "flows") {
-					for(var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
-						if(!(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 && lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName)) {
+				if (property == "flows") {
+					for (var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
+						if (!(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 && lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName)) {
 							oldLineTotal = lineTotal;
 							lineTotal += parseInt(lineProperties[level][i].lineRecords[j].flows);
 						}
 					}
-				} else if(property == "packets") {
-					for(var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
-						if(!(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 && lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName)) {
+				} else if (property == "packets") {
+					for (var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
+						if (!(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 && lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName)) {
 							lineTotal += parseInt(lineProperties[level][i].lineRecords[j].packets);
 						}
 					}
-				} else if(property == "bytes") {
-					for(var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
-						if(!(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 && lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName)) {
+				} else if (property == "bytes") {
+					for (var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
+						if (!(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 && lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName)) {
 							lineTotal += parseInt(lineProperties[level][i].lineRecords[j].octets);
 						}
 					}
 				}
 
-				if(lineTotal < min) min = lineTotal;
-				else if(lineTotal > max) max = lineTotal;
+				if (lineTotal < min) min = lineTotal;
+				else if (lineTotal > max) max = lineTotal;
 			}
 
 			var delta = max - min;
 			var categoryDelta = delta / lineColors;
 			
-			for(var i = 0; i < lineColors + 1; i++) {
+			for (var i = 0; i < lineColors + 1; i++) {
 				lineColorClassification[i] = min + (i * categoryDelta);
 			}
 		}
@@ -1203,20 +1228,20 @@
 		*	lineTotal - sum of either flows, packets or bytes of the specific line
 		*/
 		function determineLineColor(lineTotal) {
-			if(lineColors == 2) {
-				if(lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return orange;
-				else if(lineTotal >= lineColorClassification[1] && lineTotal <= lineColorClassification[2]) return red;
+			if (lineColors == 2) {
+				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return orange;
+				else if (lineTotal >= lineColorClassification[1] && lineTotal <= lineColorClassification[2]) return red;
 				else return red;
-			} else if(lineColors == 3) {
-				if(lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return yellow;
-				else if(lineTotal >= lineColorClassification[1] && lineTotal < lineColorClassification[2]) return orange;
-				else if(lineTotal >= lineColorClassification[2] && lineTotal <= lineColorClassification[3]) return red;
+			} else if (lineColors == 3) {
+				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return yellow;
+				else if (lineTotal >= lineColorClassification[1] && lineTotal < lineColorClassification[2]) return orange;
+				else if (lineTotal >= lineColorClassification[2] && lineTotal <= lineColorClassification[3]) return red;
 				else return red;
-			} else if(lineColors == 4) {				
-				if(lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return green;
-				else if(lineTotal >= lineColorClassification[1] && lineTotal < lineColorClassification[2]) return yellow;
-				else if(lineTotal >= lineColorClassification[2] && lineTotal < lineColorClassification[3]) return orange;
-				else if(lineTotal >= lineColorClassification[3] && lineTotal <= lineColorClassification[4]) return red;
+			} else if (lineColors == 4) {				
+				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return green;
+				else if (lineTotal >= lineColorClassification[1] && lineTotal < lineColorClassification[2]) return yellow;
+				else if (lineTotal >= lineColorClassification[2] && lineTotal < lineColorClassification[3]) return orange;
+				else if (lineTotal >= lineColorClassification[3] && lineTotal <= lineColorClassification[4]) return red;
 				else return red;
 			} else {
 				return red;
@@ -1234,8 +1259,8 @@
 		function createMarker(level, coordinates, text) {
 			var internalTrafficMarker = 0;
 			
-			for(var i = 0; i < lines[level].length; i++) {
-				if(parseFloat(lineProperties[level][i].lat1).toFixed(5) == parseFloat(coordinates.lat()).toFixed(5)
+			for (var i = 0; i < lines[level].length; i++) {
+				if (parseFloat(lineProperties[level][i].lat1).toFixed(5) == parseFloat(coordinates.lat()).toFixed(5)
 						&& parseFloat(lineProperties[level][i].lat1).toFixed(5) == parseFloat(lineProperties[level][i].lat2).toFixed(5)
 						&& parseFloat(lineProperties[level][i].lng1).toFixed(5) == parseFloat(coordinates.lng()).toFixed(5)
 						&& parseFloat(lineProperties[level][i].lng1).toFixed(5) == parseFloat(lineProperties[level][i].lng2).toFixed(5)) {
@@ -1245,7 +1270,7 @@
 			}
 			
 			var markerOptions;
-			if(internalTrafficMarker == 1) {
+			if (internalTrafficMarker == 1) {
 				markerOptions = {
 					position: coordinates,
 					icon: greenIcon
@@ -1292,7 +1317,7 @@
 				map.setCenter(event.latLng);
 				infoWindow.close();
 				
-				if(event.latLng == undefined) {
+				if (event.latLng == undefined) {
 					// When clickRandomLine(level) is used, a google.maps.LatLng object is passed as the 'event' parameter
 					infoWindow.setPosition(event);
 				} else {
@@ -1333,7 +1358,7 @@
 			addToLogQueue("DEBUG", "AutoRefresh: " + autoRefresh);
 			addToLogQueue("DEBUG", "ErrorCode: " + getErrorCode());
 			
-			if(getErrorMessage() == "") {
+			if (getErrorMessage() == "") {
 				addToLogQueue("DEBUG", "ErrorMessage: (empty)");
 			} else {
 				addToLogQueue("DEBUG", "ErrorMessage: " + getErrorMessage());
@@ -1347,7 +1372,7 @@
 		 * Parses and returns the error code of the current session.
 		 */		
 		function getErrorCode() {
-			if(errorCode != "") return parseInt(errorCode);
+			if (errorCode != "") return parseInt(errorCode);
 			else return 0;
 		}
 		
@@ -1363,12 +1388,12 @@
 		* It contains the first stage of processing.
 		*/
 		function initialize() {
-			if(debugLogging == 1) printDebugLogging();
+			if (debugLogging == 1) printDebugLogging();
 			setProgressBarValue(10);
 			readPHPLogQueue("INFO");
 			readPHPLogQueue("ERROR");
 			
-			if(initialZoomLevel == -1) {
+			if (initialZoomLevel == -1) {
 				currentSURFmapZoomLevel = initialSURFmapZoomLevel;
 				currentZoomLevel = getGoogleMapsZoomLevel(currentSURFmapZoomLevel);
 			} else {
@@ -1393,7 +1418,7 @@
 				var newSurfmapZoomLevel = getSurfmapZoomLevel(newZoomLevel);
 				SESSION_queue.push(new SessionData("zoomLevel", newZoomLevel));
 				
-				if(currentSURFmapZoomLevel != newSurfmapZoomLevel) {
+				if (currentSURFmapZoomLevel != newSurfmapZoomLevel) {
 					infoWindow.close();
 					document.getElementById("netflowDataDetails").innerHTML = "";
 					
@@ -1405,7 +1430,7 @@
 				}
 				
 				google.maps.event.addListenerOnce(map, "idle", function() {
-					if(map.getCenter() != undefined && map.getCenter().equals(mapCenterWithoutGray) && !map.getCenter().equals(mapCenter)) {
+					if (map.getCenter() != undefined && map.getCenter().equals(mapCenterWithoutGray) && !map.getCenter().equals(mapCenter)) {
 						/*
 						 * If the map center was adjusted due to a gray area at the top or bottom of the map, 
 						 * change its center again.
@@ -1419,7 +1444,7 @@
 			
 			markerManager = new MarkerManager(map);
 			google.maps.event.addListener(markerManager, "loaded", function() { 
-				if(markersProcessed) {
+				if (markersProcessed) {
 					addMarkersToMarkerManager();
 				}
 				markerManagerInitialized = true;
@@ -1430,15 +1455,15 @@
 			
 			setProgressBarValue(20);
 			changeZoomLevelPanel(0, currentSURFmapZoomLevel);
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 1. Basic initialization completed");
+			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 1. Basic initialization completed");
 
-			if(getErrorCode() == 1) {
+			if (getErrorCode() == 1) {
 				generateAlert("filterError");
 				addToLogQueue("INFO", "Stopped initialization due to filter error");
 				serverTransactions();
 				return;
-			} else if(getErrorCode() == 5) {
-				if(showWarningOnNoData == 1) {
+			} else if (getErrorCode() == 5) {
+				if (showWarningOnNoData == 1) {
 					generateAlert("noDataError");
 				} else {
 					$("#dialog").dialog("destroy"); // Hide progress bar
@@ -1446,7 +1471,7 @@
 				addToLogQueue("INFO", "Stopped initialization due to no data error");
 				serverTransactions();
 				return;				
-			} else if(getErrorCode() == 6) {
+			} else if (getErrorCode() == 6) {
 				generateAlert("profileError");
 				addToLogQueue("INFO", "Stopped initialization due to profile error");
 				serverTransactions();
@@ -1454,14 +1479,14 @@
 			}
 
 			setProgressBarValue(30, "Importing NetFlow data...");
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data...");
+			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data...");
 			importData();
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data... Done");
+			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data... Done");
 			
 			setProgressBarValue(40, "Complementing flow records");
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records...");
+			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records...");
 			complementFlowRecords();
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records... Done");
+			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records... Done");
 			
 			setInterval("serverTransactions()", 2000);
 		}
@@ -1471,25 +1496,25 @@
 		*/		
 		function processing() {
 			setProgressBarValue(70, "Initializing lines...");
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines...");
+			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines...");
 			initializeLines();
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines... Done");
+			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines... Done");
 
 			setProgressBarValue(80, "Initializing markers...");
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers...");
+			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers...");
 			initializeMarkers();
-			if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers... Done");
+			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers... Done");
 			
-			if(demoMode == 0) {
+			if (demoMode == 0) {
 				setProgressBarValue(90, "Initializing legend...");
-				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend...");
+				if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend...");
 				initializeLegend(currentSURFmapZoomLevel);
-				if(debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend... Done");
+				if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend... Done");
 			}
 			
 			checkForHeavyQuery();
-			if(successfulGeocodingRequests + erroneousGeocodingRequests > 0) {
-				STAT_queue.push(new StatData("totalGeocodingRequests", successfulGeocodingRequests + erroneousGeocodingRequests));
+			if (successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests > 0) {
+				STAT_queue.push(new StatData("totalGeocodingRequests", successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests));
 			}
 
 			setProgressBarValue(100, "Finished loading...");
@@ -1497,7 +1522,7 @@
 			
 			$("#dialog").dialog("destroy"); // Hide progress bar
 
-			if(getErrorCode() >= 2 && getErrorCode() <= 4) {
+			if (getErrorCode() >= 2 && getErrorCode() <= 4) {
 				generateAlert("invalidWindow");
 			}
 		}
@@ -1506,7 +1531,7 @@
 </head>
 	
 <body onload="initialize()">
-	<div id="header" style="width:<?php if(strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>;clear:both;">
+	<div id="header" style="width:<?php if (strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>;clear:both;">
 		<a href="http://www.utwente.nl/en" target="_blank"><img src="images/UT_Logo.png" style="height:76px;width:280px;float:right;" alt="University of Twente"/></a>
 	
 	<script type="text/javascript">
@@ -1515,13 +1540,13 @@
 		 * when "<meta http-equiv="X-UA-Compatible" content="IE=edge" />" is used.
 		 * http://brondsema.net/blog/index.php/2007/06/06/100_height_iframe
 		 */
-		if($("meta[http-equiv='X-UA-Compatible'][content='IE=edge']").length > 0 && // Check whether the problematic meta-tag has been set
+		if ($("meta[http-equiv='X-UA-Compatible'][content='IE=edge']").length > 0 && // Check whether the problematic meta-tag has been set
 				$.browser.msie && parseInt($.browser.version) >= 8) {
 			var clientHeight = parent.document.documentElement.clientHeight;
 			parent.document.getElementById("surfmapParentIFrame").style.height = clientHeight +"px";
 		}
 	
-		if(demoMode == 1) {
+		if (demoMode == 1) {
 			document.write("<div id=\"header-text-demo\" style=\"height:76px; font-size:30pt; text-align:center;\"><p style=\"margin-top:18px;\">" + demoModePageTitle + " (" + hours1 + ":" + minutes1 + ")</p></div>");
 		} else {
 			document.write("<div id=\"header-text\" style=\"height:76px; font-size:10pt; float:right;\"><p style=\"margin-top:18px;\"><b>SURFmap</b><br /><i>A network monitoring tool based on the Google Maps API</i></p></div>");
@@ -1530,8 +1555,8 @@
 	
 	</div>
 	
-	<div id="map_canvas" style="width:<?php if(strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>; height:<?php if(strpos($RELATIVE_MAP_HEIGHT, "%") === false) echo "$RELATIVE_MAP_HEIGHT%"; else echo $RELATIVE_MAP_HEIGHT; ?>;"></div>
-	<div id="footer" style="width:<?php if(strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>;">
+	<div id="map_canvas" style="width:<?php if (strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>; height:<?php if (strpos($RELATIVE_MAP_HEIGHT, "%") === false) echo "$RELATIVE_MAP_HEIGHT%"; else echo $RELATIVE_MAP_HEIGHT; ?>;"></div>
+	<div id="footer" style="width:<?php if (strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>;">
 		<div class="footer" id="legend">
 			<div class="legendTextCell" id="legend_based_on" style="width: 175px; padding-left:0px;"></div>
 			<div class="legendImageCell" style="padding-left:10px;"><img src="images/legend/legend_green.png" alt="Legend_green"/></div><div class="legendTextCell" id="legend_green"></div>
@@ -1567,15 +1592,15 @@
 		// Panel: Options
 		var truncatedNfSenProfile = (nfsenProfile.length > 22) ? nfsenProfile.substr(0, 22) + "..." : nfsenProfile;
 		var nfsenSourceOptions = "<optgroup label=\"Profile '" + truncatedNfSenProfile + "'\">";
-		for(var i = 0; i < nfsenAllSources.length; i++) {
+		for (var i = 0; i < nfsenAllSources.length; i++) {
 			var sourceSelected = false;
-			for(var j = 0; j < nfsenSelectedSources.length; j++) {
-				if(nfsenSelectedSources[j] == nfsenAllSources[i]) {
+			for (var j = 0; j < nfsenSelectedSources.length; j++) {
+				if (nfsenSelectedSources[j] == nfsenAllSources[i]) {
 					sourceSelected = true;
 				}
 			}
 
-			if(sourceSelected) {
+			if (sourceSelected) {
 				nfsenSourceOptions += "<option selected>" + nfsenAllSources[i] + "</option>";
 			} else {
 				nfsenSourceOptions += "<option>" + nfsenAllSources[i] + "</option>";
@@ -1594,14 +1619,14 @@
 					+ "</td>"
 				+ "</tr>"
 			+ "</table><br />"	
-				+ "<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"if(!$('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionStatTopN\">Stat TopN</label>"
+				+ "<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"if (!$('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionStatTopN\">Stat TopN</label>"
 				+ "<br />"
 				+ "<div id=\"nfsenstatorder\" style=\"margin-top:10px; margin-bottom:10px; text-align:right;\">"
 					+ "<input type=\"radio\" id=\"nfsenstatorderflows\" name=\"nfsenstatorder\" value=\"flows\" /><label for=\"nfsenstatorderflows\">flows</label>"
 					+ "<input type=\"radio\" id=\"nfsenstatorderpackets\" name=\"nfsenstatorder\" value=\"packets\" /><label for=\"nfsenstatorderpackets\">packets</label>"
 					+ "<input type=\"radio\" id=\"nfsenstatorderbytes\" name=\"nfsenstatorder\" value=\"bytes\" /><label for=\"nfsenstatorderbytes\">bytes</label>"
 				+ "</div>"
-				+ "<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionListFlows\">List Flows</label>"				
+				+ "<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if ($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionListFlows\">List Flows</label>"				
 			+ "<br />"
 			+ "<div style=\"margin-top:10px; width:195px;\">"
 				+ "<span style=\"float:left;\">Begin</span>"				
@@ -1628,21 +1653,21 @@
 
 		// Select the current option in the 'nfsenstatorder' selector
 		var options = $("#nfsenstatorder").children("input[name='nfsenstatorder']");
-		for(var i = 0; i < options.length; i++) {
-			if(options[i].id.substring(14) == nfsenStatOrder) {
+		for (var i = 0; i < options.length; i++) {
+			if (options[i].id.substring(14) == nfsenStatOrder) {
 				options[i].checked = true;
 				break;
 			}
 		}
 
-		if(nfsenOption == 1) { // Stat TopN
+		if (nfsenOption == 1) { // Stat TopN
 			document.getElementById("nfsenoptionStatTopN").checked = true;
 		} else {
 			document.getElementById("nfsenoptionListFlows").checked = true;
 			$('#nfsenstatorder').hide();
 		}
 		
-		if(autoRefresh > 0) {
+		if (autoRefresh > 0) {
 			document.getElementById("auto-refresh").checked = true;
 			manageAutoRefresh();
 		} else {
@@ -1650,7 +1675,7 @@
 		}
 		
 		// Initialize panel
-		if(demoMode == 0) {
+		if (demoMode == 0) {
 			$(".trigger").click(function(){
 				$(".panel").toggle("fast");
 				$(this).toggleClass("active");
@@ -1660,11 +1685,11 @@
 			$(".trigger").hide();
 		}
 		
-		if(autoOpenMenu == 1 || getErrorCode() == 1) {
+		if (autoOpenMenu == 1 || getErrorCode() == 1) {
 			$(".trigger").trigger("click");
 		}
 		
-		if(demoMode == 1) {
+		if (demoMode == 1) {
 			document.getElementById("map_canvas").style.cssText = "width:100%; height:100%;";
 			document.getElementById("legend").style.display = "none";
 			document.getElementById("footerfunctions").style.display = "none";
@@ -1688,7 +1713,7 @@
 		
 		// Initialize buttons (jQuery)
 		$('#options').submit(function() {
-			if($("#nfsensources").multiselect("widget").find("input:checked").length == 0) {
+			if ($("#nfsensources").multiselect("widget").find("input:checked").length == 0) {
 				generateAlert("noSourcesSelectedError");
 				return false;
 			} else {
@@ -1727,12 +1752,12 @@
 		*/		
 		function checkForHeavyQuery() {
 			var heavyQuery = false;
-			if($("#nfsensources").multiselect("widget").find("input:checked").length > 2
+			if ($("#nfsensources").multiselect("widget").find("input:checked").length > 2
 					|| $("textarea[name=filter]").val().length > 100) {
 				heavyQuery = true;
 			}
 
-			if(showWarningOnHeavyQuery && heavyQuery) {
+			if (showWarningOnHeavyQuery && heavyQuery) {
 				$("#heavyquerymessage").show();
 			} else {
 				$("#heavyquerymessage").hide();
@@ -1747,7 +1772,7 @@
 		*					to show all flow records
 		*/
 		function showNetFlowDetails(flowIDs) {
-			if(flowIDs != "") { // if flowIDs == "", all flows should be presented
+			if (flowIDs != "") { // if flowIDs == "", all flows should be presented
 				var idArray = flowIDs.split("_");
 				var idCount = idArray.length;
 			} else {
@@ -1757,7 +1782,7 @@
 			var netflowDataDetailsTable = "<table border='0' style='text-align: center;'><thead class='netflowDataDetailsTitle'><tr><th>Duration</th><th>Source IP</th><th>Src. Port</th><th>Destination IP</th><th>Dst. Port</th><th>Protocol</th><th>Packets</th><th>Octets</th>";
 			
 			// If NfSen is used as the information source and its 'Stat TopN' option is used
-			if(nfsenOption == 1) {
+			if (nfsenOption == 1) {
 				netflowDataDetailsTable += "<th>Flows</th>";
 				var columns = 9;
 			} else {
@@ -1766,18 +1791,18 @@
 			
 			netflowDataDetailsTable += "</tr></thead><tbody class='netflowDataDetails'>";
 
-			if(idCount == 0) {
+			if (idCount == 0) {
 				netflowDataDetailsTable += "<tr><td colspan='" + columns + "' style='text-align: center;'>No flow records are available...</td></tr>";				
 			} else {
-				for(var i = 0; i < idCount; i++) {
+				for (var i = 0; i < idCount; i++) {
 					netflowDataDetailsTable += "<tr>";
 
 					var currentID = -1;
-					if(flowIDs != "") currentID = idArray[i];
+					if (flowIDs != "") currentID = idArray[i];
 					else currentID = i;
 
 					netflowDataDetailsTable += "<td title='Duration'>" + flowRecords[currentID].duration + "</td><td title='Source IP address'>" + flowRecords[currentID].srcIP + "</td><td title='Source port'>" + flowRecords[currentID].srcPort + "</td><td title='Destination IP address'>" + flowRecords[currentID].dstIP + "</td><td title='Destination port'>" + flowRecords[currentID].dstPort + "</td><td title='Protocol'>" + flowRecords[currentID].protocol + "</td><td title='Packets'>" + applySIScale(flowRecords[currentID].packets) + "</td><td title='Octets'>" + applySIScale(flowRecords[currentID].octets) + "</td>";
-					if(nfsenOption == 1) {
+					if (nfsenOption == 1) {
 						netflowDataDetailsTable += "<td title='Flows'>" + flowRecords[currentID].flows + "</td>";
 					}
 
@@ -1798,7 +1823,7 @@
 		* 		endPoint - either "source" or "destination"
 		*/
 		function goToLineEndPoint(zoomLevel, lineID, endPoint) {
-			if(endPoint == "source") {
+			if (endPoint == "source") {
 				var source = new google.maps.LatLng(lineProperties[zoomLevel][lineID].lat1, lineProperties[zoomLevel][lineID].lng1);
 				map.setCenter(source);
 				infoWindow.setPosition(source);
@@ -1815,7 +1840,7 @@
 		*		zoom_level - a SURFmap zoom level
 		*/
 		function initializeLegend(zoomLevel) {
-			if(nfsenOption == 0) { // List flows
+			if (nfsenOption == 0) { // List flows
 				determineLineColorRanges(zoomLevel, "flows");
 				document.getElementById("legend_based_on").innerHTML = "Number of observed flows:";
 			} else { // Stat TopN
@@ -1855,9 +1880,9 @@
 		*					3. 2 - shows the accordion element and opens it	
 		*/			
 		function manageAccordionElementVisibility(id, option) {
-			if(option == 0) {
+			if (option == 0) {
 				hideAccordionElement(id);
-			} else if(option == 2) {
+			} else if (option == 2) {
 				openAccordionElement(id);
 			}
 		}
@@ -1867,7 +1892,7 @@
 		* user interface.
 		*/		
 		function manageAutoRefresh() {
-			if(document.getElementById("auto-refresh").checked) {
+			if (document.getElementById("auto-refresh").checked) {
 				SESSION_queue.push(new SessionData("refresh", 300));
 				autoRefreshID = setTimeout("window.location.replace(\"index.php?autorefresh=1\")", 300000);
 			} else {

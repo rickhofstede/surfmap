@@ -15,8 +15,8 @@
 	function arrayElementIndex(array, element) {
 		var index = -1;
 	
-		for(var i = 0; i < array.length; i++) {
-			if(array[i] == element) {
+		for (var i = 0; i < array.length; i++) {
+			if (array[i] == element) {
 				index = i;
 				break;
 			}
@@ -34,37 +34,37 @@
 	function stringToArray(string, type, recordCount) {
 		var result_array, temp_array;
 		
-		if(recordCount == 0) {
+		if (recordCount == 0) {
 			result_array = new Array(1);
 		} else {
-			if(type == "IP" || type == "PORT" || type == "COUNTRY" || type == "REGION" || type == "CITY" || type == "LATITUDE" || type == "LONGITUDE") {
+			if (type == "IP" || type == "PORT" || type == "COUNTRY" || type == "REGION" || type == "CITY" || type == "LATITUDE" || type == "LONGITUDE") {
 				temp_array = string.split("__");
 				result_array = new Array(temp_array.length);
 
-				for(var i = 0; i < temp_array.length; i++) {
+				for (var i = 0; i < temp_array.length; i++) {
 					result_array[i] = temp_array[i].split("_");
 				}
-			} else if(type == "GeoCoder_COUNTRY" || type == "GeoCoder_REGION" || type == "GeoCoder_CITY") {
+			} else if (type == "GeoCoder_COUNTRY" || type == "GeoCoder_REGION" || type == "GeoCoder_CITY") {
 				var flows_array = string.split("___");
 				var source_destination_array = new Array(flows_array.length);
 
-				for(var i = 0; i < flows_array.length; i++) {
+				for (var i = 0; i < flows_array.length; i++) {
 					source_destination_array[i] = flows_array[i].split("__");
 				}
 
 				var lat_lng_array = new Array(flows_array.length);
-				for(var i = 0; i < lat_lng_array.length; i++) {
+				for (var i = 0; i < lat_lng_array.length; i++) {
 					lat_lng_array[i] = new Array(2);
 				}
 
-				for(var i = 0; i < source_destination_array.length; i++) {
-					for(var j = 0; j < 2; j++) {
+				for (var i = 0; i < source_destination_array.length; i++) {
+					for (var j = 0; j < 2; j++) {
 						lat_lng_array[i][j] = source_destination_array[i][j].split("_");
 					}
 				}
 
 				result_array = lat_lng_array;
-			} else if(type == "PACKETS" || type == "OCTETS" || type == "DURATION" || type == "PROTOCOL" || type == "FLOWS") {
+			} else if (type == "PACKETS" || type == "OCTETS" || type == "DURATION" || type == "PROTOCOL" || type == "FLOWS") {
 				result_array = string.split("__");
 			} else {
 				alert("Type error in stringToArray()! Type: " + type);
@@ -86,15 +86,15 @@
 	function formatName(name) {
 		var lower_case, result = "";
 		
-		if(name == "-" || name == "" || name == " ") {
+		if (name == "-" || name == "" || name == " ") {
 			result = "(Unknown)";
 		} else {
 			lower_case = name.toLowerCase();
 						
-			for(var i = 0; i < lower_case.length; i++) {
-				if(i == 0) {
+			for (var i = 0; i < lower_case.length; i++) {
+				if (i == 0) {
 					result += lower_case.charAt(i).toUpperCase();
-				} else if(lower_case.charAt(i - 1) == "-" || lower_case.charAt(i - 1) == " " || lower_case.charAt(i - 1) == "(") {
+				} else if (lower_case.charAt(i - 1) == "-" || lower_case.charAt(i - 1) == " " || lower_case.charAt(i - 1) == "(") {
 					result += lower_case.charAt(i).toUpperCase();
 				} else {
 					result += lower_case.charAt(i);
@@ -116,11 +116,11 @@
 	function applySIScale(number) {
 		var newNumber;
 		
-		if((number / 1000000000) > 1) {
+		if ((number / 1000000000) > 1) {
 			newNumber = (number / 1000000000).toFixed(1) + " G";
-		} else if((number / 1000000) > 1) {
+		} else if ((number / 1000000) > 1) {
 			newNumber = (number / 1000000).toFixed(1) + " M";
-		} else if((number / 1000) > 1) {
+		} else if ((number / 1000) > 1) {
 			newNumber = (number / 1000).toFixed(1) + " k";
 		} else {
 			newNumber = number;
@@ -137,13 +137,13 @@
 	function formatThroughput(throughput) {
 		var formattedThroughput;
 		
-		if(throughput == "N/A") {
+		if (throughput == "N/A") {
 			return throughput;
-		} else if((throughput / 1000000000) > 1) {
+		} else if ((throughput / 1000000000) > 1) {
 			formattedThroughput = (throughput / 1000000000).toFixed(1) + " GBps";
-		} else if((throughput / 1000000) > 1) {
+		} else if ((throughput / 1000000) > 1) {
 			formattedThroughput = (throughput / 1000000).toFixed(1) + " MBps";
-		} else if((throughput / 1000) > 1) {
+		} else if ((throughput / 1000) > 1) {
 			formattedThroughput = (throughput / 1000).toFixed(1) + " kBps";
 		} else {
 			formattedThroughput = throughput + " Bps";
@@ -201,7 +201,7 @@
 	*		number - number (e.g., of a month) which needs to be converted
 	*/
 	function addFrontZero(number) {
-		if(number.toString().length < 2) return "0" + number;
+		if (number.toString().length < 2) return "0" + number;
 		else return number;
 	}
 

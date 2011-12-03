@@ -21,7 +21,7 @@ my($SURFMAP_PATH) = "$NfConf::FRONTEND_PLUGINDIR"."/SURFmap/";
 # you want to temporarily disable your plugin return 0 when Init is called.
 #
 sub Init {
-	if($LOG_DEBUG == 1) {
+	if ($LOG_DEBUG == 1) {
 		syslog("info", "[SURFmap Back-end]: Init");
 	}
 	return 1;
@@ -32,7 +32,7 @@ sub Init {
 # plugin the possibility to cleanup itself. It's return value is discard.
 #
 sub Cleanup {
-	if($LOG_DEBUG == 1) {
+	if ($LOG_DEBUG == 1) {
 		syslog("info", "[SURFmap Back-end]: Cleanup");
 	}
 }
@@ -45,7 +45,9 @@ sub Cleanup {
 #               'timeslot'      time of slot to process: Format yyyymmddHHMM e.g. 200503031200
 #
 sub run {
-	syslog("info", "[SURFmap Back-end]: Run");
+	if ($LOG_DEBUG == 1) {
+		syslog("info", "[SURFmap Back-end]: Run");
+	}	
 
 	my $argref       = shift;
 	my $profile      = $$argref{'profile'};
@@ -55,7 +57,7 @@ sub run {
 	my %profileinfo  = NfProfile::ReadProfile($profile, $profilegroup);
 	my $allsources   = join ':', keys %{$profileinfo{'channel'}};
 
-	if($enableBackEndGeocoding == 1) {
+	if ($enableBackEndGeocoding == 1) {
 		unless(-e $SURFMAP_PATH && -d $SURFMAP_PATH) {
 			syslog("info", "[SURFmap Back-end]: The specified SURFmap directory (${SURFMAP_PATH}) could not be found!");
 			return;
@@ -73,19 +75,21 @@ sub run {
 			return;
 		}
 		
-		if($LOG_DEBUG == 1) {
+		if ($LOG_DEBUG == 1) {
 			syslog("info", "[SURFmap Back-end]: Command: 'php ${SURFMAP_PATH}backend.php -p $profile -t $profileinfo{'type'} -s $allsources'");
 		}
 		
 		# Check whether the geocoding completed with errors when successful geocodings == 0 and the total
 		# amount of geocodings > 0
-		if($phpOutput !~ m/successful/i || ($phpOutput =~ m/successful: 0/i && $phpOutput =~ m/skipped: 0/i && $phpOutput !~ m/total: 0/i)) {
+		if ($phpOutput !~ m/successful/i || ($phpOutput =~ m/successful: 0/i && $phpOutput =~ m/skipped: 0/i && $phpOutput !~ m/total: 0/i)) {
 			syslog("info", "[SURFmap Back-end]: Done (with errors)");
+		} elsif ($phpOutput =~ m/successful: 0/i && $phpOutput !~ m/skipped: 0/i && $phpOutput !~ m/total: 0/i) {
+			syslog("info", "[SURFmap Back-end]: Done (with errors: your machine might be blacklisted by Google GeoCoder)");
 		} else {
 			syslog("info", "[SURFmap Back-end]: Done");
 		}
 		
-		if($LOG_DEBUG == 1) {
+		if ($LOG_DEBUG == 1) {
 			syslog("info", "[SURFmap Back-end]: Result: '$phpOutput'");
 		}
 	}

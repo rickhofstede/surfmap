@@ -22,12 +22,12 @@
 			
 			$this->logHandler = $logHandler;
 			
-			if($USE_GEOCODER_DB) {
+			if ($USE_GEOCODER_DB) {
 				try {
 					$PDODrivers = PDO::getAvailableDrivers();
-					if(in_array("sqlite", $PDODrivers)) {
+					if (in_array("sqlite", $PDODrivers)) {
 						$this->GeocoderDatabase = new PDO("sqlite:$GEOCODER_DB_SQLITE3");
-					} else if(in_array("sqlite2", $PDODrivers)) {
+					} else if (in_array("sqlite2", $PDODrivers)) {
 						$this->GeocoderDatabase = new PDO("sqlite2:$GEOCODER_DB_SQLITE2");
 					} else {
 						
@@ -43,7 +43,7 @@
 			global $sessionData, $SORT_FLOWS_BY_START_TIME;
 			
 			// Queries
-			if($_SESSION['SURFmap']['nfsenOption'] == 0) {
+			if ($_SESSION['SURFmap']['nfsenOption'] == 0) {
 				$run = "-R nfcapd.".$_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1'].
 						":nfcapd.".$_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2'].
 						" -c ".$_SESSION['SURFmap']['entryCount'];
@@ -54,7 +54,7 @@
 						" -A proto,srcip,srcport,dstip,dstport";
 			}
 
-			if($_SESSION['SURFmap']['nfsenOption'] == 0 && $SORT_FLOWS_BY_START_TIME == 1) {
+			if ($_SESSION['SURFmap']['nfsenOption'] == 0 && $SORT_FLOWS_BY_START_TIME == 1) {
 				$run .= " -m";
 			}
 
@@ -68,39 +68,39 @@
 			$cmd_out = nfsend_query("run-nfdump", $cmd_opts);
 			$sessionData->query = "** nfdump ".$cmd_out['arg'];
 			
-			if(isset($cmd_out['nfdump']) && $cmd_out["exit"] > 0) {
+			if (isset($cmd_out['nfdump']) && $cmd_out["exit"] > 0) {
 				$sessionData->errorCode = 1; // filter error
 				
-				if(count($cmd_out['nfdump']) > 0) {
+				if (count($cmd_out['nfdump']) > 0) {
 					$sessionData->errorMessage = $cmd_out['nfdump'][0];
 				}
 				
 				$sessionData->flowRecordCount = 0;
 				return;
-			} else if(isset($_SESSION['error']) && isset($_SESSION['error'][0])) {
+			} else if (isset($_SESSION['error']) && isset($_SESSION['error'][0])) {
 				$sessionData->errorCode = 6; // profile error
 				$sessionData->errorMessage = $_SESSION['error'][0];
 				$sessionData->flowRecordCount = 0;
 				return;				
-			} else if(!isset($cmd_out['nfdump']) || sizeof($cmd_out['nfdump']) == 1) {
+			} else if (!isset($cmd_out['nfdump']) || sizeof($cmd_out['nfdump']) == 1) {
 				$sessionData->errorCode = 5; // no flow records error
 				$sessionData->flowRecordCount = 0;
 				return;
 			}
 			
 			$NetFlowData = array();
-			if($_SESSION['SURFmap']['nfsenOption'] == 0) { // List flows
+			if ($_SESSION['SURFmap']['nfsenOption'] == 0) { // List flows
 				// Calculate flowRecordCount, for the case that less flow records are returned than the actual entryCount
 				$sessionData->flowRecordCount = sizeof($cmd_out['nfdump']) - 5; // Five lines are always present (header & footer)
 				
-				for($i = 1; $i <= $sessionData->flowRecordCount; $i++) {
+				for ($i = 1; $i <= $sessionData->flowRecordCount; $i++) {
 					$flow = new FlowRecord();
 					$line_array = split(" ", stripSpecialCharacters($cmd_out['nfdump'][$i]));
 
 					$factor_array = array();
-					if(sizeof($line_array) > 11) {
-						for($j = 8; $j < sizeof($line_array); $j++) {
-							if(!is_numeric($line_array[$j])) array_push($factor_array, $j);
+					if (sizeof($line_array) > 11) {
+						for ($j = 8; $j < sizeof($line_array); $j++) {
+							if (!is_numeric($line_array[$j])) array_push($factor_array, $j);
 						}
 					}
 
@@ -110,14 +110,14 @@
 					$flow->ipv4_dst = $hosts[1][0];
 
 					// Handle situation in which either packets, octets or both have a MEGA or GIGA factor
-					if(sizeof($factor_array) == 1) {
-						if($line_array[$factor_array[0]] == "M") {
+					if (sizeof($factor_array) == 1) {
+						if ($line_array[$factor_array[0]] == "M") {
 							$line_array[$factor_array[0] - 1] = $line_array[$factor_array[0] - 1] * 1000000;
-						} else if($line_array[$factor_array[0]] == "G") {
+						} else if ($line_array[$factor_array[0]] == "G") {
 							$line_array[$factor_array[0] - 1] = $line_array[$factor_array[0] - 1] * 1000000000;
 						}
 
-						if($factor_array[0] > 9) { // 'Bytes' has factor
+						if ($factor_array[0] > 9) { // 'Bytes' has factor
 							$flow->packets = $line_array[8];
 							$flow->octets = $line_array[9];
 						} else { // 'Packets' has factor
@@ -125,11 +125,11 @@
 							$flow->octets = $line_array[10];
 						}
 
-					} else if(sizeof($factor_array) == 2) {
-						for($k = 0; $k < sizeof($factor_array); $k++) {			
-							if($line_array[$factor_array[$k]] == "M") {
+					} else if (sizeof($factor_array) == 2) {
+						for ($k = 0; $k < sizeof($factor_array); $k++) {			
+							if ($line_array[$factor_array[$k]] == "M") {
 								$line_array[$factor_array[$k] - 1] = $line_array[$factor_array[$k] - 1] * 1000000;
-							} else if($line_array[$factor_array[$k]] == "G") {
+							} else if ($line_array[$factor_array[$k]] == "G") {
 								$line_array[$factor_array[$k] - 1] = $line_array[$factor_array[$k] - 1] * 1000000000;
 							}
 						}
@@ -151,15 +151,15 @@
 				// Calculate flowRecordCount, for the case that less flow records are returned than the actual entryCount
 				$sessionData->flowRecordCount = sizeof($cmd_out['nfdump']) - 8; // 8 lines are always present (header & footer)
 				
-				for($i = 3; $i < $sessionData->flowRecordCount + 3; $i++) {
+				for ($i = 3; $i < $sessionData->flowRecordCount + 3; $i++) {
 					$flow = new FlowRecord();
 
 					$line_array = split(" ", stripSpecialCharacters($cmd_out['nfdump'][$i]));
 
 					$factor_array = array();
-					if(sizeof($line_array) > 11) {
-						for($j = 8; $j < sizeof($line_array); $j++) {
-							if(!is_numeric($line_array[$j])) array_push($factor_array, $j);
+					if (sizeof($line_array) > 11) {
+						for ($j = 8; $j < sizeof($line_array); $j++) {
+							if (!is_numeric($line_array[$j])) array_push($factor_array, $j);
 						}
 					}
 
@@ -169,14 +169,14 @@
 					$flow->ipv4_dst = $hosts[1][0];
 
 					// Handle situation in which either packets, octets or both have a GIGA or MEGA factor
-					if(sizeof($factor_array) == 1) {
-						if($line_array[$factor_array[0]] == "M") {
+					if (sizeof($factor_array) == 1) {
+						if ($line_array[$factor_array[0]] == "M") {
 							$line_array[$factor_array[0] - 1] = $line_array[$factor_array[0] - 1] * 1000000;
-						} else if($line_array[$factor_array[0]] == "G") {
+						} else if ($line_array[$factor_array[0]] == "G") {
 							$line_array[$factor_array[0] - 1] = $line_array[$factor_array[0] - 1] * 1000000000;
 						}
 
-						if($factor_array[0] > 9) { // 'Bytes' has factor
+						if ($factor_array[0] > 9) { // 'Bytes' has factor
 							$flow->packets = $line_array[8];
 							$flow->octets = $line_array[9];
 						} else { // 'Packets' has factor
@@ -184,11 +184,11 @@
 							$flow->octets = $line_array[10];
 						}
 
-					} else if(sizeof($factor_array) == 2) {
-						for($k = 0; $k < sizeof($factor_array); $k++) {			
-							if($line_array[$factor_array[$k]] == "M") {
+					} else if (sizeof($factor_array) == 2) {
+						for ($k = 0; $k < sizeof($factor_array); $k++) {			
+							if ($line_array[$factor_array[$k]] == "M") {
 								$line_array[$factor_array[$k] - 1] = $line_array[$factor_array[$k] - 1] * 1000000;
-							} else if($line_array[$factor_array[$k]] == "G") {
+							} else if ($line_array[$factor_array[$k]] == "G") {
 								$line_array[$factor_array[$k] - 1] = $line_array[$factor_array[$k] - 1] * 1000000000;
 							}
 						}
@@ -223,7 +223,7 @@
 			$GeoData = array();
 			$internalDomainNets = explode(";", $INTERNAL_DOMAINS);
 
-			for($i = 0; $i < count($NetFlowData); $i++) {
+			for ($i = 0; $i < count($NetFlowData); $i++) {
 				$source = $NetFlowData[$i]->ipv4_src;
 				$destination = $NetFlowData[$i]->ipv4_dst;
 
@@ -235,73 +235,73 @@
 				$dstNAT = false;
 				
 				foreach($internalDomainNets as $subNet) {
-					if(ipAddressBelongsToNet($source, $subNet)) {
+					if (ipAddressBelongsToNet($source, $subNet)) {
 						$srcNAT = true;
 						break;
 					}
 				}
 				foreach($internalDomainNets as $subNet) {
-					if(ipAddressBelongsToNet($destination, $subNet)) {
+					if (ipAddressBelongsToNet($destination, $subNet)) {
 						$dstNAT = true;
 						break;
 					}
 				}
 				
-				for($j = 0; $j < 2; $j++) { // Source and destination
-					if(($j == 0 && $srcNAT === true) || ($j == 1 && $dstNAT === true)) { // Source or destination uses a NATed setup
+				for ($j = 0; $j < 2; $j++) { // Source and destination
+					if (($j == 0 && $srcNAT === true) || ($j == 1 && $dstNAT === true)) { // Source or destination uses a NATed setup
 						$country = strtoupper($INTERNAL_DOMAINS_COUNTRY);
-						if($country == "") $country = "(Unknown)";
+						if ($country == "") $country = "(Unknown)";
 						$region = strtoupper($INTERNAL_DOMAINS_REGION);
-						if($region == "") $region = "(Unknown)";
+						if ($region == "") $region = "(Unknown)";
 						$city = strtoupper($INTERNAL_DOMAINS_CITY);
-						if($city == "") $city = "(Unknown)";
-					} else if($GEOLOCATION_DB == "IP2Location") {
+						if ($city == "") $city = "(Unknown)";
+					} else if ($GEOLOCATION_DB == "IP2Location") {
 						$GEO_database = new ip2location();
 						$GEO_database->open($IP2LOCATION_PATH);
 						
-						if($j == 0) $data = $GEO_database->getAll($source);
+						if ($j == 0) $data = $GEO_database->getAll($source);
 						else $data = $GEO_database->getAll($destination);
 						
 						$country = $data->countryLong;
-						if($country == "-") $country = "(Unknown)";
+						if ($country == "-") $country = "(Unknown)";
 						$region = $data->region;
-						if($region == "-") $region = "(Unknown)";
+						if ($region == "-") $region = "(Unknown)";
 						$city = $data->city;
-						if($city == "-") $city = "(Unknown)";
-					} else if($GEOLOCATION_DB == "geoPlugin") {
+						if ($city == "-") $city = "(Unknown)";
+					} else if ($GEOLOCATION_DB == "geoPlugin") {
 						$GEO_database = new geoPlugin();
 						
-						if($j == 0) $GEO_database->locate($source);
+						if ($j == 0) $GEO_database->locate($source);
 						else $GEO_database->locate($destination);
 
 						$country = strtoupper($GEO_database->countryName);
-						if($country == "") $country = "(Unknown)";
+						if ($country == "") $country = "(Unknown)";
 						$region = strtoupper($GEO_database->region);
-						if($region == "") $region = "(Unknown)";
+						if ($region == "") $region = "(Unknown)";
 						$city = strtoupper($GEO_database->city);
-						if($city == "") $city = "(Unknown)";
-					} else if($GEOLOCATION_DB == "MaxMind") {
+						if ($city == "") $city = "(Unknown)";
+					} else if ($GEOLOCATION_DB == "MaxMind") {
 						$GEO_database = geoip_open($MAXMIND_PATH, GEOIP_STANDARD);
 						
-						if($j == 0) $record = geoip_record_by_addr($GEO_database, $source);
+						if ($j == 0) $record = geoip_record_by_addr($GEO_database, $source);
 						else $record = geoip_record_by_addr($GEO_database, $destination);
 						
-						if(isset($record->country_name)) {
+						if (isset($record->country_name)) {
 							$country = strtoupper($record->country_name);
 						}
-						if(!isset($country) || $country == "") $country = "(Unknown)";
+						if (!isset($country) || $country == "") $country = "(Unknown)";
 
-						if(isset($record->country_code) && isset($record->region)
+						if (isset($record->country_code) && isset($record->region)
 								&& array_key_exists($record->country_code, $GEOIP_REGION_NAME)
 								&& array_key_exists($record->region, $GEOIP_REGION_NAME[$record->country_code])) {
 							$region = strtoupper($GEOIP_REGION_NAME[$record->country_code][$record->region]);
 						}
-						if(!isset($region) || $region == "") $region = "(Unknown)";
+						if (!isset($region) || $region == "") $region = "(Unknown)";
 
-						if(isset($record->city)) {
+						if (isset($record->city)) {
 							$city = strtoupper($record->city);
 						}
-						if(!isset($city) || $city == "") $city = "(Unknown)";
+						if (!isset($city) || $city == "") $city = "(Unknown)";
 					} else {
 						$country = "";
 						$region = "";
@@ -326,19 +326,19 @@
 			
 			$GeoCoderData = array();
 
-			for($i = 0; $i < count($GeoData); $i++) {
+			for ($i = 0; $i < count($GeoData); $i++) {
 				$coordinates = new FlowCoordinates();
 
-				for($j = 0; $j < 2; $j++) { // source / destination
+				for ($j = 0; $j < 2; $j++) { // source / destination
 					// Country
 					$countryName = $GeoData[$i][$j]['COUNTRY'];
-					if($countryName != "-") { // country name is defined
-						if($USE_GEOCODER_DB) {
+					if ($countryName != "-") { // country name is defined
+						if ($USE_GEOCODER_DB) {
 							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName));
 							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
 							unset($queryResult);
 
-							if($row) { // Country name was found in our GeoCoder database
+							if ($row) { // Country name was found in our GeoCoder database
 								$coordinates->writeVariable($j, 0, array($row['latitude'], $row['longitude']));
 							} else {
 								$coordinates->writeVariable($j, 0, array(-1, -1));
@@ -352,13 +352,13 @@
 
 					// Region
 					$regionName = $GeoData[$i][$j]['REGION'];
-					if($regionName != "-") { // region name is defined 
-						if($USE_GEOCODER_DB) {
+					if ($regionName != "-") { // region name is defined 
+						if ($USE_GEOCODER_DB) {
 							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName.", ".$regionName));
 							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
 							unset($queryResult);
 							
-							if($row) { // Region name was found in our GeoCoder database
+							if ($row) { // Region name was found in our GeoCoder database
 								$coordinates->writeVariable($j, 1, array($row['latitude'], $row['longitude']));
 							} else {
 								$coordinates->writeVariable($j, 1, array(-1, -1));
@@ -372,13 +372,13 @@
 
 					// City
 					$cityName = $GeoData[$i][$j]['CITY'];
-					if($cityName != "-") { // city name is defined	
-						if($USE_GEOCODER_DB) {
+					if ($cityName != "-") { // city name is defined	
+						if ($USE_GEOCODER_DB) {
 							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName.", ".$cityName));
 							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
 							unset($queryResult);
 							
-							if($row) { // City name was found in our GeoCoder database
+							if ($row) { // City name was found in our GeoCoder database
 								$coordinates->writeVariable($j, 2, array($row['latitude'], $row['longitude']));
 							} else {
 								$coordinates->writeVariable($j, 2, array(-1, -1));
@@ -397,12 +397,12 @@
 			}
 			
 			// Check geocoder request history for current day
-			if($USE_GEOCODER_DB) {
+			if ($USE_GEOCODER_DB) {
 				$queryResult = $this->GeocoderDatabase->query("SELECT * FROM history WHERE date = ".$this->GeocoderDatabase->quote(date("Y-m-d")));
 				$row = $queryResult->fetch(PDO::FETCH_ASSOC);
 				unset($queryResult);
 				
-				if($row === false) { // No entry in DB
+				if ($row === false) { // No entry in DB
 					$sessionData->geocoderRequests = 0;
 				} else {
 					$sessionData->geocoderRequests = $row['requests'];
@@ -427,17 +427,17 @@
 		$configValues = array();
 		$comment = "#";
 
-		if($fp = fopen($NFSEN_CONF, "r")) {
-			while(!feof($fp)) {
+		if ($fp = fopen($NFSEN_CONF, "r")) {
+			while (!feof($fp)) {
 				$line = trim(fgets($fp));
-				if($line && !ereg("^$comment", $line) && strpos($line, "=") && strpos($line, ";")) {
+				if ($line && !ereg("^$comment", $line) && strpos($line, "=") && strpos($line, ";")) {
 			    	$optionTuple = explode("=", $line);
 					$option = substr(trim($optionTuple[0]), 1);
 					$value = trim($optionTuple[1]);
 					$value = substr($value, 0, strlen($value) - 1); // remove ';'
 
 					$subVarPos = strpos($value, "\${");
-					if($subVarPos) {
+					if ($subVarPos) {
 						$subVarPos = $subVarPos;
 						$subVar = substr($value, $subVarPos, strpos($value, "}", $subVarPos) - $subVarPos + 1);
 						$value = str_replace($subVar, $configValues[substr($subVar, 2, strlen($subVar) - 3)], $value); // remove '${' and '}'
@@ -446,7 +446,7 @@
 					$value = str_replace("'", "", $value);
 					$value = str_replace("//", "/", $value);
 					
-					if(substr($value, strlen($value) - 1) == "/") {
+					if (substr($value, strlen($value) - 1) == "/") {
 						$value = substr($value, 0, strlen($value) - 1);
 					}
 			    	$configValues[$option] = $value;
@@ -472,7 +472,7 @@
 		global $nfsenConfig, $sessionData;
 		
 		// Use 'live' profile data if shadow profile has been selected
-		if($_SESSION['SURFmap']['nfsenProfileType'] === "real") {
+		if ($_SESSION['SURFmap']['nfsenProfileType'] === "real") {
 			$actualProfile = $_SESSION['SURFmap']['nfsenProfile'];
 			$actualSource = $source;
 		} else {
@@ -496,8 +496,8 @@
 		$prepared_text = "";
 		
 		// Remove unused characters.
-		for($i = 0; $i < strlen($text); $i++) {
-			if(ord(substr($text, $i, 1)) < 32 || (ord(substr($text, $i, 1)) == 32 && ord(substr($prepared_text, strlen($prepared_text) - 1, 1)) == 32) || (ord(substr($text, $i, 1)) > 32 && ord(substr($text, $i, 1)) < 46) || (ord(substr($text, $i, 1)) > 58 && ord(substr($text, $i, 1)) < 65) || ord(substr($text, $i, 1)) > 122) continue;
+		for ($i = 0; $i < strlen($text); $i++) {
+			if (ord(substr($text, $i, 1)) < 32 || (ord(substr($text, $i, 1)) == 32 && ord(substr($prepared_text, strlen($prepared_text) - 1, 1)) == 32) || (ord(substr($text, $i, 1)) > 32 && ord(substr($text, $i, 1)) < 46) || (ord(substr($text, $i, 1)) > 58 && ord(substr($text, $i, 1)) < 65) || ord(substr($text, $i, 1)) > 122) continue;
 			else $prepared_text .= substr($text, $i, 1);
 		}
 		
@@ -520,8 +520,8 @@
 	function stripASCIISOH($details) {
 		$prepared_text = "";
 		
-		for($i = 0; $i < strlen($details); $i++) {
-			if(ord(substr($details, $i, 1)) == 1) continue;
+		for ($i = 0; $i < strlen($details); $i++) {
+			if (ord(substr($details, $i, 1)) == 1) continue;
 			else $prepared_text .= substr($details, $i, 1);
 		}
 		

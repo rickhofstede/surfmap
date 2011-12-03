@@ -40,19 +40,19 @@
 	$nfsenSourceDirOK = 0;
 	
 	// 1. NfSen configuration file (nfsen.conf) availability
-	if(is_readable($NFSEN_CONF)) {
+	if (is_readable($NFSEN_CONF)) {
 		$nfsenConfigReadable = 1;
 		
 		$nfsenConfig = readNfSenConfig();
 		require_once($nfsenConfig['HTMLDIR']."/conf.php");
 		
 		// 2. Check NfSen socket
-		if(@file_exists($COMMSOCKET)) {
+		if (@file_exists($COMMSOCKET)) {
 			$nfsenSocketOK = 1;
 		}
 		
 		// 3. Check NfSen data directory
-		if(@file_exists($nfsenConfig['PROFILEDATADIR'])) {
+		if (@file_exists($nfsenConfig['PROFILEDATADIR'])) {
 			$nfsenSourceDirOK = 1;
 		}
 	}
@@ -60,16 +60,16 @@
 	try {
 		// 4. Check Geocoder database connection
 		$PDODrivers = PDO::getAvailableDrivers();
-		if(in_array("sqlite", $PDODrivers)) {
+		if (in_array("sqlite", $PDODrivers)) {
 			$geocoderDBFile = "sqlite:../$GEOCODER_DB_SQLITE3";
 			$geocoderDBConnection = new PDO($geocoderDBFile);
-		} else if(in_array("sqlite2", $PDODrivers)) {
+		} else if (in_array("sqlite2", $PDODrivers)) {
 			$geocoderDBFile = "sqlite:../$GEOCODER_DB_SQLITE2";
 			$geocoderDBConnection = new PDO($geocoderDBFile);
 		} else {
 		}
 		
-		if(isset($geocoderDBConnection)) {
+		if (isset($geocoderDBConnection)) {
 			$geocoderDatabaseConnectionOK = 1;
 
 			// 5. Check Geocoder database writability
@@ -80,7 +80,7 @@
 
 			$deleteCount = $geocoderDBConnection->exec("DELETE FROM geocoder WHERE location = ".$geocoderDBConnection->quote("_TEST_"));
 			
-			if($row && $deleteCount == 1) {
+			if ($row && $deleteCount == 1) {
 				$geocoderDatabaseOK = 1;
 			} else {
 				$geocoderDatabaseOK = 0;
@@ -96,12 +96,12 @@
 	
 	// 6. Check IP2Location DB path
 	$ip2LocationPath = (substr($IP2LOCATION_PATH, 0, 1) === "/") ? $IP2LOCATION_PATH : "../".$IP2LOCATION_PATH; // Check for absolute or relative path
-	if(@file_exists($ip2LocationPath)) $ip2LocationDBPathOK = 1;
+	if (@file_exists($ip2LocationPath)) $ip2LocationDBPathOK = 1;
 	else $ip2LocationDBPathOK = 0;
 	
 	// 7. Check MaxMind DB path
 	$maxMindPath = (substr($MAXMIND_PATH, 0, 1) === "/") ? $MAXMIND_PATH : "../".$MAXMIND_PATH; // Check for absolute or relative path
-	if(@file_exists($maxMindPath)) $maxmindDBPathOK = 1;
+	if (@file_exists($maxMindPath)) $maxmindDBPathOK = 1;
 	else $maxmindDBPathOK = 0;
 	
 	// 8. Check file permissions
@@ -111,12 +111,12 @@
 	foreach($dir as $entry) {
 		$permIntVal = intval(substr(sprintf('%o', @fileperms($entry)), -4));
 		
-		if((strpos($entry, "../geocoder/") === 0 && !is_Writable($entry)) || !is_readable($entry))  {
-			if(strpos($entry, "../") == 0) {
+		if ((strpos($entry, "../geocoder/") === 0 && !is_Writable($entry)) || !is_readable($entry))  {
+			if (strpos($entry, "../") == 0) {
 				$entry = substr($entry, 3);
 			}
 			
-			if($filesWithWrongPerm == "") {
+			if ($filesWithWrongPerm == "") {
 				$filesWithWrongPerm = $entry."__".$permIntVal;
 			} else {
 				$filesWithWrongPerm .= "___".$entry."__".$permIntVal;
@@ -127,7 +127,7 @@
 	
 	// 9. Check additional NetFlow source selector syntax
 	$additionalSrcSelectorExploded = explode(";", $NFSEN_DEFAULT_SOURCES);
-	if($NFSEN_DEFAULT_SOURCES == "" ||
+	if ($NFSEN_DEFAULT_SOURCES == "" ||
 			(substr_count($NFSEN_DEFAULT_SOURCES, ",") == 0 && substr_count($NFSEN_DEFAULT_SOURCES, ":") == 0 &&
 			sizeof($additionalSrcSelectorExploded) == substr_count($NFSEN_DEFAULT_SOURCES, ";") + 1) && !in_array("", $additionalSrcSelectorExploded)) {
 		$additionalSrcSelectorSyntaxOK = 1;
@@ -136,15 +136,15 @@
 	}
 	
 	// 10. Check map center coordinates syntax
-	if(substr_count($MAP_CENTER, ",") == 1 && substr_count($MAP_CENTER, ".") <= 2) $mapCenterSyntaxOK = 1;
+	if (substr_count($MAP_CENTER, ",") == 1 && substr_count($MAP_CENTER, ".") <= 2) $mapCenterSyntaxOK = 1;
 	else $mapCenterSyntaxOK = 0;
 	
 	// 11. Check internal domain syntax
 	$internalDomainExploded = explode(";", $INTERNAL_DOMAINS);
 	$internalDomainSyntaxOK = 1;
-	if(sizeof($internalDomainExploded) > 0) {
+	if (sizeof($internalDomainExploded) > 0) {
 		foreach($internalDomainExploded as $domain) {
-			if(substr_count($domain, ".") < 1 || substr_count($domain, "/") != 1) {
+			if (substr_count($domain, ".") < 1 || substr_count($domain, "/") != 1) {
 				$internalDomainSyntaxOK = 0;
 				break;
 			}
@@ -152,7 +152,7 @@
 	}
 	
 	// 12. Check availability of 'mbstring' PHP module (for MaxMind API)
-	if(extension_loaded("mbstring")) {
+	if (extension_loaded("mbstring")) {
 		$mbstringModuleOK = 1;
 	} else {
 		$mbstringModuleOK = 0;
@@ -160,13 +160,13 @@
 	
 	// 13. External IP address and location
 	$extIP = (!getenv("SERVER_ADDR")) ? "127.0.0.1" : getenv("SERVER_ADDR");
-	if($extIP === "127.0.0.1") {
+	if ($extIP === "127.0.0.1") {
 		$extIPNAT = true;
 	} else {
 		$extIPNAT = false;
 		$internalDomainNets = explode(";", $INTERNAL_DOMAINS);
 		foreach($internalDomainNets as $subNet) {
-			if(ipAddressBelongsToNet($extIP, $subNet)) {
+			if (ipAddressBelongsToNet($extIP, $subNet)) {
 				$extIPNAT = true;
 				break;
 			}
@@ -178,11 +178,11 @@
 	 * address or a NATed address, try do find it using WhatIsMyIP
 	 */
 	$extIPError = "";
-	if($extIPNAT === true) {
+	if ($extIPNAT === true) {
 		$NATIP = $extIP;
 		try {
-			if(extension_loaded("curl")) {
-				for($i = 0; $i < 3; $i++) {
+			if (extension_loaded("curl")) {
+				for ($i = 0; $i < 3; $i++) {
 					$curl_handle = curl_init();
 					curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/");
 					curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
@@ -190,7 +190,7 @@
 					$extIP = curl_exec($curl_handle);
 					curl_close($curl_handle);
 					
-					if($extIP === "Too frequent!" || $extIP === "") {
+					if ($extIP === "Too frequent!" || $extIP === "") {
 						sleep(10);
 						continue;
 					} else {
@@ -205,7 +205,7 @@
 			 *
 			 * If $extIP == $NATIP, cURL is probably not installed/activated.
 			 */
-			if($extIP === "Too frequent!" || substr_count($extIP, ".") != 3  || $extIP == $NATIP) {
+			if ($extIP === "Too frequent!" || substr_count($extIP, ".") != 3  || $extIP == $NATIP) {
 				$extIP = $NATIP;
 				$extIPError = "Unable to retrieve external IP address";
 			}
@@ -215,46 +215,46 @@
 	
 	// Check whether the (eventually) discovered external IP address is still a NATed one
 	$extIPNAT = false;
-	if(isset($internalDomainNets)) {
+	if (isset($internalDomainNets)) {
 		foreach($internalDomainNets as $subNet) {
-			if(ipAddressBelongsToNet($extIP, $subNet)) {
+			if (ipAddressBelongsToNet($extIP, $subNet)) {
 				$extIPNAT = true;
 				break;
 			}
 		}
 	}
 	
-	if($extIPNAT === false && $GEOLOCATION_DB === "IP2Location" && $ip2LocationDBPathOK === 1) {
+	if ($extIPNAT === false && $GEOLOCATION_DB === "IP2Location" && $ip2LocationDBPathOK === 1) {
 		$GEO_database = new ip2location();
 		$GEO_database->open($ip2LocationPath);
 		$data = $GEO_database->getAll($extIP);
 		
 		$extIPCountry = $data->countryLong;
-		if($extIPCountry == "-") $extIPCountry = "(Unknown)";
+		if ($extIPCountry == "-") $extIPCountry = "(Unknown)";
 		$extIPRegion = $data->region;
-		if($extIPRegion == "-") $extIPRegion = "(Unknown)";
+		if ($extIPRegion == "-") $extIPRegion = "(Unknown)";
 		$extIPCity = $data->city;
-		if($extIPCity == "-") $extIPCity = "(Unknown)";
-	} else if($extIPNAT === false && $GEOLOCATION_DB === "MaxMind" && $maxmindDBPathOK === 1) {
+		if ($extIPCity == "-") $extIPCity = "(Unknown)";
+	} else if ($extIPNAT === false && $GEOLOCATION_DB === "MaxMind" && $maxmindDBPathOK === 1) {
 		$GEO_database = geoip_open($maxMindPath, GEOIP_STANDARD);
 		$data = geoip_record_by_addr($GEO_database, $extIP);
 		
-		if(isset($data->country_name)) {
+		if (isset($data->country_name)) {
 			$extIPCountry = strtoupper($data->country_name);
 		}
-		if(!isset($extIPCountry) || $extIPCountry == "") $extIPCountry = "(Unknown)";
+		if (!isset($extIPCountry) || $extIPCountry == "") $extIPCountry = "(Unknown)";
 
-		if(isset($data->country_code) && isset($data->region)
+		if (isset($data->country_code) && isset($data->region)
 				&& array_key_exists($data->country_code, $GEOIP_REGION_NAME)
 				&& array_key_exists($data->region, $GEOIP_REGION_NAME[$data->country_code])) {
 			$extIPRegion = strtoupper($GEOIP_REGION_NAME[$data->country_code][$data->region]);
 		}
-		if(!isset($extIPRegion) || $extIPRegion == "") $extIPRegion = "(Unknown)";
+		if (!isset($extIPRegion) || $extIPRegion == "") $extIPRegion = "(Unknown)";
 
-		if(isset($data->city)) {
+		if (isset($data->city)) {
 			$extIPCity = strtoupper($data->city);
 		}
-		if(!isset($extIPCity) || $extIPCity == "") $extIPCity = "(Unknown)";
+		if (!isset($extIPCity) || $extIPCity == "") $extIPCity = "(Unknown)";
 	} else {
 		$extIPCountry = "(Unknown)";
 		$extIPRegion = "(Unknown)";
@@ -264,22 +264,22 @@
 	$extIPCountry = stripAccentedCharacters($extIPCountry);
 	$extIPRegion = stripAccentedCharacters($extIPRegion);
 	$extIPCity = stripAccentedCharacters($extIPCity);
-	if($extIPCountry === "(Unknown)") {
+	if ($extIPCountry === "(Unknown)") {
 		$extIPLocationOK = 0;
 	} else {
 		$extIPLocationOK = 1;
 	}
 	
-	if($extIPCity != "(Unknown)") {
+	if ($extIPCity != "(Unknown)") {
 		$latLng = geocode($extIPCity);
-	} else if($extIPRegion != "(Unknown)") {
+	} else if ($extIPRegion != "(Unknown)") {
 		$latLng = geocode($extIPRegion);
-	} else if($extIPCountry != "(Unknown)") {
+	} else if ($extIPCountry != "(Unknown)") {
 		$latLng = geocode($extIPCountry);
 	}
 	
 	$locationString = $extIPCountry.",".$extIPRegion.",".$extIPCity;
-	if(isset($latLng) && is_array($latLng)) {
+	if (isset($latLng) && is_array($latLng)) {
 		$locationString .= ",".$latLng[0].",".$latLng[1];
 	} else {
 		$locationString .= ",(Unknown),(Unknown)";
@@ -293,14 +293,14 @@
 	 */	
 	function geocode($place) {
 		$requestURL = "://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
-		if($FORCE_HTTPS) {
+		if ($FORCE_HTTPS) {
 			$requestURL = "https".$requestURL;
 		} else {
 			$requestURL = "http".$requestURL;
 		}
 		
 		// Prefer cURL over the 'simplexml_load_file' command, for increased stability
-		if(extension_loaded("curl")) {
+		if (extension_loaded("curl")) {
 			$curl_handle = curl_init();
 			curl_setopt($curl_handle, CURLOPT_URL, $requestURL);
 			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
@@ -313,12 +313,12 @@
 		}
 		
 		$status = $xml->status;
-		if(isset($xml->result->geometry)) {
+		if (isset($xml->result->geometry)) {
 			$lat = $xml->result->geometry->location->lat;
 		    $lng = $xml->result->geometry->location->lng;
 		}
 		
-		if($status == "OVER_QUERY_LIMIT") {
+		if ($status == "OVER_QUERY_LIMIT") {
 			time_nanosleep(0, 1000000000);
 			geocode($place);
 		}
@@ -335,7 +335,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 		<link type="text/css" rel="stylesheet" href="../jquery/css/start/jquery-ui-1.8.16.custom.css" />
 		<link type="text/css" rel="stylesheet" href="../css/surfmap.css" />
-		<script type="text/javascript" src="<?php if($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
+		<script type="text/javascript" src="<?php if ($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
 		<script type="text/javascript" src="../jquery/js/jquery-1.6.2.min.js"></script>
 		<script type="text/javascript" src="../jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
 		<script type="text/javascript" src="../js/jqueryutil.js"></script>
@@ -387,7 +387,7 @@
 		<div id="checkitem1" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem1Title + '##' + checkItem1Text);">1. NfSen configuration file (<?php echo $NFSEN_CONF; ?>) availability.</div>
 		<div id="checkitem2" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem2Title + '##' + checkItem2Text);">2. NfSen communication socket available.</div>
 		<div id="checkitem3" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem3Title + '##' + checkItem3Text);">3. NfSen source directory available.</div>
-		<div id="checkitem4" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. GeoCoder database connection (<?php if(isset($geocoderDBFile)) { echo $geocoderDBFile; } else { echo ""; } ?>) available.</div>
+		<div id="checkitem4" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. GeoCoder database connection (<?php if (isset($geocoderDBFile)) { echo $geocoderDBFile; } else { echo ""; } ?>) available.</div>
 		<div id="checkitem5" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem5Title + '##' + checkItem5Text);">5. GeoCoder database writability OK ('<?php echo $geocoderDBFile; ?>' should be writable).</div>
 		<div id="checkitem6" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem6Title + '##' + checkItem6Text);">6. IP2Location database (<?php echo $ip2LocationPath; ?>) available.</div>
 		<div id="checkitem7" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem7Title + '##' + checkItem7Text);">7. MaxMind database (<?php echo $maxMindPath; ?>) available.</div>
@@ -396,7 +396,7 @@
 		<div id="checkitem10" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem10Title + '##' + checkItem10Text);">10. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
 		<div id="checkitem11" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem11Title + '##' + checkItem11Text);">11. Internal domain (<?php echo $INTERNAL_DOMAINS; ?>) syntax OK.</div>
 		<div id="checkitem12" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem12Title + '##' + checkItem12Text);">12. PHP 'mbstring' module available.</div>
-		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. External IP address: <?php if($extIPError !== "") echo $extIPError; else echo $extIP; ?><br />Geolocated country: <?php echo $extIPCountry; ?><br />Geolocated region: <?php echo $extIPRegion; ?><br />Geolocated city: <?php echo $extIPCity; ?></div>
+		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. External IP address: <?php if ($extIPError !== "") echo $extIPError; else echo $extIP; ?><br />Geolocated country: <?php echo $extIPCountry; ?><br />Geolocated region: <?php echo $extIPRegion; ?><br />Geolocated city: <?php echo $extIPCity; ?></div>
 				
 		<div id="dialog"></div>
 		<div id="configdata" style="display:none;"><?php echo $locationString; ?></div>
@@ -422,94 +422,94 @@
 			
 			var mbstringModuleOK = <?php echo $mbstringModuleOK; ?>;
 			
-			var extIPNAT = <?php if($extIPNAT === true) echo "true"; else echo "false"; ?>;
+			var extIPNAT = <?php if ($extIPNAT === true) echo "true"; else echo "false"; ?>;
 			var extIPError = "<?php echo $extIPError; ?>";
 			var extIPLocationOK = <?php echo $extIPLocationOK; ?>;
 			var extIPCountry = "<?php echo $extIPCountry; ?>";
 			var extIPRegion = "<?php echo $extIPRegion; ?>";
 			var extIPCity = "<?php echo $extIPCity; ?>";
-			var extIPCoordinates = "<?php if(isset($latLng) && is_array($latLng)) { echo $latLng[0].','.$latLng[1]; } else { echo ''; } ?>";
+			var extIPCoordinates = "<?php if (isset($latLng) && is_array($latLng)) { echo $latLng[0].','.$latLng[1]; } else { echo ''; } ?>";
 
 			// Setup guidelines
-			if(extIPNAT || extIPError != "") {
+			if (extIPNAT || extIPError != "") {
 				document.getElementById("setupguidelines").style.display = "none";
-			} else if(extIPCountry != "(Unknown)") {
+			} else if (extIPCountry != "(Unknown)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_COUNTRY=\"" + extIPCountry + "\";<br />";
 			}
-			if(extIPRegion != "(Unknown)") {
+			if (extIPRegion != "(Unknown)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_REGION=\"" + extIPRegion + "\";<br />";
 			}
-			if(extIPCity != "(Unknown)") {
+			if (extIPCity != "(Unknown)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_CITY=\"" + extIPCity + "\";<br />";
 			}
-			if(extIPCoordinates != "") {
+			if (extIPCoordinates != "") {
 				document.getElementById("setupguidelines").innerHTML += "$MAP_CENTER=\"" + extIPCoordinates + "\";<br />";
 			}
 
 			// 1. NfSen configuration file (nfsen.conf) availability
-			if(nfsenConfigReadable == 1) {
+			if (nfsenConfigReadable == 1) {
 				document.getElementById("checkitem1").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem1").className += " checkitem_failure";
 			}
 		
 			// 2. Check NfSen socket
-			if(nfsenSocketOK == 1) {
+			if (nfsenSocketOK == 1) {
 				document.getElementById("checkitem2").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem2").className += " checkitem_failure";
 			}
 			
 			// 3. Check NfSen data directory
-			if(nfsenSourceDirOK == 1) {
+			if (nfsenSourceDirOK == 1) {
 				document.getElementById("checkitem3").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem3").className += " checkitem_failure";
 			}
 			
 			// 4. Check Geocoder database connection
-			if(geocoderDatabaseConnectionOK == 1) {
+			if (geocoderDatabaseConnectionOK == 1) {
 				document.getElementById("checkitem4").className += " checkitem_success";
-			} else if(useGeocoderDB == 1 && geocoderDatabaseConnectionOK == 0) {
+			} else if (useGeocoderDB == 1 && geocoderDatabaseConnectionOK == 0) {
 				document.getElementById("checkitem4").className += " checkitem_failure";
 			} else {
 				document.getElementById("checkitem4").className += " checkitem_skip";
 			}
 			
 			// 5. Check Geocoder database writability
-			if(geocoderDatabaseOK == 1) {
+			if (geocoderDatabaseOK == 1) {
 				document.getElementById("checkitem5").className += " checkitem_success";
-			} else if(useGeocoderDB == 1 && geocoderDatabaseOK == 0) {
+			} else if (useGeocoderDB == 1 && geocoderDatabaseOK == 0) {
 				document.getElementById("checkitem5").className += " checkitem_failure";
 			} else {
 				document.getElementById("checkitem5").className += " checkitem_skip";
 			}
 			
 			// 6. Check IP2Location DB path
-			if(ip2LocationDatabaseOK == 1) {
+			if (ip2LocationDatabaseOK == 1) {
 				document.getElementById("checkitem6").className += " checkitem_success";
-			} else if(geolocationDB == "IP2Location" && ip2LocationDatabaseOK == 0) {
+			} else if (geolocationDB == "IP2Location" && ip2LocationDatabaseOK == 0) {
 				document.getElementById("checkitem6").className += " checkitem_failure";
 			} else {
 				document.getElementById("checkitem6").className += " checkitem_skip";
 			}
 			
 			// 7. Check MaxMind DB path
-			if(maxmindDatabaseOK == 1) {
+			if (maxmindDatabaseOK == 1) {
 				document.getElementById("checkitem7").className += " checkitem_success";
-			} else if(geolocationDB == "MaxMind" && maxmindDatabaseOK == 0) {
+			} else if (geolocationDB == "MaxMind" && maxmindDatabaseOK == 0) {
 				document.getElementById("checkitem7").className += " checkitem_failure";
 			} else {
 				document.getElementById("checkitem7").className += " checkitem_skip";
 			}
 			
 			// 8. Check file permissions
-			if(filePermissionsOK == 1) {
+			if (filePermissionsOK == 1) {
 				document.getElementById("checkitem8").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem8").className += " checkitem_failure";
 				document.getElementById("checkitem8").innerHTML += "<br /><br />Files with wrong permissions:<br />---<br />";
-				for(i in filesWithWrongPerm) {
+				for (i in filesWithWrongPerm) {
 					// Delimiter between tuples: '___'
 					// Delimiter inside tuple (between file name/path and permissions): '__'
 					currentTuple = filesWithWrongPerm[i].split("__");
@@ -518,37 +518,37 @@
 			}
 			
 			// 9. Check additional NetFlow source selector syntax
-			if(additionalSrcSelectorSyntaxOK == 1) {
+			if (additionalSrcSelectorSyntaxOK == 1) {
 				document.getElementById("checkitem9").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem9").className += " checkitem_failure";
 			}
 			
 			// 10. Check map center coordinates syntax
-			if(mapCenterSyntaxOK == 1) {
+			if (mapCenterSyntaxOK == 1) {
 				document.getElementById("checkitem10").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem10").className += " checkitem_failure";
 			}
 			
 			// 11. Check internal domain syntax
-			if(internalDomainSyntaxOK == 1) {
+			if (internalDomainSyntaxOK == 1) {
 				document.getElementById("checkitem11").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem11").className += " checkitem_failure";
 			}
 			
 			// 12. Check availability of 'mbstring' PHP module (for MaxMind API)
-			if(mbstringModuleOK == 1) {
+			if (mbstringModuleOK == 1) {
 				document.getElementById("checkitem12").className += " checkitem_success";
-			} else if(geolocationDB == "MaxMind" && mbstringModuleOK == 0) {
+			} else if (geolocationDB == "MaxMind" && mbstringModuleOK == 0) {
 				document.getElementById("checkitem12").className += " checkitem_failure";
 			} else {
 				document.getElementById("checkitem12").className += " checkitem_skip";
 			}
 			
 			// 13. External IP address and location
-			if(extIPLocationOK == 1) {
+			if (extIPLocationOK == 1) {
 				document.getElementById("checkitem13").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem13").className += " checkitem_failure";
