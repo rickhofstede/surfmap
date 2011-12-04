@@ -71,7 +71,7 @@ sub run {
 		
 		my $phpOutput = `php ${SURFMAP_PATH}backend.php -p $profile -t $profileinfo{'type'} -s $allsources`;
 		unless($phpOutput) {
-			syslog("info", "[SURFmap Back-end]: Empty result from PHP CLI! Check the file permissions of backend.php.");
+			syslog("info", "[SURFmap Back-end]: Empty result from PHP CLI! Check the file permissions of backend.php");
 			return;
 		}
 		
@@ -92,5 +92,7 @@ sub run {
 		if ($LOG_DEBUG == 1) {
 			syslog("info", "[SURFmap Back-end]: Result: '$phpOutput'");
 		}
+	} else {
+		syslog("info", "[SURFmap Back-end]: Backend geocoding disabled");
 	}
 }
