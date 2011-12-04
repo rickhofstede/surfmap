@@ -34,11 +34,11 @@
 
 			echo "OK##session";
 		} else if ($_GET['transactionType'] == "stat" && isset($_GET['type']) && isset($_GET['value'])) {
-			if ($_GET['type'] == "totalGeocodingRequests") {
-				storeGeocodingStat($_GET['value']);
+			if (storeGeocodingStat($_GET['type'], $_GET['value'])) {
+				echo "OK##stat";
+			} else {
+				echo "ERROR##stat";
 			}
-
-			echo "OK##stat";
 		}
 	}
 	
@@ -81,12 +81,21 @@
 	 * Writes the number of completed geocoding requests to 
 	 * the GeoCoder DB (SQLite).
 	 * Parameters:
-	 *		totalGeocodingRequests - number of completed geocoding requests
+	 *		statType - statistics type, can have the following values:
+	 *			0: successful geocoding requests
+	 *			1: erroneous geocoding requests
+	 *			2: skipped geocoding requests
+	 * 			3: blocked geocoding requests
+	 *			'geocoderRequestsSuccess': successful geocoding requests
+	 *			'geocoderRequestsError': rroneous geocoding requests
+	 *			'geocoderRequestsSkip': skipped geocoding requests
+	 *			'geocoderRequestsBlock': blocked geocoding requests
+	 *		count - amount of requests to be added to the DB for the specified type
 	 * Return:
 	 *		true - on success
 	 *		false - on failure
 	 */
-	function storeGeocodingStat($totalGeocodingRequests) {
+	function storeGeocodingStat($statType, $count) {
 		global $GEOCODER_DB_SQLITE2, $GEOCODER_DB_SQLITE3;
 		
 		try {
@@ -101,15 +110,47 @@
 		$success = false;
 		if (isset($db)) {
 			$date = date("Y-m-d");
-			$queryResult = $db->query("SELECT * FROM history WHERE date = ".$db->quote($date));
+			
+			if(is_int($statType)) {
+				switch($statType) {
+					case 0:
+						$type = "requestsSuccess";
+						break;
+					case 1:
+						$type = "requestsError";
+						break;
+					case 2:
+						$type = "requestsSkip";
+						break;
+					case 3:
+						$type = "requestsBlock";
+						break;
+					default:
+						return false;
+				}
+			} else {
+				if($statType === "geocoderRequestsSuccess") {
+					$type = "requestsSuccess";
+				} else if($statType === "geocoderRequestsError") {
+					$type = "requestsError";
+				} else if($statType === "geocoderRequestsSkip") {
+					$type = "requestsSkip";
+				} else if($statType === "geocoderRequestsBlock") {
+					$type = "requestsBlock";
+				} else {
+					return false;
+				}
+			}
+
+			$queryResult = $db->query("SELECT $type FROM history WHERE date = ".$db->quote($date));
 			$row = $queryResult->fetch(PDO::FETCH_ASSOC);
 			unset($queryResult);
 			
 			if ($row === false) { // No entry in DB
-				$queryResult = $db->exec("INSERT INTO history VALUES (".$db->quote($date).", ".$totalGeocodingRequests.")");
-			} else if ($totalGeocodingRequests > 0) {
-				$newRequests = $row['requests'] + intval($totalGeocodingRequests);
-				$queryResult = $db->exec("UPDATE history SET requests = $newRequests WHERE date = ".$db->quote($date));
+				$queryResult = $db->exec("INSERT INTO history (date, $type) VALUES (".$db->quote($date).", $count)");
+			} else if ($count > 0 || !isset($row[$type])) {
+				$newRequests = $row[$type] + intval($count);
+				$queryResult = $db->exec("UPDATE history SET $type = $newRequests WHERE date = ".$db->quote($date));
 			}
 
 			if (isset($queryResult) && $queryResult >= 0 && $queryResult !== false) {

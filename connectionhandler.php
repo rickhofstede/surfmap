@@ -403,9 +403,15 @@
 				unset($queryResult);
 				
 				if ($row === false) { // No entry in DB
-					$sessionData->geocoderRequests = 0;
+					$sessionData->geocoderRequestsSuccess = 0;
+					$sessionData->geocoderRequestsError = 0;
+					$sessionData->geocoderRequestsSkip = 0;
+					$sessionData->geocoderRequestsBlock = 0;					
 				} else {
-					$sessionData->geocoderRequests = $row['requests'];
+					$sessionData->geocoderRequestsSuccess = $row['requestsSuccess'];
+					$sessionData->geocoderRequestsError = $row['requestsError'];
+					$sessionData->geocoderRequestsSkip = $row['requestsSkip'];
+					$sessionData->geocoderRequestsBlock = $row['requestsBlock'];
 				}
 			}
 

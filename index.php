@@ -18,7 +18,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.2 dev (20111203)";
+	$version = "v2.2 dev (20111204)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -246,7 +246,10 @@
 		var debugLogging = <?php echo $LOG_DEBUG; ?>;
 		var showWarningOnNoData = <?php echo $SHOW_WARNING_ON_NO_DATA; ?>;
 		var showWarningOnHeavyQuery = <?php echo $SHOW_WARNING_ON_HEAVY_QUERY; ?>;
-		var geocoderRequests = <?php echo $sessionData->geocoderRequests; ?>; // Geocoder request history for current day
+		var geocoderRequestsSuccess = <?php echo $sessionData->geocoderRequestsSuccess; ?>; // Geocoder request history for current day
+		var geocoderRequestsError = <?php echo $sessionData->geocoderRequestsError; ?>; // Geocoder request history for current day
+		var geocoderRequestsSkip = <?php echo $sessionData->geocoderRequestsSkip; ?>; // Geocoder request history for current day
+		var geocoderRequestsBlock = <?php echo $sessionData->geocoderRequestsBlock; ?>; // Geocoder request history for current day
 		
 		var autoRefresh = <?php echo $_SESSION['SURFmap']['refresh']; ?>;
 		var autoRefreshID = -1;
@@ -268,7 +271,8 @@
 		var geocodedPlaces = [];
 		var successfulGeocodingRequests = 0; // successful geocoding requests
 		var erroneousGeocodingRequests = 0; // erroneous geocoding requests
-		var skippedGeocodingRequests = 0; // erroneous geocoding requests
+		var skippedGeocodingRequests = 0; // skipped geocoding requests
+		var blockedGeocodingRequests = 0; // blocked geocoding requests
 		var outputGeocodingErrorMessage = 0; // indicates if an geocoding error message has been shown to the user (this should happen only once)
 		var WRITE_DATA_TO_GEOCODER_DB = <?php echo $WRITE_DATA_TO_GEOCODER_DB; ?>;
 		// --- End of Geocoding parameters
@@ -434,32 +438,32 @@
 		function complementFlowRecords() {
 			for (var i = 0; i < flowRecordCount; i++) {
 				var entry = flowRecords[i].srcCountry;
-				if (flowRecords[i].srcCountryLat == -1 && entry.indexOf("nknown") == -1	&& arrayElementIndex(geocodingQueue, entry)) {
+				if (flowRecords[i].srcCountryLat == -1 && entry.indexOf("nknown") == -1	&& arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].dstCountry;
-				if (flowRecords[i].dstCountryLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry)) {
+				if (flowRecords[i].dstCountryLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion;
-				if (flowRecords[i].srcRegionLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry)) {
+				if (flowRecords[i].srcRegionLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion
-				if (flowRecords[i].dstRegionLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry)) {
+				if (flowRecords[i].dstRegionLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcCity
-				if (flowRecords[i].srcCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry)) {
+				if (flowRecords[i].srcCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity
-				if (flowRecords[i].dstCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry)) {
+				if (flowRecords[i].dstCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
 				}
 			}
@@ -605,7 +609,7 @@
 			}
 
 			// Some geolocation databases return 'Unknown' or 'unknown' in case a location is not found or recognized.
-			if (geocoderRequests + successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests <= 2250) {
+			if (geocoderRequestsSuccess + geocoderRequestsError + geocoderRequestsSkip + successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests <= 2250) {
 				geocoder.geocode({'address': place}, function(results, status) {
 					if (status == google.maps.GeocoderStatus.OK) {
 						addToLogQueue("INFO", "Geocoded " + place + " successfully");
@@ -618,16 +622,16 @@
 							GEOCODING_queue.push(geocodedPlace);
 						}
 						
-						geocodingDelay = 200;
+						geocodingDelay = 500;
 						successfulGeocodingRequests++;
 					} else if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+						blockedGeocodingRequests++;
 						geocodingDelay += 500;
 						setTimeout(function() {
 							geocode(place);
 						}, geocodingDelay);
 					} else {
 						addToLogQueue("ERROR", "Geocoder could not find " + place + ". Reason: " + status);
-
 						geocodedPlaces.push(new GeocodedPlace(place, 0, 0));
 						erroneousGeocodingRequests++;
 					}
@@ -1363,7 +1367,8 @@
 			addToLogQueue("DEBUG", "NfSenFilter: " + nfsenFilter);
 			addToLogQueue("DEBUG", "NfSenAllSources: " + nfsenAllSources);
 			addToLogQueue("DEBUG", "NfSenSelectedSources: " + nfsenSelectedSources);
-			addToLogQueue("DEBUG", "GeocoderRequests: " + geocoderRequests);
+			addToLogQueue("DEBUG", "geocoderRequestsSuccess: " + geocoderRequestsSuccess);
+			addToLogQueue("DEBUG", "geocoderRequestsError: " + geocoderRequestsError);
 			
 			addToLogQueue("DEBUG", "Date1: " + date1);
 			addToLogQueue("DEBUG", "Date2: " + date2);
@@ -1445,7 +1450,6 @@
 					refreshLineOverlays(newSurfmapZoomLevel);
 					changeZoomLevelPanel(currentSURFmapZoomLevel, newSurfmapZoomLevel);
 					initializeLegend(newSurfmapZoomLevel);
-					
 					currentSURFmapZoomLevel = newSurfmapZoomLevel;
 				}
 				
@@ -1534,7 +1538,10 @@
 			
 			checkForHeavyQuery();
 			if (successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests > 0) {
-				STAT_queue.push(new StatData("totalGeocodingRequests", successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests));
+				STAT_queue.push(new StatData("geocoderRequestsSuccess", successfulGeocodingRequests));
+				STAT_queue.push(new StatData("geocoderRequestsError", erroneousGeocodingRequests));
+				STAT_queue.push(new StatData("geocoderRequestsSkip", skippedGeocodingRequests));
+				STAT_queue.push(new StatData("geocoderRequestsBlock", blockedGeocodingRequests));
 			}
 
 			setProgressBarValue(100, "Finished loading...");

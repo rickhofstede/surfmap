@@ -87,7 +87,10 @@
 		var $firstNfSenSource = "";
 		var $geoLocationData;
 		var $geoCoderData;
-		var $geocoderRequests = 0; // Geocoder request history for current day
+		var $geocoderRequestsSuccess = 0; // Geocoder request history for current day
+		var $geocoderRequestsError = 0; // Geocoder request history for current day
+		var $geocoderRequestsSkip = 0; // Geocoder request history for current day
+		var $geocoderRequestsBlock = 0; // Geocoder request history for current day
 		
 		/*
 		 * 	0: no error

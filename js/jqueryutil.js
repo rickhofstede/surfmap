@@ -186,7 +186,7 @@
 		});
 		$("<div id=\"progressbartext\" style=\"color:#797979; font-weight:bold; margin-top:3px; margin-left:10px; float:left;\">" + initialText + "</div>").insertBefore(".ui-progressbar-value");
 		$(".ui-progressbar-value").css("text-align", "center");
-		$("#progressbartext").css("margin-left", "145px");
+		$("#progressbartext").css("margin-left", "140px");
 	}
 
    /**

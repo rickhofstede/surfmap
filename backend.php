@@ -81,9 +81,11 @@
 	$successfulGeocodingRequests = 0;
 	$erroneousGeocodingRequests = 0;
 	$skippedGeocodingRequests = 0;
+	$blockedGeocodingRequests = 0;
 
 	foreach($geocodingQueue as $place) {
-		if ($sessionData->geocoderRequests + $successfulGeocodingRequests + $erroneousGeocodingRequests + $skippedGeocodingRequests <= 2250) {
+		if ($sessionData->geocoderRequestsSuccess + $sessionData->geocoderRequestsError + $sessionData->geocoderRequestsSkip + 
+				$successfulGeocodingRequests + $erroneousGeocodingRequests + $skippedGeocodingRequests <= 2250) {
 			$requestURL = "://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
 			if ($FORCE_HTTPS) {
 				$requestURL = "https".$requestURL;
@@ -116,6 +118,7 @@
 			} else if ($status == "OVER_QUERY_LIMIT") {
 				time_nanosleep(0, 999999999);
 				array_push($geocodingQueue, $place);
+				$blockedGeocodingRequests++;
 			} else {
 				$erroneousGeocodingRequests++;
 			}
@@ -126,7 +129,10 @@
 		}
 	}
 	
-	storeGeocodingStat($successfulGeocodingRequests + $erroneousGeocodingRequests + $skippedGeocodingRequests);
+	storeGeocodingStat(0, $successfulGeocodingRequests);
+	storeGeocodingStat(1, $erroneousGeocodingRequests);
+	storeGeocodingStat(2, $skippedGeocodingRequests);
+	storeGeocodingStat(3, $blockedGeocodingRequests);
 	echo "successful: $successfulGeocodingRequests, erroneous: $erroneousGeocodingRequests, skipped: $skippedGeocodingRequests, total: ".sizeof($geocodingQueue).", flow records: ".$sessionData->flowRecordCount;
 	
 ?>
