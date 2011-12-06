@@ -7,7 +7,7 @@
 #
 # LICENSE TERMS - 3-clause BSD license
 #
-# $Id:$
+# $Id$
 #
 
 SURFMAP_VER=$(wget --spider http://sourceforge.net/projects/surfmap/files/latest/download?source=files 2>&1 | grep -m1 '.tar.gz' | sed 's/.*SURFmap_v//; s/.tar.gz.*//')		# get latest version number

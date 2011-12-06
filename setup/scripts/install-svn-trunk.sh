@@ -7,7 +7,7 @@
 #
 # LICENSE TERMS - 3-clause BSD license
 #
-# $Id:$
+# $Id$
 #
 
 echo "SURFmap SVN installation script"
