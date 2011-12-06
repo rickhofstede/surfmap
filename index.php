@@ -18,7 +18,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.2 dev (20111204)";
+	$version = "v2.2 dev (20111206)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -452,17 +452,17 @@
 					geocodingQueue.push(entry);
 				}
 				
-				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion
+				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion;
 				if (flowRecords[i].dstRegionLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
-				entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcCity
+				entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion + ", " + flowRecords[i].srcCity;
 				if (flowRecords[i].srcCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
-				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity
+				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion + ", " + flowRecords[i].dstCity;
 				if (flowRecords[i].dstCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
 				}

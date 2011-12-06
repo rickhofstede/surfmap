@@ -14,7 +14,7 @@
 	class ConnectionHandler {
 		var $GeocoderDatabase;
 		
-		/**
+		/*
 		 * Constructs a new ConnectionHandler object.
 		 */
 		function __construct($logHandler) {
@@ -36,7 +36,7 @@
 			}
 		}
 				
-	   /**
+	   /*
 		* Returns the NfSen query results.
 		*/
 		function retrieveDataNfSen() {
@@ -212,7 +212,7 @@
 			return $NetFlowData;
 		}
 		
-		/**
+		/*
 		 * Retrieves data from a Geolocation data provider, which is
 		 * in the case of SURFmap either 'IP2Location' or 'GeoPlugin'.
 		 */
@@ -308,7 +308,17 @@
 						$city = "";
 					}
 					
-					$GeoData[$i][$j] = array("COUNTRY" => stripAccentedCharacters($country), "REGION" => stripAccentedCharacters($region), "CITY" => stripAccentedCharacters($city));
+					$country = stripAccentedCharacters($country);
+					$region = stripAccentedCharacters($region);
+					$city = stripAccentedCharacters($city);
+					
+					$country = fixCommaSeparatedNames($country);
+					$region = fixCommaSeparatedNames($region);
+					$city = fixCommaSeparatedNames($city);
+					
+					$GeoData[$i][$j] = array("COUNTRY" => $country, "REGION" => $region, "CITY" => $city);
+					
+					// Reset variables for next iteration
 					$country = "";
 					$region = "";
 					$city = "";
@@ -318,7 +328,7 @@
 			return $GeoData;
 		}
 		
-		/**
+		/*
 		 * Retrieves data from the Geocoder caching database (optional).
 		 */
 		function retrieveDataGeocoderDB($GeoData) {
@@ -374,7 +384,7 @@
 					$cityName = $GeoData[$i][$j]['CITY'];
 					if ($cityName != "-") { // city name is defined	
 						if ($USE_GEOCODER_DB) {
-							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName.", ".$cityName));
+							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName.", ".$regionName.", ".$cityName));
 							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
 							unset($queryResult);
 							
@@ -420,7 +430,7 @@
 		
 	}
 	
-	/**
+	/*
 	 * Reads settings from the NfSen configuration
 	 * file nfsen.conf (example location: '/etc/nfsen.conf').
 	 * In case paths are contained as a setting value, the last slash ('/)
@@ -495,7 +505,7 @@
 		return (count($files) >= 1 && @file_exists($files[0]));
 	}	
 
-	/**
+	/*
 	 * Removes special characters (e.g. tabs, EndOfTransmission).
 	 */
 	function stripSpecialCharacters($text) {
@@ -503,14 +513,17 @@
 		
 		// Remove unused characters.
 		for ($i = 0; $i < strlen($text); $i++) {
-			if (ord(substr($text, $i, 1)) < 32 || (ord(substr($text, $i, 1)) == 32 && ord(substr($prepared_text, strlen($prepared_text) - 1, 1)) == 32) || (ord(substr($text, $i, 1)) > 32 && ord(substr($text, $i, 1)) < 46) || (ord(substr($text, $i, 1)) > 58 && ord(substr($text, $i, 1)) < 65) || ord(substr($text, $i, 1)) > 122) continue;
-			else $prepared_text .= substr($text, $i, 1);
+			if (ord(substr($text, $i, 1)) < 32 || (ord(substr($text, $i, 1)) == 32 && ord(substr($prepared_text, strlen($prepared_text) - 1, 1)) == 32) || (ord(substr($text, $i, 1)) > 32 && ord(substr($text, $i, 1)) < 46) || (ord(substr($text, $i, 1)) > 58 && ord(substr($text, $i, 1)) < 65) || ord(substr($text, $i, 1)) > 122) {
+				continue;
+			} else {
+				$prepared_text .= substr($text, $i, 1);
+			}
 		}
 		
 		return $prepared_text;
 	}
 
-	/**
+	/*
 	 * Replaces accented characters by their unaccented equivalents.
 	 */
 	function stripAccentedCharacters($string) {
@@ -520,18 +533,23 @@
 		return str_replace($search, $replace, utf8_encode($string));
 	}
 
-	/**
-	 * Removes all characters which have an ASCII value of 1.
+	/*
+	 * Changes comma-separated names to a non-comma-separated variant.
+	 * Example: "KOREA, REPUBLIC OF" will be changed to "REPUBLIC OF KOREA".
+	 * Parameters:
+	 *		name - name that needs to be fixed.
 	 */
-	function stripASCIISOH($details) {
-		$prepared_text = "";
-		
-		for ($i = 0; $i < strlen($details); $i++) {
-			if (ord(substr($details, $i, 1)) == 1) continue;
-			else $prepared_text .= substr($details, $i, 1);
+	function fixCommaSeparatedNames($name) {
+		$commaPos = strpos($name, ",");
+		if ($commaPos === false) {
+			return $name;
+		} else {
+			error_log("### Found comma-separated name: $name");
+			$newName = substr($name, $commaPos + 2); // +2 to remove trailing white space
+			$newName .= " ".substr($name, 0, $commaPos);
+			error_log("### Found comma-separated name - new name: $newName");
+			return $newName;
 		}
-		
-		return $prepared_text;
 	}
 
 ?>

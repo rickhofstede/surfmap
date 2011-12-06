@@ -11,7 +11,6 @@
 #
 
 SURFMAP_VER=$(wget --spider http://sourceforge.net/projects/surfmap/files/latest/download?source=files 2>&1 | grep -m1 '.tar.gz' | sed 's/.*SURFmap_v//; s/.tar.gz.*//')		# get latest version number
-SURFMAP_VER=2.2			# comment this line in production release
 SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
 GEO_DB=GeoLiteCity.dat.gz
 

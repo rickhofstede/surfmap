@@ -60,13 +60,13 @@
 			}
 		}
 		if ($sessionData->geoCoderData[$i]->srcCity[0] === -1 && strpos($sessionData->geoLocationData[$i][0]['CITY'], "nknown") === false) {
-			$entry = $sessionData->geoLocationData[$i][0]['COUNTRY'].", ".$sessionData->geoLocationData[$i][0]['CITY'];
+			$entry = $sessionData->geoLocationData[$i][0]['COUNTRY'].", ".$sessionData->geoLocationData[$i][0]['REGION'].", ".$sessionData->geoLocationData[$i][0]['CITY'];
 			if (!in_array($entry, $geocodingQueue)) {
 				array_push($geocodingQueue, $entry);
 			}
 		}
 		if ($sessionData->geoCoderData[$i]->dstCity[0] === -1 && strpos($sessionData->geoLocationData[$i][1]['CITY'], "nknown") === false) {
-			$entry = $sessionData->geoLocationData[$i][1]['COUNTRY'].", ".$sessionData->geoLocationData[$i][1]['CITY'];
+			$entry = $sessionData->geoLocationData[$i][1]['COUNTRY'].", ".$sessionData->geoLocationData[$i][1]['REGION'].", ".$sessionData->geoLocationData[$i][1]['CITY'];
 			if (!in_array($entry, $geocodingQueue)) {
 				array_push($geocodingQueue, $entry);
 			}
