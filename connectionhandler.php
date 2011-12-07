@@ -544,10 +544,8 @@
 		if ($commaPos === false) {
 			return $name;
 		} else {
-			error_log("### Found comma-separated name: $name");
 			$newName = substr($name, $commaPos + 2); // +2 to remove trailing white space
 			$newName .= " ".substr($name, 0, $commaPos);
-			error_log("### Found comma-separated name - new name: $newName");
 			return $newName;
 		}
 	}

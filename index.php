@@ -18,7 +18,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.2 dev (20111206)";
+	$version = "v2.2 dev (20111207)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -457,11 +457,20 @@
 					geocodingQueue.push(entry);
 				}
 				
-				entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion + ", " + flowRecords[i].srcCity;
+				if (flowRecords[i].srcRegion.indexOf("nknown") == -1) {
+					entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion + ", " + flowRecords[i].srcCity;
+				} else {
+					entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcCity;
+				}
 				if (flowRecords[i].srcCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
+				if (flowRecords[i].dstRegion.indexOf("nknown") == -1) {
+					entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion + ", " + flowRecords[i].dstCity;
+				} else {
+					entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity;
+				}				
 				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion + ", " + flowRecords[i].dstCity;
 				if (flowRecords[i].dstCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
 					geocodingQueue.push(entry);
@@ -612,7 +621,7 @@
 			if (geocoderRequestsSuccess + geocoderRequestsError + geocoderRequestsSkip + successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests <= 2250) {
 				geocoder.geocode({'address': place}, function(results, status) {
 					if (status == google.maps.GeocoderStatus.OK) {
-						addToLogQueue("INFO", "Geocoded " + place + " successfully");
+						addToLogQueue("INFO", place + " was geocoded successfully");
 						
 						// Store geocoded location in cache DB
 						var geocodedPlace = new GeocodedPlace(place, results[0].geometry.location.lat(), results[0].geometry.location.lng());
