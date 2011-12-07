@@ -348,7 +348,7 @@
 						success: function(msg) {
 							var splittedResult = msg.split("##");
 							if (splittedResult.length == 3 && splittedResult[0] == "OK" && splittedResult[1] == "geocoder") {
-								addToLogQueue("INFO", splittedResult[2] + " was successfully stored in GeoCoder DB");
+								addToLogQueue("INFO", splittedResult[2] + " was stored in GeoCoder DB");
 							}
 						}
 					});
@@ -1440,9 +1440,12 @@
 				infoWindow.close();
 			});
 			google.maps.event.addListenerOnce(map, "bounds_changed", function() {
-				// To make sure that bounds are set after the map has been loaded
-				// If a gray area is present at the top or bottom of the map, change its center
-				mapCenterWithoutGray = hideGrayMapAreas();
+				/*
+				 * To make sure that bounds are set after the map has been loaded.
+				 * If a gray area is present at the top or bottom of the map, change its center.
+				 * Note that this command is called only once (because of addListenerOnce)
+				 */
+				mapCenterWithoutGray = hideGrayMapArea();
 			});
 			google.maps.event.addListener(map, "dragend", function() {
 				SESSION_queue.push(new SessionData("mapCenter", map.getCenter().lat() + "," + map.getCenter().lng()));
@@ -1461,17 +1464,18 @@
 					initializeLegend(newSurfmapZoomLevel);
 					currentSURFmapZoomLevel = newSurfmapZoomLevel;
 				}
-				
+
 				google.maps.event.addListenerOnce(map, "idle", function() {
-					if (map.getCenter() != undefined && map.getCenter().equals(mapCenterWithoutGray) && !map.getCenter().equals(mapCenter)) {
+					if(grayMapAreaPresent()) {
+						mapCenterWithoutGray = hideGrayMapArea();
+					} else if (map.getCenter() != undefined && map.getCenter().equals(mapCenterWithoutGray)) {
 						/*
 						 * If the map center was adjusted due to a gray area at the top or bottom of the map, 
-						 * change its center again.
-						 * In demo mode, when a random line is clicked by SURFmap, map.getCenter() can be undefined.
-						 */					
-						map.setCenter(mapCenter);
+						 * change its center again to the actual configured map center.
+						 * When called in demo mode, when a random line is clicked by SURFmap, map.getCenter() can be undefined.
+						 */
+						if (!map.getCenter().equals(mapCenter)) map.setCenter(mapCenter);
 					}
-					mapCenterWithoutGray = hideGrayMapAreas();
 				});
 			});
 			

@@ -308,14 +308,9 @@
 						$city = "";
 					}
 					
-					$country = stripAccentedCharacters($country);
-					$region = stripAccentedCharacters($region);
-					$city = stripAccentedCharacters($city);
-					
-					$country = fixCommaSeparatedNames($country);
-					$region = fixCommaSeparatedNames($region);
-					$city = fixCommaSeparatedNames($city);
-					
+					$country = fixCommaSeparatedNames(stripAccentedCharacters($country));
+					$region = fixCommaSeparatedNames(stripAccentedCharacters($region));
+					$city = fixCommaSeparatedNames(stripAccentedCharacters($city));					
 					$GeoData[$i][$j] = array("COUNTRY" => $country, "REGION" => $region, "CITY" => $city);
 					
 					// Reset variables for next iteration

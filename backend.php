@@ -48,12 +48,12 @@
 		}
 		
 		$entry = $sessionData->geoLocationData[$i][0]['COUNTRY'].", ".$sessionData->geoLocationData[$i][0]['REGION'];
-		if ($sessionData->geoCoderData[$i]->srcRegion[0] === -1 && strpos($entry, "nknown") === false) {
+		if ($sessionData->geoCoderData[$i]->srcRegion[0] === -1 && strpos($entry, "nknown") === false && !in_array($entry, $geocodingQueue)) {
 			array_push($geocodingQueue, $entry);
 		}
 		
 		$entry = $sessionData->geoLocationData[$i][1]['COUNTRY'].", ".$sessionData->geoLocationData[$i][1]['REGION'];
-		if ($sessionData->geoCoderData[$i]->dstRegion[0] === -1 && strpos($entry, "nknown") === false) {
+		if ($sessionData->geoCoderData[$i]->dstRegion[0] === -1 && strpos($entry, "nknown") === false && !in_array($entry, $geocodingQueue)) {
 			array_push($geocodingQueue, $entry);
 		}
 		
@@ -62,7 +62,7 @@
 		} else {
 			$entry = $sessionData->geoLocationData[$i][0]['COUNTRY'].", ".$sessionData->geoLocationData[$i][0]['CITY'];
 		}
-		if ($sessionData->geoCoderData[$i]->srcCity[0] === -1 && strpos($entry, "nknown") === false) {
+		if ($sessionData->geoCoderData[$i]->srcCity[0] === -1 && strpos($entry, "nknown") === false && !in_array($entry, $geocodingQueue)) {
 			array_push($geocodingQueue, $entry);
 		}
 		
@@ -71,7 +71,7 @@
 		} else {
 			$entry = $sessionData->geoLocationData[$i][1]['COUNTRY'].", ".$sessionData->geoLocationData[$i][1]['CITY'];
 		}
-		if ($sessionData->geoCoderData[$i]->dstCity[0] === -1 && strpos($entry, "nknown") === false) {
+		if ($sessionData->geoCoderData[$i]->dstCity[0] === -1 && strpos($entry, "nknown") === false && !in_array($entry, $geocodingQueue)) {
 			array_push($geocodingQueue, $entry);
 		}
 	}

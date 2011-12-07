@@ -72,7 +72,7 @@
 	* Hides a gray map area by changing the map's center and return the map center after algorithm
 	* completion (i.e. map center without visible gray areas).
 	*/
-	function hideGrayMapAreas() {
+	function hideGrayMapArea() {
 		if (map.getBounds().getNorthEast().lat() > 85.0) {
 			while(map.getBounds().getNorthEast().lat() > 85.0) {
 				map.setCenter(new google.maps.LatLng(map.getCenter().lat() - 0.5, map.getCenter().lng()));
@@ -81,10 +81,16 @@
 			while(map.getBounds().getNorthEast().lat() > 85.0) {
 				map.setCenter(new google.maps.LatLng(map.getCenter().lat() + 0.5, map.getCenter().lng()));
 			}
-		} else {
 		}
 		
 		return map.getCenter();
+	}
+	
+   /**
+	* Checks whether gray map areas are present or not.
+	*/	
+	function grayMapAreaPresent() {
+		return (map.getBounds().getNorthEast().lat() > 85.0 || map.getBounds().getSouthWest().lat() < -85.0);
 	}
 
    /**
