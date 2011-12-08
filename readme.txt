@@ -4,7 +4,7 @@ Please check the manual for installation instructions. Run the ConfigurationChec
 
 ---
 
-Release notes [v2.2 dev (20111207)]:
+Release notes [v2.2 dev (20111208)]:
 
 WARNING: the configuration file of previous versions is not compatible with this release!
 
@@ -20,7 +20,8 @@ WARNING: the configuration file of previous versions is not compatible with this
 - [BUGFIX] Fixed a bug which could cause green markers not to be shown
 - [BUGFIX] Fixed a bug which caused SQLite DB locking errors with some PHP PDO drivers
 - [BUGFIX] Fixed a UTF-8 encoding issue
-- [BUGFIX] Several bug fixes and improvements
+- [BUGFIX] Improved stability when parsing filter from input field
+- [BUGFIX] Several minor bug fixes and improvements
 
 Release notes [v2.1 stable (20111116)]:
 

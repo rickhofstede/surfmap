@@ -111,7 +111,7 @@
 			global $INTERNAL_DOMAINS, $HIDE_INTERNAL_DOMAIN_TRAFFIC, $sessionData;
 			
 			if (isset($_GET['filter'])) {
-				$_SESSION['SURFmap']['filter'] = $_GET['filter'];
+				$_SESSION['SURFmap']['filter'] = trim(str_replace("\r\n", " ", $_GET['filter']));
 				$_SESSION['SURFmap']['filter'] = str_replace(";", "", $_SESSION['SURFmap']['filter']);
 			}
 			

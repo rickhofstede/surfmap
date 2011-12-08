@@ -357,8 +357,9 @@
 
 					// Region
 					$regionName = $GeoData[$i][$j]['REGION'];
-					if ($regionName != "-") { // region name is defined 
+					if ($regionName != "-" && strpos($regionName, "nknown") === false) { // region name is defined 
 						if ($USE_GEOCODER_DB) {
+							error_log("### Region: ".$regionName);
 							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName.", ".$regionName));
 							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
 							unset($queryResult);
@@ -377,7 +378,7 @@
 
 					// City
 					$cityName = $GeoData[$i][$j]['CITY'];
-					if ($cityName != "-") { // city name is defined	
+					if ($cityName != "-" && strpos($cityName, "nknown") === false) { // city name is defined	
 						if ($USE_GEOCODER_DB) {
 							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName.", ".$regionName.", ".$cityName));
 							$row = $queryResult->fetch(PDO::FETCH_ASSOC);

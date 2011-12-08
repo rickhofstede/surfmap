@@ -18,7 +18,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.2 dev (20111207)";
+	$version = "v2.2 dev (20111208)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -539,20 +539,25 @@
 					}
 
 					for (var i = 0; i < flowRecordCount; i++) {
-						// If no latitude/longitude coordinates are present on certain level, take the ones from the upper level
-						if (flowRecords[i].srcRegionLat == -1 && flowRecords[i].srcRegionLng == -1) {
+						/*
+						 * If no latitude/longitude coordinates are present on certain level, take 
+						 * the ones from the upper level. If the coordinates for the country level
+						 * are (0,0), that whole flow record will be skipped for processing later
+						 * on.
+						 */
+						if (flowRecords[i].srcRegionLat == 0 && flowRecords[i].srcRegionLng == 0) {
 							flowRecords[i].srcRegionLat = flowRecords[i].srcCountryLat;
 							flowRecords[i].srcRegionLng = flowRecords[i].srcCountryLng;
 						}
-						if (flowRecords[i].dstRegionLat == -1 && flowRecords[i].dstRegionLng == -1) {
+						if (flowRecords[i].dstRegionLat == 0 && flowRecords[i].dstRegionLng == 0) {
 							flowRecords[i].dstRegionLat = flowRecords[i].dstCountryLat;
 							flowRecords[i].dstRegionLng = flowRecords[i].dstCountryLng;
 						}
-						if (flowRecords[i].srcCityLat == -1 && flowRecords[i].srcCityLng == -1) {
+						if (flowRecords[i].srcCityLat == 0 && flowRecords[i].srcCityLng == 0) {
 							flowRecords[i].srcCityLat = flowRecords[i].srcRegionLat;
 							flowRecords[i].srcCityLng = flowRecords[i].srcRegionLng;
 						}
-						if (flowRecords[i].dstCityLat == -1 && flowRecords[i].dstCityLng == -1) {
+						if (flowRecords[i].dstCityLat == 0 && flowRecords[i].dstCityLng == 0) {
 							flowRecords[i].dstCityLat = flowRecords[i].dstRegionLat;
 							flowRecords[i].dstCityLng = flowRecords[i].dstRegionLng;
 						}
