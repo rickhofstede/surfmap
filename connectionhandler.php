@@ -335,66 +335,50 @@
 				$coordinates = new FlowCoordinates();
 
 				for ($j = 0; $j < 2; $j++) { // source / destination
-					// Country
-					$countryName = $GeoData[$i][$j]['COUNTRY'];
-					if ($countryName != "-") { // country name is defined
-						if ($USE_GEOCODER_DB) {
-							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName));
+					foreach ($GeoData[$i][$j] as $key => $value) {
+						// $key can be "COUNTRY", "REGION" or "CITY"
+						$place = $GeoData[$i][$j][$key];
+						if ($key === "COUNTRY") {
+							$level = 0;
+						} else if ($key === "REGION") {
+							$level = 1;
+						} else {
+							$level = 2;
+						}
+						
+						if ($place === "-" || strpos($place, "nknown")) {
+							/*
+							 * Place name is undefined. If it concerns a country name,
+							 * the whole entry will be ignored later on. If it concerns
+							 * a region or city name, the coordinates of the layer on
+							 * top of it will be used.
+							 */
+							$coordinates->writeVariable($j, $level, array(0, 0));
+						} else if ($USE_GEOCODER_DB) {
+							if ($key === "COUNTRY") {
+								$entry = $place;
+							} else if ($key === "REGION") {
+								$entry = $GeoData[$i][$j]['COUNTRY'].", ".$GeoData[$i][$j]['REGION'];
+							} else if (strpos($GeoData[$i][$j]['REGION'], "nknown")) { // CITY && region undefined
+								$entry = $GeoData[$i][$j]['COUNTRY'].", ".$GeoData[$i][$j]['CITY'];
+							} else { // CITY && region undefined
+								$entry = $GeoData[$i][$j]['COUNTRY'].", ".$GeoData[$i][$j]['REGION'].", ".$GeoData[$i][$j]['CITY'];
+							}
+
+							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($entry));
 							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
 							unset($queryResult);
 
 							if ($row) { // Country name was found in our GeoCoder database
-								$coordinates->writeVariable($j, 0, array($row['latitude'], $row['longitude']));
+								$coordinates->writeVariable($j, $level, array($row['latitude'], $row['longitude']));
 							} else {
-								$coordinates->writeVariable($j, 0, array(-1, -1));
+								$coordinates->writeVariable($j, $level, array(-1, -1));
 							}
 						} else {
-							$coordinates->writeVariable($j, 0, array(-1, -1));
+							$coordinates->writeVariable($j, $level, array(-1, -1));
 						}
-					} else { // country name is undefined; this entry will be ignored later on
-						$coordinates->writeVariable($j, 0, array(0, 0));
 					}
-
-					// Region
-					$regionName = $GeoData[$i][$j]['REGION'];
-					if ($regionName != "-" && strpos($regionName, "nknown") === false) { // region name is defined 
-						if ($USE_GEOCODER_DB) {
-							error_log("### Region: ".$regionName);
-							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName.", ".$regionName));
-							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
-							unset($queryResult);
-							
-							if ($row) { // Region name was found in our GeoCoder database
-								$coordinates->writeVariable($j, 1, array($row['latitude'], $row['longitude']));
-							} else {
-								$coordinates->writeVariable($j, 1, array(-1, -1));
-							}
-						} else {
-							$coordinates->writeVariable($j, 1, array(-1, -1));
-						}
-					} else { // region name is undefined, taking country's coordinates
-						$coordinates->writeVariable($j, 1, array(0, 0));
-					}
-
-					// City
-					$cityName = $GeoData[$i][$j]['CITY'];
-					if ($cityName != "-" && strpos($cityName, "nknown") === false) { // city name is defined	
-						if ($USE_GEOCODER_DB) {
-							$queryResult = $this->GeocoderDatabase->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$this->GeocoderDatabase->quote($countryName.", ".$regionName.", ".$cityName));
-							$row = $queryResult->fetch(PDO::FETCH_ASSOC);
-							unset($queryResult);
-							
-							if ($row) { // City name was found in our GeoCoder database
-								$coordinates->writeVariable($j, 2, array($row['latitude'], $row['longitude']));
-							} else {
-								$coordinates->writeVariable($j, 2, array(-1, -1));
-							}
-						} else {
-							$coordinates->writeVariable($j, 2, array(-1, -1));
-						}
-					} else { // city name is undefined, taking region's coordinates
-						$coordinates->writeVariable($j, 2, array(0, 0));
-					}
+					unset($key, $value);
 					
 					$coordinates->srcHost = $coordinates->srcCity;
 					$coordinates->dstHost = $coordinates->dstCity;

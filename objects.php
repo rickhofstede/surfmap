@@ -34,35 +34,45 @@
 		function writeVariable($endPoint, $level, $value) {
 			if ($endPoint == 0) { // source
 				switch ($level) {
-					case 0:	$this->srcCountry = $value;
-							break;
+					case 0:	
+						$this->srcCountry = $value;
+						break;
 					
-					case 1: $this->srcRegion = $value;
-							break;
+					case 1: 
+						$this->srcRegion = $value;
+						break;
 							
-					case 2:	$this->srcCity = $value;
-							break;
+					case 2:	
+						$this->srcCity = $value;
+						break;
 							
-					case 3:	$this->srcHost = $value;
-							break;
+					case 3:	
+						$this->srcHost = $value;
+						break;
 							
-					default:break;
+					default:
+						break;
 				}
 			} else { // destination
 				switch ($level) {
-					case 0:	$this->dstCountry = $value;
-							break;
+					case 0:	
+						$this->dstCountry = $value;
+						break;
 					
-					case 1: $this->dstRegion = $value;
-							break;
+					case 1: 
+						$this->dstRegion = $value;
+						break;
 							
-					case 2:	$this->dstCity = $value;
-							break;
+					case 2:	
+						$this->dstCity = $value;
+						break;
 							
-					case 3:	$this->dstHost = $value;
-							break;
+					case 3:	
+						$this->dstHost = $value;
+						break;
 							
-					default:break;
+					default:
+						break;
 				}
 			}
 		}
