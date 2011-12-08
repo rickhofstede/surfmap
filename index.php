@@ -822,13 +822,12 @@
 											}
 										}
 									}
-									
-									markerProperties[i][existValue].markerRecords[existValue2].flowRecordIDs.push(j);
 
 									if (newHost == 1) {
 										markerProperties[i][existValue].markerRecords[existValue2].hosts++;
 									}
 								}
+								markerProperties[i][existValue].markerRecords[existValue2].flowRecordIDs.push(j);
 							}
 						}
 					}

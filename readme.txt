@@ -19,6 +19,7 @@ WARNING: the configuration file of previous versions is not compatible with this
 - [BUGFIX] Fixed a bug in the flow complementation process
 - [BUGFIX] Fixed a bug which could cause green markers not to be shown
 - [BUGFIX] Fixed a bug which caused SQLite DB locking errors with some PHP PDO drivers
+- [BUGFIX] Fixed a bug which caused too few flow records to be shown in 'Flow details' windows of markers
 - [BUGFIX] Fixed a UTF-8 encoding issue
 - [BUGFIX] Improved stability when parsing filter from input field
 - [BUGFIX] Several minor bug fixes and improvements
