@@ -123,6 +123,11 @@
 				array_push($geocodingQueue, $place);
 				$blockedGeocodingRequests++;
 			} else {
+				if(isset($output)) {
+					$output .= "##Geocoding error: $place (reason: $status)";
+				} else {
+					$output = "Geocoding error: $place (reason: $status)";
+				}
 				$erroneousGeocodingRequests++;
 			}
 
@@ -136,6 +141,12 @@
 	storeGeocodingStat(1, $erroneousGeocodingRequests);
 	storeGeocodingStat(2, $skippedGeocodingRequests);
 	storeGeocodingStat(3, $blockedGeocodingRequests);
-	echo "successful: $successfulGeocodingRequests, erroneous: $erroneousGeocodingRequests, skipped: $skippedGeocodingRequests, total: ".sizeof($geocodingQueue).", flow records: ".$sessionData->flowRecordCount;
+	
+	if(isset($output)) {
+		$output .= "##successful: $successfulGeocodingRequests, erroneous: $erroneousGeocodingRequests, skipped: $skippedGeocodingRequests, total: ".sizeof($geocodingQueue).", flow records: ".$sessionData->flowRecordCount;
+	} else {
+		$output = "successful: $successfulGeocodingRequests, erroneous: $erroneousGeocodingRequests, skipped: $skippedGeocodingRequests, total: ".sizeof($geocodingQueue).", flow records: ".$sessionData->flowRecordCount;
+	}
+	echo $output;
 	
 ?>
