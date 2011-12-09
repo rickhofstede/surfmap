@@ -292,6 +292,8 @@
 	 *		array(lat, lng) on success, or 'false' (bool) on failure
 	 */	
 	function geocode($place) {
+		global $FORCE_HTTPS;
+		
 		$requestURL = "://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
 		if ($FORCE_HTTPS) {
 			$requestURL = "https".$requestURL;
