@@ -11,8 +11,8 @@ use Sys::Syslog;
 our $VERSION = 130;
 
 my($ENABLE_GEOCODING) = 0;
-my($LOG_DEBUG) = 0;
-my($LOG_GEOCODING_ERRORS) = 0;
+my($LOG_DEBUG) = 1;
+my($LOG_GEOCODING_ERRORS) = 1;
 my($SURFMAP_PATH) = "$NfConf::FRONTEND_PLUGINDIR"."/SURFmap/";
 
 #
