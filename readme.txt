@@ -17,7 +17,7 @@ dimension to network traffic by geolocating IP addresses of end hosts. For more 
 
 2) Installation instructions
 
-SURFmap can be installed in a variety of ways (for notes on a version upgrade, please check 2.4):
+SURFmap can be installed in a variety of ways (for notes on a version upgrade, check 2.4; for installation verification, check 2.5):
 
 2.1) Automated tar ball installation (latest stable, recommended)
 
@@ -61,7 +61,7 @@ SURFmap can be installed in a variety of ways (for notes on a version upgrade, p
 	-> Get geolocation information for your setup
 		http://[your machine IP]/nfsen/plugins/SURFmap/setup/configurationchecker.php
 
-	-> Update $MAP_CENTER, $INTERNAL_DOMAINS_COUNTRY, $INTERNAL_DOMAINS_REGION, $INTERNAL_DOMAINS_CITY in config.php,,
+	-> Update $MAP_CENTER, $INTERNAL_DOMAINS_COUNTRY, $INTERNAL_DOMAINS_REGION, $INTERNAL_DOMAINS_CITY in config.php
 
 - Enable plugin:
 	$ vim /data/nfsen/etc/nfsen.conf (this path might differ, based on your setup)
@@ -78,12 +78,22 @@ SURFmap can be installed in a variety of ways (for notes on a version upgrade, p
 2.4) Upgrading existing installation
 
 When upgrading your SURFmap installation to a newer version, keep in mind that the configuration file (config.php) is
-not always compatible between the versions. It's there very important to update the settings in the configuration file
+not always compatible between the versions. It's therefore very important to update the settings in the configuration file
 of the version you're upgrading to. Regarding the upgrade, you could use either of the installation methods discussed
 above. In case you're using a method that's based on an installation script (i.e. 'automated tar ball installation' (2.1)
 or 'SVN trunk installation' (2.3)) the scripts will automatically archive your existing SURFmap installation, including
 the configuration file. If you're doing a manual installation/upgrade, keep in mind to archive your old installation
 yourself.
+
+Besides backing up the configuration file, you can save the contents of the geocoded cache database. In most cases, this
+will considerably speed up the flow record visualization after upgrading.
+
+2.5) Installation verification
+
+In order to verify whether SURFmap was configured properly based on your particular system setup, a "Configuration Checker"
+has been included in the package. It can be found at the following location:
+
+http://[your machine IP]/nfsen/plugins/SURFmap/setup/configurationchecker.php
 
 3) Using SURFmap
 
