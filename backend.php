@@ -86,7 +86,7 @@
 	$skippedGeocodingRequests = 0;
 	$blockedGeocodingRequests = 0;
 
-	foreach($geocodingQueue as $place) {
+	foreach ($geocodingQueue as $place) {
 		if ($sessionData->geocoderRequestsSuccess + $sessionData->geocoderRequestsError + $sessionData->geocoderRequestsSkip + 
 				$successfulGeocodingRequests + $erroneousGeocodingRequests + $skippedGeocodingRequests <= 2250) {
 			$requestURL = "://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
@@ -136,6 +136,7 @@
 			$skippedGeocodingRequests++;
 		}
 	}
+	unset($place);
 	
 	storeGeocodingStat(0, $successfulGeocodingRequests);
 	storeGeocodingStat(1, $erroneousGeocodingRequests);

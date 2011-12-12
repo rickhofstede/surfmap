@@ -130,6 +130,7 @@
 						$static_filter_internal_domain_traffic = "not (src net ".$domain." and dst net ".$domain.")";
 					}
 				}
+				unset($domain);
 			}
 
 			$static_filter_broadcast_traffic = "not host 255.255.255.255";
@@ -221,29 +222,31 @@
 			
 			if (isset($_SESSION['profileinfo']['channel']) && $_SESSION['SURFmap']['nfsenAllSources'] === "") { // initialization value
 				// Only collect all sources when not done yet
-				foreach($_SESSION['profileinfo']['channel'] as $source) {
+				foreach ($_SESSION['profileinfo']['channel'] as $source) {
 					if (strlen($_SESSION['SURFmap']['nfsenAllSources']) != 0) {
 						$_SESSION['SURFmap']['nfsenAllSources'] .= ":";
 					}
 					$_SESSION['SURFmap']['nfsenAllSources'] .= $source['name'];
 				}
+				unset($source);
 			}
 
 			if (isset($_GET['nfsensources'])) {
 				$_SESSION['SURFmap']['nfsenSelectedSources'] = "";
-				foreach($_GET['nfsensources'] as $source) {
+				foreach ($_GET['nfsensources'] as $source) {
 					if (strlen($_SESSION['SURFmap']['nfsenSelectedSources']) != 0) {
 						$_SESSION['SURFmap']['nfsenSelectedSources'] .= ":";
 					}
 					$_SESSION['SURFmap']['nfsenSelectedSources'] .= $source;
 				}
+				unset($source);
 			} else if ($_SESSION['SURFmap']['nfsenSelectedSources'] === "") { // initialization value
 				if (strlen($NFSEN_DEFAULT_SOURCES) > 0) {
 					// Check for ";" is only for dealing with syntax in older versions
 					$defaultSources = explode(":", str_replace(";", ":", $NFSEN_DEFAULT_SOURCES));
 					
 					// Check whether configured default sources exist
-					foreach($defaultSources as $source) {
+					foreach ($defaultSources as $source) {
 						if (strpos($_SESSION['SURFmap']['nfsenAllSources'], $source) !== false) {
 							if (strlen($_SESSION['SURFmap']['nfsenSelectedSources']) != 0) {
 								$_SESSION['SURFmap']['nfsenSelectedSources'] .= ":";
@@ -251,6 +254,7 @@
 							$_SESSION['SURFmap']['nfsenSelectedSources'] .= $source;
 						}
 					}
+					unset($source);
 				}
 
 				// If none of the configured default sources was available or no default source was configured at all

@@ -234,18 +234,19 @@
 				$srcNAT = false;
 				$dstNAT = false;
 				
-				foreach($internalDomainNets as $subNet) {
+				foreach ($internalDomainNets as $subNet) {
 					if (ipAddressBelongsToNet($source, $subNet)) {
 						$srcNAT = true;
 						break;
 					}
 				}
-				foreach($internalDomainNets as $subNet) {
+				foreach ($internalDomainNets as $subNet) {
 					if (ipAddressBelongsToNet($destination, $subNet)) {
 						$dstNAT = true;
 						break;
 					}
 				}
+				unset($subNet);
 				
 				for ($j = 0; $j < 2; $j++) { // Source and destination
 					if (($j == 0 && $srcNAT === true) || ($j == 1 && $dstNAT === true)) { // Source or destination uses a NATed setup
@@ -377,7 +378,7 @@
 						} else {
 							$coordinates->writeVariable($j, $level, array(-1, -1));
 						}
-					}
+					}				
 					unset($key, $value);
 					
 					$coordinates->srcHost = $coordinates->srcCity;
