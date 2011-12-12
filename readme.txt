@@ -25,11 +25,11 @@ SURFmap can be installed in a variety of ways (for notes on a version upgrade, c
 	$ mkdir -p ~/surfmap
 	$ cd ~/surfmap
 
-- Download installation script
+- Download installation script:
 	$ wget http://sourceforge.net/projects/surfmap/files/install.sh/download
 	$ chmod +x install.sh
 
-- Install plugin
+- Install plugin:
 	$ ./install.sh
 	$ sudo /data/nfsen/bin/nfsen reload (this path might differ, based your setup)
 
@@ -49,7 +49,7 @@ SURFmap can be installed in a variety of ways (for notes on a version upgrade, c
 	$ tar zxf SURFmap_v2.2.tar.gz --directory=/var/www/nfsen/plugins/ (this path might differ, based on your setup)
 	$ gunzip -c GeoLiteCity.dat.gz > /var/www/nfsen/plugins/SURFmap/MaxMind/GeoLiteCity.dat
 
-- Install backend and frontend plugin files:
+- Install back-end and front-end plugin files:
 	$ cd /var/www/nfsen/plugins/
 	$ cp SURFmap/setup/backend/SURFmap.pm /data/nfsen/plugins/SURFmap.pm (the last path might differ, based on your setup)
 	$ cp SURFmap/setup/frontend/SURFmap.php .
