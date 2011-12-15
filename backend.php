@@ -89,7 +89,7 @@
 	foreach ($geocodingQueue as $place) {
 		if ($sessionData->geocoderRequestsSuccess + $sessionData->geocoderRequestsError + $sessionData->geocoderRequestsSkip + 
 				$successfulGeocodingRequests + $erroneousGeocodingRequests + $skippedGeocodingRequests <= 2250) {
-			$requestURL = "://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
+			$requestURL = "://maps.google.com/maps/api/geocode/xml?address=" . urlencode(str_replace("'", "\'", $place)) . "&sensor=false";
 			if ($FORCE_HTTPS) {
 				$requestURL = "https".$requestURL;
 			} else {
