@@ -1,6 +1,7 @@
 SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 
-Please check the manual or readme for installation instructions. Run the ConfigurationChecker module (which can be found in the 'setup' folder), in order to verify your SURFmap configuration.
+Please check the manual or readme for installation instructions. Run the ConfigurationChecker 
+module (which can be found in the 'setup' folder), in order to verify your SURFmap configuration.
 
 ---
 
