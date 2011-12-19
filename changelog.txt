@@ -5,6 +5,11 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 ---
 
+Release notes [v2.3 dev (20111223)]:
+
+- [FEATURE] Added 'Now' button to date/time-selectors, for navigating to latest available time slot
+- [BUGFIX] Added workaround for issue in date/time-selector, when copying from one selector to another
+
 Release notes [v2.2 stable (20111216)]:
 
 WARNING: the configuration file of previous versions is not compatible with this release!

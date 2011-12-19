@@ -18,7 +18,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.2 stable (20111216)";
+	$version = "v2.2 dev (20111219)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1675,12 +1675,12 @@
 			+ "<div style=\"margin-top:10px; width:195px;\">"
 				+ "<span style=\"float:left;\">Begin</span>"				
 				+ "<input type=\"text\" id=\"datetime1\" class=\"datetimeinput\" name=\"datetime1\" />"
-				+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'end' time to here\" onclick=\"$('#datetime1').datetimepicker('setDate', new Date($('#datetime2').datetimepicker('getDate')));\"></span></div>"						
+				+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'end' time to here\" onclick=\"copyDateTime('datetime2', 'datetime1');\"></span></div>"						
 			+ "</div><br />"
 			+ "<div style=\"margin-top:10px; width:195px;\">"
 				+ "<span style=\"float:left;\">End</span>"
 				+ "<input type=\"text\" id=\"datetime2\" class=\"datetimeinput\" name=\"datetime2\" />"
-				+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'begin' time to here\" onclick=\"$('#datetime2').datetimepicker('setDate', new Date($('#datetime1').datetimepicker('getDate')));\"></span></div>"				
+				+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'begin' time to here\" onclick=\"copyDateTime('datetime1', 'datetime2');\"></span></div>"				
 			+ "</div><br />"
 			+ "<div style=\"margin-top:10px; width:195px;\">"
 				+ "<span style=\"float:left;\">Limit to</span>"
@@ -1913,21 +1913,18 @@
 		}
 				
 	   /**
-		* Manages the visibility of the specified element.
-		*
+		* Copies date/time from one date/time selector to another.
 		* Parameters:
-		*		id - ID of the corresponding accordion element
-		*		option - text which should be indicated inside the dialog. The possible
-		*				options are:
-		*					1. 0 - hides the accordion element
-		*					2. 1 - shows the accordion element
-		*					3. 2 - shows the accordion element and opens it	
+		*		selector1 - ID of the source date/time selector
+		*		selector2 - ID of the destination date/time selector
 		*/			
-		function manageAccordionElementVisibility(id, option) {
-			if (option == 0) {
-				hideAccordionElement(id);
-			} else if (option == 2) {
-				openAccordionElement(id);
+		function copyDateTime(selector1, selector2) {
+			$("#" + selector2).datetimepicker('setDate', new Date($("#" + selector1).datetimepicker('getDate')));
+			
+			// Workaround for date/time picker copying, as described here: https://github.com/trentrichardson/jQuery-Timepicker-Addon/issues/280
+			var setDate = $("#" + selector2).datetimepicker('getDate');
+			if (setDate.getHours() == 0 && setDate.getMinutes() == 0) {
+				$("#" + selector2).datetimepicker('setDate', new Date($("#" + selector1).datetimepicker('getDate')));
 			}
 		}
 		
