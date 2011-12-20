@@ -39,7 +39,16 @@
 			} else {
 				echo "ERROR##stat";
 			}
+		} else if ($_GET['transactionType'] == "dns" && isset($_GET['value'])) {
+			$dnsName = gethostbyaddr($_GET['value']);
+			if($dnsName === $_GET['value']) {
+				echo "OK##dns##".$dnsName;
+			} else {
+				echo "ERROR##dns";
+			}
 		}
+	} else {
+		echo "ERROR";
 	}
 	
     /**
