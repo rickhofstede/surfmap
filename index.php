@@ -182,10 +182,11 @@
 	<script type="text/javascript" src="js/maputil.js"></script>
 	<script type="text/javascript" src="js/markermanager.js"></script>
 	<script type="text/javascript" src="js/objects.js"></script>
+	<script type="text/javascript" src="js/queuemanager.js"></script>	
 	<script type="text/javascript" src="js/util.js"></script>
 	<script type="text/javascript">
 		var COUNTRY = 0; var REGION = 1; var CITY = 2; var HOST = 3;
-		var map, markerManager, geocoder, infoWindow, currentZoomLevel, currentSURFmapZoomLevel, initialZoomLevel;
+		var map, markerManager, geocoder, infoWindow, currentZoomLevel, currentSURFmapZoomLevel, initialZoomLevel, queueManager;
 		var initialZoomLevel = <?php echo $_SESSION['SURFmap']['zoomLevel']; ?>;
 		var initialSURFmapZoomLevel = <?php echo $DEFAULT_ZOOM_LEVEL; ?>;
 		var mapCenter = "<?php if ($_SESSION['SURFmap']['mapCenter'] != "-1") {echo $_SESSION['SURFmap']['mapCenter'];} else {echo $MAP_CENTER;} ?>";
@@ -349,6 +350,7 @@
 							var splittedResult = msg.split("##");
 							if (splittedResult.length == 3 && splittedResult[0] == "OK" && splittedResult[1] == "geocoder") {
 								addToLogQueue("INFO", splittedResult[2] + " was stored in GeoCoder DB");
+								queueManager.addElement(queueManager.queueTypes.INFO, splittedResult[2] + " was stored in GeoCoder DB");
 							}
 						}
 					});
@@ -363,7 +365,7 @@
 		* Parameters:
 		*	type - can be either INFO or ERROR
 		*/			
-		function readPHPLogQueue(type) {
+		function importPHPLogQueue(type) {
 			var logString;
 			
 			if (type == "INFO") {
@@ -376,6 +378,11 @@
 				var logArray = logString.split("##");
 				for (var i = 0; i < logArray.length; i++) {
 					addToLogQueue(type, logArray[i]);
+					if (type == "INFO") {
+						queueManager.addElement(queueManager.queueTypes.INFO, logArray[i]);
+					} else if (type == "ERROR") {
+						queueManager.addElement(queueManager.queueTypes.ERROR, logArray[i]);
+					}
 				}
 			}
 		}
@@ -627,6 +634,7 @@
 				geocoder.geocode({'address': place}, function(results, status) {
 					if (status == google.maps.GeocoderStatus.OK) {
 						addToLogQueue("INFO", place + " was geocoded successfully");
+						queueManager.addElement(queueManager.queueTypes.INFO, place + " was geocoded successfully");
 						
 						// Store geocoded location in cache DB
 						var geocodedPlace = new GeocodedPlace(place, results[0].geometry.location.lat(), results[0].geometry.location.lng());
@@ -646,6 +654,7 @@
 						}, geocodingDelay);
 					} else {
 						addToLogQueue("ERROR", "Geocoder could not find " + place + ". Reason: " + status);
+						queueManager.addElement(queueManager.queueTypes.ERROR, "Geocoder could not find " + place + ". Reason: " + status);
 						geocodedPlaces.push(new GeocodedPlace(place, 0, 0));
 						erroneousGeocodingRequests++;
 					}
@@ -1372,38 +1381,38 @@
 		 * Adds debugging information to the INFO log queue.
 		 */
 		function printDebugLogging() {
-			addToLogQueue("DEBUG", "Application version: " + applicationVersion);
-			addToLogQueue("DEBUG", "DemoMode: " + demoMode);
-			addToLogQueue("DEBUG", "EntryCount: " + entryCount);
-			addToLogQueue("DEBUG", "FlowRecordCount: " + flowRecordCount);
-			addToLogQueue("DEBUG", "NfSenQuery: " + nfsenQuery);
-			addToLogQueue("DEBUG", "NfSenFilter: " + nfsenFilter);
-			addToLogQueue("DEBUG", "NfSenAllSources: " + nfsenAllSources);
-			addToLogQueue("DEBUG", "NfSenSelectedSources: " + nfsenSelectedSources);
-			addToLogQueue("DEBUG", "geocoderRequestsSuccess: " + geocoderRequestsSuccess);
-			addToLogQueue("DEBUG", "geocoderRequestsError: " + geocoderRequestsError);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "Application version: " + applicationVersion);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "DemoMode: " + demoMode);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "EntryCount: " + entryCount);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "FlowRecordCount: " + flowRecordCount);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "NfSenQuery: " + nfsenQuery);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "NfSenFilter: " + nfsenFilter);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "NfSenAllSources: " + nfsenAllSources);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "NfSenSelectedSources: " + nfsenSelectedSources);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "geocoderRequestsSuccess: " + geocoderRequestsSuccess);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "geocoderRequestsError: " + geocoderRequestsError);
 			
-			addToLogQueue("DEBUG", "Date1: " + date1);
-			addToLogQueue("DEBUG", "Date2: " + date2);
-			addToLogQueue("DEBUG", "Hours1: " + hours1);
-			addToLogQueue("DEBUG", "Hours2: " + hours2);
-			addToLogQueue("DEBUG", "Minutes1: " + minutes1);
-			addToLogQueue("DEBUG", "Minutes2: " + minutes2);
-			addToLogQueue("DEBUG", "LatestDate: " + latestDate);
-			addToLogQueue("DEBUG", "LatestHour: " + latestHour);
-			addToLogQueue("DEBUG", "LatestMinute: " + latestMinute);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "Date1: " + date1);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "Date2: " + date2);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "Hours1: " + hours1);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "Hours2: " + hours2);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "Minutes1: " + minutes1);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "Minutes2: " + minutes2);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "LatestDate: " + latestDate);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "LatestHour: " + latestHour);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "LatestMinute: " + latestMinute);
 			
-			addToLogQueue("DEBUG", "AutoRefresh: " + autoRefresh);
-			addToLogQueue("DEBUG", "ErrorCode: " + getErrorCode());
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "AutoRefresh: " + autoRefresh);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "ErrorCode: " + getErrorCode());
 			
 			if (getErrorMessage() == "") {
-				addToLogQueue("DEBUG", "ErrorMessage: (empty)");
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "ErrorMessage: (empty)");
 			} else {
-				addToLogQueue("DEBUG", "ErrorMessage: " + getErrorMessage());
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "ErrorMessage: " + getErrorMessage());
 			}
 			
-			addToLogQueue("DEBUG", "PHP version: <?php echo phpversion(); ?>");
-			addToLogQueue("DEBUG", "Client Web browser: " + navigator.appName + "(" + navigator.appVersion + ")");
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "PHP version: <?php echo phpversion(); ?>");
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "Client Web browser: " + navigator.appName + "(" + navigator.appVersion + ")");
 		}
 		
 		/*
@@ -1428,8 +1437,10 @@
 		function initialize() {
 			if (debugLogging == 1) printDebugLogging();
 			setProgressBarValue(10);
-			readPHPLogQueue("INFO");
-			readPHPLogQueue("ERROR");
+			
+			queueManager = new QueueManager();
+			importPHPLogQueue("INFO");
+			importPHPLogQueue("ERROR");
 			
 			if (initialZoomLevel == -1) {
 				currentSURFmapZoomLevel = initialSURFmapZoomLevel;
@@ -1496,11 +1507,11 @@
 			
 			setProgressBarValue(20);
 			changeZoomLevelPanel(0, currentSURFmapZoomLevel);
-			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 1. Basic initialization completed");
+			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 1. Basic initialization completed");
 
 			if (getErrorCode() == 1) {
 				generateAlert("filterError");
-				addToLogQueue("INFO", "Stopped initialization due to filter error");
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to filter error");
 				serverTransactions();
 				return;
 			} else if (getErrorCode() == 5) {
@@ -1509,25 +1520,25 @@
 				} else {
 					$("#dialog").dialog("destroy"); // Hide progress bar
 				}
-				addToLogQueue("INFO", "Stopped initialization due to no data error");
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to no data error");
 				serverTransactions();
 				return;				
 			} else if (getErrorCode() == 6) {
 				generateAlert("profileError");
-				addToLogQueue("INFO", "Stopped initialization due to profile error");
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to profile error");
 				serverTransactions();
 				return;
 			}
 
 			setProgressBarValue(30, "Importing NetFlow data...");
-			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data...");
+			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 2. Importing NetFlow data...");
 			importData();
-			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 2. Importing NetFlow data... Done");
+			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 2. Importing NetFlow data... Done");
 			
 			setProgressBarValue(40, "Complementing flow records");
-			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records...");
+			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 3. Complementing flow records...");
 			complementFlowRecords();
-			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 3. Complementing flow records... Done");
+			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 3. Complementing flow records... Done");
 			
 			setInterval("serverTransactions()", 2000);
 		}
@@ -1537,20 +1548,20 @@
 		*/		
 		function processing() {
 			setProgressBarValue(70, "Initializing lines...");
-			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines...");
+			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines...");
 			initializeLines();
-			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 4. Initializing lines... Done");
+			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines... Done");
 
 			setProgressBarValue(80, "Initializing markers...");
-			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers...");
+			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 5. Initializing markers...");
 			initializeMarkers();
-			if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 5. Initializing markers... Done");
+			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 5. Initializing markers... Done");
 			
 			if (demoMode == 0) {
 				setProgressBarValue(90, "Initializing legend...");
-				if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend...");
+				if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 6. Initializing legend...");
 				initializeLegend(currentSURFmapZoomLevel);
-				if (debugLogging == 1) addToLogQueue("DEBUG", "Progress: 6. Initializing legend... Done");
+				if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 6. Initializing legend... Done");
 			}
 			
 			checkForHeavyQuery();
@@ -1562,7 +1573,7 @@
 			}
 
 			setProgressBarValue(100, "Finished loading...");
-			addToLogQueue("INFO", "Initialized");
+			queueManager.addElement(queueManager.queueTypes.INFO, "Initialized");
 			
 			$("#dialog").dialog("destroy"); // Hide progress bar
 
