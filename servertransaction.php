@@ -11,19 +11,20 @@
 	session_start();
 	
 	if (isset($_GET['transactionType'])) {
-		if ($_GET['transactionType'] == "geocoder" && isset($_GET['location']) && isset($_GET['lat']) && isset($_GET['lng'])) {
-			if (storeGeocodedLocation(str_replace("_", " ", $_GET['location']), $_GET['lat'], $_GET['lng'])) {
-				echo "OK##geocoder##".$_GET['location'];
+		if ($_GET['transactionType'] == "GEOCODING" && isset($_GET['location']) && isset($_GET['lat']) && isset($_GET['lng'])) {
+			// if (storeGeocodedLocation(str_replace("_", " ", $_GET['location']), $_GET['lat'], $_GET['lng'])) {
+			if (storeGeocodedLocation($_GET['location'], $_GET['lat'], $_GET['lng'])) {
+				echo "OK##GEOCODING##".$_GET['location'];
 			} else {
-				echo "ERROR##geocoder##".$_GET['location'];
+				echo "ERROR##GEOCODING##".$_GET['location'];
 			}
-		} else if ($_GET['transactionType'] == "log" && isset($_GET['logType']) && isset($_GET['message'])) {
+		} else if ($_GET['transactionType'] == "LOG" && isset($_GET['logType']) && isset($_GET['message'])) {
 			if (!($LOG_ERRORS_ONLY && $_GET['logType'] != "ERROR")) {
 				error_log("[SURFmap | ".$_GET['logType']."] ".str_replace("_", " ", $_GET['message']));
 			}
 
-			echo "OK##log";
-		} else if ($_GET['transactionType'] == "session" && isset($_GET['type']) && isset($_GET['value'])) {
+			echo "OK##LOG";
+		} else if ($_GET['transactionType'] == "SESSION" && isset($_GET['type']) && isset($_GET['value'])) {
 			if ($_GET['type'] == "mapCenter") {
 				$_SESSION['SURFmap']['mapCenter'] = $_GET['value'];
 			} else if ($_GET['type'] == "zoomLevel") {
@@ -32,19 +33,19 @@
 				$_SESSION['SURFmap']['refresh'] = intval($_GET['value']);
 			}
 
-			echo "OK##session";
-		} else if ($_GET['transactionType'] == "stat" && isset($_GET['type']) && isset($_GET['value'])) {
+			echo "OK##SESSION";
+		} else if ($_GET['transactionType'] == "STAT" && isset($_GET['type']) && isset($_GET['value'])) {
 			if (storeGeocodingStat($_GET['type'], $_GET['value'])) {
-				echo "OK##stat";
+				echo "OK##STAT";
 			} else {
-				echo "ERROR##stat";
+				echo "ERROR##STAT";
 			}
-		} else if ($_GET['transactionType'] == "dns" && isset($_GET['value'])) {
+		} else if ($_GET['transactionType'] == "DNS" && isset($_GET['value'])) {
 			$dnsName = gethostbyaddr($_GET['value']);
 			if($dnsName === $_GET['value']) {
-				echo "OK##dns##".$dnsName;
+				echo "OK##DNS##".$dnsName;
 			} else {
-				echo "ERROR##dns";
+				echo "ERROR##DNS";
 			}
 		}
 	} else {

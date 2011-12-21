@@ -18,7 +18,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.2 dev (20111220)";
+	$version = "v2.2 dev (20111221)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -227,13 +227,6 @@
 		var originalTime1Window = "<?php echo $sessionData->originalTime1Window; ?>";
 		var originalDate2Window = "<?php echo $sessionData->originalDate2Window; ?>";
 		var originalTime2Window = "<?php echo $sessionData->originalTime2Window; ?>";
-
-		var INFO_logQueue = [];
-		var ERROR_logQueue = [];
-		var DEBUG_logQueue = [];
-		var GEOCODING_queue = [];
-		var SESSION_queue = [];
-		var STAT_queue = [];
 		
 		var markerManagerInitialized = false;
 		var markersProcessed = false;
@@ -279,35 +272,49 @@
 		// --- End of Geocoding parameters
 		
 	   /**
-		* Stores the specified message in the appropriate log queue (depending on type).
-		* Parameters:
-		*	type - can be either 'INFO', 'ERROR', 'DEBUG'
-		*	message - the log message that has to be written to the log file
-		*/
-		function addToLogQueue(type, message) {
-			if (type == "INFO") {
-				INFO_logQueue.push(message);
-			} else if (type == "ERROR") {
-				ERROR_logQueue.push(message);
-			} else if (type == "DEBUG") {
-				DEBUG_logQueue.push(message);
-			}
-		}
-		
-	   /**
-		* Processes all server transactions. These transactions are using the source file
-		* 'servertransaction.php'. Three server transactions have been defined:
-		*		1: Writing error messages to the log file
-		*		2: Writing informational messages to the log file
-		*		3: Writing a geocoded place's coordinates to a DBMS
-		* The priorities of the transactions are exactly as listed above.
+		* Processes all server transactions. These transactions are using 'servertransaction.php'.
 		*/
 		function serverTransactions() {
-			var somethingToSend = 0;
-			
-			while (ERROR_logQueue.length > 0 || DEBUG_logQueue.length > 0 || INFO_logQueue.length > 0 
-					|| GEOCODING_queue.length > 0 || SESSION_queue.length > 0 || STAT_queue.length > 0) {
-				var logType, message;
+			while (queueManager.getTotalQueueSize() > 0) {				
+				// Gets queue item with highest priority
+				var queueItem = queueManager.getElementPrio();
+								
+				if (queueItem.type == queueManager.queueTypes.INFO
+						|| queueItem.type == queueManager.queueTypes.ERROR
+						|| queueItem.type == queueManager.queueTypes.DEBUG) {
+					data = "transactionType=LOG"
+							+ "&logType=" + queueItem.type 
+							+ "&message=" + escape(queueItem.element);
+				} else if (queueItem.type == queueManager.queueTypes.GEOCODING) {
+					data = "transactionType=GEOCODING"
+							+ "&location=" + escape(queueItem.element.place)
+							+ "&lat=" + queueItem.element.lat
+							+ "&lng=" + queueItem.element.lng;
+				} else {
+					data = "transactionType=" + queueItem.type
+							+ "&type=" + queueItem.element.type 
+							+ "&value=" + queueItem.element.value;
+				}
+				
+				data += "&token=" + Math.random();
+				
+				$.ajax({
+					type: "GET",
+					url: "servertransaction.php",
+					data: data,
+					error: function(msg) {
+						// alert("The Web server is not reachable for AJAX calls. Please check your configuration.");
+					},
+					success: function(msg) {
+						var splittedResult = msg.split("##");
+						if (splittedResult.length == 3 && splittedResult[0] == "OK" 
+								&& splittedResult[1] == queueManager.queueTypes.GEOCODING) {
+							queueManager.addElement(queueManager.queueTypes.INFO, splittedResult[2] + " was stored in GeoCoder DB");
+						}
+					}
+				});			
+				
+				/*
 				if (ERROR_logQueue.length > 0) {
 					message = ERROR_logQueue.shift();
 					logType = "ERROR";
@@ -336,27 +343,7 @@
 					var statData = STAT_queue.shift();
 					data = "transactionType=stat&type=" + statData.type + "&value=" + statData.value + "&token=" + Math.random();
 				}
-
-				// If there is something to send to the server
-				if (somethingToSend == 1) {
-					$.ajax({
-						type: "GET",
-						url: "servertransaction.php",
-						data: data,
-						error: function(msg) {
-							// alert("The Web server is not reachable for AJAX calls. Please check your configuration.");
-						},
-						success: function(msg) {
-							var splittedResult = msg.split("##");
-							if (splittedResult.length == 3 && splittedResult[0] == "OK" && splittedResult[1] == "geocoder") {
-								addToLogQueue("INFO", splittedResult[2] + " was stored in GeoCoder DB");
-								queueManager.addElement(queueManager.queueTypes.INFO, splittedResult[2] + " was stored in GeoCoder DB");
-							}
-						}
-					});
-					somethingToSend = 0;
-					logType = "";
-				}
+				*/
 			}
 		}
 
@@ -377,7 +364,6 @@
 			if (logString.length > 0) {
 				var logArray = logString.split("##");
 				for (var i = 0; i < logArray.length; i++) {
-					addToLogQueue(type, logArray[i]);
 					if (type == "INFO") {
 						queueManager.addElement(queueManager.queueTypes.INFO, logArray[i]);
 					} else if (type == "ERROR") {
@@ -633,7 +619,6 @@
 			if (geocoderRequestsSuccess + geocoderRequestsError + geocoderRequestsSkip + successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests <= 2250) {
 				geocoder.geocode({'address': place}, function(results, status) {
 					if (status == google.maps.GeocoderStatus.OK) {
-						addToLogQueue("INFO", place + " was geocoded successfully");
 						queueManager.addElement(queueManager.queueTypes.INFO, place + " was geocoded successfully");
 						
 						// Store geocoded location in cache DB
@@ -641,7 +626,7 @@
 						geocodedPlaces.push(geocodedPlace);
 						
 						if (WRITE_DATA_TO_GEOCODER_DB == 1) {
-							GEOCODING_queue.push(geocodedPlace);
+							queueManager.addElement(queueManager.queueTypes.GEOCODING, geocodedPlace);
 						}
 						
 						geocodingDelay = 500;
@@ -653,7 +638,6 @@
 							geocode(place);
 						}, geocodingDelay);
 					} else {
-						addToLogQueue("ERROR", "Geocoder could not find " + place + ". Reason: " + status);
 						queueManager.addElement(queueManager.queueTypes.ERROR, "Geocoder could not find " + place + ". Reason: " + status);
 						geocodedPlaces.push(new GeocodedPlace(place, 0, 0));
 						erroneousGeocodingRequests++;
@@ -1463,12 +1447,12 @@
 				mapCenterWithoutGray = hideGrayMapArea();
 			});
 			google.maps.event.addListener(map, "dragend", function() {
-				SESSION_queue.push(new SessionData("mapCenter", map.getCenter().lat() + "," + map.getCenter().lng()));
+				queueManager.addElement(queueManager.queueTypes.SESSION, new SessionData("mapCenter", map.getCenter().lat() + "," + map.getCenter().lng()));
 			});
 			google.maps.event.addListener(map, "zoom_changed", function() {
 				var newZoomLevel = map.getZoom();
 				var newSurfmapZoomLevel = getSurfmapZoomLevel(newZoomLevel);
-				SESSION_queue.push(new SessionData("zoomLevel", newZoomLevel));
+				queueManager.addElement(queueManager.queueTypes.SESSION, new SessionData("zoomLevel", newZoomLevel));
 				
 				if (currentSURFmapZoomLevel != newSurfmapZoomLevel) {
 					infoWindow.close();
@@ -1566,10 +1550,10 @@
 			
 			checkForHeavyQuery();
 			if (successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests > 0) {
-				STAT_queue.push(new StatData("geocoderRequestsSuccess", successfulGeocodingRequests));
-				STAT_queue.push(new StatData("geocoderRequestsError", erroneousGeocodingRequests));
-				STAT_queue.push(new StatData("geocoderRequestsSkip", skippedGeocodingRequests));
-				STAT_queue.push(new StatData("geocoderRequestsBlock", blockedGeocodingRequests));
+				queueManager.addElement(queueManager.queueTypes.STAT, new StatData("geocoderRequestsSuccess", successfulGeocodingRequests));
+				queueManager.addElement(queueManager.queueTypes.STAT, new StatData("geocoderRequestsError", erroneousGeocodingRequests));
+				queueManager.addElement(queueManager.queueTypes.STAT, new StatData("geocoderRequestsSkip", skippedGeocodingRequests));
+				queueManager.addElement(queueManager.queueTypes.STAT, new StatData("geocoderRequestsBlock", blockedGeocodingRequests));
 			}
 
 			setProgressBarValue(100, "Finished loading...");
@@ -1945,10 +1929,10 @@
 		*/		
 		function manageAutoRefresh() {
 			if (document.getElementById("auto-refresh").checked) {
-				SESSION_queue.push(new SessionData("refresh", 300));
+				queueManager.addElement(queueManager.queueTypes.SESSION, new SessionData("refresh", 300));
 				autoRefreshID = setTimeout("window.location.replace(\"index.php?autorefresh=1\")", 300000);
 			} else {
-				SESSION_queue.push(new SessionData("refresh", 0));
+				queueManager.addElement(queueManager.queueTypes.SESSION, new SessionData("refresh", 0));
 				clearTimeout(autoRefreshID);
 			}
 		}
