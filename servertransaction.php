@@ -14,16 +14,16 @@
 		if ($_GET['transactionType'] == "GEOCODING" && isset($_GET['location']) && isset($_GET['lat']) && isset($_GET['lng'])) {
 			// if (storeGeocodedLocation(str_replace("_", " ", $_GET['location']), $_GET['lat'], $_GET['lng'])) {
 			if (storeGeocodedLocation($_GET['location'], $_GET['lat'], $_GET['lng'])) {
-				echo "OK##GEOCODING##".$_GET['location'];
+				echo "GEOCODING##OK##".$_GET['location'];
 			} else {
-				echo "ERROR##GEOCODING##".$_GET['location'];
+				echo "GEOCODING##ERROR##".$_GET['location'];
 			}
 		} else if ($_GET['transactionType'] == "LOG" && isset($_GET['logType']) && isset($_GET['message'])) {
 			if (!($LOG_ERRORS_ONLY && $_GET['logType'] != "ERROR")) {
 				error_log("[SURFmap | ".$_GET['logType']."] ".str_replace("_", " ", $_GET['message']));
 			}
 
-			echo "OK##LOG";
+			echo "LOG##OK";
 		} else if ($_GET['transactionType'] == "SESSION" && isset($_GET['type']) && isset($_GET['value'])) {
 			if ($_GET['type'] == "mapCenter") {
 				$_SESSION['SURFmap']['mapCenter'] = $_GET['value'];
@@ -33,19 +33,19 @@
 				$_SESSION['SURFmap']['refresh'] = intval($_GET['value']);
 			}
 
-			echo "OK##SESSION";
+			echo "SESSION##OK";
 		} else if ($_GET['transactionType'] == "STAT" && isset($_GET['type']) && isset($_GET['value'])) {
 			if (storeGeocodingStat($_GET['type'], $_GET['value'])) {
-				echo "OK##STAT";
+				echo "STAT##OK##".$_GET['type'];
 			} else {
-				echo "ERROR##STAT";
+				echo "STAT##ERROR##".$_GET['type'];
 			}
 		} else if ($_GET['transactionType'] == "DNS" && isset($_GET['value'])) {
-			$dnsName = gethostbyaddr($_GET['value']);
-			if($dnsName === $_GET['value']) {
-				echo "OK##DNS##".$dnsName;
-			} else {
-				echo "ERROR##DNS";
+			try {
+				$dnsName = gethostbyaddr($_GET['value']);
+				echo "DNS##OK##".$_GET['value']."##".$dnsName;
+			} catch (Exception $e) {
+				echo "DNS##ERROR##".$_GET['value'];
 			}
 		}
 	} else {

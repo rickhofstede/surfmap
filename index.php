@@ -1,5 +1,5 @@
 <?php
-/*******************************
+/******************************
  * index.php [SURFmap]
  * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
  * University of Twente, The Netherlands
@@ -248,16 +248,17 @@
 		var autoRefresh = <?php echo $_SESSION['SURFmap']['refresh']; ?>;
 		var autoRefreshID = -1;
 	
+		var greenIcon = new google.maps.MarkerImage("images/green_marker.png", new google.maps.Size(20, 34));
+		var protocols = ["Reserved", "ICMP", "IGMP", "GGP", "Encapsulated IP", "ST", "TCP", "UCL", "EGP", "IGP", "BBN-RCC-MON", "NVP-II", "PUP", "ARGUS", "EMCON", "XNET", "CHAOS", "UDP", "MUX", "DCN-MEAS", "HMP", "PRM", "XNS-IDP", "trUNK-1", "trUNK-2", "LEAF-1", "LEAF-2", "RDP", "IRTP", "ISO-TP4", "NETBLT", "MFE-NSP", "MERIT-INP", "SEP", "3PC", "IDPR", "XTP", "DDP", "IDPR-CMTP", "TP++", "IL", "SIP", "SDRP", "SIP-SR", "SIP-FRAG", "IDRP", "RSVP", "GRE", "MHRP", "BNA", "SIPP-ESP", "SIPP-AH", "I-NLSP", "SWIPE", "NHRP", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Any host internal protocol", "CFTP", "Any local network", "SAT-EXPAK", "KRYPTOLAN", "RVD", "IPPC", "Any distributed file system", "SAT-MON", "VISA", "IPCV", "CPNX", "CPHB", "WSN", "PVP", "BR-SAT-MON", "SUN-ND", "WB-MON", "WB-EXPAK", "ISO-IP", "VMTP", "SECURE-VMTP", "VIVES", "TTP", "NSFNET-IGP", "DGP", "TCF", "IGRP", "OSPFIGP", "Sprite-RPC", "LARP", "MTP", "AX.25", "IFIP", "MICP", "SCC-SP", "ETHERIP", "ENCAP", "Any private encryption scheme", "GMTP"];
 		var GEOLOCATION_DB = "<?php echo $GEOLOCATION_DB; ?>";
 		var IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION = "<?php echo $IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION; ?>";
 		
-		var greenIcon = new google.maps.MarkerImage("images/green_marker.png", new google.maps.Size(20, 34));
+		var resolvedDNSNames = [];
+		var DNSNameResolveQueue = [];
 		
 		// NfSen parameters
 		var nfsenOption = <?php echo $_SESSION['SURFmap']['nfsenOption']; ?>; // 0: List flows; 1: Top StatN
 		var nfsenStatOrder = "<?php echo $_SESSION['SURFmap']['nfsenStatOrder']; ?>"; // flows, packets or octets
-
-		var protocols = ["Reserved", "ICMP", "IGMP", "GGP", "Encapsulated IP", "ST", "TCP", "UCL", "EGP", "IGP", "BBN-RCC-MON", "NVP-II", "PUP", "ARGUS", "EMCON", "XNET", "CHAOS", "UDP", "MUX", "DCN-MEAS", "HMP", "PRM", "XNS-IDP", "trUNK-1", "trUNK-2", "LEAF-1", "LEAF-2", "RDP", "IRTP", "ISO-TP4", "NETBLT", "MFE-NSP", "MERIT-INP", "SEP", "3PC", "IDPR", "XTP", "DDP", "IDPR-CMTP", "TP++", "IL", "SIP", "SDRP", "SIP-SR", "SIP-FRAG", "IDRP", "RSVP", "GRE", "MHRP", "BNA", "SIPP-ESP", "SIPP-AH", "I-NLSP", "SWIPE", "NHRP", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Any host internal protocol", "CFTP", "Any local network", "SAT-EXPAK", "KRYPTOLAN", "RVD", "IPPC", "Any distributed file system", "SAT-MON", "VISA", "IPCV", "CPNX", "CPHB", "WSN", "PVP", "BR-SAT-MON", "SUN-ND", "WB-MON", "WB-EXPAK", "ISO-IP", "VMTP", "SECURE-VMTP", "VIVES", "TTP", "NSFNET-IGP", "DGP", "TCF", "IGRP", "OSPFIGP", "Sprite-RPC", "LARP", "MTP", "AX.25", "IFIP", "MICP", "SCC-SP", "ETHERIP", "ENCAP", "Any private encryption scheme", "GMTP"];
 		
 		// --- Geocoding parameters
 		var geocodingDelay = 100;
@@ -271,9 +272,9 @@
 		var WRITE_DATA_TO_GEOCODER_DB = <?php echo $WRITE_DATA_TO_GEOCODER_DB; ?>;
 		// --- End of Geocoding parameters
 		
-	   /**
-		* Processes all server transactions. These transactions are using 'servertransaction.php'.
-		*/
+	    /*
+		 * Processes all server transactions. These transactions are using 'servertransaction.php'.
+		 */
 		function serverTransactions() {
 			while (queueManager.getTotalQueueSize() > 0) {				
 				// Gets queue item with highest priority
@@ -290,6 +291,9 @@
 							+ "&location=" + escape(queueItem.element.place)
 							+ "&lat=" + queueItem.element.lat
 							+ "&lng=" + queueItem.element.lng;
+				} else if (queueItem.type == queueManager.queueTypes.DNS) {
+					data = "transactionType=" + queueItem.type
+							+ "&value=" + queueItem.element;				
 				} else {
 					data = "transactionType=" + queueItem.type
 							+ "&type=" + queueItem.element.type 
@@ -307,51 +311,21 @@
 					},
 					success: function(msg) {
 						var splittedResult = msg.split("##");
-						if (splittedResult.length == 3 && splittedResult[0] == "OK" 
-								&& splittedResult[1] == queueManager.queueTypes.GEOCODING) {
+						if (splittedResult[0] == queueManager.queueTypes.GEOCODING && splittedResult[1] == "OK") {
 							queueManager.addElement(queueManager.queueTypes.INFO, splittedResult[2] + " was stored in GeoCoder DB");
+						} else if (splittedResult[0] == queueManager.queueTypes.DNS && splittedResult[1] == "OK") {
+							resolvedDNSNames.push(new DNSName(splittedResult[2], splittedResult[3]));
 						}
 					}
-				});			
-				
-				/*
-				if (ERROR_logQueue.length > 0) {
-					message = ERROR_logQueue.shift();
-					logType = "ERROR";
-				} else if (DEBUG_logQueue.length > 0) {
-					message = DEBUG_logQueue.shift();
-					logType = "DEBUG";
-				} else if (INFO_logQueue.length > 0) {
-					message = INFO_logQueue.shift();
-					logType = "INFO";
-				}
-				
-				var data;
-				if (logType == "ERROR" || logType == "DEBUG" || logType == "INFO") {
-					somethingToSend = 1;
-					data = "transactionType=log&message=" + message.replace(" ", "_") + "&logType=" + logType + "&token=" + Math.random();
-				} else if (GEOCODING_queue.length > 0) {
-					somethingToSend = 1;
-					var placeToStore = GEOCODING_queue.shift();
-					data = "transactionType=geocoder&location=" + placeToStore.place.replace(" ", "_") + "&lat=" + placeToStore.lat + "&lng=" + placeToStore.lng + "&token=" + Math.random();
-				} else if (SESSION_queue.length > 0) {
-					somethingToSend = 1;
-					var sessionData = SESSION_queue.shift();
-					data = "transactionType=session&type=" + sessionData.type + "&value=" + sessionData.value + "&token=" + Math.random();
-				} else if (STAT_queue.length > 0) {
-					somethingToSend = 1;
-					var statData = STAT_queue.shift();
-					data = "transactionType=stat&type=" + statData.type + "&value=" + statData.value + "&token=" + Math.random();
-				}
-				*/
+				});
 			}
 		}
 
-	   /**
-	    * Reads the PHP ERROR log queue.
-		* Parameters:
-		*	type - can be either INFO or ERROR
-		*/			
+	    /*
+	     * Reads the PHP ERROR log queue.
+		 * Parameters:
+		 *	type - can be either INFO or ERROR
+		 */			
 		function importPHPLogQueue(type) {
 			var logString;
 			
@@ -373,10 +347,10 @@
 			}
 		}
 			
-	   /**
-		* This function puts the network traffic and gegraphical information in a Javascript
-		* associative array.
-		*/			
+	    /*
+		 * This function puts the network traffic and gegraphical information in a Javascript
+		 * associative array.
+		 */			
 		function importData() {
 			// NetFlow data
 			var IPs = stringToArray("<?php echo stringifyNetFlowData($sessionData->NetFlowData, $sessionData->flowRecordCount, 'IP'); ?>", "IP", flowRecordCount);
@@ -424,10 +398,10 @@
 			}
 		}
 		
-	   /**
-		* Checks whether places need to be geocoded and whether geolocation information of places at a certain
-		* zoom level X can be complemented by geolocation information for the same place at zoom level X+1.
-		*/			
+	    /*
+		 * Checks whether places need to be geocoded and whether geolocation information of places at a certain
+		 * zoom level X can be complemented by geolocation information for the same place at zoom level X+1.
+		 */			
 		function complementFlowRecords() {
 			for (var i = 0; i < flowRecordCount; i++) {
 				var entry = flowRecords[i].srcCountry;
@@ -561,11 +535,11 @@
 			}, 100);	
 		}		
 		
-	   /**
-		* This function determines the corresponding protocol of the specified protocol number.
-		* Parameters:
-		*	number - the protocol number of which the corresponding name has to be resolved
-		*/			
+	    /*
+		 * This function determines the corresponding protocol of the specified protocol number.
+		 * Parameters:
+		 *	number - the protocol number of which the corresponding name has to be resolved
+		 */			
 		function determineProtocolName(number) {
 			var protocol;
 			
@@ -588,12 +562,12 @@
 			return protocol;
 		}
 
-	   /**
-		* Removes the country names from geocoded places. This meta data has only been added to region and
-		* city names.
-		* Parameters:
-		*	place - geocoder string from which the meta data needs to be stripped
-		*/
+	    /*
+		 * Removes the country names from geocoded places. This meta data has only been added to region and
+		 * city names.
+		 * Parameters:
+		 *	place - geocoder string from which the meta data needs to be stripped
+		 */
 		function stripGeocoderMetaData(place) {
 			var strippedPlace;
 			if (place.lastIndexOf(", ") != -1) {
@@ -604,11 +578,11 @@
 			return strippedPlace;
 		}
 		
-	   /**
-		* This function starts calls to the Google Maps API GeoCoder.
-		* Parameters:
-		*	place - name of the place that has to be geocoded
-		*/
+	    /*
+		 * This function starts calls to the Google Maps API GeoCoder.
+		 * Parameters:
+		 *	place - name of the place that has to be geocoded
+		 */
 		function geocode(place) {
 			if (place == "INVALID IPV4 ADDRESS" && !outputGeocodingErrorMessage) {
 				outputGeocodingErrorMessage = 1;
@@ -649,14 +623,14 @@
 			}
 		}
 		
-	   /**
-		* Checks whether a particular marker record already exists for the marker with
-		* the specified ID.
-		* Parameters:
-		*	level - a SURFmap zoom level
-		*	markerID - ID of the marker that needs to be checked
-		*	name - name to be present in the record
-		*/		
+	    /*
+		 * Checks whether a particular marker record already exists for the marker with
+		 * the specified ID.
+		 * Parameters:
+		 *	level - a SURFmap zoom level
+		 *	markerID - ID of the marker that needs to be checked
+		 *	name - name to be present in the record
+		 */		
 		function markerRecordExists(level, markerID, name) {
 			var markerRecordIndex = -1;
 			for (var i = 0; i < markerProperties[level][markerID].markerRecords.length; i++) {
@@ -668,15 +642,15 @@
 			return markerRecordIndex;
 		}		
 			
-	   /**
-		* Checks whether a particular line record already exists for the line with
-		* the specified ID.
-		* Parameters:
-		*	level - a SURFmap zoom level
-		*	lineID - ID of the line that needs to be checked
-		*	srcName - name of the source to be present in the record
-		*	dstName - name of the destination to be present in the record
-		*/		
+	    /*
+		 * Checks whether a particular line record already exists for the line with
+		 * the specified ID.
+		 * Parameters:
+		 *	level - a SURFmap zoom level
+		 *	lineID - ID of the line that needs to be checked
+		 *	srcName - name of the source to be present in the record
+		 *	dstName - name of the destination to be present in the record
+		 */		
 		function lineRecordExists(level, lineID, srcName, dstName) {
 			var lineRecordIndex = -1;
 			for (var i = 0; i < lineProperties[level][lineID].lineRecords.length; i++) {
@@ -688,9 +662,9 @@
 			return lineRecordIndex;
 		}
 		
-	   /**
-		* This function initializes all markers for all zoom levels.
-		*/			
+	    /*
+		 * This function initializes all markers for all zoom levels.
+		 */			
 		function initializeMarkers() {
 			var MAX_INFO_WINDOW_LINES = 13, existValue;
 			
@@ -881,16 +855,14 @@
 							
 							// TODO Handle case where more than MAX_INFO_WINDOW_LINES lines are present in information window
 							
+							tableBody += "<tr><td class=\"infowindow_ip\">" + markerProperties[i][j].markerRecords[orderArrayIndex].name + "</td>";
+							tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].flows + "</td>";
+							tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].protocol + "</td>";
+							
 							if (k == 0) {
-								tableBody += "<tr><td>" + markerProperties[i][j].markerRecords[orderArrayIndex].name + "</td>";
-								tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].flows + "</td>";
-								tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].protocol + "</td>";
 								tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].port + "</td>";
 								tableBody += "<td rowspan='" + recordCount + "'>" + formatName(markerProperties[i][j].markerRecords[orderArrayIndex].countryName) + "<br />" + formatName(markerProperties[i][j].markerRecords[orderArrayIndex].regionName) + "<br />" + formatName(markerProperties[i][j].markerRecords[orderArrayIndex].cityName) + "</td></tr>";
 							} else {
-								tableBody += "<tr><td>" + markerProperties[i][j].markerRecords[orderArrayIndex].name + "</td>";
-								tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].flows + "</td>";
-								tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].protocol + "</td>";
 								tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].port + "</td></tr>";
 							}
 						}
@@ -917,9 +889,9 @@
 			markersProcessed = true;
 		}
 		
-	   /**
-		* This function initializes all lines for all zoom levels.
-		*/			
+	    /*
+		 * This function initializes all lines for all zoom levels.
+		 */			
 		function initializeLines() {
 			for (var i = 0; i < 4; i++) { // Zoom levels
 				lineProperties[i] = []; // Initialize lineProperties storage
@@ -1117,15 +1089,15 @@
 					for (var k = 0; k < orderArray.length; k++) {
 						var orderArrayIndex = orderArray[k];
 						if (i == COUNTRY) {
-							tableBody += "<tr><td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcName) + "</b></td>";
-							tableBody += "<td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</b></td>";
+							tableBody += "<tr><td style=\"font-weight:bold;\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcName) + "</td>";
+							tableBody += "<td style=\"font-weight:bold;\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</td>";
 							tableBody += "<td>" + lineProperties[i][j].lineRecords[orderArrayIndex].flows + "</td>";
 							tableBody += "<td>" + applySIScale(lineProperties[i][j].lineRecords[orderArrayIndex].packets) + "</td>";
 							tableBody += "<td>" + applySIScale(lineProperties[i][j].lineRecords[orderArrayIndex].octets) + "</td>";
 							tableBody += "<td>" + formatThroughput(lineProperties[i][j].lineRecords[orderArrayIndex].throughput) + "</td></tr>";
 						} else if (i == REGION) {
-							tableBody += "<tr><td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcParentCountryName) + "</b></td>";
-							tableBody += "<td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentCountryName) + "</b></td>";
+							tableBody += "<tr><td style=\"font-weight:bold;\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcParentCountryName) + "</td>";
+							tableBody += "<td style=\"font-weight:bold;\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentCountryName) + "</td>";
 							tableBody += "<td rowspan='2'>" + lineProperties[i][j].lineRecords[orderArrayIndex].flows + "</td>";
 							tableBody += "<td rowspan='2'>" + applySIScale(lineProperties[i][j].lineRecords[orderArrayIndex].packets) + "</td>";
 							tableBody += "<td rowspan='2'>" + applySIScale(lineProperties[i][j].lineRecords[orderArrayIndex].octets) + "</td>";
@@ -1133,8 +1105,8 @@
 							tableBody += "<tr><td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcName) + "</td>";
 							tableBody += "<td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</td></tr>";
 						} else if (i == CITY) {
-							tableBody += "<tr><td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcParentCountryName) + "</b></td>";
-							tableBody += "<td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentCountryName) + "</b></td>";
+							tableBody += "<tr><td style=\"font-weight:bold;\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcParentCountryName) + "</td>";
+							tableBody += "<td style=\"font-weight:bold;\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentCountryName) + "</td>";
 							tableBody += "<td rowspan='3'>" + lineProperties[i][j].lineRecords[orderArrayIndex].flows + "</td>";
 							tableBody += "<td rowspan='3'>" + applySIScale(lineProperties[i][j].lineRecords[orderArrayIndex].packets) + "</td>";
 							tableBody += "<td rowspan='3'>" + applySIScale(lineProperties[i][j].lineRecords[orderArrayIndex].octets) + "</td>";
@@ -1144,8 +1116,8 @@
 							tableBody += "<tr><td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcName) + "</td>";
 							tableBody += "<td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</td></tr>";
 						} else { // i == HOST
-							tableBody += "<tr><td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcParentCountryName) + "</b></td>";
-							tableBody += "<td><b>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentCountryName) + "</b></td>";
+							tableBody += "<tr><td style=\"font-weight:bold;\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcParentCountryName) + "</td>";
+							tableBody += "<td style=\"font-weight:bold;\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentCountryName) + "</td>";
 							tableBody += "<td rowspan='4'>" + lineProperties[i][j].lineRecords[orderArrayIndex].flows + "</td>";
 							tableBody += "<td rowspan='4'>" + applySIScale(lineProperties[i][j].lineRecords[orderArrayIndex].packets) + "</td>";
 							tableBody += "<td rowspan='4'>" + applySIScale(lineProperties[i][j].lineRecords[orderArrayIndex].octets) + "</td>";
@@ -1154,8 +1126,8 @@
 							tableBody += "<td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentRegionName) + "</td></tr>";
 							tableBody += "<tr><td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcParentCityName) + "</td>";
 							tableBody += "<td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentCityName) + "</td></tr>";
-							tableBody += "<tr><td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcName) + "</td>";
-							tableBody += "<td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</td></tr>";
+							tableBody += "<tr><td class=\"infowindow_ip\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcName) + "</td>";
+							tableBody += "<td class=\"infowindow_ip\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</td></tr>";
 						}
 
 						for (var l = 0; l < lineProperties[i][j].lineRecords[orderArrayIndex].flowRecordIDs.length; l++) {
@@ -1194,12 +1166,13 @@
 			refreshLineOverlays(currentSURFmapZoomLevel);
 		}
 		
-	   /**
-		* Determines the line color ranges based on the current flow property (either flows, packets or bytes).
-		* Parameters:
-		*	level - a SURFmap zoom level
-		*	property - either 'flows', 'packets' or 'bytes'
-		*/
+	    /*
+		 * Determines the line color ranges based on the current flow property
+		 * (either flows, packets or bytes).
+		 * Parameters:
+		 *	level - a SURFmap zoom level
+		 *	property - either 'flows', 'packets' or 'bytes'
+		 */
 		function determineLineColorRanges(level, property) {
 			var min = -1;
 			var max = -1;
@@ -1252,11 +1225,12 @@
 			}
 		}
 		
-	   /**
-		* Returns the actual line color of a line, based on the classification made in 'determineLineColorRanges'.
-		* Parameters:
-		*	lineTotal - sum of either flows, packets or bytes of the specific line
-		*/
+	    /*
+		 * Returns the actual line color of a line, based on the classification made 
+		 * in 'determineLineColorRanges'.
+		 * Parameters:
+		 *	lineTotal - sum of either flows, packets or bytes of the specific line
+		 */
 		function determineLineColor(lineTotal) {
 			if (lineColors == 2) {
 				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return green;
@@ -1278,14 +1252,14 @@
 			}
 		}
 		
-	   /**
-		* This function creates GMarkers, according to the specified coordinates
-		* and puts the specified text into the marker's information window.
-		* Parameters:
-		*	level - the SURFmap zoom level for which the marker is created
-		*	coordinates - the coordinates on which the marker should be created
-		*	text - the text that has to be put into the marker's information window
-		*/			
+	    /*
+		 * This function creates GMarkers, according to the specified coordinates
+		 * and puts the specified text into the marker's information window.
+		 * Parameters:
+		 *	level - the SURFmap zoom level for which the marker is created
+		 *	coordinates - the coordinates on which the marker should be created
+		 *	text - the text that has to be put into the marker's information window
+		 */			
 		function createMarker(level, coordinates, text) {
 			var internalTrafficMarker = 0;
 			
@@ -1318,20 +1292,27 @@
 				infoWindow.close();
 				infoWindow.setContent(text);
 				infoWindow.open(map, marker);
+
+				$("td.infowindow_ip:visible").each(function(index) {
+					queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
+				});
+				if($("td.infowindow_ip:visible").is(':visible')) {
+					DNSNameResolveQueue.push(setInterval("processResolvedDNSNames()", 500));
+				}
 			});
 
 			return marker;
 		}
-		
-	   /**
-		* This function creates GPolylines, according to the specified coordinates
-		* and puts the specified text into the line's information window.
-		* Parameters:
-		*	coordinate1 - one end point of the line
-		*	coordinate2 - one end point of the line
-		*	text - the text that has to be put into the line's information window
-		*	color - color of the line (used for line color classification)
-		*/
+				
+	    /*
+	     * This function creates GPolylines, according to the specified coordinates
+		 * and puts the specified text into the line's information window.
+		 * Parameters:
+		 *	coordinate1 - one end point of the line
+		 *	coordinate2 - one end point of the line
+		 *	text - the text that has to be put into the line's information window
+		 *	color - color of the line (used for line color classification)
+		 */
 		function createLine(coordinate1, coordinate2, text, color) {
 			var lineOptions = {
 				geodesic: true,
@@ -1356,13 +1337,49 @@
 				
 				infoWindow.setContent(text);
 				infoWindow.open(map);
+
+				$("td.infowindow_ip:visible").each(function(index) {
+					queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
+				});
+				if($("td.infowindow_ip:visible").is(':visible')) {
+					DNSNameResolveQueue.push(setInterval("processResolvedDNSNames()", 500));
+				}
 			});
 			
 			return line;
 		}
 		
+	    /*
+	     * Checks whether all the DNS names of the IP address in the currently
+		 * opened information window are resolved. The resolved names are added
+		 * to the information window. As soon as all names are resolved, the
+		 * periodic execution of this method is stopped.
+		 */		
+		function processResolvedDNSNames() {
+			if($(".informationWindowHeader").is(':visible')) { // infowindow is visible
+				var totalIPCount = $("td.infowindow_ip:visible").length;
+				var resolvedCount = 0;
+				
+				$("td.infowindow_ip:visible").each(function(index) {
+					for (var i = 0; i < resolvedDNSNames.length; i++) {
+						if($(this).text() == resolvedDNSNames[i].ip) {
+							resolvedCount++;
+							$(this).attr("title", resolvedDNSNames[i].name);
+							break;
+						}
+					}
+				});
+				
+				if(resolvedCount == totalIPCount) {
+					for (var i = 0; i < DNSNameResolveQueue.length; i++) {
+						clearInterval(DNSNameResolveQueue.splice(0, 1));
+					}
+				}
+			}
+		}		
+		
 		/*
-		 * Adds debugging information to the INFO log queue.
+		 * Adds debugging information to the DEBUG log queue.
 		 */
 		function printDebugLogging() {
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "Application version: " + applicationVersion);
@@ -1414,10 +1431,10 @@
 			return errorMessage;
 		}
 		
-	   /**
-		* This function is called when automatically when loading the SURFmap Web page.
-		* It contains the first stage of processing.
-		*/
+	    /*
+		 * This function is called when automatically when loading the SURFmap Web page.
+		 * It contains the first stage of processing.
+		 */
 		function initialize() {
 			queueManager = new QueueManager();
 			importPHPLogQueue("INFO");
@@ -1527,9 +1544,9 @@
 			setInterval("serverTransactions()", 2000);
 		}
 		
-	   /**
-		* This function contains the second stage of processing.
-		*/		
+	   /*
+		 * This function contains the second stage of processing.
+		 */		
 		function processing() {
 			setProgressBarValue(70, "Initializing lines...");
 			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines...");
@@ -1785,7 +1802,7 @@
 		// Generate progress bar (jQuery)
 		generateDialog("progressBar", "");
 		
-	   /**
+	   /*
 		* Checks whether a (suspected) heavy query has been selected. This is done based on the amount
 		* of selected sources and the filter length.
 		*/		
@@ -1803,7 +1820,7 @@
 			}
 		}		
 		
-	   /**
+	   /*
 		* Shows the NfSen flow output / overview (depends on whether or not it is already present) in a dialog.
 		* When the table has been generated, generateDialog() is called to put it into a jQuery dialog.
 		* Parameters:
@@ -1853,7 +1870,7 @@
 			generateDialog("netflowDetails", netflowDataDetailsTable);
 		}
 
-	   /**
+	   /*
 		* Sets the center of the Google Maps map to the specified endpoint (either source's endpoint, or destination's 
 		* endpoint, depending on parameter).
 		* Parameters:
@@ -1873,7 +1890,7 @@
 			}
 		}
 		
-	   /**
+	   /*
 		* Writes the legend beneath the Google Maps map, depending on the line color classification.
 		* Parameters:
 		*		zoom_level - a SURFmap zoom level
@@ -1907,7 +1924,7 @@
 			rows[new_zoom_level].checked = true;
 		}
 				
-	   /**
+	   /*
 		* Copies date/time from one date/time selector to another.
 		* Parameters:
 		*		selector1 - ID of the source date/time selector
@@ -1923,7 +1940,7 @@
 			}
 		}
 		
-	   /**
+	   /*
 		* Manages the execution or stop of auto-refresh, based on the checkbox in the
 		* user interface.
 		*/		
