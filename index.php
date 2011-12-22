@@ -405,22 +405,22 @@
 		function complementFlowRecords() {
 			for (var i = 0; i < flowRecordCount; i++) {
 				var entry = flowRecords[i].srcCountry;
-				if (flowRecords[i].srcCountryLat == -1 && entry.indexOf("nknown") == -1	&& arrayElementIndex(geocodingQueue, entry) == -1) {
+				if (flowRecords[i].srcCountryLat == -1 && entry.indexOf("nknown") == -1	&& jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].dstCountry;
-				if (flowRecords[i].dstCountryLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
+				if (flowRecords[i].dstCountryLat == -1 && entry.indexOf("nknown") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion;
-				if (flowRecords[i].srcRegionLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
+				if (flowRecords[i].srcRegionLat == -1 && entry.indexOf("nknown") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion;
-				if (flowRecords[i].dstRegionLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
+				if (flowRecords[i].dstRegionLat == -1 && entry.indexOf("nknown") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
@@ -429,7 +429,7 @@
 				} else {
 					entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcCity;
 				}
-				if (flowRecords[i].srcCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
+				if (flowRecords[i].srcCityLat == -1 && entry.indexOf("nknown") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
@@ -439,7 +439,7 @@
 					entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity;
 				}				
 				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion + ", " + flowRecords[i].dstCity;
-				if (flowRecords[i].dstCityLat == -1 && entry.indexOf("nknown") == -1 && arrayElementIndex(geocodingQueue, entry) == -1) {
+				if (flowRecords[i].dstCityLat == -1 && entry.indexOf("nknown") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 			}
@@ -1200,8 +1200,8 @@
 					}
 				}
 
-				if(lineTotal > 0) {
-					if(min == -1 && max == -1) { // initialization values
+				if (lineTotal > 0) {
+					if (min == -1 && max == -1) { // initialization values
 						min = lineTotal;
 						max = lineTotal;
 					} else if (lineTotal < min) {
@@ -1212,7 +1212,7 @@
 				}
 			}
 
-			if(min == -1 && max == -1) { // initialization values
+			if (min == -1 && max == -1) { // initialization values
 				min = 1;
 				max = 1;	
 			}
@@ -1294,7 +1294,7 @@
 				infoWindow.open(map, marker);
 
 				$("td.infowindow_ip:visible").each(function(index) {
-					if(!resolvedDNSNames.hasOwnProperty($(this).text())) {
+					if (!resolvedDNSNames.hasOwnProperty($(this).text())) {
 						queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
 					}					
 				});
@@ -1339,7 +1339,7 @@
 				infoWindow.open(map);
 
 				$("td.infowindow_ip:visible").each(function(index) {
-					if(!resolvedDNSNames.hasOwnProperty($(this).text())) {
+					if (!resolvedDNSNames.hasOwnProperty($(this).text())) {
 						queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
 					}					
 				});
@@ -1356,18 +1356,18 @@
 		 * periodic execution of this method is stopped.
 		 */		
 		function processResolvedDNSNames() {
-			if($(".informationWindowHeader").is(':visible')) { // infowindow is visible
+			if ($(".informationWindowHeader").is(':visible')) { // infowindow is visible
 				var totalIPCount = $("td.infowindow_ip:visible").length;
 				var resolvedCount = 0;
 				
 				$("td.infowindow_ip:visible").each(function(index) {
-					if(resolvedDNSNames.hasOwnProperty($(this).text())) {
+					if (resolvedDNSNames.hasOwnProperty($(this).text())) {
 						resolvedCount++;
 						$(this).attr("title", resolvedDNSNames[$(this).text()]);
 					}
 				});
 				
-				if(resolvedCount == totalIPCount) {
+				if (resolvedCount == totalIPCount) {
 					for (var i = 0; i < DNSNameResolveQueue.length; i++) {
 						clearInterval(DNSNameResolveQueue.splice(0, 1));
 					}
@@ -1479,7 +1479,7 @@
 				}
 
 				google.maps.event.addListenerOnce(map, "idle", function() {
-					if(grayMapAreaPresent()) {
+					if (grayMapAreaPresent()) {
 						mapCenterWithoutGray = hideGrayMapArea();
 					} else if (map.getCenter() != undefined && map.getCenter().equals(mapCenterWithoutGray)) {
 						/*

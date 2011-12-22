@@ -5,24 +5,6 @@
  *
  * LICENSE TERMS: BSD-license.html
  *******************************/
-
-   /**
-    * This function returns the index of the element in the array. -1 is returned if the element does not exist.
-    * Parameters:
-    *		array - the array that has to be checked
-    *		element - the element that has to be found
-    */			
-	function arrayElementIndex(array, element) {
-		var index = -1;
-	
-		for (var i = 0; i < array.length; i++) {
-			if (array[i] == element) {
-				index = i;
-				break;
-			}
-		}
-		return index;
-	}
 	
    /**
 	* This function converts a created string of database records, based on delimiters, to an array.
@@ -86,7 +68,7 @@
 	function formatName(name) {
 		var lower_case, result = "";
 		
-		if (name == "-" || name == "" || name == " ") {
+		if (name == "-" || name == "" || name == " " || name.indexOf("nknown") != -1) {
 			result = "(Unknown)";
 		} else {
 			lower_case = name.toLowerCase();
