@@ -18,7 +18,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.2 dev (20111221)";
+	$version = "v2.3 dev (20111222)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1419,13 +1419,13 @@
 		* It contains the first stage of processing.
 		*/
 		function initialize() {
-			if (debugLogging == 1) printDebugLogging();
-			setProgressBarValue(10);
-			
 			queueManager = new QueueManager();
 			importPHPLogQueue("INFO");
 			importPHPLogQueue("ERROR");
 			
+			if (debugLogging == 1) printDebugLogging();
+			setProgressBarValue(10);
+
 			if (initialZoomLevel == -1) {
 				currentSURFmapZoomLevel = initialSURFmapZoomLevel;
 				currentZoomLevel = getGoogleMapsZoomLevel(currentSURFmapZoomLevel);
