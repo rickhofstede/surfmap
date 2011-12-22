@@ -6,11 +6,6 @@
  * LICENSE TERMS: BSD-license.html
  *******************************/
 
-	function DNSName(ip, name) {
-		this.ip = ip;
-		this.name = name;
-	}
-
    /**
 	* Represents a single flow record, including geolocation information (of the flow end points).
 	* Please keep in mind that this flow record can consist of multiple flows, in the case of

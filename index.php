@@ -314,7 +314,7 @@
 						if (splittedResult[0] == queueManager.queueTypes.GEOCODING && splittedResult[1] == "OK") {
 							queueManager.addElement(queueManager.queueTypes.INFO, splittedResult[2] + " was stored in GeoCoder DB");
 						} else if (splittedResult[0] == queueManager.queueTypes.DNS && splittedResult[1] == "OK") {
-							resolvedDNSNames.push(new DNSName(splittedResult[2], splittedResult[3]));
+							resolvedDNSNames[splittedResult[2]] = splittedResult[3];
 						}
 					}
 				});
@@ -1294,11 +1294,11 @@
 				infoWindow.open(map, marker);
 
 				$("td.infowindow_ip:visible").each(function(index) {
-					queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
+					if(!resolvedDNSNames.hasOwnProperty($(this).text())) {
+						queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
+					}					
 				});
-				if($("td.infowindow_ip:visible").is(':visible')) {
-					DNSNameResolveQueue.push(setInterval("processResolvedDNSNames()", 500));
-				}
+				DNSNameResolveQueue.push(setInterval("processResolvedDNSNames()", 250));
 			});
 
 			return marker;
@@ -1339,11 +1339,11 @@
 				infoWindow.open(map);
 
 				$("td.infowindow_ip:visible").each(function(index) {
-					queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
+					if(!resolvedDNSNames.hasOwnProperty($(this).text())) {
+						queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
+					}					
 				});
-				if($("td.infowindow_ip:visible").is(':visible')) {
-					DNSNameResolveQueue.push(setInterval("processResolvedDNSNames()", 500));
-				}
+				DNSNameResolveQueue.push(setInterval("processResolvedDNSNames()", 250));
 			});
 			
 			return line;
@@ -1361,12 +1361,9 @@
 				var resolvedCount = 0;
 				
 				$("td.infowindow_ip:visible").each(function(index) {
-					for (var i = 0; i < resolvedDNSNames.length; i++) {
-						if($(this).text() == resolvedDNSNames[i].ip) {
-							resolvedCount++;
-							$(this).attr("title", resolvedDNSNames[i].name);
-							break;
-						}
+					if(resolvedDNSNames.hasOwnProperty($(this).text())) {
+						resolvedCount++;
+						$(this).attr("title", resolvedDNSNames[$(this).text()]);
 					}
 				});
 				
@@ -1376,7 +1373,7 @@
 					}
 				}
 			}
-		}		
+		}
 		
 		/*
 		 * Adds debugging information to the DEBUG log queue.
@@ -1541,7 +1538,7 @@
 			complementFlowRecords();
 			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 3. Complementing flow records... Done");
 			
-			setInterval("serverTransactions()", 2000);
+			setInterval("serverTransactions()", 500);
 		}
 		
 	   /*
