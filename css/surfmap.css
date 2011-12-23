@@ -18,9 +18,9 @@ label { margin-left:2px; }
 .legendImageCell { padding-left:25px; float:left; }
 .netflowDataDetailsTitle { font-size: 80%; font-weight: bold; background-color: #46A3CA; color: white; }
 .netflowDataDetails { font-size: 70%; }
-.informationWindowHeader { font-weight: bold; font-size: 75%; background-color: #4DB2E5; text-align: center; color:white; cursor: default; }
-.informationWindowBody { font-size: 80%; text-align: center; }
-.informationWindowFooter { font-size: 75%; text-align: center; }
+.informationWindowHeader { font-weight: bold; font-size: 70%; background-color: #4DB2E5; text-align: center; color:white; cursor: default; }
+.informationWindowBody { font-size: 75%; text-align: center; }
+.informationWindowFooter { font-size: 70%; text-align: center; }
 .datetimeinput { width:120px; padding:2px 0px 2px 5px; float:right; }
 
 /* jQuery */
