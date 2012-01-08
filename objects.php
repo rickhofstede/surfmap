@@ -1,11 +1,11 @@
 <?php
-/*******************************
- * objects.php [SURFmap]
- * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
- * University of Twente, The Netherlands
- *
- * LICENSE TERMS: outlined in BSD-license.html
- *******************************/
+	/*******************************
+	 * objects.php [SURFmap]
+	 * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+	 * University of Twente, The Netherlands
+	 *
+	 * LICENSE TERMS: outlined in BSD-license.html
+	 *******************************/
 	
 	class FlowRecord {
 		var $ipv4_src;

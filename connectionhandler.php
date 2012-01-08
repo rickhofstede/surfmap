@@ -1,11 +1,11 @@
 <?php
-/*******************************
- * connectionhandler.php [SURFmap]
- * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
- * University of Twente, The Netherlands
- *
- * LICENSE TERMS: outlined in BSD-license.html
- *******************************/
+	/*******************************
+	 * connectionhandler.php [SURFmap]
+	 * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+	 * University of Twente, The Netherlands
+	 *
+	 * LICENSE TERMS: outlined in BSD-license.html
+	 *******************************/
 	
 	require_once("geoPlugin/geoplugin.class.php");
 	require_once("MaxMind/geoipcity.inc");

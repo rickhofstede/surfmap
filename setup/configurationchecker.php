@@ -1,11 +1,11 @@
 <?php
-/*******************************
- * configurationchecker.php [SURFmap]
- * Author: Rick Hofstede
- * University of Twente, The Netherlands
- *
- * LICENSE TERMS: outlined in BSD-license.html
- *******************************/
+	/*******************************
+	 * configurationchecker.php [SURFmap]
+	 * Author: Rick Hofstede
+	 * University of Twente, The Netherlands
+	 *
+	 * LICENSE TERMS: outlined in BSD-license.html
+	 *******************************/
 	
 	require_once("../config.php");
 	require_once("../connectionhandler.php");

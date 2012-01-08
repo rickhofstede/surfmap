@@ -1,11 +1,11 @@
 <?php
-/******************************
- * index.php [SURFmap]
- * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
- * University of Twente, The Netherlands
- *
- * LICENSE TERMS: outlined in BSD-license.html
- *******************************/
+	/******************************
+	 * index.php [SURFmap]
+	 * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+	 * University of Twente, The Netherlands
+	 *
+	 * LICENSE TERMS: outlined in BSD-license.html
+	 *******************************/
 
 	require_once("config.php");
 	require_once("objects.php");

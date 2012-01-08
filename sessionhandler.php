@@ -1,11 +1,11 @@
 <?php
-/*******************************
- * sessionhandler.php [SURFmap]
- * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
- * University of Twente, The Netherlands
- *
- * LICENSE TERMS: outlined in BSD-license.html
- *******************************/
+	/*******************************
+	 * sessionhandler.php [SURFmap]
+	 * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+	 * University of Twente, The Netherlands
+	 *
+	 * LICENSE TERMS: outlined in BSD-license.html
+	 *******************************/
 	
 	class SessionHandler {
 		
