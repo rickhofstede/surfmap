@@ -1,10 +1,10 @@
 <?php
 	/*******************************
-	 * loghandler.php [SURFmap]
-	 * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
-	 * University of Twente, The Netherlands
-	 *
-	 * LICENSE TERMS: outlined in BSD-license.html
+	 # loghandler.php [SURFmap]
+	 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+	 # University of Twente, The Netherlands
+	 #
+	 # LICENSE TERMS: outlined in BSD-license.html
 	 *******************************/
 	
 	class LogHandler {

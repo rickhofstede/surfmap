@@ -1,5 +1,8 @@
 # SURFmap back-end plugin
 # Author: Rick Hofstede
+# University of Twente, The Netherlands
+#
+# LICENSE TERMS: outlined in BSD-license.html
 
 package SURFmap;
 
