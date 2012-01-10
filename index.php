@@ -12,6 +12,7 @@
 	require_once("connectionhandler.php");
 	require_once("loghandler.php");
 	require_once("sessionhandler.php");
+	require_once("geofilter.php");
 	
 	$nfsenConfig = readNfSenConfig();
 	
@@ -32,6 +33,20 @@
 	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->NetFlowData);
 	$sessionData->geoCoderData = $connectionHandler->retrieveDataGeocoderDB($sessionData->geoLocationData);
 	
+	for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
+		if (!evaluateGeoFilter($sessionData->geoLocationData[$i], $_SESSION['SURFmap']['geofilter'])) {
+			$sessionData->flowRecordCount--;
+			
+			array_splice($sessionData->NetFlowData, $i, 1);
+			array_splice($sessionData->geoLocationData, $i, 1);
+			array_splice($sessionData->geoCoderData, $i, 1);
+			
+			// Compensate for array element removal; the result will be a 
+			// repetition if the current index.
+			$i--;
+		}
+	}
+
 	function stringifyNetFlowData($data, $type) {
 		global $sessionData;
 		
