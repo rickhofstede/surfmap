@@ -8,6 +8,8 @@
 	 *******************************/
 	
 	require_once("iso3166.php");
+	
+	$GEOFILTER_DEBUG = 0;
 
 	$logicOperators = array('and', 'or'); // 'not' is also a logic operator, but should not be used here (although it is supported by this geofilter parser)
 	$originOperators = array('src' => 0, 'dst' => 1);
@@ -51,9 +53,9 @@
 	$currentFilter = $filter13;
 	
 	try {
-		echo "-----<br>Filter result: ".varToString(evaluateFilter($object1, $currentFilter));
+		if ($GEOFILTER_DEBUG) echo "-----<br>Filter result: ".varToString(evaluateGeoFilter($object1, $currentFilter));
 	} catch (GeoFilterException $ex) {
-		echo "-----<br>Filter result: ERROR (<i>".$ex->errorMessage()."</i>)";
+		if ($GEOFILTER_DEBUG) echo "-----<br>Filter result: ERROR (<i>".$ex->errorMessage()."</i>)";
 	}
 	
 	/**
@@ -64,19 +66,19 @@
 	 *		True, if the expression validated to true against the object. Otherwise,
 	 *		false.
 	 */	
-	function evaluateFilter ($object, $expression) {
-		global $logicOperators, $originOperators, $geolocationOperators;
+	function evaluateGeoFilter ($object, $expression) {
+		global $logicOperators, $originOperators, $geolocationOperators, $GEOFILTER_DEBUG;
 		
 		$expression = trim($expression);
-		echo "Expression: <i>$expression</i><br>";
-		echo "- Needs truncation: ".varToString(containsLogicOperator($expression) !== false || containsBrackets($expression) !== false)."<br>";
+		if ($GEOFILTER_DEBUG) echo "Expression: <i>$expression</i><br>";
+		if ($GEOFILTER_DEBUG) echo "- Needs truncation: ".varToString(containsLogicOperator($expression) !== false || containsBrackets($expression) !== false)."<br>";
 		
 		if (empty($expression)) {
 			return true;
 		} else if (containsLogicOperator($expression) !== false || containsBrackets($expression) !== false) { // expression needs to be truncated
-			echo "-----<br>";
+			if ($GEOFILTER_DEBUG) echo "-----<br>";
 			$outerExpressions = getOuterExpressions($expression); // returns array
-			echo "Outer expressions: ".varToString($outerExpressions)."<br>";
+			if ($GEOFILTER_DEBUG) echo "Outer expressions: ".varToString($outerExpressions)."<br>";
 			
 			$result = null;
 			$currentLogicOperator = null;
@@ -86,7 +88,7 @@
 				if ($outerExpression === "not") {
 					$currentLogicNegationOperator = true;
 				} else if (isset($currentLogicNegationOperator) && $currentLogicNegationOperator === true) {
-					$result = performLogicNegation(evaluateFilter($object, $outerExpression));
+					$result = performLogicNegation(evaluateGeoFilter($object, $outerExpression));
 					$currentLogicNegationOperator = null;
 				} else if (in_array($outerExpression, $logicOperators)) { // logic operator
 					$currentLogicOperator = $outerExpression;
@@ -94,39 +96,39 @@
 					if ($currentLogicOperator === "and") {
 						// If the first result in an 'and' operation is false, evaluation of the second expression can be skipped
 						if ($result === false) {
-							echo "-> Skipping expression evaluation due to predetermined result<br>";
+							if ($GEOFILTER_DEBUG) echo "-> Skipping expression evaluation due to predetermined result<br>";
 						} else {
-							$result = performLogicAND(array($result, evaluateFilter($object, $outerExpression)));
+							$result = performLogicAND(array($result, evaluateGeoFilter($object, $outerExpression)));
 						}
 					} else if ($currentLogicOperator === "or") { // logic OR
 						// If the first result in an 'or' operation is true, evaluation of the second expression can be skipped
 						if ($result === true) {
-							echo "-> Skipping expression evaluation due to predetermined result<br>";
+							if ($GEOFILTER_DEBUG) echo "-> Skipping expression evaluation due to predetermined result<br>";
 						} else {
-							$result = performLogicOR(array($result, evaluateFilter($object, $outerExpression)));
+							$result = performLogicOR(array($result, evaluateGeoFilter($object, $outerExpression)));
 						}
 					} else {
 						throw new GeoFilterException("Logic operator (and/or) is missing");
 					}
 					$currentLogicOperator = null;
 				} else { // first element of outer expression
-					$result = evaluateFilter($object, $outerExpression);
+					$result = evaluateGeoFilter($object, $outerExpression);
 				}
 			}
 			
 			return $result;
 		} else {
 			$logicNegationOperator = getLogicNegationOperator($expression);
-			echo "- Logic negation operator: ".varToString($logicNegationOperator)."<br>";
+			if ($GEOFILTER_DEBUG) echo "- Logic negation operator: ".varToString($logicNegationOperator)."<br>";
 
 			$originOperator = getOriginOperator($expression);
-			echo "- Origin operator: ".varToString($originOperator)."<br>";
+			if ($GEOFILTER_DEBUG) echo "- Origin operator: ".varToString($originOperator)."<br>";
 
 			$geolocationOperator = getGeolocationOperator($expression);
 			if ($geolocationOperator === false) {
 				throw new GeoFilterException("Geolocation operator (country/region/city/ctry/rgn/cty) is missing");
 			}
-			echo "- Geolocation operator: ".varToString($geolocationOperator)."<br>";
+			if ($GEOFILTER_DEBUG) echo "- Geolocation operator: ".varToString($geolocationOperator)."<br>";
 
 			$filterValue = getFilterValue($expression, $logicNegationOperator, $originOperator, $geolocationOperator);
 			foreach ($geolocationOperators as $operator => $objectMapping) {
@@ -145,7 +147,7 @@
 					throw new GeoFilterException("Invalid filter value ($filterValue)");
 				}
 			}
-			echo "- Value: $filterValue<br>";
+			if ($GEOFILTER_DEBUG) echo "- Value: $filterValue<br>";
 
 			// Case-insensitive comparisons
 			if ($originOperator === false) { // ANY origin
@@ -157,7 +159,7 @@
 			}
 			
 			$result = ($logicNegationOperator) ? performLogicNegation($result) : $result;
-			echo "- Result: ".varToString($result)."<br>";
+			if ($GEOFILTER_DEBUG) echo "- Result: ".varToString($result)."<br>";
 
 			return $result;
 		}
