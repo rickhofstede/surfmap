@@ -17,7 +17,7 @@
 		/*
 		 * Constructs a new ConnectionHandler object.
 		 */
-		function __construct($logHandler) {
+		function __construct ($logHandler) {
 			global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE2, $GEOCODER_DB_SQLITE3;
 			
 			$this->logHandler = $logHandler;
@@ -39,7 +39,7 @@
 	   /*
 		* Returns the NfSen query results.
 		*/
-		function retrieveDataNfSen() {
+		function retrieveDataNfSen () {
 			global $sessionData, $SORT_FLOWS_BY_START_TIME;
 			
 			// Queries
@@ -216,7 +216,7 @@
 		 * Retrieves data from a Geolocation data provider, which is
 		 * in the case of SURFmap either 'IP2Location' or 'GeoPlugin'.
 		 */
-		function retrieveDataGeolocation($NetFlowData) {
+		function retrieveDataGeolocation ($NetFlowData) {
 			global $GEOLOCATION_DB, $IP2LOCATION_PATH, $MAXMIND_PATH, $GEOIP_REGION_NAME, // $GEOIP_REGION_NAME is part of the MaxMind API
 					$INTERNAL_DOMAINS, $INTERNAL_DOMAINS_COUNTRY, $INTERNAL_DOMAINS_REGION, $INTERNAL_DOMAINS_CITY;
 
@@ -327,7 +327,7 @@
 		/*
 		 * Retrieves data from the Geocoder caching database (optional).
 		 */
-		function retrieveDataGeocoderDB($GeoData) {
+		function retrieveDataGeocoderDB ($GeoData) {
 			global $USE_GEOCODER_DB, $GEOCODER_DB_TABLE_NAME, $sessionData;
 			
 			$GeoCoderData = array();
@@ -418,7 +418,7 @@
 	 * will be stripped. Returns an array with the setting tuples, or 'false'
 	 * in case the NfSen config could not be read.
 	 */		
-	function readNfSenConfig() {
+	function readNfSenConfig () {
 		global $NFSEN_CONF;
 
 		$configValues = array();
@@ -465,7 +465,7 @@
 	 *		hours - date in the following format 'HH' (with leading zeros)
 	 *		minutes - date in the following format 'MM' (with leading zeros)
 	 */
-	function sourceFilesExist($source, $date, $hours, $minutes) {
+	function sourceFilesExist ($source, $date, $hours, $minutes) {
 		global $nfsenConfig, $sessionData;
 		
 		// Use 'live' profile data if shadow profile has been selected
@@ -489,7 +489,7 @@
 	/*
 	 * Removes special characters (e.g. tabs, EndOfTransmission).
 	 */
-	function stripSpecialCharacters($text) {
+	function stripSpecialCharacters ($text) {
 		$prepared_text = "";
 		
 		// Remove unused characters.
@@ -507,7 +507,7 @@
 	/*
 	 * Replaces accented characters by their unaccented equivalents.
 	 */
-	function stripAccentedCharacters($string) {
+	function stripAccentedCharacters ($string) {
 		$search =  explode(",","Ç,Ḉ,Æ,Œ,Á,É,Í,Ó,Ú,À,È,Ì,Ò,Ù,Ä,Ë,Ï,Ö,Ü,Ÿ,Â,Ê,Î,Ô,Ȗ,Å,Ã,Ñ,Ø,Ý,Ț,Ů,Ž,Č,Ď,Ě,Ň,Ř,Š,ç,æ,œ,á,é,í,ó,ú,à,è,ì,ò,ù,ä,ë,ï,ö,ü,ÿ,â,ê,î,ô,û,å,ø,ý,ã,ñ");
 		$replace = explode(",","C,C,AE,OE,A,E,I,O,U,A,E,I,O,U,A,E,I,O,U,Y,A,E,I,O,U,A,A,N,O,Y,T,U,Z,C,D,E,N,R,S,C,AE,OE,A,E,I,O,U,A,E,I,O,U,A,E,I,O,U,Y,A,E,I,O,U,A,O,Y,A,N");
 
@@ -520,7 +520,7 @@
 	 * Parameters:
 	 *		name - name that needs to be fixed.
 	 */
-	function fixCommaSeparatedNames($name) {
+	function fixCommaSeparatedNames ($name) {
 		$commaPos = strpos($name, ",");
 		if ($commaPos === false) {
 			return $name;
