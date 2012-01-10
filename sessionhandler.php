@@ -1,5 +1,5 @@
 <?php
-	/*******************************
+	/******************************
 	 # sessionhandler.php [SURFmap]
 	 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
 	 # University of Twente, The Netherlands
@@ -9,7 +9,7 @@
 	
 	class SessionHandler {
 		
-		/**
+		/*
 		 * Constructs a new SessionHandler object.
 		 */
 		function __construct($logHandler, $profile = "", $profileType = "", $allSources = "") {
@@ -21,7 +21,7 @@
 			
 			// Prepare session variable
 			if (!isset($_SESSION['SURFmap']['entryCount'])) $_SESSION['SURFmap']['entryCount'] = -1;
-			if (!isset($_SESSION['SURFmap']['filter'])) $_SESSION['SURFmap']['filter'] = "";
+			if (!isset($_SESSION['SURFmap']['nfsenfilter'])) $_SESSION['SURFmap']['nfsenfilter'] = "";
 			if (!isset($_SESSION['SURFmap']['nfsenOption'])) $_SESSION['SURFmap']['nfsenOption'] = -1;
 			if (!isset($_SESSION['SURFmap']['nfsenStatOrder'])) $_SESSION['SURFmap']['nfsenStatOrder'] = "-1";
 			if (!isset($_SESSION['SURFmap']['nfsenProfile'])) $_SESSION['SURFmap']['nfsenProfile'] = "";
@@ -29,6 +29,7 @@
 			if (!isset($_SESSION['SURFmap']['nfsenAllSources'])) $_SESSION['SURFmap']['nfsenAllSources'] = "";
 			if (!isset($_SESSION['SURFmap']['nfsenSelectedSources'])) $_SESSION['SURFmap']['nfsenSelectedSources'] = "";
 			if (!isset($_SESSION['SURFmap']['nfsenPreviousProfile'])) $_SESSION['SURFmap']['nfsenPreviousProfile'] = "";
+			if (!isset($_SESSION['SURFmap']['geofilter'])) $_SESSION['SURFmap']['geofilter'] = "";
 			if (!isset($_SESSION['SURFmap']['refresh'])) $_SESSION['SURFmap']['refresh'] = 0;
 			
 			if (!isset($_SESSION['SURFmap']['date1'])) $_SESSION['SURFmap']['date1'] = "-1";
@@ -52,17 +53,18 @@
 			$this->setEntryCount();
 			$this->setNfSenOption();
 			$this->setNfSenStatOrder();
-			$this->setFilter();
+			$this->setNfSenFilter();
 			$this->setNfSenProfileAndSources();
+			$this->setGeoFilter();
 			$this->setDatesAndTimes();
 
 			session_write_close();
 		}
 		
-		/**
+		/*
 		 * Writes the 'entryCount' for this session to the session variable.
 		 */		
-		function setEntryCount() {
+		function setEntryCount () {
 			global $DEFAULT_FLOW_RECORD_COUNT, $GEOLOCATION_DB;
 			
 			if (isset($_GET['amount']) && ereg_replace("[^0-9]", "", $_GET['amount']) > 0) {
@@ -78,10 +80,10 @@
 			}
 		}
 		
-		/**
+		/*
 		 * Writes the 'nfsenOption' for this session to the session variable.
 		 */		
-		function setNfSenOption() {
+		function setNfSenOption () {
 			global $DEFAULT_QUERY_TYPE;
 			
 			if (isset($_GET['nfsenoption'])) {
@@ -91,10 +93,10 @@
 			}
 		}
 		
-		/**
+		/*
 		 * Writes the 'nfsenStatOrder' for this session to the session variable.
 		 */		
-		function setNfSenStatOrder() {
+		function setNfSenStatOrder () {
 			global $DEFAULT_QUERY_TYPE_STAT_ORDER;
 			
 			if (isset($_GET['nfsenoption']) && $_GET['nfsenoption'] == 1 && isset($_GET['nfsenstatorder'])) {
@@ -104,20 +106,20 @@
 			}
 		}
 		
-		/**
-		 * Writes the 'filter' for this session to the session variable.
+		/*
+		 * Writes the 'nfsenfilter' for this session to the session variable.
 		 */		
-		function setFilter() {
+		function setNfSenFilter () {
 			global $INTERNAL_DOMAINS, $HIDE_INTERNAL_DOMAIN_TRAFFIC, $sessionData;
 			
-			if (isset($_GET['filter'])) {
-				$_SESSION['SURFmap']['filter'] = trim(str_replace("\r\n", " ", $_GET['filter']));
-				$_SESSION['SURFmap']['filter'] = str_replace(";", "", $_SESSION['SURFmap']['filter']);
+			if (isset($_GET['nfsenfilter'])) {
+				$_SESSION['SURFmap']['nfsenfilter'] = trim(str_replace("\r\n", " ", $_GET['nfsenfilter']));
+				$_SESSION['SURFmap']['nfsenfilter'] = str_replace(";", "", $_SESSION['SURFmap']['nfsenfilter']);
 			}
 			
 			// If filter input contains "ipv6", change it to "not ipv6"
-			if (strpos($_SESSION['SURFmap']['filter'], "ipv6") && !strpos($_SESSION['SURFmap']['filter'], "not ipv6")) {
-				$_SESSION['SURFmap']['filter'] = substr_replace($_SESSION['SURFmap']['filter'], "not ipv6", strpos($_SESSION['SURFmap']['filter'], "ipv6"));
+			if (strpos($_SESSION['SURFmap']['nfsenfilter'], "ipv6") && !strpos($_SESSION['SURFmap']['nfsenfilter'], "not ipv6")) {
+				$_SESSION['SURFmap']['nfsenfilter'] = substr_replace($_SESSION['SURFmap']['nfsenfilter'], "not ipv6", strpos($_SESSION['SURFmap']['nfsenfilter'], "ipv6"));
 			}
 			
 			// ***** 1. Prepare filters *****
@@ -139,16 +141,16 @@
 			$static_filters = array();
 			
 			// ***** 2. Collect filters if needed *****
-			if ($HIDE_INTERNAL_DOMAIN_TRAFFIC && isset($static_filter_internal_domain_traffic) && strpos($_SESSION['SURFmap']['filter'], $static_filter_internal_domain_traffic) === false) {
+			if ($HIDE_INTERNAL_DOMAIN_TRAFFIC && isset($static_filter_internal_domain_traffic) && strpos($_SESSION['SURFmap']['nfsenfilter'], $static_filter_internal_domain_traffic) === false) {
 				array_push($static_filters, $static_filter_internal_domain_traffic);
 			}
-			if (strpos($_SESSION['SURFmap']['filter'], $static_filter_broadcast_traffic) === false) {
+			if (strpos($_SESSION['SURFmap']['nfsenfilter'], $static_filter_broadcast_traffic) === false) {
 				array_push($static_filters, $static_filter_broadcast_traffic);
 			}
-			if (strpos($_SESSION['SURFmap']['filter'], $static_filter_multicast_traffic) === false) {
+			if (strpos($_SESSION['SURFmap']['nfsenfilter'], $static_filter_multicast_traffic) === false) {
 				array_push($static_filters, $static_filter_multicast_traffic);
 			}
-			if (strpos($_SESSION['SURFmap']['filter'], $static_filter_ipv6_traffic) === false) {
+			if (strpos($_SESSION['SURFmap']['nfsenfilter'], $static_filter_ipv6_traffic) === false) {
 				array_push($static_filters, $static_filter_ipv6_traffic);
 			}
 
@@ -162,10 +164,10 @@
 			}
 			
 			if (sizeof($static_filters) > 0) {
-				if ($_SESSION['SURFmap']['filter'] == "") {
-					$_SESSION['SURFmap']['filter'] = $combined_static_filter;
+				if ($_SESSION['SURFmap']['nfsenfilter'] == "") {
+					$_SESSION['SURFmap']['nfsenfilter'] = $combined_static_filter;
 				} else {
-					$_SESSION['SURFmap']['filter'].= " and ".$combined_static_filter;
+					$_SESSION['SURFmap']['nfsenfilter'].= " and ".$combined_static_filter;
 				}
 			}
 			
@@ -174,7 +176,7 @@
 			 * This should be done separately from the procedures above,
 			 * since the static filters can also have been passed by HTTP GET
 			 */
-			$sessionData->nfsenDisplayFilter = $_SESSION['SURFmap']['filter'];
+			$sessionData->nfsenDisplayFilter = $_SESSION['SURFmap']['nfsenfilter'];
 			if (strpos($sessionData->nfsenDisplayFilter, $static_filter_internal_domain_traffic) === 0) {
 				$sessionData->nfsenDisplayFilter = str_replace($static_filter_internal_domain_traffic, "", $sessionData->nfsenDisplayFilter);
 			} else {
@@ -195,13 +197,13 @@
 			} else {
 				$sessionData->nfsenDisplayFilter = str_replace(" and ".$static_filter_ipv6_traffic, "", $sessionData->nfsenDisplayFilter);
 			}
-		}			
+		}
 		
-		/**
+		/*
 		 * Writes the session variables related to the NfSen profile and its
 		 * sources.
 		 */		
-		function setNfSenProfileAndSources() {
+		function setNfSenProfileAndSources () {
 			global $NFSEN_DEFAULT_SOURCES, $sessionData;
 
 			if (isset($_SESSION['profileswitch'])) {
@@ -271,13 +273,22 @@
 			
 			// Set 'nfsenPreviousProfile' session variable after source initialization to current profile
 			$_SESSION['SURFmap']['nfsenPreviousProfile'] = $_SESSION['SURFmap']['nfsenProfile'];
-		}		
+		}
 		
-		/**
+		/*
+		 * Writes the 'geofilter' for this session to the session variable.
+		 */
+		function setGeoFilter () {
+			if (isset($_GET['geofilter'])) {
+				$_SESSION['SURFmap']['geofilter'] = $_GET['geofilter'];
+			}
+		}
+		
+		/*
 		 * Writes the session variables related to dates and times of the
 		 * current session.
 		 */		
-		function setDatesAndTimes() {
+		function setDatesAndTimes () {
 			global $sessionData;
 			
 			// Latest date/time slot (depending on files available by nfcapd)
@@ -419,7 +430,7 @@
 	
 	}
 	
-	/**
+	/*
 	 * Generates a date String (yyyymmdd) from either 1) a date selector in the
 	 * SURFmap interface, or 2) the last available date for which an nfcapd dump
 	 * file is available on the file system.
@@ -427,7 +438,7 @@
 	 *		bufferTime - buffer time between the real time and the most recent
 	 *						profile update, in minutes (default: 5)
 	 */
-	function generateDateString($bufferTime) {
+	function generateDateString ($bufferTime) {
 		$unprocessed_date = date("Ymd");
 
 		// If time is in interval [00:00, 00:{bufferTime}>, the date has to contain the previous day (and eventually month and year)
@@ -467,7 +478,7 @@
 		return $date;
 	}
 
-	/**
+	/*
 	 * Generates a time String (hhmm) from either 1) a time selector in the
 	 * SURFmap interface, or 2) the last available time for which an nfcapd dump
 	 * file is available on the file system.
@@ -475,7 +486,7 @@
 	 *		bufferTime - buffer time between the real time and the most recent
 	 *						profile update, in minutes (default: 5)
 	 */
-	function generateTimeString($bufferTime) {
+	function generateTimeString ($bufferTime) {
 		$hours = date("H");
 		$minutes = date("i") - (date("i") % 5);
 
@@ -497,7 +508,7 @@
 		return $hours.":".$minutes;
 	}
 	
-	/**
+	/*
 	 * Generates a file name based on the specified file name format (in config.php)
 	 * and the specified parameters.
 	 * Parameters:
@@ -505,7 +516,7 @@
 	 *		hours - Hours for the file name (should be of the following format: hh)
 	 *		minutes - Minutes for the file name (should be of the following format: mm)
 	 */
-	function generateFileName($date, $hours, $minutes) {
+	function generateFileName ($date, $hours, $minutes) {
 		global $nfsenConfig;
 		
 		$year = substr($date, 0, 4);
@@ -535,10 +546,10 @@
 		return $fileName;
 	}
 	
-	/**
+	/*
 	 * Checks whether the 2nd timestamp is later (in time) than the first timestamp.
 	 */	
-	function isTimeRangeIsPositive($date1, $hours1, $minutes1, $date2, $hours2, $minutes2) {
+	function isTimeRangeIsPositive ($date1, $hours1, $minutes1, $date2, $hours2, $minutes2) {
 		$result = false;
 
 		// the resulting time stamp is in GMT (instead of GMT+1), but that shouldn't be a problem; only the difference between the time stamps is important
@@ -551,14 +562,14 @@
 		return $result;
 	}
 
-	/**
+	/*
 	 * Checks whether the specified IPv4 address belongs to the specified IP
 	 * address range (net).
 	 * Parameters:
 	 *		ipAddress - IPv4 address in octet notation (e.g. '192.168.1.1')
 	 * 		ipNet - IPv4 subnet range, in nfdump filter notation
 	 */
-	function ipAddressBelongsToNet($ipAddress, $ipNet) {
+	function ipAddressBelongsToNet ($ipAddress, $ipNet) {
 		if (substr_count($ipAddress, ".") != 3) return false; // A valid IPv4 address should have 3 dots
 		if (substr_count($ipAddress, ".") < 1 && substr_count($ipAddress, "/") != 1) return false; // A valid IPv4 subNet should have at least 1 dot and exactly 1 slash
 		

@@ -18,7 +18,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20111223)";
+	$version = "v2.3 dev (20120110)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -207,10 +207,11 @@
 		/* NfSen settings */
 		var nfsenQuery = "<?php echo $sessionData->query; ?>";
 		var nfsenProfile = "<?php echo $_SESSION['SURFmap']['nfsenProfile'] ?>"
-		var nfsenFilter = "<?php echo $_SESSION['SURFmap']['filter']; ?>";
+		var nfsenFilter = "<?php echo $_SESSION['SURFmap']['nfsenfilter']; ?>";
 		var nfsenDisplayFilter = "<?php echo $sessionData->nfsenDisplayFilter; ?>";
 		var nfsenAllSources = "<?php echo $_SESSION['SURFmap']['nfsenAllSources']; ?>".split(":");
 		var nfsenSelectedSources = "<?php echo $_SESSION['SURFmap']['nfsenSelectedSources']; ?>".split(":");
+		var geoFilter = "<?php echo $_SESSION['SURFmap']['geofilter']; ?>";
 		
 		var date1 = "<?php echo $_SESSION['SURFmap']['date1']; ?>";
 		var date2 = "<?php echo $_SESSION['SURFmap']['date2']; ?>";
@@ -1697,8 +1698,12 @@
 			+ "</div><br />"
 			+ "<div style=\"margin-top:10px; width:195px;\">"
 				+ "<span style=\"float:left;\">Filter</span><br />"
-				+ "<textarea name=\"filter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\" onkeyup=\"checkForHeavyQuery();\">" + nfsenDisplayFilter + "</textarea>"
+				+ "<textarea name=\"nfsenfilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\" onkeyup=\"checkForHeavyQuery();\">" + nfsenDisplayFilter + "</textarea>"
 			+ "</div><br />"
+			+ "<div style=\"width:195px;\">"
+				+ "<span style=\"float:left;\">GeoFilter</span><br />"
+				+ "<textarea name=\"geofilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + geoFilter + "</textarea>"
+			+ "</div><br />"			
 			+ "<div style=\"text-align:center; width:195px;\">"
 				+ "<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've probably selected a heavy query!</div>"
 				+ "<input type=\"submit\" name=\"submit\" value=\"Submit\" />"
@@ -1806,7 +1811,7 @@
 		function checkForHeavyQuery() {
 			var heavyQuery = false;
 			if ($("#nfsensources").multiselect("widget").find("input:checked").length > 2
-					|| $("textarea[name=filter]").val().length > 100) {
+					|| $("textarea[name=nfsenfilter]").val().length > 100) {
 				heavyQuery = true;
 			}
 
