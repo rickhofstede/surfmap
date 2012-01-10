@@ -46,6 +46,7 @@
 	$filter23 = "cy NL";
 	$filter24 = "src NL";
 	$filter25 = "src ctry Neetherlands";
+	$filter26 = ""; // empty filter
 
 	$currentFilter = $filter13;
 	
@@ -65,10 +66,14 @@
 	 */	
 	function evaluateFilter ($object, $expression) {
 		global $logicOperators, $originOperators, $geolocationOperators;
+		
+		$expression = trim($expression);
 		echo "Expression: <i>$expression</i><br>";
 		echo "- Needs truncation: ".varToString(containsLogicOperator($expression) !== false || containsBrackets($expression) !== false)."<br>";
-
-		if (containsLogicOperator($expression) !== false || containsBrackets($expression) !== false) { // expression needs to be truncated
+		
+		if (empty($expression)) {
+			return true;
+		} else if (containsLogicOperator($expression) !== false || containsBrackets($expression) !== false) { // expression needs to be truncated
 			echo "-----<br>";
 			$outerExpressions = getOuterExpressions($expression); // returns array
 			echo "Outer expressions: ".varToString($outerExpressions)."<br>";
