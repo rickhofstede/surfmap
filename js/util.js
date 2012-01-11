@@ -1,12 +1,12 @@
-/*******************************
- * util.js [SURFmap]
- * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
- * University of Twente, The Netherlands
- *
- * LICENSE TERMS: BSD-license.html
+/******************************
+ # util.js [SURFmap]
+ # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+ # University of Twente, The Netherlands
+ #
+ # LICENSE TERMS: BSD-license.html
  *******************************/
 	
-   /**
+   /*
 	* This function converts a created string of database records, based on delimiters, to an array.
 	* Parameters:
 	* 		string - the that has to be converted.
@@ -52,13 +52,11 @@
 				alert("Type error in stringToArray()! Type: " + type);
 			}
 		}
-		
-		
-		
+
 		return result_array;
 	}	
 
-   /**
+   /*
 	* This function converts a provided name to a proper display format.
 	* For example: UNITED STATES -> United States
 	*			   ZUID-HOLLAND -> Zuid-Holland
@@ -69,7 +67,7 @@
 		var lower_case, result = "";
 		
 		if (name == "-" || name == "" || name == " " || name.indexOf("nknown") != -1) {
-			result = "(Unknown)";
+			result = "<i>Not available</i>";
 		} else {
 			lower_case = name.toLowerCase();
 						
@@ -87,7 +85,7 @@
 		return result;
 	}
 	
-   /**
+   /*
 	* Applies the SI scale to the provided number (not String!).
 	* For example: 1000000000 -> 1 G
 	*			   1000000 -> 1 M
@@ -111,7 +109,7 @@
 		return newNumber;
 	}
 
-   /**
+   /*
 	* This function converts a provided throughput amount to a proper display format.
 	* Parameters:
 	*		throughput - the initial throughput, which needs to be converted
@@ -134,7 +132,7 @@
 		return formattedThroughput;
 	}
 
-   /**
+   /*
 	* This function returns the first three letters of the name with the specified number.
 	* For example: 1 -> Jan
 	*			   12 -> Dec
@@ -175,7 +173,7 @@
 		return monthName;
 	}
 
-   /**
+   /*
 	* Returns the provided number with a zero in front, in case it exists of just one digit.
 	* For example: 1 -> 01
 	*			   12 -> 12
@@ -187,7 +185,7 @@
 		else return number;
 	}
 
-   /**
+   /*
 	* Checks whether the specified date is a valid one.
 	*
 	* Parameters:

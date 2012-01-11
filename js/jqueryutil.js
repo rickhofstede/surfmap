@@ -1,12 +1,12 @@
-/*******************************
- * jqueryutil.js [SURFmap]
- * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
- * University of Twente, The Netherlands
- *
- * LICENSE TERMS: BSD-license.html
+/******************************
+ # jqueryutil.js [SURFmap]
+ # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+ # University of Twente, The Netherlands
+ #
+ # LICENSE TERMS: BSD-license.html
  *******************************/
 
-   /**
+   /*
 	* Prepares a jQuery alert.
 	*
 	* Parameters:
@@ -19,8 +19,10 @@
 			$("#dialog").dialog("destroy");
 		}
 		
-		if (type == "filterError") {
+		if (type == "nfsenFilterError") {
 			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /><b>Filter</b>: " + nfsenFilter + "<br /><b>Error message</b>: " +  getErrorMessage() + "</br /><br />Please check <a href='http://nfdump.sourceforge.net/' style='text-decoration:underline;' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.", "Filter error");
+		} else if (type == "geoFilterError") {
+			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /><b>Filter</b>: " + geoFilter + "<br /><b>Error message</b>: " +  getErrorMessage() + "</br /><br />Please check the SURFmap manual for the filter syntax.", "Filter error");
 		} else if (type == "noDataError") {
 			jAlert("No NetFlow data has been found for the selected profile, source and filter. Please change your settings.", "No data available");
 		} else if (type == "profileError") {
@@ -43,7 +45,7 @@
 		}
 	}
 
-   /**
+   /*
 	* Prepares a jQuery dialog of the specified type.
 	*
 	* Parameters:
@@ -151,7 +153,7 @@
 		}
 	}
 	
-   /**
+   /*
 	* Shows the actual dialog using jQuery.
 	*
 	* Parameters:
@@ -178,7 +180,7 @@
 		});
 	}
 
-   /**
+   /*
 	* Shows a progress bar using jQuery.
 	*
 	* Parameters:
@@ -195,14 +197,14 @@
 		$("#progressbartext").css("margin-left", "140px");
 	}
 
-   /**
+   /*
 	* Gets the value of the jQuery progress bar.
 	*/
 	function getProgressBarValue() {
 		return $("#progressbar").progressbar("value");
 	}
 
-   /**
+   /*
 	* Sets the value of the jQuery progress bar to the specified value.
 	*
 	* Parameters:

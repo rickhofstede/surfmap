@@ -1,5 +1,5 @@
 <?php
-	/*******************************
+	/******************************
 	 # geofilter.php [SURFmap]
 	 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
 	 # University of Twente, The Netherlands
@@ -58,7 +58,7 @@
 		if ($GEOFILTER_DEBUG) echo "-----<br>Filter result: ERROR (<i>".$ex->errorMessage()."</i>)";
 	}
 	
-	/**
+	/*
 	 * Validates the provided object against the provided expression.
 	 * Parameters:
 	 *		object - single object (SURFmap geolocation style) to validate.
@@ -165,7 +165,7 @@
 		}
 	}
 	
-	/**
+	/*
 	 * Checks whether the specified expression contains a logic operator (and/or).
 	 * Parameters:
 	 *		expression - filter expression.
@@ -185,7 +185,7 @@
 		return false;
 	}
 	
-	/**
+	/*
 	 * Checks whether the specified expression contains brackets (i.e. '(').
 	 * Parameters:
 	 *		expression - filter expression.
@@ -198,7 +198,7 @@
 		return ($bracketPos === false) ? false : $bracketPos;
 	}
 	
-	/**
+	/*
 	 * Checks whether the specified expression contains a logic negation operator 
 	 * 		(i.e. 'not').
 	 * Parameters:
@@ -210,7 +210,7 @@
 		return (strpos($expression, 'not') !== false);
 	}
 	
-	/**
+	/*
 	 * Gets the origin operator (i.e. 'src' or 'dst') in case it is present
 	 * in the specified expression.
 	 * Parameters:
@@ -230,7 +230,7 @@
 		return false;
 	}
 	
-	/**
+	/*
 	 * Gets the geolocation operator (e.g. 'country' or 'ctry') in case it is present
 	 * in the specified expression.
 	 * Parameters:
@@ -250,7 +250,7 @@
 		return false;
 	}
 	
-	/**
+	/*
 	 * Gets the filter value (e.g. 'NL' or 'The Netherlands') in case it is present
 	 * in the specified expression.
 	 * Parameters:
@@ -269,7 +269,7 @@
 		return substr($expression, strlen($operators) + 1);
 	}
 	
-	/**
+	/*
 	 * Returns the outer filter expressions as an array.
 	 * Parameters:
 	 *		expression - filter expression.
@@ -358,7 +358,7 @@
 		return $outerExpressions;
 	}
 	
-	/**
+	/*
 	 * Determines the minimum expression 'depth' of the provided expression.
 	 * Examples (hint: check 'and'):
 	 * 		"(dst ctry CZ and (src ctry NL and src ctry DE)) and (src ctry NL or src ctry CZ)" => 0
@@ -392,7 +392,7 @@
 		return $minExpressionDepth;
 	}
 	
-	/**
+	/*
 	 * Performs a logical OR operation on the elements in this array. Returns true
 	 * if at least one of the elements is true.
 	 * Parameters:
@@ -407,7 +407,7 @@
 		return false;
 	}
 	
-	/**
+	/*
 	 * Performs a logical AND operation on the elements in this array. Returns true
 	 * if all elements are true.
 	 * Parameters:
@@ -422,7 +422,7 @@
 		return true;
 	}	
 	
-	/**
+	/*
 	 * Performs a logical negation operation on the provided element. Returns the
 	 * negated element.
 	 * Parameters:
@@ -432,7 +432,7 @@
 		return ($value) ? false : true;
 	}
 	
-	/**
+	/*
 	 * Checks whether the specified value is a country geolocation operator (i.e. 'country' or 'ctry')
 	 * Parameters:
 	 *		value - value to check.
@@ -453,7 +453,7 @@
 		return (in_array($value, $ctryOperators));
 	}
 	
-	/**
+	/*
 	 * Converts the specified variable into a String value.
 	 * Parameters:
 	 *		var - variable to be converted.

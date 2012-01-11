@@ -104,12 +104,13 @@
 		
 		/*
 		 * 	0: no error
-		 *	1: filter error
+		 *	1: NfSen filter error
 		 *	2: invalid date/time window (selector 1)
 		 *	3: invalid date/time window (selector 2)
 		 *	4: invalid date/time window (selector 1+2)
 		 *  5: no data error
 		 *  6: profile error
+		 *	7: GeoFilter error
 		 */
 		var $errorCode = 0;
 		var $errorMessage = "";

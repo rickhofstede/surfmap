@@ -35,17 +35,23 @@
 	
 	// Apply GeoFilter
 	for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-		if (!evaluateGeoFilter($sessionData->geoLocationData[$i], $_SESSION['SURFmap']['geofilter'])) {
-			$sessionData->flowRecordCount--;
-			
-			array_splice($sessionData->NetFlowData, $i, 1);
-			array_splice($sessionData->geoLocationData, $i, 1);
-			array_splice($sessionData->geoCoderData, $i, 1);
-			
-			// Compensate for array element removal; the result will be a 
-			// repetition if the current index.
-			$i--;
+		try {
+			if (!evaluateGeoFilter($sessionData->geoLocationData[$i], $_SESSION['SURFmap']['geofilter'])) {
+				$sessionData->flowRecordCount--;
+
+				array_splice($sessionData->NetFlowData, $i, 1);
+				array_splice($sessionData->geoLocationData, $i, 1);
+				array_splice($sessionData->geoCoderData, $i, 1);
+
+				// Compensate for array element removal; the result will be a 
+				// repetition if the current index.
+				$i--;
+			}
+		} catch (GeoFilterException $ex) {
+			$sessionData->errorCode = 7;
+			$sessionData->errorMessage = $ex->errorMessage();
 		}
+		
 	}
 
 	function stringifyNetFlowData($data, $type) {
@@ -1437,7 +1443,7 @@
 		 */		
 		function getErrorCode() {
 			if (errorCode != "") return parseInt(errorCode);
-			else return 0;
+			else return 0; // no error
 		}
 		
 		/*
@@ -1527,10 +1533,10 @@
 			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 1. Basic initialization completed");
 
 			if (getErrorCode() == 1) {
-				generateAlert("filterError");
-				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to filter error");
+				generateAlert("nfsenFilterError");
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to NfSen filter error");
 				serverTransactions();
-				return;
+				return;			
 			} else if (getErrorCode() == 5) {
 				if (showWarningOnNoData == 1) {
 					generateAlert("noDataError");
@@ -1543,6 +1549,11 @@
 			} else if (getErrorCode() == 6) {
 				generateAlert("profileError");
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to profile error");
+				serverTransactions();
+				return;
+			} else if (getErrorCode() == 7) {
+				generateAlert("geoFilterError");
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to GeoFilter error");
 				serverTransactions();
 				return;
 			}

@@ -1,14 +1,14 @@
-/*******************************
- * maputil.js [SURFmap]
- * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
- * University of Twente, The Netherlands
- *
- * LICENSE TERMS: BSD-license.html
+/******************************
+ # maputil.js [SURFmap]
+ # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+ # University of Twente, The Netherlands
+ #
+ # LICENSE TERMS: BSD-license.html
  *******************************/
 
- 	/**
+   /*
 	* Fires a 'click' event on a randomly selected line at the specified zoom level.
-	* Parameters:
+ 	* Parameters:
 	*	level - the SURFmap zoom level of which the lines should be added to the map; can be 0, 1, 2 or 3
 	*/		
 	function clickRandomLine(level) {
@@ -33,7 +33,7 @@
 		}
 	}
 
-   /**
+   /*
 	* Returns the SURFmap zoom level of the specified Google Maps zoom level.
 	* Parameters:
 	*	gmZoomLevel - the Google Maps zoom level that has to be converted to a SURFmap zoom level
@@ -45,7 +45,7 @@
 		else return 3;													// Host: 11-13
 	}
 
-   /**
+   /*
 	* Returns the Google Maps zoom level of the specified SURFmap zoom level.
 	* Parameters:
 	*	smZoomLevel - the SURFmap zoom level that has to be converted to a Google Maps zoom level
@@ -57,7 +57,7 @@
 		else return 11;
 	}
 
-   /**
+   /*
 	* Checks whether a gray map area is visible.
 	*/
 	function isGrayMapAreaVisible() {
@@ -68,7 +68,7 @@
 		}
 	}
 
-   /**
+   /*
 	* Hides a gray map area by changing the map's center and return the map center after algorithm
 	* completion (i.e. map center without visible gray areas).
 	*/
@@ -86,14 +86,14 @@
 		return map.getCenter();
 	}
 	
-   /**
+   /*
 	* Checks whether gray map areas are present or not.
 	*/	
 	function grayMapAreaPresent() {
 		return (map.getBounds().getNorthEast().lat() > 85.0 || map.getBounds().getSouthWest().lat() < -85.0);
 	}
 
-   /**
+   /*
     * Either 1) creates a new map in case it didn't exist before,
 	* or 2) returns the map object.
     * Parameters:
@@ -114,7 +114,7 @@
 		return new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 	}
 	
-   /**
+   /*
 	* This function adds arrays with GMarkers to the GMarkerManager, which puts
 	* the markers on the map.
 	*/			
@@ -126,7 +126,7 @@
 		markerManager.refresh();
 	}	
 	
-   /**
+   /*
 	* Checks whether a particular line already exists at the given coordinates.
 	* Parameters:
 	*	level - a SURFmap zoom level
@@ -145,7 +145,7 @@
 		return lineIndex;
 	}	
 	
-   /**
+   /*
 	* This function checks whether or not a particular marker already exists
 	* at the given coordinates.
 	* Parameters:
@@ -165,7 +165,7 @@
 		return markerIndex;
 	}	
 	
-   /**
+   /*
 	* This function adds lines as an overlay to the map.
 	* Parameters:
 	*	level - the SURFmap zoom level of which the lines should be added to the map; can be 0, 1, 2 or 3
@@ -184,7 +184,7 @@
 		if (demoMode == 1) clickRandomLine(level);
 	}	
 	
-   /**
+   /*
 	* This function zooms the SURFmap map to a defined zoom level.
 	* Parameters:
 	* 	mode - can be either 0 (quick; zoom depending on SURFmap zoom levels) or 1 (normal; zoom depending on Google Maps zoom levels).
