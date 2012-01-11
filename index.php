@@ -1734,7 +1734,7 @@
 				+ "<textarea name=\"geofilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + geoFilter + "</textarea>"
 			+ "</div><br />"			
 			+ "<div style=\"text-align:center; width:195px;\">"
-				+ "<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've probably selected a heavy query!</div>"
+				+ "<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've selected a potentially heavy query!</div>"
 				+ "<input type=\"submit\" name=\"submit\" value=\"Submit\" />"
 			+ "</div></form>";
 
@@ -1818,7 +1818,7 @@
 		
 		// Initialize source selector (jQuery)
 		$("#nfsensources").multiselect({
-			minWidth:135,
+			minWidth: 135,
 			header: true,
 			open: function() {
 				$("div.ui-multiselect-menu").css("left", "");
