@@ -19,7 +19,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120110)";
+	$version = "v2.3 dev (20120111)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -33,6 +33,7 @@
 	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->NetFlowData);
 	$sessionData->geoCoderData = $connectionHandler->retrieveDataGeocoderDB($sessionData->geoLocationData);
 	
+	// Apply GeoFilter
 	for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
 		if (!evaluateGeoFilter($sessionData->geoLocationData[$i], $_SESSION['SURFmap']['geofilter'])) {
 			$sessionData->flowRecordCount--;
@@ -185,12 +186,12 @@
    	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<title>SURFmap -- A Network Monitoring Tool Based on the Google Maps API</title>
-	<link type="text/css" rel="stylesheet" href="jquery/css/start/jquery-ui-1.8.16.custom.css" />
+	<link type="text/css" rel="stylesheet" href="jquery/css/start/jquery-ui-1.8.17.custom.css" />
 	<link type="text/css" rel="stylesheet" href="css/jquery.alerts.css" /> <!-- http://abeautifulsite.net/blog/2008/12/jquery-alert-dialogs/ -->
 	<link type="text/css" rel="stylesheet" href="css/surfmap.css" />
 	<script type="text/javascript" src="<?php if ($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
-	<script type="text/javascript" src="jquery/js/jquery-1.6.2.min.js"></script>
-	<script type="text/javascript" src="jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
+	<script type="text/javascript" src="jquery/js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="jquery/js/jquery-ui-1.8.17.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery.alerts.js"></script>
 	<script type="text/javascript" src="js/jquery.multiselect.min.js"></script> <!-- http://www.erichynds.com/examples/jquery-ui-multiselect-widget/demos/ -->
 	<script type="text/javascript" src="js/jqueryutil.js"></script>

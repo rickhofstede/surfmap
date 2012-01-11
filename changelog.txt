@@ -5,11 +5,13 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 ---
 
-Release notes [v2.3 dev (20120110)]:
+Release notes [v2.3 dev (20120111)]:
 
 - [FEATURE] Added GeoFilter support
 - [FEATURE] Added 'Now' button to date/time-selectors, for navigating to latest available time slot
 - [FEATURE] Added DNS name resolving for IP addresses on HOST zoom level
+- [FEATURE] Updated jQuery to v1.7.1
+- [FEATURE] Updated jQuery UI to v1.8.17
 - [BUGFIX] Added workaround for issue in date/time-selector, when copying from one selector to another
 - [BUGFIX] Several minor bug fixes and improvements
 
