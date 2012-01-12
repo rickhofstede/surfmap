@@ -85,22 +85,22 @@
 			$currentLogicNegationOperator = null;
 
 			foreach ($outerExpressions as $outerExpression) {
-				if ($outerExpression === "not") {
+				if (strcasecmp($outerExpression, "not") === 0) {
 					$currentLogicNegationOperator = true;
 				} else if (isset($currentLogicNegationOperator) && $currentLogicNegationOperator === true) {
 					$result = performLogicNegation(evaluateGeoFilter($object, $outerExpression));
 					$currentLogicNegationOperator = null;
-				} else if (in_array($outerExpression, $logicOperators)) { // logic operator
+				} else if (in_arrayi($outerExpression, $logicOperators)) { // logic operator
 					$currentLogicOperator = $outerExpression;
 				} else if (isset($result)) { // second or later element of outer expression; $currentLogicOperator should therefore be set
-					if ($currentLogicOperator === "and") {
+					if (strcasecmp($currentLogicOperator, "and") === 0) {
 						// If the first result in an 'and' operation is false, evaluation of the second expression can be skipped
 						if ($result === false) {
 							if ($GEOFILTER_DEBUG) echo "-> Skipping expression evaluation due to predetermined result<br>";
 						} else {
 							$result = performLogicAND(array($result, evaluateGeoFilter($object, $outerExpression)));
 						}
-					} else if ($currentLogicOperator === "or") { // logic OR
+					} else if (strcasecmp($currentLogicOperator, "or") === 0) { // logic OR
 						// If the first result in an 'or' operation is true, evaluation of the second expression can be skipped
 						if ($result === true) {
 							if ($GEOFILTER_DEBUG) echo "-> Skipping expression evaluation due to predetermined result<br>";
@@ -450,7 +450,7 @@
 		}
 		unset($operator, $objectMapping);
 
-		return (in_array($value, $ctryOperators));
+		return (in_arrayi($value, $ctryOperators));
 	}
 	
 	/*
@@ -476,6 +476,19 @@
 		}
 		
 		return $result;
+	}
+	
+	/*
+	 * Case-insensitive variant of PHP in_array().
+	 * Parameters:
+	 *		needle - see PHP in_array().
+	 *		haystack - see PHP in_array().
+	 */	
+	function in_arrayi($needle, $haystack) {
+	    foreach ($haystack as $value) {
+	        if (strtolower($value) == strtolower($needle)) return true;
+	    }
+	    return false;
 	}
 
 	class GeoFilterException extends Exception {
