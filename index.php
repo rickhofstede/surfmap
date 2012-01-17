@@ -19,7 +19,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120112)";
+	$version = "v2.3 dev (20120117)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();

@@ -23,15 +23,15 @@
 		
 		$countryNumber = -1;
 		foreach ($geoIP->GEOIP_COUNTRY_CODE_TO_NUMBER as $code => $number) {
-			if (strcasecmp($code, $countryCode) === 0) {	
+			if (strcasecmp($code, $countryCode) === 0) {
 				$countryNumber = $number;
 				break;
 			}
 		}
 		unset($code, $number);
 		
-		// If country code was not found, $countryNumber === -1
-		return !($countryNumber === -1);
+		// If country code was not found or country code was empty, $countryNumber === -1 || $countryNumber === 0
+		return !($countryNumber === -1 || $countryNumber === 0);
 	}
 	
 	/**

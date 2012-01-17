@@ -49,6 +49,7 @@
 	$filter24 = "src NL";
 	$filter25 = "src ctry Neetherlands";
 	$filter26 = ""; // empty filter
+	$filter27 = "src ctry";
 
 	$currentFilter = $filter13;
 	
@@ -108,7 +109,7 @@
 							$result = performLogicOR(array($result, evaluateGeoFilter($object, $outerExpression)));
 						}
 					} else {
-						throw new GeoFilterException("Logic operator (and/or) is missing");
+						throw new GeoFilterException("Logic operator (and/or) is missing (near '$outerExpression')");
 					}
 					$currentLogicOperator = null;
 				} else { // first element of outer expression
@@ -126,25 +127,27 @@
 
 			$geolocationOperator = getGeolocationOperator($expression);
 			if ($geolocationOperator === false) {
-				throw new GeoFilterException("Geolocation operator (country/region/city/ctry/rgn/cty) is missing");
+				throw new GeoFilterException("Geolocation operator (country/region/city/ctry/rgn/cty) is missing (near '$expression')");
 			}
 			if ($GEOFILTER_DEBUG) echo "- Geolocation operator: ".varToString($geolocationOperator)."<br>";
 
 			$filterValue = getFilterValue($expression, $logicNegationOperator, $originOperator, $geolocationOperator);
 			foreach ($geolocationOperators as $operator => $objectMapping) {
 				if (strpos($filterValue, $operator) !== false) {
-					throw new GeoFilterException("Logic operator (and/or) is missing");
+					throw new GeoFilterException("Logic operator (and/or) is missing (near '$expression')");
 				}
 			}
 			unset($operator, $objectMapping);
 
-			// Check only country names/codes for validity, since only those are
-			// standardized in ISO 3166.
-			if (isCountryGeolocationOperator($geolocationOperator)) {
+			if (strcasecmp($filterValue, "") === 0) {
+				throw new GeoFilterException("Filter value is missing (near '$expression')");
+			} else if (isCountryGeolocationOperator($geolocationOperator)) {
+				// Check only country names/codes for validity, since only those are
+				// standardized in ISO 3166.
 				if (isValidCountryCode($filterValue)) {
 					$filterValue = getCountryNameFromCode($filterValue);
 				} else if (!isValidCountryName($filterValue)) {
-					throw new GeoFilterException("Invalid filter value ($filterValue)");
+					throw new GeoFilterException("Invalid filter value ($filterValue) (near '$expression')");
 				}
 			}
 			if ($GEOFILTER_DEBUG) echo "- Value: $filterValue<br>";
