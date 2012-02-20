@@ -1670,7 +1670,7 @@
 			+ "<input type=\"radio\" id=\"cityZoomRadio\" name=\"zoomLevel\" value=\"city\" onclick=\"zoom(1, 0, 8);\" /><label for=\"cityZoomRadio\">City</label><br />"
 			+ "<input type=\"radio\" id=\"hostZoomRadio\" name=\"zoomLevel\" value=\"host\" onclick=\"zoom(1, 0, 11);\" /><label for=\"hostZoomRadio\">Host</label><br />"
 			+ "</form></td><td style=\"vertical-align:bottom;\">"
-			+ "<input type=\"checkbox\" id=\"auto-refresh\" onclick=\"manageAutoRefresh();\" /><label for=\"auto-refresh\">Auto-refresh</label></td></tr></table>";
+			+ "<input type=\"checkbox\" id=\"auto-refresh\" onclick=\"manageAutoRefresh(this.id);\" /><label for=\"auto-refresh\">Auto-refresh</label></td></tr></table>";
 		
 		// Panel: Options
 		var truncatedNfSenProfile = (nfsenProfile.length > 22) ? nfsenProfile.substr(0, 22) + "..." : nfsenProfile;
@@ -1976,8 +1976,10 @@
 	   /*
 		* Manages the execution or stop of auto-refresh, based on the checkbox in the
 		* user interface.
+		* Parameters:
+		*		sourceID - ID of the source that called this method (e.g. a button ID)
 		*/		
-		function manageAutoRefresh() {
+		function manageAutoRefresh(sourceID) {
 			if (document.getElementById("auto-refresh").checked) {
 				queueManager.addElement(queueManager.queueTypes.SESSION, new SessionData("refresh", 300));
 				autoRefreshID = setTimeout("window.location.replace(\"index.php?autorefresh=1\")", 300000);
@@ -1986,7 +1988,7 @@
 				Perform immediate auto-refresh only when auto-refresh has been enabled
 				during the current session.
 				*/
-				if (autoRefresh == 0) {
+				if (sourceID == "auto-refresh") {
 					// Perform auto-refresh directly after queues are empty
 					setInterval("if (queueManager.getTotalQueueSize() == 0) { window.location.replace(\"index.php?autorefresh=1\"); }", 500);
 				}
