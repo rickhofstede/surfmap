@@ -19,7 +19,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120216)";
+	$version = "v2.3 dev (20120220)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1459,6 +1459,7 @@
 		 */
 		function initialize() {
 			queueManager = new QueueManager();
+			
 			importPHPLogQueue("INFO");
 			importPHPLogQueue("ERROR");
 			
@@ -1472,8 +1473,8 @@
 				currentZoomLevel = initialZoomLevel;
 				currentSURFmapZoomLevel = getSurfmapZoomLevel(initialZoomLevel);
 			}
+
 			map = initializeMap(mapCenter, currentZoomLevel, 2, 13);
-			
 			google.maps.event.addListener(map, "click", function() {
 				infoWindow.close();
 			});
@@ -1612,8 +1613,7 @@
 
 	</script>
 </head>
-	
-<body onload="initialize()">
+<body>
 	<div id="header" style="width:<?php if (strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>;clear:both;">
 		<a href="http://www.utwente.nl/en" target="_blank"><img src="images/UT_Logo.png" style="height:76px;width:280px;float:right;" alt="University of Twente"/></a>
 	
@@ -1737,6 +1737,8 @@
 				+ "<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've selected a potentially heavy query!</div>"
 				+ "<input type=\"submit\" name=\"submit\" value=\"Submit\" />"
 			+ "</div></form>";
+			
+		initialize();
 
 		// Select the current option in the 'nfsenstatorder' selector
 		var options = $("#nfsenstatorder").children("input[name='nfsenstatorder']");
@@ -1979,6 +1981,15 @@
 			if (document.getElementById("auto-refresh").checked) {
 				queueManager.addElement(queueManager.queueTypes.SESSION, new SessionData("refresh", 300));
 				autoRefreshID = setTimeout("window.location.replace(\"index.php?autorefresh=1\")", 300000);
+				
+				/*
+				Perform immediate auto-refresh only when auto-refresh has been enabled
+				during the current session.
+				*/
+				if (autoRefresh == 0) {
+					// Perform auto-refresh directly after queues are empty
+					setInterval("if (queueManager.getTotalQueueSize() == 0) { window.location.replace(\"index.php?autorefresh=1\"); }", 500);
+				}
 			} else {
 				queueManager.addElement(queueManager.queueTypes.SESSION, new SessionData("refresh", 0));
 				clearTimeout(autoRefreshID);

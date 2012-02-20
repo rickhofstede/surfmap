@@ -35,7 +35,7 @@
 		 *		Queue size after adding the specified element. Note that 0 will therefore
 		 *		be returned if element pushing to the queue was not successful.
 		 */		
-		this.addElement = function(type, element) {
+		this.addElement = function (type, element) {
 			if (type == this.queueTypes.DNS) {
 				this.DNS_queue.push(element);
 				return this.DNS_queue.length;
@@ -69,8 +69,9 @@
 		 * Return:
 		 *		First element of the specified queue, or null if it does not exist
 		 */		
-		this.getElement = function(type) {
+		this.getElement = function (type) {
 			var element;
+			
 			if (type == this.queueTypes.DNS && this.DNS_queue.length > 0) {
 				element = this.DNS_queue.shift();
 			} else if (type == this.queueTypes.SESSION && this.SESSION_queue.length > 0) {
@@ -96,11 +97,11 @@
 		 *		First element of the queue with the highest priority, or null if it 
 		 *		does not exist
 		 */		
-		this.getElementPrio = function() {
+		this.getElementPrio = function () {
 			var element, type;
 			var me = this;
 		
-			$.each(me.queueTypes, function(key, value) {
+			$.each(me.queueTypes, function (key, value) {
 			    if (key == me.queueTypes.DNS && me.DNS_queue.length > 0) {
 					type = key;
 					element = me.DNS_queue.shift();
@@ -140,13 +141,42 @@
 
 			return (element == undefined) ? {type: null, element: null} : {type: type, element: element};
 		}
+		
+		/*
+		 * Returns the size of the specified queue.
+		 * Parameters:
+		 *		type - queue type
+		 * Return:
+		 *		Queue size as integer
+		 */		
+		this.getQueueSize = function (type) {
+			var size = -1;
+			
+			if (type == this.queueTypes.DNS) {
+				size = this.DNS_queue.length;
+			} else if (type == this.queueTypes.SESSION) {
+				size = this.SESSION_queue.length;
+			} else if (type == this.queueTypes.INFO) {
+				size = this.INFO_logQueue.length;
+			} else if (type == this.queueTypes.ERROR) {
+				size = this.ERROR_logQueue.length;
+			} else if (type == this.queueTypes.DEBUG) {
+				size = this.DEBUG_logQueue.length;
+			} else if (type == this.queueTypes.GEOCODING) {
+				size = this.GEOCODING_queue.length;
+			} else if (type == this.queueTypes.STAT) {
+				size = this.STAT_queue.length;
+			}
+			
+			return size;
+		}
 	
 		/*
 		 * Returns the combined size of all queues.
 		 * Return:
 		 *		Total queue size as integer
 		 */		
-		this.getTotalQueueSize = function() {
+		this.getTotalQueueSize = function () {
 			var totalSize = this.DNS_queue.length + this.SESSION_queue.length 
 					+ this.INFO_logQueue.length	+ this.ERROR_logQueue.length 
 					+ this.DEBUG_logQueue.length + this.GEOCODING_queue.length
