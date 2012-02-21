@@ -5,14 +5,17 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 ---
 
-Release notes [v2.3 dev (20120220)]:
+Release notes [v2.3 dev (20120221)]:
 
 - [FEATURE] Added GeoFilter support
 - [FEATURE] Added 'Now' button to date/time-selectors, for navigating to latest available time slot
 - [FEATURE] Added DNS name resolving for IP addresses on HOST zoom level
 - [FEATURE] Updated jQuery to v1.7.1
 - [FEATURE] Updated jQuery UI to v1.8.17
+- [FEATURE] Updated jQuery TimePicker to v0.9.9
+- [FEATURE] Updated jQuery Multiselect to v1.12
 - [BUGFIX] Added workaround for issue in date/time-selector, when copying from one selector to another
+- [BUGFIX] Fixed an issue that could cause SURFmap to hang when auto-refresh was enabled
 - [BUGFIX] Several minor bug fixes and improvements
 
 Release notes [v2.2 stable (20111216)]:

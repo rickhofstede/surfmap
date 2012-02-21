@@ -19,7 +19,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120220)";
+	$version = "v2.3 dev (20120221)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -199,7 +199,7 @@
 	<script type="text/javascript" src="jquery/js/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" src="jquery/js/jquery-ui-1.8.17.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery.alerts.js"></script>
-	<script type="text/javascript" src="js/jquery.multiselect.min.js"></script> <!-- http://www.erichynds.com/examples/jquery-ui-multiselect-widget/demos/ -->
+	<script type="text/javascript" src="js/jquery.multiselect.js"></script> <!-- http://www.erichynds.com/examples/jquery-ui-multiselect-widget/demos/ -->
 	<script type="text/javascript" src="js/jqueryutil.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script> <!-- http://trentrichardson.com/examples/timepicker/ -->
 	<script type="text/javascript" src="js/maputil.js"></script>
