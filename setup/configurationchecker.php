@@ -60,14 +60,22 @@
 	try {
 		// 4. Check Geocoder database connection
 		$PDODrivers = PDO::getAvailableDrivers();
+		
 		if (in_array("sqlite", $PDODrivers)) {
-			$geocoderDBFile = "sqlite:../$GEOCODER_DB_SQLITE3";
-			$geocoderDBConnection = new PDO($geocoderDBFile);
+			$geocoderDBFile = $GEOCODER_DB_SQLITE3;
 		} else if (in_array("sqlite2", $PDODrivers)) {
-			$geocoderDBFile = "sqlite:../$GEOCODER_DB_SQLITE2";
-			$geocoderDBConnection = new PDO($geocoderDBFile);
+			$geocoderDBFile = $GEOCODER_DB_SQLITE2;
 		} else {
+			throw new PDOException;
 		}
+		
+		if (strpos($geocoderDBFile, "/") !== 0) { // relative path
+			$geocoderDBFile = "../$geocoderDBFile";
+		}
+		
+		if (!file_exists($geocoderDBFile)) throw new PDOException;
+		$geocoderDBFile = "sqlite:$geocoderDBFile";
+		$geocoderDBConnection = new PDO($geocoderDBFile); // does not throw exception when file does not exist
 		
 		if (isset($geocoderDBConnection)) {
 			$geocoderDatabaseConnectionOK = 1;
@@ -335,11 +343,11 @@
 	<head>
 		<title>SURFmap Configuration Checker</title>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-		<link type="text/css" rel="stylesheet" href="../jquery/css/start/jquery-ui-1.8.16.custom.css" />
+		<link type="text/css" rel="stylesheet" href="../jquery/css/start/jquery-ui-1.8.17.custom.css" />
 		<link type="text/css" rel="stylesheet" href="../css/surfmap.css" />
 		<script type="text/javascript" src="<?php if ($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
-		<script type="text/javascript" src="../jquery/js/jquery-1.6.2.min.js"></script>
-		<script type="text/javascript" src="../jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
+		<script type="text/javascript" src="../jquery/js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="../jquery/js/jquery-ui-1.8.17.custom.min.js"></script>
 		<script type="text/javascript" src="../js/jqueryutil.js"></script>
 		<style type="text/css">
 			body {
