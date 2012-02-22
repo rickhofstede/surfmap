@@ -69,13 +69,13 @@ sub run {
 		
 		my $phpLocation = `which php`;
 		unless($phpLocation) {
-			syslog("info", "[SURFmap Back-end]: PHP CLI not found! Add PHP CLI to you PATH variable!");
+			syslog("info", "[SURFmap Back-end]: PHP CLI not found! Add PHP CLI to your PATH variable!");
 			return;
 		}
 		
 		my $phpOutput = `php ${SURFMAP_PATH}backend.php -p $profile -t $profileinfo{'type'} -s $allsources`;
 		unless($phpOutput) {
-			syslog("info", "[SURFmap Back-end]: Empty result from PHP CLI! Check the file permissions of backend.php");
+			syslog("info", "[SURFmap Back-end]: Empty result from PHP CLI! Check file permissions of 'backend.php'");
 			return;
 		}
 		
