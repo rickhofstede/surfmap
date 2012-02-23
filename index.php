@@ -13,13 +13,14 @@
 	require_once("loghandler.php");
 	require_once("sessionhandler.php");
 	require_once("geofilter.php");
+	require_once("surfmaputil.php");
 	
 	$nfsenConfig = readNfSenConfig();
 	
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120222)";
+	$version = "v2.3 dev (20120223)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -43,145 +44,13 @@
 				array_splice($sessionData->geoLocationData, $i, 1);
 				array_splice($sessionData->geoCoderData, $i, 1);
 
-				// Compensate for array element removal; the result will be a 
-				// repetition if the current index.
+				// Compensate for array element removal; result will be a repetition of current index.
 				$i--;
 			}
 		} catch (GeoFilterException $ex) {
 			$sessionData->errorCode = 7;
 			$sessionData->errorMessage = $ex->errorMessage();
 		}
-		
-	}
-
-	function stringifyNetFlowData($data, $type) {
-		global $sessionData;
-		
-		$delimiter = "__";
-		$subDelimiter = "_"; 
-		$result = "";
-
-		if ($type == "IP") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $data[$i]->ipv4_src.$subDelimiter.$data[$i]->ipv4_dst;
-				
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}
-		} else if ($type == "PACKETS") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $data[$i]->packets;
-				
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}
-		} else if ($type == "OCTETS") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $data[$i]->octets;
-				
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}
-		} else if ($type == "DURATION") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $data[$i]->duration;
-				
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}
-		} else if ($type == "PROTOCOL") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $data[$i]->protocol;
-				
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}	
-		} else if ($type == "PORT") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $data[$i]->port_src.$subDelimiter.$data[$i]->port_dst;
-				
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}
-		} else if ($type == "FLOWS") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $data[$i]->flows;
-				
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}																
-		} else {
-			return false;
-		}
-
-		return $result;
-	}
-	
-	function stringifyGeoData($data, $type) {
-		global $sessionData;
-		
-		$delimiter = "__";
-		$subDelimiter = "_"; 
-		$result = "";
-		
-		if ($type == "COUNTRY") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $data[$i][0]['COUNTRY'].$subDelimiter.$data[$i][1]['COUNTRY'];
-				
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}
-		} else if ($type == "REGION") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $data[$i][0]['REGION'].$subDelimiter.$data[$i][1]['REGION'];
-
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}
-		} else if ($type == "CITY") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $data[$i][0]['CITY'].$subDelimiter.$data[$i][1]['CITY'];
-
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}							
-		} else {
-			return false;
-		}
-		
-		return $result;
-	}
-	
-	function stringifyGeoCoderData($type) {
-		global $sessionData;
-		
-		$delimiter = "___";
-		$subDelimiter = "__";
-		$subSubDelimiter = "_"; 
-		$result = "";
-		
-		if ($type == "COUNTRY") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $sessionData->geoCoderData[$i]->srcCountry[0].$subSubDelimiter
-						.$sessionData->geoCoderData[$i]->srcCountry[1].$subDelimiter
-						.$sessionData->geoCoderData[$i]->dstCountry[0].$subSubDelimiter
-						.$sessionData->geoCoderData[$i]->dstCountry[1];
-				
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}
-		} else if ($type == "REGION") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {				
-				$result .= $sessionData->geoCoderData[$i]->srcRegion[0].$subSubDelimiter
-						.$sessionData->geoCoderData[$i]->srcRegion[1].$subDelimiter
-						.$sessionData->geoCoderData[$i]->dstRegion[0].$subSubDelimiter
-						.$sessionData->geoCoderData[$i]->dstRegion[1];
-						
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}
-		} else if ($type == "CITY") {
-			for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
-				$result .= $sessionData->geoCoderData[$i]->srcCity[0].$subSubDelimiter
-						.$sessionData->geoCoderData[$i]->srcCity[1].$subDelimiter.
-						$sessionData->geoCoderData[$i]->dstCity[0].$subSubDelimiter.
-						$sessionData->geoCoderData[$i]->dstCity[1];
-						
-				if ($i !== ($sessionData->flowRecordCount - 1)) $result .= $delimiter;
-			}
-		} else {
-			return false;
-		}
-
-		return $result;
 	}
 
 ?>
@@ -293,7 +162,9 @@
 		var skippedGeocodingRequests = 0; // skipped geocoding requests
 		var blockedGeocodingRequests = 0; // blocked geocoding requests
 		var outputGeocodingErrorMessage = 0; // indicates if an geocoding error message has been shown to the user (this should happen only once)
-		var WRITE_DATA_TO_GEOCODER_DB = <?php echo $WRITE_DATA_TO_GEOCODER_DB; ?>;
+		
+		var USE_GEOCODER_DB = <?php if (is_numeric($USE_GEOCODER_DB)) { echo $USE_GEOCODER_DB; } else {echo "0";} ?>;
+		var WRITE_DATA_TO_GEOCODER_DB = <?php if (is_numeric($WRITE_DATA_TO_GEOCODER_DB)) { echo $WRITE_DATA_TO_GEOCODER_DB; } else {echo "0";} ?>;
 		// --- End of Geocoding parameters
 		
 	    /*
@@ -623,7 +494,7 @@
 						var geocodedPlace = new GeocodedPlace(place, results[0].geometry.location.lat(), results[0].geometry.location.lng());
 						geocodedPlaces.push(geocodedPlace);
 						
-						if (WRITE_DATA_TO_GEOCODER_DB == 1) {
+						if (USE_GEOCODER_DB == 1 && WRITE_DATA_TO_GEOCODER_DB == 1) {
 							queueManager.addElement(queueManager.queueTypes.GEOCODING, geocodedPlace);
 						}
 						
@@ -1531,7 +1402,9 @@
 			
 			setProgressBarValue(20);
 			changeZoomLevelPanel(0, currentSURFmapZoomLevel);
-			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 1. Basic initialization completed");
+			if (debugLogging == 1) {
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 1. Basic initialization completed");
+			}
 
 			if (getErrorCode() == 1) {
 				generateAlert("nfsenFilterError");
@@ -1560,14 +1433,22 @@
 			}
 
 			setProgressBarValue(30, "Importing NetFlow data...");
-			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 2. Importing NetFlow data...");
+			if (debugLogging == 1) {
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 2. Importing NetFlow data...");
+			}
 			importData();
-			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 2. Importing NetFlow data... Done");
+			if (debugLogging == 1) {
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 2. Importing NetFlow data... Done");
+			}
 			
 			setProgressBarValue(40, "Complementing flow records");
-			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 3. Complementing flow records...");
+			if (debugLogging == 1) {
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 3. Complementing flow records...");
+			}
 			complementFlowRecords();
-			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 3. Complementing flow records... Done");
+			if (debugLogging == 1) {
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 3. Complementing flow records... Done");
+			}
 			
 			setInterval("serverTransactions()", 500);
 		}
@@ -1577,24 +1458,37 @@
 		 */		
 		function processing() {
 			setProgressBarValue(70, "Initializing lines...");
-			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines...");
+			if (debugLogging == 1) {
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines...");
+			}
 			initializeLines();
-			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines... Done");
+			if (debugLogging == 1) {
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines... Done");
+			}
 
 			setProgressBarValue(80, "Initializing markers...");
-			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 5. Initializing markers...");
+			if (debugLogging == 1) {
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 5. Initializing markers...");
+			}
 			initializeMarkers();
-			if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 5. Initializing markers... Done");
+			if (debugLogging == 1) {
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 5. Initializing markers... Done");
+			}
 			
 			if (demoMode == 0) {
 				setProgressBarValue(90, "Initializing legend...");
-				if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 6. Initializing legend...");
+				if (debugLogging == 1) {
+					queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 6. Initializing legend...");
+				}
 				initializeLegend(currentSURFmapZoomLevel);
-				if (debugLogging == 1) queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 6. Initializing legend... Done");
+				if (debugLogging == 1) {
+					queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 6. Initializing legend... Done");
+				}
 			}
 			
 			checkForHeavyQuery();
-			if (successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests > 0) {
+			if (USE_GEOCODER_DB == 1 && WRITE_DATA_TO_GEOCODER_DB == 1 
+					&& successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests > 0) {
 				queueManager.addElement(queueManager.queueTypes.STAT, new StatData("geocoderRequestsSuccess", successfulGeocodingRequests));
 				queueManager.addElement(queueManager.queueTypes.STAT, new StatData("geocoderRequestsError", erroneousGeocodingRequests));
 				queueManager.addElement(queueManager.queueTypes.STAT, new StatData("geocoderRequestsSkip", skippedGeocodingRequests));

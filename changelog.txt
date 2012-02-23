@@ -5,7 +5,7 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 ---
 
-Release notes [v2.3 dev (20120222)]:
+Release notes [v2.3 dev (20120223)]:
 
 - [FEATURE] Added GeoFilter support
 - [FEATURE] Added 'Now' button to date/time-selectors, for navigating to latest available time slot
@@ -17,6 +17,7 @@ Release notes [v2.3 dev (20120222)]:
 - [BUGFIX] Added workaround for issue in date/time-selector, when copying from one selector to another
 - [BUGFIX] Fixed an issue that could cause SURFmap to hang when auto-refresh was enabled
 - [BUGFIX] Fixed a bug which could cause the ConfigurationChecker to stop working properly when absolute paths to the SQLite databases were used
+- [BUGFIX] Fixed a bug which could cause SURFmap not to adhere to the settings related to the GeoCoder DB
 - [BUGFIX] Several minor bug fixes and improvements
 
 Release notes [v2.2 stable (20111216)]:

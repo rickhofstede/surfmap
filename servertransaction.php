@@ -12,7 +12,6 @@
 	
 	if (isset($_GET['transactionType'])) {
 		if ($_GET['transactionType'] == "GEOCODING" && isset($_GET['location']) && isset($_GET['lat']) && isset($_GET['lng'])) {
-			// if (storeGeocodedLocation(str_replace("_", " ", $_GET['location']), $_GET['lat'], $_GET['lng'])) {
 			if (storeGeocodedLocation($_GET['location'], $_GET['lat'], $_GET['lng'])) {
 				echo "GEOCODING##OK##".$_GET['location'];
 			} else {
@@ -63,7 +62,9 @@
 	 *		false - on failure
 	 */	
 	function storeGeocodedLocation($location, $lat, $lng) {
-		global $GEOCODER_DB_SQLITE2, $GEOCODER_DB_SQLITE3;
+		global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE2, $GEOCODER_DB_SQLITE3, $WRITE_DATA_TO_GEOCODER_DB;
+		
+		if (!$USE_GEOCODER_DB || !$WRITE_DATA_TO_GEOCODER_DB) return false;
 		
 		try {
 			$PDODrivers = PDO::getAvailableDrivers();
@@ -106,7 +107,9 @@
 	 *		false - on failure
 	 */
 	function storeGeocodingStat($statType, $count) {
-		global $GEOCODER_DB_SQLITE2, $GEOCODER_DB_SQLITE3;
+		global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE2, $GEOCODER_DB_SQLITE3, $WRITE_DATA_TO_GEOCODER_DB;
+		
+		if (!$USE_GEOCODER_DB || !$WRITE_DATA_TO_GEOCODER_DB) return false;
 		
 		try {
 			$PDODrivers = PDO::getAvailableDrivers();
