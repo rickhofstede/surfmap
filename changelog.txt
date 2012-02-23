@@ -10,6 +10,7 @@ Release notes [v2.3 dev (20120223)]:
 - [FEATURE] Added GeoFilter support
 - [FEATURE] Added 'Now' button to date/time-selectors, for navigating to latest available time slot
 - [FEATURE] Added DNS name resolving for IP addresses on HOST zoom level
+- [FEATURE] Moved SURFmap logging from Apache error log to syslog
 - [FEATURE] Updated jQuery to v1.7.1
 - [FEATURE] Updated jQuery UI to v1.8.17
 - [FEATURE] Updated jQuery TimePicker to v0.9.9

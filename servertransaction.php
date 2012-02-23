@@ -19,7 +19,7 @@
 			}
 		} else if ($_GET['transactionType'] == "LOG" && isset($_GET['logType']) && isset($_GET['message'])) {
 			if (!($LOG_ERRORS_ONLY && $_GET['logType'] != "ERROR")) {
-				error_log("[SURFmap | ".$_GET['logType']."] ".str_replace("_", " ", $_GET['message']));
+				syslog(LOG_INFO, "[SURFmap | ".$_GET['logType']."] ".str_replace("_", " ", $_GET['message']));
 			}
 
 			echo "LOG##OK";

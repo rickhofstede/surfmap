@@ -451,7 +451,7 @@
 			}
 			fclose($fp);
 		} else {
-			error_log("[SURFmap | ERROR] NfSen configuration file ($NFSEN_CONF) couldn't be found or opened. Please check for file existence and permissions.");
+			syslog(LOG_INFO, "[SURFmap | ERROR] NfSen configuration file ($NFSEN_CONF) couldn't be found or opened. Please check for file existence and permissions");
 		}
 
 		return (sizeof($configValues) == 0) ? false : $configValues;
