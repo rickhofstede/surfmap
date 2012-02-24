@@ -96,7 +96,7 @@ while true; do
 	MY_LOC=$(php configurationchecker.php | grep configdata | cut -d'>' -f2 | cut -d'<' -f1)
 	echo "Geocoding plugin location - ${MY_LOC}"
 
-	i=$(( i + 1 ))		# check 5 times before we give up
+	i=$(( i + 1 ))		# check 5 times before giving up
 	if [ ${i} = 5 ] || [ "${MY_LOC}" != "(Unknown),(Unknown),(Unknown),(Unknown),(Unknown)" ]; then
 		break
 	fi
