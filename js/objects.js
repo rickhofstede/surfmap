@@ -67,9 +67,10 @@
 		this.dstParentCityName = "";
 	}
 	
-	function MarkerProperties(lat, lng) {
+	function MarkerProperties(lat, lng, locationString) {
 		this.lat = lat;
 		this.lng = lng;
+		this.locationString = locationString;
 		this.markerRecords = new Array();
 	}
 	

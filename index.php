@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120223)";
+	$version = "v2.3 dev (20120305)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -567,7 +567,9 @@
 				markerProperties[i] = []; // Initialize markerProperties storage
 
 				for (var j = 0; j < flowRecordCount; j++) {
-					if ((flowRecords[j].srcCountryLat == 0 && flowRecords[j].srcCountryLng == 0) || (flowRecords[j].dstCountryLat == 0 && flowRecords[j].dstCountryLng == 0)) {
+					// No geolocation data available
+					if ((flowRecords[j].srcCountryLat == 0 && flowRecords[j].srcCountryLng == 0) 
+							|| (flowRecords[j].dstCountryLat == 0 && flowRecords[j].dstCountryLng == 0)) {
 						continue;
 					}
 					
@@ -575,45 +577,54 @@
 						var currentLat = -1;
 						var currentLng = -1;
 						var currentName = "";
+						var locationString = "";
 						
 						if (i == COUNTRY && k == 0) {
 							currentLat = flowRecords[j].srcCountryLat;
 							currentLng = flowRecords[j].srcCountryLng;
 							currentName = flowRecords[j].srcRegion;
+							locationString = flowRecords[j].srcCountry;
 						} else if (i == COUNTRY && k == 1) {
 							currentLat = flowRecords[j].dstCountryLat;
 							currentLng = flowRecords[j].dstCountryLng;
 							currentName = flowRecords[j].dstRegion;
+							locationString = flowRecords[j].dstCountry;
 						} else if (i == REGION && k == 0) {
 							currentLat = flowRecords[j].srcRegionLat;
 							currentLng = flowRecords[j].srcRegionLng;
 							currentName = flowRecords[j].srcCity;
+							locationString = flowRecords[j].srcCountry + ", " + flowRecords[j].srcRegion;
 						} else if (i == REGION && k == 1) {
 							currentLat = flowRecords[j].dstRegionLat;
 							currentLng = flowRecords[j].dstRegionLng;
 							currentName = flowRecords[j].dstCity;
+							locationString = flowRecords[j].dstCountry + ", " + flowRecords[j].dstRegion;
 						} else if (i == CITY && k == 0) {
 							currentLat = flowRecords[j].srcCityLat;
 							currentLng = flowRecords[j].srcCityLng;
 							currentName = flowRecords[j].srcCity;
+							locationString = flowRecords[j].srcCountry + ", " + flowRecords[j].srcRegion + ", " + flowRecords[j].srcCity;
 						} else if (i == CITY && k == 1) {
 							currentLat = flowRecords[j].dstCityLat;
 							currentLng = flowRecords[j].dstCityLng;
 							currentName = flowRecords[j].dstCity;
+							locationString = flowRecords[j].dstCountry + ", " + flowRecords[j].dstRegion + ", " + flowRecords[j].dstCity;
 						} else if (i == HOST && k == 0) {
 							currentLat = flowRecords[j].srcCityLat;
 							currentLng = flowRecords[j].srcCityLng;
 							currentName = flowRecords[j].srcIP;
+							locationString = flowRecords[j].srcCountry + ", " + flowRecords[j].srcRegion + ", " + flowRecords[j].srcCity;
 						} else if (i == HOST && k == 1) {
 							currentLat = flowRecords[j].dstCityLat;
 							currentLng = flowRecords[j].dstCityLng;
 							currentName = flowRecords[j].dstIP;
+							locationString = flowRecords[j].dstCountry + ", " + flowRecords[j].dstRegion + ", " + flowRecords[j].dstCity;
 						} else {
 						}
 
 						existValue = markerExists(i, currentLat, currentLng);
 						if (existValue == -1) { // Marker does not exist
-							var properties = new MarkerProperties(currentLat, currentLng);
+							var properties = new MarkerProperties(currentLat, currentLng, locationString);
 							var record = new MarkerRecord(currentName);
 
 							if (i == HOST) {
@@ -709,10 +720,10 @@
 					
 					var orderArray = new Array(); // Contains an ordered list of markerRecord IDs (array indices)
 					orderArray.push(0); // The first element to be considered is always the biggest/smallest
-					if (i == COUNTRY || i == REGION || i == CITY) { // Sorted by hosts
+					if (i == HOST) { // Sorted by flows
 						for (var k = 1; k < markerProperties[i][j].markerRecords.length; k++) {
 							for (var l = 0; l < orderArray.length; l++) {
-								if (markerProperties[i][j].markerRecords[k].hosts >= markerProperties[i][j].markerRecords[orderArray[l]].hosts) {
+								if (markerProperties[i][j].markerRecords[k].flows >= markerProperties[i][j].markerRecords[orderArray[l]].flows) {
 									orderArray.splice(l, 0, k);
 									break;
 								} else if (l == orderArray.length - 1) {
@@ -721,10 +732,10 @@
 								}
 							}
 						}
-					} else { // i == HOST, sorted by flows
+					} else { // Sorted by hosts
 						for (var k = 1; k < markerProperties[i][j].markerRecords.length; k++) {
 							for (var l = 0; l < orderArray.length; l++) {
-								if (markerProperties[i][j].markerRecords[k].flows >= markerProperties[i][j].markerRecords[orderArray[l]].flows) {
+								if (markerProperties[i][j].markerRecords[k].hosts >= markerProperties[i][j].markerRecords[orderArray[l]].hosts) {
 									orderArray.splice(l, 0, k);
 									break;
 								} else if (l == orderArray.length - 1) {
@@ -739,13 +750,7 @@
 					var tableBody = "<tbody class='informationWindowBody'>";
 					for (var k = 0; k < orderArray.length; k++) {
 						var orderArrayIndex = orderArray[k];
-						if (i == COUNTRY) {
-							tableBody += "<tr><td>" + formatName(markerProperties[i][j].markerRecords[orderArrayIndex].name) + "</td>";
-							tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].hosts + "</td></tr>";
-						} else if (i == REGION || i == CITY) {
-							tableBody += "<tr><td>" + formatName(markerProperties[i][j].markerRecords[orderArrayIndex].name) + "</td>";
-							tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].hosts + "</td></tr>";
-						} else { // i == HOST
+						if (i == HOST) {
 							var recordCount = markerProperties[i][j].markerRecords.length;
 							
 							// TODO Handle case where more than MAX_INFO_WINDOW_LINES lines are present in information window
@@ -760,7 +765,11 @@
 							} else {
 								tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].port + "</td></tr>";
 							}
+						} else {
+							tableBody += "<tr><td>" + formatName(markerProperties[i][j].markerRecords[orderArrayIndex].name) + "</td>";
+							tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].hosts + "</td></tr>";
 						}
+						
 						for (var l = 0; l < markerProperties[i][j].markerRecords[orderArrayIndex].flowRecordIDs.length; l++) {
 							if (flowIDsString != "") flowIDsString += "_";
 							flowIDsString += markerProperties[i][j].markerRecords[orderArrayIndex].flowRecordIDs[l];
@@ -773,8 +782,11 @@
 					 		+ "<a href = 'Javascript:zoom(1, 0, null)'>Zoom In</a><b> - </b><a href = 'Javascript:zoom(1, 1, null)'>Zoom Out</a><br />"
 					 		+ "<a href = 'Javascript:zoom(0, 0, null)'>Quick Zoom In</a><b> - </b><a href = 'Javascript:zoom(0, 1, null)'>Quick Zoom Out</a><br />"
 							+ "<a href='Javascript:showNetFlowDetails(\"" + flowIDsString + "\");'>Flow details</a></div>";
-							
-					markers[i].push(createMarker(i, new google.maps.LatLng(markerProperties[i][j].lat, markerProperties[i][j].lng), "<div id=\"content\">" + tableHeader + tableBody + tableFooter + "</div>"));
+					
+					var markerLocation = new google.maps.LatLng(markerProperties[i][j].lat, markerProperties[i][j].lng);
+					var markerTitle = formatName(markerProperties[i][j].locationString);
+					var markerContent = "<div id=\"content\">" + tableHeader + tableBody + tableFooter + "</div>";
+					markers[i].push(createMarker(markerLocation, i, markerTitle, markerContent));
 				}
 			}
 			
@@ -1151,11 +1163,12 @@
 		 * This function creates GMarkers, according to the specified coordinates
 		 * and puts the specified text into the marker's information window.
 		 * Parameters:
-		 *	level - the SURFmap zoom level for which the marker is created
 		 *	coordinates - the coordinates on which the marker should be created
+		 *	level - the SURFmap zoom level for which the marker is created
+		 *  title - tooltip to be shown on rollover
 		 *	text - the text that has to be put into the marker's information window
 		 */			
-		function createMarker(level, coordinates, text) {
+		function createMarker(coordinates, level, title, text) {
 			var internalTrafficMarker = 0;
 			
 			for (var i = 0; i < lines[level].length; i++) {
@@ -1171,12 +1184,14 @@
 			var markerOptions;
 			if (internalTrafficMarker == 1) {
 				markerOptions = {
+					icon: greenIcon,
 					position: coordinates,
-					icon: greenIcon
+					title: title
 				}
 			} else {
 				markerOptions = {
-					position: coordinates
+					position: coordinates,
+					title: title
 				}
 			}
 			var marker = new google.maps.Marker(markerOptions);
