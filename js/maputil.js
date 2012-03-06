@@ -40,9 +40,9 @@
 	*/
 	function getSurfmapZoomLevel(gmZoomLevel) {
 		if (gmZoomLevel <= 4) return 0;								// Country: 2-4
-		else if (gmZoomLevel >= 5 && gmZoomLevel <= 7) return 1;		// Region: 5-7
+		else if (gmZoomLevel >= 5 && gmZoomLevel <= 7) return 1;	// Region: 5-7
 		else if (gmZoomLevel >= 8 && gmZoomLevel <= 10) return 2;	// City: 8-10
-		else return 3;													// Host: 11-13
+		else return 3;												// Host: 11-13
 	}
 
    /*
