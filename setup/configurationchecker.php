@@ -51,7 +51,7 @@
 			$nfsenSocketOK = 1;
 		}
 		
-		// 3. Check NfSen data directory
+		// 3. Check NfSen source data directory
 		if (@file_exists($nfsenConfig['PROFILEDATADIR'])) {
 			$nfsenSourceDirOK = 1;
 		}
@@ -59,13 +59,11 @@
 	
 	try {
 		// 4. Check Geocoder database connection
-		$PDODrivers = PDO::getAvailableDrivers();
-		
-		if (in_array("sqlite", $PDODrivers)) {
-			$geocoderDBFile = $GEOCODER_DB_SQLITE3;
-		} else if (in_array("sqlite2", $PDODrivers)) {
-			$geocoderDBFile = $GEOCODER_DB_SQLITE2;
+		$geocoderDBFile = $GEOCODER_DB_SQLITE3;
+		if (!in_array("sqlite", PDO::getAvailableDrivers())) {
+			$phpPDOSqliteDriverOK = 1;
 		} else {
+			$phpPDOSqliteDriverOK = 0;
 			throw new PDOException;
 		}
 		
@@ -343,11 +341,11 @@
 	<head>
 		<title>SURFmap Configuration Checker</title>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-		<link type="text/css" rel="stylesheet" href="../jquery/css/start/jquery-ui-1.8.17.custom.css" />
+		<link type="text/css" rel="stylesheet" href="../jquery/css/start/jquery-ui-1.8.18.custom.css" />
 		<link type="text/css" rel="stylesheet" href="../css/surfmap.css" />
 		<script type="text/javascript" src="<?php if ($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
 		<script type="text/javascript" src="../jquery/js/jquery-1.7.1.min.js"></script>
-		<script type="text/javascript" src="../jquery/js/jquery-ui-1.8.17.custom.min.js"></script>
+		<script type="text/javascript" src="../jquery/js/jquery-ui-1.8.18.custom.min.js"></script>
 		<script type="text/javascript" src="../js/jqueryutil.js"></script>
 		<style type="text/css">
 			body {
@@ -394,19 +392,20 @@
 			and a help window will appear.</p>
 			
 		<div id="setupguidelines" class="checkitem"><b>Setup guidelines</b><br /><br />You can use the following settings in config.php:<br /><br /></div>
-		<div id="checkitem1" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem1Title + '##' + checkItem1Text);">1. NfSen configuration file (<?php echo $NFSEN_CONF; ?>) availability.</div>
+		<div id="checkitem1" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem1Title + '##' + checkItem1Text);">1. NfSen configuration file (<?php echo $NFSEN_CONF; ?>) available.</div>
 		<div id="checkitem2" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem2Title + '##' + checkItem2Text);">2. NfSen communication socket available.</div>
-		<div id="checkitem3" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem3Title + '##' + checkItem3Text);">3. NfSen source directory available.</div>
-		<div id="checkitem4" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. GeoCoder database connection (<?php if (isset($geocoderDBFile)) { echo $geocoderDBFile; } else { echo ""; } ?>) available.</div>
-		<div id="checkitem5" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem5Title + '##' + checkItem5Text);">5. GeoCoder database writability OK ('<?php echo $geocoderDBFile; ?>' should be writable).</div>
-		<div id="checkitem6" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem6Title + '##' + checkItem6Text);">6. IP2Location database (<?php echo $ip2LocationPath; ?>) available.</div>
-		<div id="checkitem7" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem7Title + '##' + checkItem7Text);">7. MaxMind database (<?php echo $maxMindPath; ?>) available.</div>
-		<div id="checkitem8" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem8Title + '##' + checkItem8Text);">8. Permissions of all directory contents OK.</div>
-		<div id="checkitem9" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem9Title + '##' + checkItem9Text);">9. Additional NetFlow source selector (<?php echo $NFSEN_DEFAULT_SOURCES; ?>) syntax OK.</div>
-		<div id="checkitem10" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem10Title + '##' + checkItem10Text);">10. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
-		<div id="checkitem11" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem11Title + '##' + checkItem11Text);">11. Internal domain (<?php echo $INTERNAL_DOMAINS; ?>) syntax OK.</div>
-		<div id="checkitem12" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem12Title + '##' + checkItem12Text);">12. PHP 'mbstring' module available.</div>
-		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. External IP address: <?php if ($extIPError !== "") echo $extIPError; else echo $extIP; ?><br />Geolocated country: <?php echo $extIPCountry; ?><br />Geolocated region: <?php echo $extIPRegion; ?><br />Geolocated city: <?php echo $extIPCity; ?></div>
+		<div id="checkitem3" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem3Title + '##' + checkItem3Text);">3. NfSen source data directory available.</div>
+		<div id="checkitem4" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. PHP PDO SQLite driver available.</div>
+		<div id="checkitem5" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem5Title + '##' + checkItem5Text);">5. GeoCoder database connection (<?php if (isset($geocoderDBFile)) { echo $geocoderDBFile; } else { echo ""; } ?>) available.</div>
+		<div id="checkitem6" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem6Title + '##' + checkItem6Text);">6. GeoCoder database writability OK ('<?php echo $geocoderDBFile; ?>' should be writable).</div>
+		<div id="checkitem7" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem7Title + '##' + checkItem7Text);">7. IP2Location database (<?php echo $ip2LocationPath; ?>) available.</div>
+		<div id="checkitem8" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem8Title + '##' + checkItem8Text);">8. MaxMind database (<?php echo $maxMindPath; ?>) available.</div>
+		<div id="checkitem9" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem9Title + '##' + checkItem9Text);">9. Permissions of all directory contents OK.</div>
+		<div id="checkitem10" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem10Title + '##' + checkItem10Text);">10. Additional NetFlow source selector (<?php echo $NFSEN_DEFAULT_SOURCES; ?>) syntax OK.</div>
+		<div id="checkitem11" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem11Title + '##' + checkItem11Text);">11. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
+		<div id="checkitem12" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem12Title + '##' + checkItem12Text);">12. Internal domain (<?php echo $INTERNAL_DOMAINS; ?>) syntax OK.</div>
+		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. PHP 'mbstring' module available.</div>
+		<div id="checkitem14" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkitem14Title + '##' + checkitem14Text);">14. External IP address: <?php if ($extIPError !== "") echo $extIPError; else echo $extIP; ?><br />Geolocated country: <?php echo $extIPCountry; ?><br />Geolocated region: <?php echo $extIPRegion; ?><br />Geolocated city: <?php echo $extIPCity; ?></div>
 				
 		<div id="dialog"></div>
 		<div id="configdata" style="display:none;"><?php echo $locationString; ?></div>
@@ -418,6 +417,8 @@
 			var nfsenConfigReadable = <?php echo $nfsenConfigReadable; ?>;
 			var nfsenSocketOK = <?php echo $nfsenSocketOK; ?>;
 			var nfsenSourceDirOK = <?php echo $nfsenSourceDirOK; ?>;
+			
+			var phpPDOSqliteDriverOK = <?php echo $phpPDOSqliteDriverOK; ?>;
 			var geocoderDatabaseConnectionOK = <?php echo $geocoderDatabaseConnectionOK; ?>;
 			var geocoderDatabaseOK = <?php echo $geocoderDatabaseOK; ?>;
 			var ip2LocationDatabaseOK = <?php echo $ip2LocationDBPathOK; ?>;
@@ -477,91 +478,100 @@
 				document.getElementById("checkitem3").className += " checkitem_failure";
 			}
 			
-			// 4. Check Geocoder database connection
-			if (geocoderDatabaseConnectionOK == 1) {
+			// 4. PHP PDO SQLite driver availability 
+			if (phpPDOSqliteDriverOK == 1) {
 				document.getElementById("checkitem4").className += " checkitem_success";
-			} else if (useGeocoderDB == 1 && geocoderDatabaseConnectionOK == 0) {
+			} else if (useGeocoderDB == 1 && phpPDOSqliteDriverOK == 0) {
 				document.getElementById("checkitem4").className += " checkitem_failure";
 			} else {
 				document.getElementById("checkitem4").className += " checkitem_skip";
 			}
 			
-			// 5. Check Geocoder database writability
-			if (geocoderDatabaseOK == 1) {
+			// 5. Check Geocoder database connection
+			if (geocoderDatabaseConnectionOK == 1) {
 				document.getElementById("checkitem5").className += " checkitem_success";
-			} else if (useGeocoderDB == 1 && geocoderDatabaseOK == 0) {
+			} else if (useGeocoderDB == 1 && geocoderDatabaseConnectionOK == 0) {
 				document.getElementById("checkitem5").className += " checkitem_failure";
 			} else {
 				document.getElementById("checkitem5").className += " checkitem_skip";
 			}
 			
-			// 6. Check IP2Location DB path
-			if (ip2LocationDatabaseOK == 1) {
+			// 6. Check Geocoder database writability
+			if (geocoderDatabaseOK == 1) {
 				document.getElementById("checkitem6").className += " checkitem_success";
-			} else if (geolocationDB == "IP2Location" && ip2LocationDatabaseOK == 0) {
+			} else if (useGeocoderDB == 1 && geocoderDatabaseOK == 0) {
 				document.getElementById("checkitem6").className += " checkitem_failure";
 			} else {
 				document.getElementById("checkitem6").className += " checkitem_skip";
 			}
 			
-			// 7. Check MaxMind DB path
-			if (maxmindDatabaseOK == 1) {
+			// 7. Check IP2Location DB path
+			if (ip2LocationDatabaseOK == 1) {
 				document.getElementById("checkitem7").className += " checkitem_success";
-			} else if (geolocationDB == "MaxMind" && maxmindDatabaseOK == 0) {
+			} else if (geolocationDB == "IP2Location" && ip2LocationDatabaseOK == 0) {
 				document.getElementById("checkitem7").className += " checkitem_failure";
 			} else {
 				document.getElementById("checkitem7").className += " checkitem_skip";
 			}
 			
-			// 8. Check file permissions
-			if (filePermissionsOK == 1) {
+			// 8. Check MaxMind DB path
+			if (maxmindDatabaseOK == 1) {
 				document.getElementById("checkitem8").className += " checkitem_success";
-			} else {
+			} else if (geolocationDB == "MaxMind" && maxmindDatabaseOK == 0) {
 				document.getElementById("checkitem8").className += " checkitem_failure";
-				document.getElementById("checkitem8").innerHTML += "<br /><br />Files with wrong permissions:<br />---<br />";
+			} else {
+				document.getElementById("checkitem8").className += " checkitem_skip";
+			}
+			
+			// 9. Check file permissions
+			if (filePermissionsOK == 1) {
+				document.getElementById("checkitem9").className += " checkitem_success";
+			} else {
+				document.getElementById("checkitem9").className += " checkitem_failure";
+				document.getElementById("checkitem9").innerHTML += "<br /><br />Files with wrong permissions:<br />---<br />";
 				for (i in filesWithWrongPerm) {
 					// Delimiter between tuples: '___'
 					// Delimiter inside tuple (between file name/path and permissions): '__'
 					currentTuple = filesWithWrongPerm[i].split("__");
-					document.getElementById("checkitem8").innerHTML += currentTuple[0] + " (" + currentTuple[1] + ")<br />";
+					document.getElementById("checkitem9").innerHTML += currentTuple[0] + " (" + currentTuple[1] + ")<br />";
 				}
 			}
 			
-			// 9. Check additional NetFlow source selector syntax
+			// 10. Check additional NetFlow source selector syntax
 			if (additionalSrcSelectorSyntaxOK == 1) {
-				document.getElementById("checkitem9").className += " checkitem_success";
-			} else {
-				document.getElementById("checkitem9").className += " checkitem_failure";
-			}
-			
-			// 10. Check map center coordinates syntax
-			if (mapCenterSyntaxOK == 1) {
 				document.getElementById("checkitem10").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem10").className += " checkitem_failure";
 			}
 			
-			// 11. Check internal domain syntax
-			if (internalDomainSyntaxOK == 1) {
+			// 11. Check map center coordinates syntax
+			if (mapCenterSyntaxOK == 1) {
 				document.getElementById("checkitem11").className += " checkitem_success";
 			} else {
 				document.getElementById("checkitem11").className += " checkitem_failure";
 			}
 			
-			// 12. Check availability of 'mbstring' PHP module (for MaxMind API)
-			if (mbstringModuleOK == 1) {
+			// 12. Check internal domain syntax
+			if (internalDomainSyntaxOK == 1) {
 				document.getElementById("checkitem12").className += " checkitem_success";
-			} else if (geolocationDB == "MaxMind" && mbstringModuleOK == 0) {
-				document.getElementById("checkitem12").className += " checkitem_failure";
 			} else {
-				document.getElementById("checkitem12").className += " checkitem_skip";
+				document.getElementById("checkitem12").className += " checkitem_failure";
 			}
 			
-			// 13. External IP address and location
-			if (extIPLocationOK == 1) {
+			// 13. Check availability of 'mbstring' PHP module (for MaxMind API)
+			if (mbstringModuleOK == 1) {
 				document.getElementById("checkitem13").className += " checkitem_success";
-			} else {
+			} else if (geolocationDB == "MaxMind" && mbstringModuleOK == 0) {
 				document.getElementById("checkitem13").className += " checkitem_failure";
+			} else {
+				document.getElementById("checkitem13").className += " checkitem_skip";
+			}
+			
+			// 14. External IP address and location
+			if (extIPLocationOK == 1) {
+				document.getElementById("checkitem14").className += " checkitem_success";
+			} else {
+				document.getElementById("checkitem14").className += " checkitem_failure";
 			}
 			
 			var checkItem1Title = "NfSen configuration file (nfsen.conf) availability";
@@ -573,35 +583,38 @@
 			var checkItem3Title = "NfSen data directory";
 			var checkItem3Text = "This path should lead to the root NfSen's network data capture folder and should be configured properly in [nfsen.conf] (NfSen main configuration file).";
 			
-			var checkItem4Title = "GeoCoder database connection";
-			var checkItem4Text = "In case a GeoCoder (caching) database is selected to be used, a proper database connection should be configured. Since SQLite technology is used by SURFmap, the file paths in [$GEOCODER_DB_SQLITE2] and [$GEOCODER_DB_SQLITE3] should be valid.";
+			var checkItem4Title = "PHP PDO SQLite driver";
+			var checkItem4Text = "In case the GeoCoder (caching) database is selected to be used, the PHP PDO SQLite driver should be installed on your system.";
 			
-			var checkItem5Title = "GeoCoder database writability";
-			var checkItem5Text = "The (SQLite) database file should have the correct permissions in order to be writable.";
+			var checkItem5Title = "GeoCoder database connection";
+			var checkItem5Text = "In case the GeoCoder (caching) database is selected to be used, a proper database connection should be configured. Since SQLite technology is used by SURFmap, the file path in [$GEOCODER_DB_SQLITE3] should be valid.";
+			
+			var checkItem6Title = "GeoCoder database writability";
+			var checkItem6Text = "The (SQLite) database file should have the correct permissions in order to be writable.";
 
-			var checkItem6Title = "IP2Location database";
-			var checkItem6Text = "In case you selected 'IP2Location' as your geolocation database (in [$GEOLOCATION_DB]), please verify the path to the database file. You can use both absolute and relative paths.";
+			var checkItem7Title = "IP2Location database";
+			var checkItem7Text = "In case you selected 'IP2Location' as your geolocation database (in [$GEOLOCATION_DB]), please verify the path to the database file. You can use both absolute and relative paths.";
 			
-			var checkItem7Title = "MaxMind database";
-			var checkItem7Text = "In case you selected 'MaxMind' as your geolocation database (in [$GEOLOCATION_DB]), please verify the path to the database file. You can use both absolute and relative paths.";
+			var checkItem8Title = "MaxMind database";
+			var checkItem8Text = "In case you selected 'MaxMind' as your geolocation database (in [$GEOLOCATION_DB]), please verify the path to the database file. You can use both absolute and relative paths.";
 			
-			var checkItem8Title = "File permissions";
-			var checkItem8Text = "All files need to be (at least) readable by your Web server. Otherwise the PHP engine will not be able to successfully execute and process the SURFmap source files. Please make sure that all permissions are set correctly. Please note that some Web server configurations require PHP files to be executable in order to be processed.";
+			var checkItem9Title = "File permissions";
+			var checkItem9Text = "All files need to be (at least) readable by your Web server. Otherwise the PHP engine will not be able to successfully execute and process the SURFmap source files. Please make sure that all permissions are set correctly. Please note that some Web server configurations require PHP files to be executable in order to be processed.";
 			
-			var checkItem9Title = "Additional Netflow source selector syntax";
-			var checkItem9Text = "This setting should consist of an empty String in case only the primary source needs to be used (so no additional source). If more than one additional source is used, they should be separated by a semi-colon (;).";
+			var checkItem10Title = "Additional Netflow source selector syntax";
+			var checkItem10Text = "This setting should consist of an empty String in case only the primary source needs to be used (so no additional source). If more than one additional source is used, they should be separated by a semi-colon (;).";
 
-			var checkItem10Title = "Map center syntax";
-			var checkItem10Text = "This setting should consist consist of two (decimal) values, separated by a comma (,). The first value represents the latitude coordinate, the second value represents the longitude coordinate. The latitude coordinate can have a value on the interval <-90.0, 90.0>, the longitude coordinate can have a value on the interval <-180.0, 180.0>";
+			var checkItem11Title = "Map center syntax";
+			var checkItem11Text = "This setting should consist consist of two (decimal) values, separated by a comma (,). The first value represents the latitude coordinate, the second value represents the longitude coordinate. The latitude coordinate can have a value on the interval <-90.0, 90.0>, the longitude coordinate can have a value on the interval <-180.0, 180.0>";
 			
-			var checkItem11Title = "Internal domain syntax";
-			var checkItem11Text = "This setting contains the internal domain of the NetFlow exporter. Multiple domains need to be separated by a semi-colon (;). To be certain that the syntax is OK (the Configuration Checker only checks a few possible errors), please check it in the 'Filter' field of NfSen's \"Details\" page.";
+			var checkItem12Title = "Internal domain syntax";
+			var checkItem12Text = "This setting contains the internal domain of the NetFlow exporter. Multiple domains need to be separated by a semi-colon (;). To be certain that the syntax is OK (the Configuration Checker only checks a few possible errors), please check it in the 'Filter' field of NfSen's \"Details\" page.";
 
-			var checkItem12Title = "PHP 'mbstring' module";
-			var checkItem12Text = "In case you selected 'MaxMind' as your geolocation database, you should have PHP's 'mbstring' module installed, in order to get the MaxMind API to work.";
+			var checkItem13Title = "PHP 'mbstring' module";
+			var checkItem13Text = "In case you selected 'MaxMind' as your geolocation database, you should have PHP's 'mbstring' module installed, in order to get the MaxMind API to work.";
 
-			var checkItem13Title = "External IP address and location";
-			var checkItem13Text = "If your PHP configuration contains your public IP address, it is likely to be geolocatable. In that case, it is shown here. If the locations are unknown, you need to geolocate it manually.";
+			var checkItem14Title = "External IP address and location";
+			var checkItem14Text = "If your PHP configuration contains your public IP address, it is likely to be geolocatable. In that case, it is shown here. If the locations are unknown, you need to geolocate it manually.";
 		</script>
 	</body>
 </html>

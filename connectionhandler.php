@@ -18,19 +18,15 @@
 		 * Constructs a new ConnectionHandler object.
 		 */
 		function __construct ($logHandler) {
-			global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE2, $GEOCODER_DB_SQLITE3;
+			global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE3;
 			
 			$this->logHandler = $logHandler;
 			
 			if ($USE_GEOCODER_DB) {
 				try {
-					$PDODrivers = PDO::getAvailableDrivers();
-					if (in_array("sqlite", $PDODrivers)) {
+					if (in_array("sqlite", PDO::getAvailableDrivers())) {
 						$this->GeocoderDatabase = new PDO("sqlite:$GEOCODER_DB_SQLITE3");
-					} else if (in_array("sqlite2", $PDODrivers)) {
-						$this->GeocoderDatabase = new PDO("sqlite2:$GEOCODER_DB_SQLITE2");
 					} else {
-						
 					}
 				} catch(PDOException $e) {}
 			}

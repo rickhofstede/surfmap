@@ -34,7 +34,6 @@
 	
 	// [GeoCoding]
 	$USE_GEOCODER_DB=1; // Indicates whether the geocoder cache database should be used - 0: no, 1: yes [default: 1]
-	$GEOCODER_DB_SQLITE2="geocoder/geocoder_cache.sqlite"; // Path to the SQLite2 database file [default: 'geocoder/geocoder_cache.sqlite']
 	$GEOCODER_DB_SQLITE3="geocoder/geocoder_cache.sqlite3"; // Path to the SQLite3 database file [default: 'geocoder/geocoder_cache.sqlite3']
 	$WRITE_DATA_TO_GEOCODER_DB=1; // Indicates whether geocoded locations should be written to geocoder cache database - 0: no, 1: yes [default: 1]
 	

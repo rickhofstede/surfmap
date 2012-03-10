@@ -62,17 +62,15 @@
 	 *		false - on failure
 	 */	
 	function storeGeocodedLocation($location, $lat, $lng) {
-		global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE2, $GEOCODER_DB_SQLITE3, $WRITE_DATA_TO_GEOCODER_DB;
+		global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE3, $WRITE_DATA_TO_GEOCODER_DB;
 		
 		if (!$USE_GEOCODER_DB || !$WRITE_DATA_TO_GEOCODER_DB) return false;
 		
 		try {
-			$PDODrivers = PDO::getAvailableDrivers();
-			if (in_array("sqlite", $PDODrivers)) {
+			if (in_array("sqlite", PDO::getAvailableDrivers())) {
 				$db = new PDO("sqlite:$GEOCODER_DB_SQLITE3");
-			} else if (in_array("sqlite2", $PDODrivers)) {
-				$db = new PDO("sqlite2:$GEOCODER_DB_SQLITE2");
-			} else {}
+			} else {
+			}
 		} catch(PDOException $e) {}
 		
 		$success = false;
@@ -107,17 +105,15 @@
 	 *		false - on failure
 	 */
 	function storeGeocodingStat($statType, $count) {
-		global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE2, $GEOCODER_DB_SQLITE3, $WRITE_DATA_TO_GEOCODER_DB;
+		global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE3, $WRITE_DATA_TO_GEOCODER_DB;
 		
 		if (!$USE_GEOCODER_DB || !$WRITE_DATA_TO_GEOCODER_DB) return false;
 		
 		try {
-			$PDODrivers = PDO::getAvailableDrivers();
-			if (in_array("sqlite", $PDODrivers)) {
+			if (in_array("sqlite", PDO::getAvailableDrivers())) {
 				$db = new PDO("sqlite:$GEOCODER_DB_SQLITE3");
-			} else if (in_array("sqlite2", $PDODrivers)) {
-				$db = new PDO("sqlite2:$GEOCODER_DB_SQLITE2");
-			} else {}
+			} else {	
+			}
 		} catch(PDOException $e) {}
 		
 		$success = false;
