@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120310)";
+	$version = "v2.3 dev (20120317)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1239,7 +1239,7 @@
 				infoWindow.close();
 				
 				if (event.latLng == undefined) {
-					// When clickRandomLine(level) is used, a google.maps.LatLng object is passed as the 'event' parameter
+					// When clickRandomLine() is used, a google.maps.LatLng object is passed as the 'event' parameter
 					infoWindow.setPosition(event);
 				} else {
 					infoWindow.setPosition(event.latLng);
@@ -1370,7 +1370,7 @@
 				 * If a gray area is present at the top or bottom of the map, change its center.
 				 * Note that this command is called only once (because of addListenerOnce)
 				 */
-				mapCenterWithoutGray = hideGrayMapArea();
+				 mapCenterWithoutGray = hideGrayMapArea();
 			});
 			google.maps.event.addListener(map, "dragend", function() {
 				queueManager.addElement(queueManager.queueTypes.SESSION, new SessionData("mapCenter", map.getCenter().lat() + "," + map.getCenter().lng()));

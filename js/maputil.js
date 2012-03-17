@@ -74,11 +74,11 @@
 	*/
 	function hideGrayMapArea() {
 		if (map.getBounds().getNorthEast().lat() > 85.0) {
-			while(map.getBounds().getNorthEast().lat() > 85.0) {
+			while (map.getBounds().getNorthEast().lat() > 85.0) {
 				map.setCenter(new google.maps.LatLng(map.getCenter().lat() - 0.5, map.getCenter().lng()));
 			}
 		} else if (map.getBounds().getSouthWest().lat() < -85.0) {
-			while(map.getBounds().getNorthEast().lat() > 85.0) {
+			while (map.getBounds().getNorthEast().lat() > 85.0) {
 				map.setCenter(new google.maps.LatLng(map.getCenter().lat() + 0.5, map.getCenter().lng()));
 			}
 		}
@@ -171,7 +171,7 @@
 	*	level - the SURFmap zoom level of which the lines should be added to the map; can be 0, 1, 2 or 3
 	*/			
 	function refreshLineOverlays(level) {
-		while(lineOverlays.length > 0) {
+		while (lineOverlays.length > 0) {
 			lineOverlays[0].setMap(null);
 			lineOverlays.splice(0, 1);
 		}
