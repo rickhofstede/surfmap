@@ -7,7 +7,6 @@
 	 # LICENSE TERMS: outlined in BSD-license.html
 	 *******************************/
 	
-	require_once("geoPlugin/geoplugin.class.php");
 	require_once("MaxMind/geoipcity.inc");
 	require_once("IP2Location/ip2location.class.php");
 	
@@ -210,7 +209,7 @@
 		
 		/*
 		 * Retrieves data from a Geolocation data provider, which is
-		 * in the case of SURFmap either 'IP2Location' or 'GeoPlugin'.
+		 * either 'IP2Location' or 'MaxMind'.
 		 */
 		function retrieveDataGeolocation ($NetFlowData) {
 			global $GEOLOCATION_DB, $IP2LOCATION_PATH, $MAXMIND_PATH, $GEOIP_REGION_NAME, // $GEOIP_REGION_NAME is part of the MaxMind API
@@ -265,18 +264,6 @@
 						if ($region == "-") $region = "(Unknown)";
 						$city = $data->city;
 						if ($city == "-") $city = "(Unknown)";
-					} else if ($GEOLOCATION_DB == "geoPlugin") {
-						$GEO_database = new geoPlugin();
-						
-						if ($j == 0) $GEO_database->locate($source);
-						else $GEO_database->locate($destination);
-
-						$country = strtoupper($GEO_database->countryName);
-						if ($country == "") $country = "(Unknown)";
-						$region = strtoupper($GEO_database->region);
-						if ($region == "") $region = "(Unknown)";
-						$city = strtoupper($GEO_database->city);
-						if ($city == "") $city = "(Unknown)";
 					} else if ($GEOLOCATION_DB == "MaxMind") {
 						$GEO_database = geoip_open($MAXMIND_PATH, GEOIP_STANDARD);
 						

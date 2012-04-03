@@ -28,7 +28,7 @@
 	$NFSEN_DEFAULT_SOURCES=""; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [default: '', example: 'core-router;backup-router']
 	
 	// [GeoLocation]
-	$GEOLOCATION_DB="MaxMind"; // "IP2Location", "MaxMind" or "geoPlugin" [default: 'MaxMind']
+	$GEOLOCATION_DB="MaxMind"; // "IP2Location" or "MaxMind" [default: 'MaxMind']
 	$MAXMIND_PATH="MaxMind/GeoLiteCity.dat"; // Will be ignored when $GEOLOCATION_DB is not set to "MaxMind" [default: 'MaxMind/GeoLiteCity.dat']
 	$IP2LOCATION_PATH="IP2Location/IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE.BIN"; // Will be ignored when $GEOLOCATION_DB is not set to "IP2Location" [default: 'IP2Location/IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE.BIN']
 	

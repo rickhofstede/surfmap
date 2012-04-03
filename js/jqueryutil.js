@@ -70,7 +70,6 @@
 
 			if (GEOLOCATION_DB == "IP2Location") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/ip2location.gif' alt='IP2Location' style='width:130px;' /></td></tr></table><br />";
 			else if (GEOLOCATION_DB == "MaxMind") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/maxmind.png' alt='MaxMind' style='width:130px;' /></td></tr></table><br />";
-			else if (GEOLOCATION_DB == "geoPlugin") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/geoplugin.jpg' alt='geoPlugin' style='width:130px;' /></td></tr></table><br />";
 			
 			document.getElementById("dialog").innerHTML += "<div style='font-size:80%;'>Application version: " + applicationVersion + "</div>";	
 			showDialog("auto", 350, "center", false, true);
