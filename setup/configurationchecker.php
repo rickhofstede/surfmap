@@ -60,7 +60,7 @@
 	try {
 		// 4. Check Geocoder database connection
 		$geocoderDBFile = $GEOCODER_DB_SQLITE3;
-		if (!in_array("sqlite", PDO::getAvailableDrivers())) {
+		if (in_array("sqlite", PDO::getAvailableDrivers())) {
 			$phpPDOSqliteDriverOK = 1;
 		} else {
 			$phpPDOSqliteDriverOK = 0;
@@ -193,6 +193,17 @@
 					curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/");
 					curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
 					curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
+					
+					if ($USE_PROXY === 1) {
+						curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
+						curl_setopt($curl_handle, CURLOPT_PROXY, $PROXY_IP);
+						curl_setopt($curl_handle, CURLOPT_PROXYPORT, $PROXY_PORT);
+					
+						if ($PROXY_USERNAME_PASSWORD === 1) {
+							curl_setopt($curl_handle, CURLOPT_PROXYUSERPWD, $PROXY_USERNAME_PASSWORD);
+						}
+					}
+					
 					$extIP = curl_exec($curl_handle);
 					curl_close($curl_handle);
 					

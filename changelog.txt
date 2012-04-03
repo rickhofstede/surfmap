@@ -15,6 +15,7 @@ Release notes [v2.3 dev (20120403)]:
 - [FEATURE] Updated jQuery UI to v1.8.18
 - [FEATURE] Updated jQuery TimePicker to v0.9.9
 - [FEATURE] Updated jQuery Multiselect to v1.12
+- [FEATURE] Added proxy support
 - [BUGFIX] Added workaround for issue in date/time-selector, when copying from one selector to another
 - [BUGFIX] Fixed an issue that could cause SURFmap to hang when auto-refresh was enabled
 - [BUGFIX] Fixed a bug which could cause the ConfigurationChecker to stop working properly when absolute paths to the SQLite databases were used
