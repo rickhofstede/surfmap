@@ -10,30 +10,6 @@
 	require_once("../config.php");
 	require_once("../connectionhandler.php");
 	require_once("../sessionhandler.php");
-
-	function dir_tree($dir) {
-		$path = '';
-	   	$stack[] = $dir;
-	   	while ($stack) {
-	    	$thisdir = array_pop($stack);
-	       	if ($dircont = scandir($thisdir)) {
-	        	$i=0;
-	           	while (isset($dircont[$i])) {
-	               	if ($dircont[$i] !== '.' && $dircont[$i] !== '..') {
-	                	$current_file = "{$thisdir}/{$dircont[$i]}";
-	                   	if (is_file($current_file)) {
-	                    	$path[] = "{$thisdir}/{$dircont[$i]}";
-	                   	} elseif (is_dir($current_file)) {
-	                        $path[] = "{$thisdir}/{$dircont[$i]}";
-	                       	$stack[] = $current_file;
-	                   	}
-	               	}
-	               	$i++;
-	           	}
-	       	}
-	   	}
-		return $path;
-	}
 	
 	$nfsenConfigReadable = 0;
 	$nfsenSocketOK = 0;
@@ -188,9 +164,15 @@
 		$NATIP = $extIP;
 		try {
 			if (extension_loaded("curl")) {
-				for ($i = 0; $i < 3; $i++) {
+				for ($i = 0; $i < 6; $i++) {
 					$curl_handle = curl_init();
-					curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/");
+					
+					if ($i < 3) {
+						curl_setopt($curl_handle, CURLOPT_URL, "http://surfmap.sourceforge.net/get_ext_ip.php");
+					} else {
+						curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/"); 
+					}
+
 					curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
 					curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
 					
@@ -206,9 +188,9 @@
 					
 					$extIP = curl_exec($curl_handle);
 					curl_close($curl_handle);
-					
-					if ($extIP === "Too frequent!" || $extIP === "") {
-						sleep(10);
+
+					if (substr_count($extIP, ".") != 3) {
+						sleep(1);
 						continue;
 					} else {
 						break;
@@ -217,12 +199,9 @@
 			}
 
 			/*
-			 * The first condition is included in the second condition, but it's kept
-			 * here to keep in mind that this String can be returned by the service.
-			 *
 			 * If $extIP == $NATIP, cURL is probably not installed/activated.
 			 */
-			if ($extIP === "Too frequent!" || substr_count($extIP, ".") != 3  || $extIP == $NATIP) {
+			if (substr_count($extIP, ".") != 3  || $extIP == $NATIP) {
 				$extIP = $NATIP;
 				$extIPError = "Unable to retrieve external IP address";
 			}
@@ -300,6 +279,30 @@
 		$locationString .= ",".$latLng[0].",".$latLng[1];
 	} else {
 		$locationString .= ",(Unknown),(Unknown)";
+	}
+	
+	function dir_tree($dir) {
+		$path = '';
+	   	$stack[] = $dir;
+	   	while ($stack) {
+	    	$thisdir = array_pop($stack);
+	       	if ($dircont = scandir($thisdir)) {
+	        	$i=0;
+	           	while (isset($dircont[$i])) {
+	               	if ($dircont[$i] !== '.' && $dircont[$i] !== '..') {
+	                	$current_file = "{$thisdir}/{$dircont[$i]}";
+	                   	if (is_file($current_file)) {
+	                    	$path[] = "{$thisdir}/{$dircont[$i]}";
+	                   	} elseif (is_dir($current_file)) {
+	                        $path[] = "{$thisdir}/{$dircont[$i]}";
+	                       	$stack[] = $current_file;
+	                   	}
+	               	}
+	               	$i++;
+	           	}
+	       	}
+	   	}
+		return $path;
 	}
 	
 	/**

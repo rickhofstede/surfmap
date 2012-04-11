@@ -54,7 +54,7 @@ if [ ! -f  ${SURFMAP_REL} ]; then
 fi
 
 if [ ! -f  ${GEO_DB} ]; then
-	echo "Downloading MaxMind Geo Database - http://geolite.maxmind.com"
+	echo "Downloading MaxMind GeoLite City database - http://geolite.maxmind.com"
 	wget http://geolite.maxmind.com/download/geoip/database/${GEO_DB}
 fi
 
@@ -75,7 +75,7 @@ cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/backend/SURFmap.pm ${BACKEND_PLUGINDIR}
 cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/frontend/SURFmap.php ${FRONTEND_PLUGINDIR}
 
 # unpack GeoLocation database
-echo "Installing MaxMind Geo Database to ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind"
+echo "Installing MaxMind GeoLite City database to ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind"
 gunzip -c ${GEO_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind/$(basename ${GEO_DB} .gz)
 
 # set permissions - owner and group
