@@ -13,7 +13,7 @@ Release notes [v2.3 dev (20120412)]:
 - [FEATURE] Moved SURFmap logging from Apache error log to syslog
 - [FEATURE] Updated jQuery to v1.7.1
 - [FEATURE] Updated jQuery UI to v1.8.18
-- [FEATURE] Updated jQuery TimePicker to v0.9.9
+- [FEATURE] Updated jQuery TimePicker to v1.0.0
 - [FEATURE] Updated jQuery Multiselect to v1.12
 - [FEATURE] Added proxy support
 - [BUGFIX] Added workaround for issue in date/time-selector, when copying from one selector to another
