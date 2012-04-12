@@ -355,7 +355,7 @@
 				 * Percents to fill: 70% - 40% = 30%
 				 */
 				var progress = (completedGeocodingRequests / totalGeocodingRequests) * 30;
-				setProgressBarValue(40 + progress, "Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
+				setProgressText("Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
 				if (geocodingQueue.length == 0 && totalGeocodingRequests == completedGeocodingRequests) {
 					clearInterval(intervalHandlerID); 
 					
@@ -1350,7 +1350,6 @@
 			importPHPLogQueue("ERROR");
 			
 			if (debugLogging == 1) printDebugLogging();
-			setProgressBarValue(10);
 
 			if (initialZoomLevel == -1) {
 				currentSURFmapZoomLevel = initialSURFmapZoomLevel;
@@ -1415,7 +1414,6 @@
 			geocoder = new google.maps.Geocoder();
 			infoWindow = new google.maps.InfoWindow({maxWidth: 1000});
 			
-			setProgressBarValue(20);
 			changeZoomLevelPanel(0, currentSURFmapZoomLevel);
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 1. Basic initialization completed");
@@ -1447,7 +1445,7 @@
 				return;
 			}
 
-			setProgressBarValue(30, "Importing NetFlow data...");
+			setProgressText("Importing NetFlow data...");
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 2. Importing NetFlow data...");
 			}
@@ -1456,7 +1454,7 @@
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 2. Importing NetFlow data... Done");
 			}
 			
-			setProgressBarValue(40, "Complementing flow records");
+			setProgressText("Complementing flow records...");
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 3. Complementing flow records...");
 			}
@@ -1472,7 +1470,7 @@
 		 * This function contains the second stage of processing.
 		 */		
 		function processing() {
-			setProgressBarValue(70, "Initializing lines...");
+			setProgressText("Initializing lines...");
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines...");
 			}
@@ -1481,7 +1479,7 @@
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines... Done");
 			}
 
-			setProgressBarValue(80, "Initializing markers...");
+			setProgressText("Initializing markers...");
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 5. Initializing markers...");
 			}
@@ -1491,7 +1489,7 @@
 			}
 			
 			if (demoMode == 0) {
-				setProgressBarValue(90, "Initializing legend...");
+				setProgressText("Initializing legend...");
 				if (debugLogging == 1) {
 					queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 6. Initializing legend...");
 				}
@@ -1510,7 +1508,7 @@
 				queueManager.addElement(queueManager.queueTypes.STAT, new StatData("geocoderRequestsBlock", blockedGeocodingRequests));
 			}
 
-			setProgressBarValue(100, "Finished loading...");
+			setProgressText("Finished loading...");
 			queueManager.addElement(queueManager.queueTypes.INFO, "Initialized");
 			
 			$("#dialog").dialog("destroy"); // Hide progress bar
@@ -1556,7 +1554,7 @@
 			<div class="legendImageCell"><img src="images/legend/legend_orange.png" alt="legend_orange"/></div><div class="legendTextCell" id="legend_orange"></div>
 			<div class="legendImageCell"><img src="images/legend/legend_red.png" alt="legend_red"/></div><div class="legendTextCell" id="legend_red"></div>
 		</div>
-		<div class="footer" id="footerfunctions" style='float:right;'><a href="Javascript:showNetFlowDetails('');" title="Show flow details">Flow details</a> | <a href="Javascript:generateDialog('help', '');" title="Show help information">Help</a> | <a href="Javascript:generateDialog('about','');" title="Show about information">About</a></div>
+		<div class="footer" id="footerfunctions" style='float:right;'><a href="Javascript:showNetFlowDetails('');" title="Show flow details">Flow details</a> | <a href="Javascript:showDialog('help', '');" title="Show help information">Help</a> | <a href="Javascript:showDialog('about','');" title="Show about information">About</a></div>
 	</div>
 	
 	<div class="panel">
@@ -1723,9 +1721,8 @@
 			} else {
 		    	$('input[type=submit]', this).attr('disabled', 'disabled');
 				$(".trigger").trigger("click");
-				generateDialog("progressBar", "");
-				setProgressBarValue(20, "Querying NetFlow data...");
-				setInterval("setProgressBarValue(Math.min(getProgressBarValue() + 1, 90), \"Querying NetFlow data...\");", 500);
+				showDialog("progress", "");
+				setProgressText("Querying NetFlow data...");
 				return true;
 			}
 		});
@@ -1748,7 +1745,7 @@
 		});
 		
 		// Generate progress bar (jQuery)
-		generateDialog("progressBar", "");
+		showDialog("progress", "");
 		
 	   /*
 		* Checks whether a (suspected) heavy query has been selected. This is done based on the amount
@@ -1773,7 +1770,7 @@
 		
 	   /*
 		* Shows the NfSen flow output / overview (depends on whether or not it is already present) in a dialog.
-		* When the table has been generated, generateDialog() is called to put it into a jQuery dialog.
+		* When the table has been generated, showDialog() is called to put it into a jQuery dialog.
 		* Parameters:
 		*		flowIDs - IDs of the flow records of which the table should be composed. Provide an empty String
 		*					to show all flow records
@@ -1786,7 +1783,7 @@
 				var idCount = flowRecordCount;
 			}
 			
-			var netflowDataDetailsTable = "<table border='0' style='text-align: center;'><thead class='netflowDataDetailsTitle'><tr><th>Duration</th><th>Source IP</th><th>Src. Port</th><th>Destination IP</th><th>Dst. Port</th><th>Protocol</th><th>Packets</th><th>Octets</th>";
+			var netflowDataDetailsTable = "<table border='0' style='text-align: center;'><thead class='netflowDataDetailsTitle'><tr><th>Duration</th><th>Source IP</th><th>Source Port</th><th>Destination IP</th><th>Destination Port</th><th>Protocol</th><th>Packets</th><th>Octets</th>";
 			
 			// If NfSen is used as the information source and its 'Stat TopN' option is used
 			if (nfsenOption == 1) {
@@ -1818,7 +1815,7 @@
 			}
 
 			netflowDataDetailsTable += "</tbody></table>";
-			generateDialog("netflowDetails", netflowDataDetailsTable);
+			showDialog("netflowDetails", netflowDataDetailsTable);
 		}
 
 	   /*

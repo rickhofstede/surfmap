@@ -27,7 +27,7 @@ label { margin-left:2px; }
 .datetimeinput { width:120px; padding:2px 0px 2px 5px; float:right; }
 
 /* jQuery */
-.ui-progressbar-value { background-image: url(../images/pbar-ani.gif); }
+.noTitleBar .ui-dialog-titlebar { display:none; }
 .ui-widget { font-size: 80%; }
 .ui-widget .ui-widget { font-size: 80%; }
 .ui-widget-overlay { background: #FFFFFF; opacity: .60; filter:Alpha(Opacity=60); }
