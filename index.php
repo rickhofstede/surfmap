@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120403)";
+	$version = "v2.3 dev (20120412)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1698,14 +1698,20 @@
 			hour: hours1,
 			minute: minutes1,
 			maxDate: new Date(latestDate.substr(0, 4), latestDate.substr(4, 2) - 1, latestDate.substr(6, 2), latestHour, latestMinute),
-			stepMinute: 5
+			stepMinute: 5,
+			onClose: function(dateText, inst) {
+				checkForHeavyQuery();
+			}
 		});
 		$('#datetime1').datetimepicker('setDate', new Date(date1.substr(0, 4), parseInt(date1.substr(4, 2)) - 1, date1.substr(6, 2), hours1, minutes1));
 		$('#datetime2').datetimepicker({
 			hour: hours2,
 			minute: minutes2,
 			maxDate: new Date(latestDate.substr(0, 4), latestDate.substr(4, 2) - 1, latestDate.substr(6, 2), latestHour, latestMinute),
-			stepMinute: 5
+			stepMinute: 5,
+			onClose: function(dateText, inst) {
+				checkForHeavyQuery();
+			}
 		});
 		$('#datetime2').datetimepicker('setDate', new Date(date2.substr(0, 4), parseInt(date1.substr(4, 2)) - 1, date2.substr(6, 2), hours2, minutes2));
 		
@@ -1750,8 +1756,11 @@
 		*/		
 		function checkForHeavyQuery() {
 			var heavyQuery = false;
-			if ($("#nfsensources").multiselect("widget").find("input:checked").length > 2
-					|| $("textarea[name=nfsenfilter]").val().length > 100) {
+			var timePeriod = ($('#datetime2').datetimepicker('getDate') - $('#datetime1').datetimepicker('getDate')) / 1000;
+			
+			if ($("#nfsensources").multiselect("widget").find("input:checked").length > 4
+					|| $("textarea[name=nfsenfilter]").val().length > 100
+					|| timePeriod > 3600) { // 1800 seconds -> 60 minutes
 				heavyQuery = true;
 			}
 
