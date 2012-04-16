@@ -391,7 +391,6 @@
 
 			return $GeoCoderData;
 		}
-		
 	}
 	
 	/*
@@ -410,7 +409,7 @@
 		if ($fp = fopen($NFSEN_CONF, "r")) {
 			while (!feof($fp)) {
 				$line = trim(fgets($fp));
-				if ($line && !ereg("^$comment", $line) && strpos($line, "=") && strpos($line, ";")) {
+				if ($line && !preg_match("/^$comment/", $line) && strpos($line, "=") && strpos($line, ";")) {
 			    	$optionTuple = explode("=", $line);
 					$option = substr(trim($optionTuple[0]), 1);
 					$value = trim($optionTuple[1]);
