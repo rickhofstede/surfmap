@@ -170,7 +170,7 @@
 	    /*
 		 * Processes all server transactions. These transactions are using 'servertransaction.php'.
 		 */
-		function serverTransactions() {
+		function serverTransactions () {
 			while (queueManager.getTotalQueueSize() > 0) {				
 				// Gets queue item with highest priority
 				var queueItem = queueManager.getElementPrio();
@@ -221,7 +221,7 @@
 		 * Parameters:
 		 *	type - can be either INFO or ERROR
 		 */			
-		function importPHPLogQueue(type) {
+		function importPHPLogQueue (type) {
 			var logString;
 			
 			if (type == "INFO") {
@@ -246,7 +246,7 @@
 		 * This function puts the network traffic and gegraphical information in a Javascript
 		 * associative array.
 		 */			
-		function importData() {
+		function importData () {
 			// NetFlow data
 			var IPs = stringToArray("<?php echo stringifyNetFlowData($sessionData->NetFlowData, 'IP'); ?>", "IP", flowRecordCount);
 			var ports = stringToArray("<?php echo stringifyNetFlowData($sessionData->NetFlowData, 'PORT'); ?>", "PORT", flowRecordCount);
@@ -297,7 +297,7 @@
 		 * Checks whether places need to be geocoded and whether geolocation information of places at a certain
 		 * zoom level X can be complemented by geolocation information for the same place at zoom level X+1.
 		 */			
-		function complementFlowRecords() {
+		function complementFlowRecords () {
 			for (var i = 0; i < flowRecordCount; i++) {
 				var entry = flowRecords[i].srcCountry;
 				if (flowRecords[i].srcCountryLat == -1 && entry.indexOf("NKNOWN") == -1	&& jQuery.inArray(entry, geocodingQueue) == -1) {
@@ -435,7 +435,7 @@
 		 * Parameters:
 		 *	number - the protocol number of which the corresponding name has to be resolved
 		 */			
-		function determineProtocolName(number) {
+		function determineProtocolName (number) {
 			var protocol;
 			
 			if (number == 1) {
@@ -463,7 +463,7 @@
 		 * Parameters:
 		 *	place - geocoder string from which the meta data needs to be stripped
 		 */
-		function stripGeocoderMetaData(place) {
+		function stripGeocoderMetaData (place) {
 			var strippedPlace;
 			if (place.lastIndexOf(", ") != -1) {
 				strippedPlace = place.substr(place.lastIndexOf(", ") + 2);
@@ -478,7 +478,7 @@
 		 * Parameters:
 		 *	place - name of the place that has to be geocoded
 		 */
-		function geocode(place) {
+		function geocode (place) {
 			if (place == "INVALID IPV4 ADDRESS" && !outputGeocodingErrorMessage) {
 				outputGeocodingErrorMessage = 1;
 				alert("You are trying to visualize an invalid IP address (i.e., multicast addresses or IPv6 addresses). Please try to use another information source or subset.");
@@ -526,7 +526,7 @@
 		 *	markerID - ID of the marker that needs to be checked
 		 *	name - name to be present in the record
 		 */		
-		function markerRecordExists(level, markerID, name) {
+		function markerRecordExists (level, markerID, name) {
 			var markerRecordIndex = -1;
 			for (var i = 0; i < markerProperties[level][markerID].markerRecords.length; i++) {
 				if (markerProperties[level][markerID].markerRecords[i].name == name) {
@@ -546,7 +546,7 @@
 		 *	srcName - name of the source to be present in the record
 		 *	dstName - name of the destination to be present in the record
 		 */		
-		function lineRecordExists(level, lineID, srcName, dstName) {
+		function lineRecordExists (level, lineID, srcName, dstName) {
 			var lineRecordIndex = -1;
 			for (var i = 0; i < lineProperties[level][lineID].lineRecords.length; i++) {
 				if (lineProperties[level][lineID].lineRecords[i].srcName == srcName && lineProperties[level][lineID].lineRecords[i].dstName == dstName) {
@@ -560,7 +560,7 @@
 	    /*
 		 * This function initializes all markers for all zoom levels.
 		 */			
-		function initMarkers() {
+		function initMarkers () {
 			var MAX_INFO_WINDOW_LINES = 13, existValue;
 			
 			for (var i = 0; i < 4; i++) { // Zoom levels
@@ -799,7 +799,7 @@
 	    /*
 		 * This function initializes all lines for all zoom levels.
 		 */			
-		function initLines() {
+		function initLines () {
 			for (var i = 0; i < 4; i++) { // Zoom levels
 				lineProperties[i] = []; // Initialize lineProperties storage
 				
@@ -1075,31 +1075,26 @@
 		 * Determines the line color ranges based on the current flow property
 		 * (either flows, packets or bytes).
 		 * Parameters:
-		 *	level - a SURFmap zoom level
+		 *	level - a SURFmap zoom level: [0..3]
 		 *	property - either 'flows', 'packets' or 'bytes'
 		 */
-		function determineLineColorRanges(level, property) {
+		function determineLineColorRanges (level, property) {
 			var min = -1;
 			var max = -1;
 
 			for (var i = 0; i < lineProperties[level].length; i++) {
 				var lineTotal = 0;
 				
-				if (property == "flows") {
-					for (var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
-						if (!(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 && lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName)) {
+				for (var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {				
+					if ((level == HOST && !(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 
+								&& lineProperties[level][i].lineRecords[j].srcParentCityName == lineProperties[level][i].lineRecords[j].dstParentCityName))
+							|| (level != HOST && !(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 
+								&& lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName))) {
+						if (property == "flows") {
 							lineTotal += parseInt(lineProperties[level][i].lineRecords[j].flows);
-						}
-					}
-				} else if (property == "packets") {
-					for (var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
-						if (!(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 && lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName)) {
+						} else if (property == "packets") {
 							lineTotal += parseInt(lineProperties[level][i].lineRecords[j].packets);
-						}
-					}
-				} else if (property == "bytes") {
-					for (var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
-						if (!(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 && lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName)) {
+						} else if (property == "bytes") {
 							lineTotal += parseInt(lineProperties[level][i].lineRecords[j].octets);
 						}
 					}
@@ -1136,7 +1131,7 @@
 		 * Parameters:
 		 *	lineTotal - sum of either flows, packets or bytes of the specific line
 		 */
-		function determineLineColor(lineTotal) {
+		function determineLineColor (lineTotal) {
 			if (lineColors == 2) {
 				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return green;
 				else if (lineTotal >= lineColorClassification[1] && lineTotal <= lineColorClassification[2]) return orange;
@@ -1166,7 +1161,7 @@
 		 *  title - tooltip to be shown on rollover
 		 *	text - the text that has to be put into the marker's information window
 		 */			
-		function createMarker(coordinates, level, title, text) {
+		function createMarker (coordinates, level, title, text) {
 			var internalTrafficMarker = 0;
 			
 			for (var i = 0; i < lines[level].length; i++) {
@@ -1221,7 +1216,7 @@
 		 *	text - the text that has to be put into the line's information window
 		 *	color - color of the line (used for line color classification)
 		 */
-		function createLine(coordinate1, coordinate2, text, color) {
+		function createLine (coordinate1, coordinate2, text, color) {
 			var lineOptions = {
 				geodesic: true,
 				path: [coordinate1, coordinate2],
@@ -1263,7 +1258,7 @@
 		 * to the information window. As soon as all names are resolved, the
 		 * periodic execution of this method is stopped.
 		 */		
-		function processResolvedDNSNames() {
+		function processResolvedDNSNames () {
 			if ($(".informationWindowHeader").is(':visible')) { // infowindow is visible
 				var totalIPCount = $("td.infowindow_ip:visible").length;
 				var resolvedCount = 0;
@@ -1286,7 +1281,7 @@
 		/*
 		 * Adds debugging information to the DEBUG log queue.
 		 */
-		function printDebugLogging() {
+		function printDebugLogging () {
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "Application version: " + applicationVersion);
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "DemoMode: " + demoMode);
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "EntryCount: " + entryCount);
@@ -1325,7 +1320,7 @@
 		/*
 		 * Parses and returns the error code of the current session.
 		 */		
-		function getErrorCode() {
+		function getErrorCode () {
 			if (errorCode != "") return parseInt(errorCode);
 			else return 0; // no error
 		}
@@ -1333,7 +1328,7 @@
 		/*
 		 * Parses and returns the error code of the current session, if available.
 		 */		
-		function getErrorMessage() {
+		function getErrorMessage () {
 			return errorMessage;
 		}
 		
@@ -1341,7 +1336,7 @@
 		 * This function is called when automatically when loading the SURFmap Web page.
 		 * It contains the first stage of processing.
 		 */
-		function init() {
+		function init () {
 			queueManager = new QueueManager();
 			
 			importPHPLogQueue("INFO");
@@ -1749,7 +1744,7 @@
 		* Checks whether a (suspected) heavy query has been selected. This is done based on the amount
 		* of selected sources and the filter length.
 		*/		
-		function checkForHeavyQuery() {
+		function checkForHeavyQuery () {
 			var heavyQuery = false;
 			var timePeriod = ($('#datetime2').datetimepicker('getDate') - $('#datetime1').datetimepicker('getDate')) / 1000;
 			
@@ -1773,7 +1768,7 @@
 		*		flowIDs - IDs of the flow records of which the table should be composed. Provide an empty String
 		*					to show all flow records
 		*/
-		function showNetFlowDetails(flowIDs) {
+		function showNetFlowDetails (flowIDs) {
 			if (flowIDs != "") { // if flowIDs == "", all flows should be presented
 				var idArray = flowIDs.split("_");
 				var idCount = idArray.length;
@@ -1824,7 +1819,7 @@
 		*		lineID - unique ID of the line to which's end points should be navigated
 		* 		endPoint - either "source" or "destination"
 		*/
-		function goToLineEndPoint(zoomLevel, lineID, endPoint) {
+		function goToLineEndPoint (zoomLevel, lineID, endPoint) {
 			if (endPoint == "source") {
 				var source = new google.maps.LatLng(lineProperties[zoomLevel][lineID].lat1, lineProperties[zoomLevel][lineID].lng1);
 				map.setCenter(source);
@@ -1841,7 +1836,7 @@
 		* Parameters:
 		*		zoom_level - a SURFmap zoom level
 		*/
-		function initLegend(zoomLevel) {
+		function initLegend (zoomLevel) {
 			if (nfsenOption == 0) { // List flows
 				document.getElementById("legend_based_on").innerHTML = "Number of observed flows:";
 				determineLineColorRanges(zoomLevel, "flows");
@@ -1863,7 +1858,7 @@
 		*		old_zoom_level - the previous zoom level in terms of the four SURFmap zoom levels
 		*		new_zoom_level - the next zoom level in terms of the four SURFmap zoom levels
 		*/
-		function changeZoomLevelPanel(old_zoom_level, new_zoom_level) {
+		function changeZoomLevelPanel (old_zoom_level, new_zoom_level) {
 			var zoomLevels = document.getElementById("zoomLevels");
 			var rows = zoomLevels.getElementsByTagName("input");
 			rows[old_zoom_level].checked = false;
@@ -1876,7 +1871,7 @@
 		*		selector1 - ID of the source date/time selector
 		*		selector2 - ID of the destination date/time selector
 		*/			
-		function copyDateTime(selector1, selector2) {
+		function copyDateTime (selector1, selector2) {
 			$("#" + selector2).datetimepicker('setDate', new Date($("#" + selector1).datetimepicker('getDate')));
 			
 			// Workaround for date/time picker copying, as described here: https://github.com/trentrichardson/jQuery-Timepicker-Addon/issues/280
@@ -1892,7 +1887,7 @@
 		* Parameters:
 		*		sourceID - ID of the source that called this method (e.g. a button ID)
 		*/		
-		function manageAutoRefresh(sourceID) {
+		function manageAutoRefresh (sourceID) {
 			if (document.getElementById("auto-refresh").checked) {
 				queueManager.addElement(queueManager.queueTypes.SESSION, new SessionData("refresh", 300));
 				autoRefreshID = setTimeout("window.location.replace(\"index.php?autorefresh=1\")", 300000);

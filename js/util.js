@@ -67,7 +67,7 @@ function formatName (name) {
 	var name = name.toLowerCase();
 	var result = "";
 
-	if (name == "-" || name == "" || name == " " || name.indexOf("NKNOWN") != -1) {
+	if (name == "-" || name == "" || name == " " || name.indexOf("nknown") != -1) {
 		result = "<i>Not available</i>";
 	} else {
 		for (var i = 0; i < name.length; i++) {
