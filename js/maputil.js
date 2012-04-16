@@ -102,7 +102,7 @@
 	*		minZoomLevel - minimum (Google Maps) zoom level for initialization
 	*		maxZoomLevel - maximum (Google Maps) zoom level for initialization
     */			
-	function initializeMap(mapCenter, initialZoomLevel, minZoomLevel, maxZoomLevel) {
+	function initMap(mapCenter, initialZoomLevel, minZoomLevel, maxZoomLevel) {
 		var mapOptions = {
 			zoom: initialZoomLevel,
 			minZoom: minZoomLevel,

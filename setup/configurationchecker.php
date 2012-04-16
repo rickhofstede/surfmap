@@ -226,11 +226,13 @@
 		$data = $GEO_database->getAll($extIP);
 		
 		$extIPCountry = $data->countryLong;
-		if ($extIPCountry == "-") $extIPCountry = "(Unknown)";
+		if ($extIPCountry == "-") $extIPCountry = "(UNKNOWN)";
+		
 		$extIPRegion = $data->region;
-		if ($extIPRegion == "-") $extIPRegion = "(Unknown)";
+		if ($extIPRegion == "-") $extIPRegion = "(UNKNOWN)";
+		
 		$extIPCity = $data->city;
-		if ($extIPCity == "-") $extIPCity = "(Unknown)";
+		if ($extIPCity == "-") $extIPCity = "(UNKNOWN)";
 	} else if ($extIPNAT === false && $GEOLOCATION_DB === "MaxMind" && $maxmindDBPathOK === 1) {
 		$GEO_database = geoip_open($maxMindPath, GEOIP_STANDARD);
 		$data = geoip_record_by_addr($GEO_database, $extIP);
@@ -238,39 +240,39 @@
 		if (isset($data->country_name)) {
 			$extIPCountry = strtoupper($data->country_name);
 		}
-		if (!isset($extIPCountry) || $extIPCountry == "") $extIPCountry = "(Unknown)";
+		if (!isset($extIPCountry) || $extIPCountry == "") $extIPCountry = "(UNKNOWN)";
 
 		if (isset($data->country_code) && isset($data->region)
 				&& array_key_exists($data->country_code, $GEOIP_REGION_NAME)
 				&& array_key_exists($data->region, $GEOIP_REGION_NAME[$data->country_code])) {
 			$extIPRegion = strtoupper($GEOIP_REGION_NAME[$data->country_code][$data->region]);
 		}
-		if (!isset($extIPRegion) || $extIPRegion == "") $extIPRegion = "(Unknown)";
+		if (!isset($extIPRegion) || $extIPRegion == "") $extIPRegion = "(UNKNOWN)";
 
 		if (isset($data->city)) {
 			$extIPCity = strtoupper($data->city);
 		}
-		if (!isset($extIPCity) || $extIPCity == "") $extIPCity = "(Unknown)";
+		if (!isset($extIPCity) || $extIPCity == "") $extIPCity = "(UNKNOWN)";
 	} else {
-		$extIPCountry = "(Unknown)";
-		$extIPRegion = "(Unknown)";
-		$extIPCity = "(Unknown)";
+		$extIPCountry = "(UNKNOWN)";
+		$extIPRegion = "(UNKNOWN)";
+		$extIPCity = "(UNKNOWN)";
 	}
 	
 	$extIPCountry = stripAccentedCharacters($extIPCountry);
 	$extIPRegion = stripAccentedCharacters($extIPRegion);
 	$extIPCity = stripAccentedCharacters($extIPCity);
-	if ($extIPCountry === "(Unknown)") {
+	if ($extIPCountry === "(UNKNOWN)") {
 		$extIPLocationOK = 0;
 	} else {
 		$extIPLocationOK = 1;
 	}
 	
-	if ($extIPCity != "(Unknown)") {
+	if ($extIPCity != "(UNKNOWN)") {
 		$latLng = geocode($extIPCity);
-	} else if ($extIPRegion != "(Unknown)") {
+	} else if ($extIPRegion != "(UNKNOWN)") {
 		$latLng = geocode($extIPRegion);
-	} else if ($extIPCountry != "(Unknown)") {
+	} else if ($extIPCountry != "(UNKNOWN)") {
 		$latLng = geocode($extIPCountry);
 	}
 	
@@ -278,7 +280,7 @@
 	if (isset($latLng) && is_array($latLng)) {
 		$locationString .= ",".$latLng[0].",".$latLng[1];
 	} else {
-		$locationString .= ",(Unknown),(Unknown)";
+		$locationString .= ",(UNKNOWN),(UNKNOWN)";
 	}
 	
 	function dir_tree($dir) {
@@ -458,13 +460,13 @@
 			// Setup guidelines
 			if (extIPNAT || extIPError != "") {
 				document.getElementById("setupguidelines").style.display = "none";
-			} else if (extIPCountry != "(Unknown)") {
+			} else if (extIPCountry != "(UNKNOWN)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_COUNTRY=\"" + extIPCountry + "\";<br />";
 			}
-			if (extIPRegion != "(Unknown)") {
+			if (extIPRegion != "(UNKNOWN)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_REGION=\"" + extIPRegion + "\";<br />";
 			}
-			if (extIPCity != "(Unknown)") {
+			if (extIPCity != "(UNKNOWN)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_CITY=\"" + extIPCity + "\";<br />";
 			}
 			if (extIPCoordinates != "") {

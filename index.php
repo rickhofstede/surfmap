@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120412)";
+	$version = "v2.3 dev (20120416)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -300,41 +300,41 @@
 		function complementFlowRecords() {
 			for (var i = 0; i < flowRecordCount; i++) {
 				var entry = flowRecords[i].srcCountry;
-				if (flowRecords[i].srcCountryLat == -1 && entry.indexOf("nknown") == -1	&& jQuery.inArray(entry, geocodingQueue) == -1) {
+				if (flowRecords[i].srcCountryLat == -1 && entry.indexOf("NKNOWN") == -1	&& jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].dstCountry;
-				if (flowRecords[i].dstCountryLat == -1 && entry.indexOf("nknown") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
+				if (flowRecords[i].dstCountryLat == -1 && entry.indexOf("NKNOWN") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion;
-				if (flowRecords[i].srcRegionLat == -1 && entry.indexOf("nknown") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
+				if (flowRecords[i].srcRegionLat == -1 && entry.indexOf("NKNOWN") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
 				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion;
-				if (flowRecords[i].dstRegionLat == -1 && entry.indexOf("nknown") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
+				if (flowRecords[i].dstRegionLat == -1 && entry.indexOf("NKNOWN") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
-				if (flowRecords[i].srcRegion.indexOf("nknown") == -1) {
+				if (flowRecords[i].srcRegion.indexOf("NKNOWN") == -1) {
 					entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcRegion + ", " + flowRecords[i].srcCity;
 				} else {
 					entry = flowRecords[i].srcCountry + ", " + flowRecords[i].srcCity;
 				}
-				if (flowRecords[i].srcCityLat == -1 && entry.indexOf("nknown") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
+				if (flowRecords[i].srcCityLat == -1 && entry.indexOf("NKNOWN") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 				
-				if (flowRecords[i].dstRegion.indexOf("nknown") == -1) {
+				if (flowRecords[i].dstRegion.indexOf("NKNOWN") == -1) {
 					entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion + ", " + flowRecords[i].dstCity;
 				} else {
 					entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstCity;
 				}				
 				entry = flowRecords[i].dstCountry + ", " + flowRecords[i].dstRegion + ", " + flowRecords[i].dstCity;
-				if (flowRecords[i].dstCityLat == -1 && entry.indexOf("nknown") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
+				if (flowRecords[i].dstCityLat == -1 && entry.indexOf("NKNOWN") == -1 && jQuery.inArray(entry, geocodingQueue) == -1) {
 					geocodingQueue.push(entry);
 				}
 			}
@@ -360,11 +360,11 @@
 					clearInterval(intervalHandlerID); 
 					
 					for (var i = 0; i < flowRecordCount; i++) {
-						if (flowRecords[i].srcCountry.indexOf("nknown") > -1) {
+						if (flowRecords[i].srcCountry.indexOf("NKNOWN") > -1) {
 							flowRecords[i].srcCountryLat = 0;
 							flowRecords[i].srcCountryLng = 0;
 						}
-						if (flowRecords[i].dstCountry.indexOf("nknown") > -1) {
+						if (flowRecords[i].dstCountry.indexOf("NKNOWN") > -1) {
 							flowRecords[i].dstCountryLat = 0;
 							flowRecords[i].dstCountryLng = 0;
 						}
@@ -560,7 +560,7 @@
 	    /*
 		 * This function initializes all markers for all zoom levels.
 		 */			
-		function initializeMarkers() {
+		function initMarkers() {
 			var MAX_INFO_WINDOW_LINES = 13, existValue;
 			
 			for (var i = 0; i < 4; i++) { // Zoom levels
@@ -799,7 +799,7 @@
 	    /*
 		 * This function initializes all lines for all zoom levels.
 		 */			
-		function initializeLines() {
+		function initLines() {
 			for (var i = 0; i < 4; i++) { // Zoom levels
 				lineProperties[i] = []; // Initialize lineProperties storage
 				
@@ -1059,8 +1059,6 @@
 							lineTotal += parseInt(lineProperties[i][j].lineRecords[k].packets);
 						} else if (nfsenStatOrder == "bytes") {
 							lineTotal += parseInt(lineProperties[i][j].lineRecords[k].octets);
-						} else {
-							alert("Type error in initializeLines()!")
 						}
 					}
 					lines[i].push(createLine(new google.maps.LatLng(lineProperties[i][j].lat1, lineProperties[i][j].lng1), 
@@ -1343,7 +1341,7 @@
 		 * This function is called when automatically when loading the SURFmap Web page.
 		 * It contains the first stage of processing.
 		 */
-		function initialize() {
+		function init() {
 			queueManager = new QueueManager();
 			
 			importPHPLogQueue("INFO");
@@ -1359,7 +1357,7 @@
 				currentSURFmapZoomLevel = getSurfmapZoomLevel(initialZoomLevel);
 			}
 
-			map = initializeMap(mapCenter, currentZoomLevel, 2, 13);
+			map = initMap(mapCenter, currentZoomLevel, 2, 13);
 			google.maps.event.addListener(map, "click", function() {
 				infoWindow.close();
 			});
@@ -1385,7 +1383,7 @@
 					
 					refreshLineOverlays(newSurfmapZoomLevel);
 					changeZoomLevelPanel(currentSURFmapZoomLevel, newSurfmapZoomLevel);
-					initializeLegend(newSurfmapZoomLevel);
+					initLegend(newSurfmapZoomLevel);
 					currentSURFmapZoomLevel = newSurfmapZoomLevel;
 				}
 
@@ -1474,7 +1472,7 @@
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines...");
 			}
-			initializeLines();
+			initLines();
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines... Done");
 			}
@@ -1483,7 +1481,7 @@
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 5. Initializing markers...");
 			}
-			initializeMarkers();
+			initMarkers();
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 5. Initializing markers... Done");
 			}
@@ -1493,7 +1491,7 @@
 				if (debugLogging == 1) {
 					queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 6. Initializing legend...");
 				}
-				initializeLegend(currentSURFmapZoomLevel);
+				initLegend(currentSURFmapZoomLevel);
 				if (debugLogging == 1) {
 					queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 6. Initializing legend... Done");
 				}
@@ -1645,7 +1643,7 @@
 				+ "<input type=\"submit\" name=\"submit\" value=\"Submit\" />"
 			+ "</div></form>";
 			
-		initialize();
+		init();
 
 		// Select the current option in the 'nfsenstatorder' selector
 		var options = $("#nfsenstatorder").children("input[name='nfsenstatorder']");
@@ -1843,7 +1841,7 @@
 		* Parameters:
 		*		zoom_level - a SURFmap zoom level
 		*/
-		function initializeLegend(zoomLevel) {
+		function initLegend(zoomLevel) {
 			if (nfsenOption == 0) { // List flows
 				document.getElementById("legend_based_on").innerHTML = "Number of observed flows:";
 				determineLineColorRanges(zoomLevel, "flows");

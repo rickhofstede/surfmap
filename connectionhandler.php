@@ -90,7 +90,7 @@
 				
 				for ($i = 1; $i <= $sessionData->flowRecordCount; $i++) {
 					$flow = new FlowRecord();
-					$line_array = split(" ", stripSpecialCharacters($cmd_out['nfdump'][$i]));
+					$line_array = explode(" ", stripSpecialCharacters($cmd_out['nfdump'][$i]));
 
 					$factor_array = array();
 					if (sizeof($line_array) > 11) {
@@ -99,8 +99,8 @@
 						}
 					}
 
-					$hosts[0] = split(":", $line_array[4]);
-					$hosts[1] = split(":", $line_array[5]);
+					$hosts[0] = explode(":", $line_array[4]);
+					$hosts[1] = explode(":", $line_array[5]);
 					$flow->ipv4_src = $hosts[0][0];
 					$flow->ipv4_dst = $hosts[1][0];
 
@@ -149,7 +149,7 @@
 				for ($i = 3; $i < $sessionData->flowRecordCount + 3; $i++) {
 					$flow = new FlowRecord();
 
-					$line_array = split(" ", stripSpecialCharacters($cmd_out['nfdump'][$i]));
+					$line_array = explode(" ", stripSpecialCharacters($cmd_out['nfdump'][$i]));
 
 					$factor_array = array();
 					if (sizeof($line_array) > 11) {
@@ -158,8 +158,8 @@
 						}
 					}
 
-					$hosts[0] = split(":", $line_array[4]);
-					$hosts[1] = split(":", $line_array[5]);
+					$hosts[0] = explode(":", $line_array[4]);
+					$hosts[1] = explode(":", $line_array[5]);
 					$flow->ipv4_src = $hosts[0][0];
 					$flow->ipv4_dst = $hosts[1][0];
 
@@ -246,11 +246,13 @@
 				for ($j = 0; $j < 2; $j++) { // Source and destination
 					if (($j == 0 && $srcNAT === true) || ($j == 1 && $dstNAT === true)) { // Source or destination uses a NATed setup
 						$country = strtoupper($INTERNAL_DOMAINS_COUNTRY);
-						if ($country == "") $country = "(Unknown)";
+						if ($country == "") $country = "(UNKNOWN)";
+						
 						$region = strtoupper($INTERNAL_DOMAINS_REGION);
-						if ($region == "") $region = "(Unknown)";
+						if ($region == "") $region = "(UNKNOWN)";
+						
 						$city = strtoupper($INTERNAL_DOMAINS_CITY);
-						if ($city == "") $city = "(Unknown)";
+						if ($city == "") $city = "(UNKNOWN)";
 					} else if ($GEOLOCATION_DB == "IP2Location") {
 						$GEO_database = new ip2location();
 						$GEO_database->open($IP2LOCATION_PATH);
@@ -259,11 +261,13 @@
 						else $data = $GEO_database->getAll($destination);
 						
 						$country = $data->countryLong;
-						if ($country == "-") $country = "(Unknown)";
+						if ($country == "-") $country = "(UNKNOWN)";
+						
 						$region = $data->region;
-						if ($region == "-") $region = "(Unknown)";
+						if ($region == "-") $region = "(UNKNOWN)";
+						
 						$city = $data->city;
-						if ($city == "-") $city = "(Unknown)";
+						if ($city == "-") $city = "(UNKNOWN)";
 					} else if ($GEOLOCATION_DB == "MaxMind") {
 						$GEO_database = geoip_open($MAXMIND_PATH, GEOIP_STANDARD);
 						
@@ -273,19 +277,19 @@
 						if (isset($record->country_name)) {
 							$country = strtoupper($record->country_name);
 						}
-						if (!isset($country) || $country == "") $country = "(Unknown)";
+						if (!isset($country) || $country == "") $country = "(UNKNOWN)";
 
 						if (isset($record->country_code) && isset($record->region)
 								&& array_key_exists($record->country_code, $GEOIP_REGION_NAME)
 								&& array_key_exists($record->region, $GEOIP_REGION_NAME[$record->country_code])) {
 							$region = strtoupper($GEOIP_REGION_NAME[$record->country_code][$record->region]);
 						}
-						if (!isset($region) || $region == "") $region = "(Unknown)";
+						if (!isset($region) || $region == "") $region = "(UNKNOWN)";
 
 						if (isset($record->city)) {
 							$city = strtoupper($record->city);
 						}
-						if (!isset($city) || $city == "") $city = "(Unknown)";
+						if (!isset($city) || $city == "") $city = "(UNKNOWN)";
 					} else {
 						$country = "";
 						$region = "";
@@ -298,9 +302,7 @@
 					$GeoData[$i][$j] = array("COUNTRY" => $country, "REGION" => $region, "CITY" => $city);
 					
 					// Reset variables for next iteration
-					$country = "";
-					$region = "";
-					$city = "";
+					unset($country, $region, $city);
 				}
 			}
 
@@ -330,7 +332,7 @@
 							$level = 2;
 						}
 						
-						if ($place === "-" || strpos($place, "nknown")) {
+						if ($place === "-" || stripos($place, "NKNOWN")) {
 							/*
 							 * Place name is undefined. If it concerns a country name,
 							 * the whole entry will be ignored later on. If it concerns
@@ -343,9 +345,9 @@
 								$entry = $place;
 							} else if ($key === "REGION") {
 								$entry = $GeoData[$i][$j]['COUNTRY'].", ".$GeoData[$i][$j]['REGION'];
-							} else if (strpos($GeoData[$i][$j]['REGION'], "nknown")) { // CITY && region undefined
+							} else if (stripos($GeoData[$i][$j]['REGION'], "NKNOWN")) { // Region & city undefined
 								$entry = $GeoData[$i][$j]['COUNTRY'].", ".$GeoData[$i][$j]['CITY'];
-							} else { // CITY && region undefined
+							} else { // Region & city undefined
 								$entry = $GeoData[$i][$j]['COUNTRY'].", ".$GeoData[$i][$j]['REGION'].", ".$GeoData[$i][$j]['CITY'];
 							}
 

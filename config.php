@@ -24,7 +24,7 @@
 	$SORT_FLOWS_BY_START_TIME=0; // Sorts flows by start time - 0: no, 1: yes [default: 0]
 	
 	/* [NfSen] */
-	$NFSEN_CONF="/etc/nfsen.conf"; // Path to NfSen configuration file [example: '/etc/nfsen.conf']
+	$NFSEN_CONF="/data/nfsen/etc/nfsen.conf"; // Path to NfSen configuration file [example: '/data/nfsen/etc/nfsen.conf']
 	$NFSEN_DEFAULT_SOURCES=""; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [default: '', example: 'core-router;backup-router']
 	
 	/* [GeoLocation] */

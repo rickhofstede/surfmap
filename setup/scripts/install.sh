@@ -97,7 +97,7 @@ while true; do
 	echo "Geocoding plugin location - ${MY_LOC}"
 
 	i=$(( i + 1 ))		# check 5 times before giving up
-	if [ ${i} = 5 ] || [ "${MY_LOC}" != "(Unknown),(Unknown),(Unknown),(Unknown),(Unknown)" ]; then
+	if [ ${i} = 5 ] || [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 		break
 	fi
 done
@@ -105,7 +105,7 @@ done
 cd - > /dev/null
 
 # fill my location in plugin configuration file
-if [ "${MY_LOC}" != "(Unknown),(Unknown),(Unknown),(Unknown),(Unknown)" ]; then
+if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 	OLDENTRY=$(grep INTERNAL_DOMAINS_COUNTRY ${SURFMAP_CONF} | cut -d'"' -f2)
 	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
 
