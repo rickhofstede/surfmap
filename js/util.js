@@ -68,7 +68,7 @@ function formatName (name) {
 	var result = "";
 
 	if (name == "-" || name == "" || name == " " || name.indexOf("nknown") != -1) {
-		result = "<i>Not available</i>";
+		result = "Not available";
 	} else {
 		for (var i = 0; i < name.length; i++) {
 			if (i == 0) {

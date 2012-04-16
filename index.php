@@ -621,7 +621,7 @@
 							locationString = flowRecords[j].dstCountry + ", " + flowRecords[j].dstRegion + ", " + flowRecords[j].dstCity;
 						} else {
 						}
-
+						
 						existValue = markerExists(i, currentLat, currentLng);
 						if (existValue == -1) { // Marker does not exist
 							var properties = new MarkerProperties(currentLat, currentLng, locationString);
@@ -1085,11 +1085,24 @@
 			for (var i = 0; i < lineProperties[level].length; i++) {
 				var lineTotal = 0;
 				
-				for (var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {				
-					if ((level == HOST && !(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 
-								&& lineProperties[level][i].lineRecords[j].srcParentCityName == lineProperties[level][i].lineRecords[j].dstParentCityName))
-							|| (level != HOST && !(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 
-								&& lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName))) {
+				for (var j = 0; j < lineProperties[level][i].lineRecords.length; j++) {
+					if ((level == COUNTRY 
+								&& !(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1 
+								&& lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName))
+							|| (level == REGION
+								&& !(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1
+								&& lineProperties[level][i].lineRecords[j].srcParentCountryName == lineProperties[level][i].lineRecords[j].dstParentCountryName
+								&& lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName))
+							|| (level == CITY
+								&& !(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1
+								&& lineProperties[level][i].lineRecords[j].srcParentCountryName == lineProperties[level][i].lineRecords[j].dstParentCountryName
+								&& lineProperties[level][i].lineRecords[j].srcParentRegionName == lineProperties[level][i].lineRecords[j].dstParentRegionName
+								&& lineProperties[level][i].lineRecords[j].srcName == lineProperties[level][i].lineRecords[j].dstName))
+							|| (level == HOST
+								&& !(IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION == 1
+								&& lineProperties[level][i].lineRecords[j].srcParentCountryName == lineProperties[level][i].lineRecords[j].dstParentCountryName
+								&& lineProperties[level][i].lineRecords[j].srcParentRegionName == lineProperties[level][i].lineRecords[j].dstParentRegionName
+								&& lineProperties[level][i].lineRecords[j].srcParentCityName == lineProperties[level][i].lineRecords[j].dstParentCityName))) {
 						if (property == "flows") {
 							lineTotal += parseInt(lineProperties[level][i].lineRecords[j].flows);
 						} else if (property == "packets") {
@@ -1132,24 +1145,23 @@
 		 *	lineTotal - sum of either flows, packets or bytes of the specific line
 		 */
 		function determineLineColor (lineTotal) {
+			var lineColor;
+			
 			if (lineColors == 2) {
-				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return green;
-				else if (lineTotal >= lineColorClassification[1] && lineTotal <= lineColorClassification[2]) return orange;
-				else return red;
+				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) lineColor = green;
+				else if (lineTotal >= lineColorClassification[1] && lineTotal <= lineColorClassification[2]) lineColor = orange;
 			} else if (lineColors == 3) {
-				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return green;
-				else if (lineTotal >= lineColorClassification[1] && lineTotal < lineColorClassification[2]) return orange;
-				else if (lineTotal >= lineColorClassification[2] && lineTotal <= lineColorClassification[3]) return red;
-				else return red;
+				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) lineColor = green;
+				else if (lineTotal >= lineColorClassification[1] && lineTotal < lineColorClassification[2]) lineColor = orange;
+				else if (lineTotal >= lineColorClassification[2] && lineTotal <= lineColorClassification[3]) lineColor = red;
 			} else if (lineColors == 4) {
-				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) return green;
-				else if (lineTotal >= lineColorClassification[1] && lineTotal < lineColorClassification[2]) return yellow;
-				else if (lineTotal >= lineColorClassification[2] && lineTotal < lineColorClassification[3]) return orange;
-				else if (lineTotal >= lineColorClassification[3] && lineTotal <= lineColorClassification[4]) return red;
-				else return red;
-			} else {
-				return red;
+				if (lineTotal >= lineColorClassification[0] && lineTotal < lineColorClassification[1]) lineColor = green;
+				else if (lineTotal >= lineColorClassification[1] && lineTotal < lineColorClassification[2]) lineColor = yellow;
+				else if (lineTotal >= lineColorClassification[2] && lineTotal < lineColorClassification[3]) lineColor = orange;
+				else if (lineTotal >= lineColorClassification[3] && lineTotal <= lineColorClassification[4]) lineColor = red;
 			}
+			
+			return (lineColor == undefined) ? black : lineColor;
 		}
 		
 	    /*
@@ -1195,7 +1207,10 @@
 				infoWindow.close();
 				infoWindow.setContent(text);
 				infoWindow.open(map, marker);
-
+				
+				// Make all instances of 'Not available' in information windows italic
+				$(".informationWindowBody td:contains(Not available)").css("font-style", "italic");
+				
 				$("td.infowindow_ip:visible").each(function(index) {
 					if (!resolvedDNSNames.hasOwnProperty($(this).text())) {
 						queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
@@ -1240,6 +1255,9 @@
 				
 				infoWindow.setContent(text);
 				infoWindow.open(map);
+				
+				// Make all instances of 'Not available' in information windows italic
+				$(".informationWindowBody td:contains(Not available)").css("font-style", "italic");
 
 				$("td.infowindow_ip:visible").each(function(index) {
 					if (!resolvedDNSNames.hasOwnProperty($(this).text())) {
