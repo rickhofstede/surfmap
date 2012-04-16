@@ -11,6 +11,7 @@ Release notes [v2.3 dev (20120416)]:
 - [FEATURE] Added 'Now' button to date/time-selectors, for navigating to latest available time slot
 - [FEATURE] Added DNS name resolving for IP addresses on HOST zoom level
 - [FEATURE] Moved SURFmap logging from Apache error log to syslog
+- [FEATURE] Improved compatibility with PHP 5.3 and higher
 - [FEATURE] Added proxy support
 - [BUGFIX] Added workaround for issue in date/time-selector, when copying from one selector to another
 - [BUGFIX] Fixed an issue that could cause SURFmap to hang when auto-refresh was enabled
