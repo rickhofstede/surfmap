@@ -1627,15 +1627,15 @@
 				<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if ($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionListFlows\">List Flows</label><br /> \
 				<div style=\"margin-top:10px; width:195px;\"> \
 					<span style=\"float:left;\">Begin</span> \
-					<input type=\"text\" id=\"datetime1\" class=\"datetimeinput\" name=\"datetime1\" /> \
-					<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"> \
+					<input type=\"text\" id=\"datetime1\" class=\"dateTimeInput\" name=\"datetime1\" /> \
+					<div class=\"ui-state-default ui-corner-all noButtonBackground\" style=\"float:right;\"> \
 						<span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'end' time to here\" onclick=\"copyDateTime('datetime2', 'datetime1');\"></span> \
 					</div> \
 				</div><br /> \
 				<div style=\"margin-top:10px; width:195px;\"> \
 					<span style=\"float:left;\">End</span> \
-					<input type=\"text\" id=\"datetime2\" class=\"datetimeinput\" name=\"datetime2\" /> \
-					<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"> \
+					<input type=\"text\" id=\"datetime2\" class=\"dateTimeInput\" name=\"datetime2\" /> \
+					<div class=\"ui-state-default ui-corner-all noButtonBackground\" style=\"float:right;\"> \
 						<span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'begin' time to here\" onclick=\"copyDateTime('datetime1', 'datetime2');\"></span> \
 					</div> \
 				</div><br /> \
@@ -1643,13 +1643,19 @@
 					<span style=\"float:left;\">Limit to</span> \
 					<span style=\"width:127px; float:right;\"><input type=\"text\" id=\"flowsinput\" name=\"amount\" style=\"width:35px; padding:2px 0px 2px 0px; text-align:center;\" maxlength=\"4\" value=\"" + entryCount + "\" /><label for=\"flowsinput\"> flows</label><span> \
 				</div><br /> \
-				<div style=\"margin-top:10px; width:195px;\"> \
-					<span style=\"float:left;\">Flow filter</span><br /> \
-					<textarea class=\"filterinput\" name=\"nfsenfilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + nfsenDisplayFilter + "</textarea> \
+				<div style=\"margin-top:15px; width:195px;\"> \
+					<div class=\"ui-state-default ui-corner-all noButtonBackground\" style=\"float:left;\"> \
+						<span id=\"flowFilterButton\" class=\"ui-icon filterButton\" title=\"Show flow filter\"></span> \
+					</div> \
+					<span id=\"flowFilterHeader\" class=\"filterHeader\" style=\"float:left; cursor:pointer;\">Flow filter</span><br /> \
+					<textarea id=\"nfsenfilter\" class=\"filterinput\" name=\"nfsenfilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\"></textarea> \
 				</div><br /> \
 				<div style=\"width:195px;\"> \
-					<span style=\"float:left;\">Geo filter</span><br /> \
-					<textarea class=\"filterinput\" name=\"geofilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + geoFilter + "</textarea> \
+					<div class=\"ui-state-default ui-corner-all noButtonBackground\" style=\"float:left;\"> \
+						<span id=\"geoFilterButton\" class=\"ui-icon filterButton\" title=\"Show geo filter\"></span> \
+					</div> \
+					<span id=\"geoFilterHeader\" class=\"filterHeader\" style=\"float:left; cursor:pointer;\">Geo filter</span><br /> \
+					<textarea id=\"geofilter\" class=\"filterinput\" name=\"geofilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\"></textarea> \
 				</div><br /> \
 				<div style=\"text-align:center; width:195px;\"> \
 					<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've selected a potentially heavy query!</div> \
@@ -1704,7 +1710,7 @@
 		}
 		
 		// Initialize date/time pickers (http://trentrichardson.com/examples/timepicker/)
-		$('.datetimeinput').datetimepicker({
+		$('.dateTimeInput').datetimepicker({
 			maxDate: new Date(latestDate.substr(0, 4), latestDate.substr(4, 2) - 1, latestDate.substr(6, 2), latestHour, latestMinute),
 			stepMinute: 5,
 			onClose: function(dateText, inst) {
@@ -1745,9 +1751,48 @@
 			}
 		});
 		
+		// Initialize filter areas
+		if (nfsenDisplayFilter == "") {
+			$('#flowFilterButton').addClass('ui-icon-triangle-1-e');
+			$('#nfsenfilter').hide();
+		} else {
+			$('#flowFilterButton').addClass('ui-icon-triangle-1-s');
+			$('#nfsenfilter').text(nfsenDisplayFilter);
+		}
+		if (geoFilter == "") {
+			$('#geoFilterButton').addClass('ui-icon-triangle-1-e');
+			$('#geofilter').hide();
+		} else {
+			$('#geoFilterButton').addClass('ui-icon-triangle-1-s');
+			$('#geofilter').text(geoFilter);
+		}
+		$('.filterHeader, .filterButton').click(function(event) {
+			var target = $('#' + event.target.id);
+			
+			// Change to appropriate target if text has been clicked instead of button
+			if (target.attr('class').indexOf('filterHeader') != -1) {
+				target = target.prev().children("span:first");
+			}
+			
+			target.toggleClass('ui-icon-triangle-1-e').toggleClass('ui-icon-triangle-1-s');
+
+			var textArea;
+			if (target.attr('id') == "flowFilterHeader" || target.attr('id') == "flowFilterButton") {
+				textArea = $('#nfsenfilter');
+			} else {
+				textArea = $('#geofilter');
+			}
+			
+			if (target.hasClass('ui-icon-triangle-1-s')) {
+				textArea.show();
+			} else {
+				textArea.hide();
+			}
+		});
+		
 		// Forbid entering 'new line' in filter input textarea
-		$(".filterinput").keypress(function (e) {
-		    if (e.keyCode == 13) return false;
+		$(".filterinput").keypress(function(event) {
+		    if (event.keyCode == 13) return false;
 		});
 		
 		// Generate progress bar (jQuery)

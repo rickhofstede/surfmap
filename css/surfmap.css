@@ -24,10 +24,11 @@ label { margin-left:2px; }
 .informationWindowHeader { font-weight: bold; font-size: 70%; background-color: #4DB2E5; text-align: center; color:white; cursor: default; }
 .informationWindowBody { font-size: 75%; text-align: center; }
 .informationWindowFooter { font-size: 70%; text-align: center; }
-.datetimeinput { width:120px; padding:2px 0px 2px 5px; float:right; }
+.dateTimeInput { width:120px; padding:2px 0px 2px 5px; float:right; }
 
 /* jQuery */
 .noTitleBar .ui-dialog-titlebar { display:none; }
+.noButtonBackground { background:none; border-style:none; cursor:pointer; margin-right:5px; }
 .ui-widget { font-size: 80%; }
 .ui-widget .ui-widget { font-size: 80%; }
 .ui-widget-overlay { background: #FFFFFF; opacity: .60; filter:Alpha(Opacity=60); }
