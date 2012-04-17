@@ -389,11 +389,11 @@
 								flowRecords[j].dstRegionLat = geocodedPlaces[i].lat;
 								flowRecords[j].dstRegionLng = geocodedPlaces[i].lng;
 							}
-							if (flowRecords[j].srcCountry + ", " + flowRecords[j].srcCity == geocodedPlaces[i].place && flowRecords[j].srcCityLat == -1) {
+							if (flowRecords[j].srcCountry + ", " + flowRecords[j].srcRegion + ", " + flowRecords[j].srcCity == geocodedPlaces[i].place && flowRecords[j].srcCityLat == -1) {
 								flowRecords[j].srcCityLat = geocodedPlaces[i].lat;
 								flowRecords[j].srcCityLng = geocodedPlaces[i].lng;
 							}
-							if (flowRecords[j].dstCountry + ", " + flowRecords[j].dstCity == geocodedPlaces[i].place && flowRecords[j].dstCityLat == -1) {
+							if (flowRecords[j].dstCountry + ", " + flowRecords[j].dstRegion + ", " + flowRecords[j].dstCity == geocodedPlaces[i].place && flowRecords[j].dstCityLat == -1) {
 								flowRecords[j].dstCityLat = geocodedPlaces[i].lat;
 								flowRecords[j].dstCityLng = geocodedPlaces[i].lng;
 							}
@@ -402,10 +402,9 @@
 
 					for (var i = 0; i < flowRecordCount; i++) {
 						/*
-						 * If no latitude/longitude coordinates are present on certain level, take 
+						 * If no latitude/longitude coordinates are present at certain level, take 
 						 * the ones from the upper level. If the coordinates for the country level
-						 * are (0,0), that whole flow record will be skipped for processing later
-						 * on.
+						 * are (0,0), the whole flow record will be skipped in further processing.
 						 */
 						if (flowRecords[i].srcRegionLat == 0 && flowRecords[i].srcRegionLng == 0) {
 							flowRecords[i].srcRegionLat = flowRecords[i].srcCountryLat;

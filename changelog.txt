@@ -18,6 +18,7 @@ Release notes [v2.3 dev (20120417)]:
 - [BUGFIX] Fixed a bug which could cause the ConfigurationChecker to stop working properly when absolute paths to the SQLite databases were used
 - [BUGFIX] Fixed a bug which could cause SURFmap not to adhere to the settings related to the GeoCoder DB
 - [BUGFIX] Fixed a bug that caused the line color classification to show incorrect values at the Host zoom level
+- [BUGFIX] Fixed a bug that caused geocoded cities (not from DB) to be shown at wrong locations on the map
 - [BUGFIX] Several minor bug fixes and improvements
 
 Note: GeoPlugin support was removed.
