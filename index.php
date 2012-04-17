@@ -1608,52 +1608,54 @@
 		}
 		nfsenSourceOptions += "</optgroup>";
 		
-		document.getElementById("optionPanel").innerHTML = "<form id=\"options\" method=\"GET\" action=\"index.php\">"
-			+ "<table>"
-				+ "<tr>"
-					+ "<td style=\"width:90px; \">"
-						+ "Sources"
-					+ "</td>"
-					+ "<td>"
-						+ "<select id=\"nfsensources\" name=\"nfsensources[]\" multiple=\"multiple\" >" + nfsenSourceOptions + "</select>"
-					+ "</td>"
-				+ "</tr>"
-			+ "</table><br />"	
-				+ "<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"if (!$('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionStatTopN\">Stat TopN</label>"
-				+ "<br />"
-				+ "<div id=\"nfsenstatorder\" style=\"margin-top:10px; margin-bottom:10px; text-align:right;\">"
-					+ "<input type=\"radio\" id=\"nfsenstatorderflows\" name=\"nfsenstatorder\" value=\"flows\" /><label for=\"nfsenstatorderflows\">flows</label>"
-					+ "<input type=\"radio\" id=\"nfsenstatorderpackets\" name=\"nfsenstatorder\" value=\"packets\" /><label for=\"nfsenstatorderpackets\">packets</label>"
-					+ "<input type=\"radio\" id=\"nfsenstatorderbytes\" name=\"nfsenstatorder\" value=\"bytes\" /><label for=\"nfsenstatorderbytes\">bytes</label>"
-				+ "</div>"
-				+ "<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if ($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionListFlows\">List Flows</label>"				
-			+ "<br />"
-			+ "<div style=\"margin-top:10px; width:195px;\">"
-				+ "<span style=\"float:left;\">Begin</span>"				
-				+ "<input type=\"text\" id=\"datetime1\" class=\"datetimeinput\" name=\"datetime1\" />"
-				+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'end' time to here\" onclick=\"copyDateTime('datetime2', 'datetime1');\"></span></div>"						
-			+ "</div><br />"
-			+ "<div style=\"margin-top:10px; width:195px;\">"
-				+ "<span style=\"float:left;\">End</span>"
-				+ "<input type=\"text\" id=\"datetime2\" class=\"datetimeinput\" name=\"datetime2\" />"
-				+ "<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"><span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'begin' time to here\" onclick=\"copyDateTime('datetime1', 'datetime2');\"></span></div>"				
-			+ "</div><br />"
-			+ "<div style=\"margin-top:10px; width:195px;\">"
-				+ "<span style=\"float:left;\">Limit to</span>"
-				+ "<span style=\"width:127px; float:right;\"><input type=\"text\" id=\"flowsinput\" name=\"amount\" style=\"width:35px; padding:2px 0px 2px 0px; text-align:center;\" maxlength=\"4\" value=\"" + entryCount + "\" /><label for=\"flowsinput\"> flows</label><span>"	
-			+ "</div><br />"
-			+ "<div style=\"margin-top:10px; width:195px;\">"
-				+ "<span style=\"float:left;\">Flow filter</span><br />"
-				+ "<textarea class=\"filterinput\" name=\"nfsenfilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + nfsenDisplayFilter + "</textarea>"
-			+ "</div><br />"
-			+ "<div style=\"width:195px;\">"
-				+ "<span style=\"float:left;\">Geo filter</span><br />"
-				+ "<textarea class=\"filterinput\" name=\"geofilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + geoFilter + "</textarea>"
-			+ "</div><br />"			
-			+ "<div style=\"text-align:center; width:195px;\">"
-				+ "<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've selected a potentially heavy query!</div>"
-				+ "<input type=\"submit\" name=\"submit\" value=\"Submit\" />"
-			+ "</div></form>";
+		$("#optionPanel").html(" \
+			<form id=\"options\" method=\"GET\" action=\"index.php\"> \
+				<table> \
+					<tr> \
+						<td style=\"width:90px;\">Sources</td> \
+						<td> \
+							<select id=\"nfsensources\" name=\"nfsensources[]\" multiple=\"multiple\">" + nfsenSourceOptions + "</select> \
+						</td> \
+					</tr> \
+				</table><br /> \
+				<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"if (!$('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionStatTopN\">Stat TopN</label><br /> \
+				<div id=\"nfsenstatorder\" style=\"margin-top:10px; margin-bottom:10px; text-align:right;\"> \
+					<input type=\"radio\" id=\"nfsenstatorderflows\" name=\"nfsenstatorder\" value=\"flows\" /><label for=\"nfsenstatorderflows\">flows</label> \
+					<input type=\"radio\" id=\"nfsenstatorderpackets\" name=\"nfsenstatorder\" value=\"packets\" /><label for=\"nfsenstatorderpackets\">packets</label> \
+					<input type=\"radio\" id=\"nfsenstatorderbytes\" name=\"nfsenstatorder\" value=\"bytes\" /><label for=\"nfsenstatorderbytes\">bytes</label> \
+				</div> \
+				<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if ($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionListFlows\">List Flows</label><br /> \
+				<div style=\"margin-top:10px; width:195px;\"> \
+					<span style=\"float:left;\">Begin</span> \
+					<input type=\"text\" id=\"datetime1\" class=\"datetimeinput\" name=\"datetime1\" /> \
+					<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"> \
+						<span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'end' time to here\" onclick=\"copyDateTime('datetime2', 'datetime1');\"></span> \
+					</div> \
+				</div><br /> \
+				<div style=\"margin-top:10px; width:195px;\"> \
+					<span style=\"float:left;\">End</span> \
+					<input type=\"text\" id=\"datetime2\" class=\"datetimeinput\" name=\"datetime2\" /> \
+					<div class=\"ui-state-default ui-corner-all\" style=\"background:none; border-style:none; cursor:pointer; float:right; margin-right:5px;\"> \
+						<span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'begin' time to here\" onclick=\"copyDateTime('datetime1', 'datetime2');\"></span> \
+					</div> \
+				</div><br /> \
+				<div style=\"margin-top:10px; width:195px;\"> \
+					<span style=\"float:left;\">Limit to</span> \
+					<span style=\"width:127px; float:right;\"><input type=\"text\" id=\"flowsinput\" name=\"amount\" style=\"width:35px; padding:2px 0px 2px 0px; text-align:center;\" maxlength=\"4\" value=\"" + entryCount + "\" /><label for=\"flowsinput\"> flows</label><span> \
+				</div><br /> \
+				<div style=\"margin-top:10px; width:195px;\"> \
+					<span style=\"float:left;\">Flow filter</span><br /> \
+					<textarea class=\"filterinput\" name=\"nfsenfilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + nfsenDisplayFilter + "</textarea> \
+				</div><br /> \
+				<div style=\"width:195px;\"> \
+					<span style=\"float:left;\">Geo filter</span><br /> \
+					<textarea class=\"filterinput\" name=\"geofilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + geoFilter + "</textarea> \
+				</div><br /> \
+				<div style=\"text-align:center; width:195px;\"> \
+					<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've selected a potentially heavy query!</div> \
+					<input type=\"submit\" name=\"submit\" value=\"Submit\" /> \
+				</div> \
+			</form>");
 			
 		init();
 
