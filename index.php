@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120416)";
+	$version = "v2.3 dev (20120417)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1703,9 +1703,7 @@
 		}
 		
 		// Initialize date/time pickers (http://trentrichardson.com/examples/timepicker/)
-		$('#datetime1').datetimepicker({
-			hour: hours1,
-			minute: minutes1,
+		$('.datetimeinput').datetimepicker({
 			maxDate: new Date(latestDate.substr(0, 4), latestDate.substr(4, 2) - 1, latestDate.substr(6, 2), latestHour, latestMinute),
 			stepMinute: 5,
 			onClose: function(dateText, inst) {
@@ -1713,16 +1711,7 @@
 			}
 		});
 		$('#datetime1').datetimepicker('setDate', new Date(date1.substr(0, 4), parseInt(date1.substr(4, 2)) - 1, date1.substr(6, 2), hours1, minutes1));
-		$('#datetime2').datetimepicker({
-			hour: hours2,
-			minute: minutes2,
-			maxDate: new Date(latestDate.substr(0, 4), latestDate.substr(4, 2) - 1, latestDate.substr(6, 2), latestHour, latestMinute),
-			stepMinute: 5,
-			onClose: function(dateText, inst) {
-				checkForHeavyQuery();
-			}
-		});
-		$('#datetime2').datetimepicker('setDate', new Date(date2.substr(0, 4), parseInt(date1.substr(4, 2)) - 1, date2.substr(6, 2), hours2, minutes2));
+		$('#datetime2').datetimepicker('setDate', new Date(date2.substr(0, 4), parseInt(date2.substr(4, 2)) - 1, date2.substr(6, 2), hours2, minutes2));
 		
 		// Initialize buttons (jQuery)
 		$('#options').submit(function() {
