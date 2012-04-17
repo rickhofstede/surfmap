@@ -20,9 +20,15 @@
 		}
 		
 		if (type == "nfsenFilterError") {
-			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /><b>Filter</b>: " + nfsenFilter + "<br /><b>Error message</b>: " +  getErrorMessage() + "</br /><br />Please check <a href='http://nfdump.sourceforge.net/' style='text-decoration:underline;' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.", "Filter error");
+			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /> \
+					<b>Filter</b>: " + nfsenFilter + "<br /> \
+					<b>Error message</b>: " +  getErrorMessage() + "</br /><br /> \
+					Please check <a href='http://nfdump.sourceforge.net/' style='text-decoration:underline;' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.", "Filter error");
 		} else if (type == "geoFilterError") {
-			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /><b>Filter</b>: " + geoFilter + "<br /><b>Error message</b>: " +  getErrorMessage() + "</br /><br />Please check the SURFmap manual for the filter syntax.", "Filter error");
+			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /> \
+					<b>Filter</b>: " + geoFilter + "<br /> \
+					<b>Error message</b>: " +  getErrorMessage() + "</br /><br /> \
+					Please check the SURFmap manual for the filter syntax.", "Filter error");
 		} else if (type == "noDataError") {
 			jAlert("No NetFlow data has been found for the selected profile, source and filter. Please change your settings.", "No data available");
 		} else if (type == "profileError") {
@@ -30,13 +36,16 @@
 		} else if (type == "invalidWindow") {
 			if (getErrorCode() == 2) {
 				// The first (normal) selected date/time is invalid.
-				jAlert("The selected date/time window (" + originalDate1Window + " " + originalTime1Window + ") does not exist.<br /><br />The last available/valid time window will be selected.", "Error");
+				jAlert("The selected date/time window (" + originalDate1Window + " " + originalTime1Window + ") does not exist.<br /><br /> \
+						The last available/valid time window will be selected.", "Error");
 			} else if (getErrorCode() == 3) {
 				// The second (time range) selected date/time is invalid.
-				jAlert("The (second) selected date/time window (" + originalDate2Window + " " + originalTime2Window + ") does not exist.<br /><br />The last available/valid time window will be selected.", "Error");
+				jAlert("The (second) selected date/time window (" + originalDate2Window + " " + originalTime2Window + ") does not exist.<br /><br /> \
+						The last available/valid time window will be selected.", "Error");
 			} else if (getErrorCode() == 4) {
 				// The second (time range) selected date/time is invalid.
-				jAlert("Both selected date/time windows (" + originalDate1Window + " " + originalTime1Window + " - " + originalDate2Window + " " + originalTime2Window + ") do not exist.<br /><br />The last available/valid time window will be selected.", "Error");
+				jAlert("Both selected date/time windows (" + originalDate1Window + " " + originalTime1Window + " - " + originalDate2Window + " " + originalTime2Window + ") do not exist.<br /><br /> \
+						The last available/valid time window will be selected.", "Error");
 			}
 		} else if (type = "noSourcesSelectedError") {
 			jAlert("You have no source selected, while you should have selected at least one.", "Error");
@@ -55,7 +64,7 @@
 	*					2. 'help' - shows the SURFmap help
 	*					3. 'license' -
 	*					4. 'netflowDetails' -
-	*					5. 'progress' -
+	*					5. 'processing' -
 	*					6. 'configurationCheckerHelp' - the value in the 'text' variable 
 	*							should be splitted by "##" to separate title and contents
 	*							of the dialog
@@ -66,10 +75,31 @@
 		
 		if (type == "about") {
 			document.getElementById("dialog").setAttribute("title", "About");
-			document.getElementById("dialog").innerHTML = "SURFmap has been developed by:<br /><br />Rick Hofstede<br /><i>University of Twente, The Netherlands</i><br /><br />SURFmap is available on <a href=\"http://sourceforge.net/p/surfmap\" target=\"_blank\" style=\"text-decoration:underline;\">SourceForge</a> and is distributed under the <a href=\"javascript:showDialog('license')\" style=\"text-decoration:underline;\">BSD license</a>.<br /><br />Special thanks to Pavel Celeda from INVEA-TECH, for his valuable contributions.<br /><br />";
+			document.getElementById("dialog").innerHTML = " \
+					SURFmap has been developed by:<br /><br /> \
+					Rick Hofstede<br /> \
+					<i>University of Twente, The Netherlands</i><br /><br /> \
+					SURFmap is available on <a href=\"http://sourceforge.net/p/surfmap\" target=\"_blank\" style=\"text-decoration:underline;\">SourceForge</a> \
+					and is distributed under the <a href=\"javascript:showDialog('license')\" style=\"text-decoration:underline;\">BSD license</a>.<br /><br /> \
+					Special thanks to Pavel Celeda from INVEA-TECH, for his valuable contributions.<br /><br />";
 
-			if (GEOLOCATION_DB == "IP2Location") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/ip2location.gif' alt='IP2Location' style='width:130px;' /></td></tr></table><br />";
-			else if (GEOLOCATION_DB == "MaxMind") document.getElementById("dialog").innerHTML += "<table style='width:300px; font-size:80%;'><tr><td>You are using the following geolocation service:</td><td><img src='images/maxmind.png' alt='MaxMind' style='width:130px;' /></td></tr></table><br />";
+			if (GEOLOCATION_DB == "IP2Location") {
+				document.getElementById("dialog").innerHTML += " \
+						<table style='width:300px; font-size:80%;'> \
+							<tr> \
+								<td>You are using the following geolocation service:</td> \
+								<td><img src='images/ip2location.gif' alt='IP2Location' style='width:130px;' /></td> \
+							</tr> \
+						</table><br />";
+			} else if (GEOLOCATION_DB == "MaxMind") {
+				document.getElementById("dialog").innerHTML += " \
+						<table style='width:300px; font-size:80%;'> \
+							<tr> \
+								<td>You are using the following geolocation service:</td> \
+								<td><img src='images/maxmind.png' alt='MaxMind' style='width:130px;' /></td> \
+							</tr> \
+						</table><br />";
+			}
 			
 			document.getElementById("dialog").innerHTML += "<div style='font-size:80%;'>Application version: " + applicationVersion + "</div>";	
 			createDialog(350, "auto", "center", false, true, false, true);
@@ -107,11 +137,11 @@
 			var dialogHeight = (headerHeight + (tableRows * rowHeight) > 450) ? 450 : headerHeight + (tableRows * rowHeight);
 
 			createDialog("auto", dialogHeight, "center", false, true, false, true);
-		} else if (type == "progress") {
+		} else if (type == "processing") {
 			document.getElementById("dialog").innerHTML = " \
-					<div id='progress' style='text-align:center; clear:both;'> \
+					<div id='processing' style='text-align:center; clear:both;'> \
 						<img src='images/load.gif' alt='Loading SURFmap'><br /> \
-						<div id='progresstext' style='font-size:8pt; margin-top:15px;'></div> \
+						<div id='processingText' style='font-size:8pt; margin-top:15px;'></div> \
 					</div>";
 			createDialog(250, 80, "center", true, false, true, false);
 		} else if (type == "configurationCheckerHelp") {
@@ -159,6 +189,6 @@
 	* Parameters:
 	*		text - text in the progress indicator
 	*/
-	function setProgressText(text) {
-		$("#progresstext").text(text);
+	function setProcessingText(text) {
+		$("#processingText").text(text);
 	}

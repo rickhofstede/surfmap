@@ -348,14 +348,8 @@
 
 			var intervalHandlerID = setInterval(function() {
 				var completedGeocodingRequests = successfulGeocodingRequests + erroneousGeocodingRequests + skippedGeocodingRequests;
+				setProcessingText("Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
 				
-				/*
-				 * Progress bar previous stage: 40%
-				 * Progress bar next stage: 70%
-				 * Percents to fill: 70% - 40% = 30%
-				 */
-				var progress = (completedGeocodingRequests / totalGeocodingRequests) * 30;
-				setProgressText("Geocoding (" + completedGeocodingRequests + " of " + totalGeocodingRequests + ")...");
 				if (geocodingQueue.length == 0 && totalGeocodingRequests == completedGeocodingRequests) {
 					clearInterval(intervalHandlerID); 
 					
@@ -754,7 +748,7 @@
 							
 							// TODO Handle case where more than MAX_INFO_WINDOW_LINES lines are present in information window
 							
-							tableBody += "<tr><td class=\"infowindow_ip\">" + markerProperties[i][j].markerRecords[orderArrayIndex].name + "</td>";
+							tableBody += "<tr><td class=\"ipAddress\">" + markerProperties[i][j].markerRecords[orderArrayIndex].name + "</td>";
 							tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].flows + "</td>";
 							tableBody += "<td>" + markerProperties[i][j].markerRecords[orderArrayIndex].protocol + "</td>";
 							
@@ -1032,8 +1026,8 @@
 							tableBody += "<td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentRegionName) + "</td></tr>";
 							tableBody += "<tr><td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcParentCityName) + "</td>";
 							tableBody += "<td>" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstParentCityName) + "</td></tr>";
-							tableBody += "<tr><td class=\"infowindow_ip\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcName) + "</td>";
-							tableBody += "<td class=\"infowindow_ip\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</td></tr>";
+							tableBody += "<tr><td class=\"ipAddress\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].srcName) + "</td>";
+							tableBody += "<td class=\"ipAddress\">" + formatName(lineProperties[i][j].lineRecords[orderArrayIndex].dstName) + "</td></tr>";
 						}
 
 						for (var l = 0; l < lineProperties[i][j].lineRecords[orderArrayIndex].flowRecordIDs.length; l++) {
@@ -1210,7 +1204,7 @@
 				// Make all instances of 'Not available' in information windows italic
 				$(".informationWindowBody td:contains(Not available)").css("font-style", "italic");
 				
-				$("td.infowindow_ip:visible").each(function(index) {
+				$("td.ipAddress:visible").each(function(index) {
 					if (!resolvedDNSNames.hasOwnProperty($(this).text())) {
 						queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
 					}					
@@ -1258,11 +1252,13 @@
 				// Make all instances of 'Not available' in information windows italic
 				$(".informationWindowBody td:contains(Not available)").css("font-style", "italic");
 
-				$("td.infowindow_ip:visible").each(function(index) {
+				$("td.ipAddress:visible").each(function(index) {
 					if (!resolvedDNSNames.hasOwnProperty($(this).text())) {
 						queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
 					}					
 				});
+				
+				// Store ID of setInterval in first array position
 				DNSNameResolveQueue.push(setInterval("processResolvedDNSNames()", 250));
 			});
 			
@@ -1276,11 +1272,12 @@
 		 * periodic execution of this method is stopped.
 		 */		
 		function processResolvedDNSNames () {
-			if ($(".informationWindowHeader").is(':visible')) { // infowindow is visible
-				var totalIPCount = $("td.infowindow_ip:visible").length;
+			// Infowindow or NetFlow data details dialog is visible
+			if ($(".informationWindowHeader").is(':visible') || $('span#ui-dialog-title-dialog').is(':visible')) {
+				var totalIPCount = $("td.ipAddress:visible").length;
 				var resolvedCount = 0;
 				
-				$("td.infowindow_ip:visible").each(function(index) {
+				$("td.ipAddress:visible").each(function(index) {
 					if (resolvedDNSNames.hasOwnProperty($(this).text())) {
 						resolvedCount++;
 						$(this).attr("title", resolvedDNSNames[$(this).text()]);
@@ -1438,7 +1435,7 @@
 				if (showWarningOnNoData == 1) {
 					generateAlert("noDataError");
 				} else {
-					$("#dialog").dialog("destroy"); // Hide progress bar
+					$("#dialog").dialog("destroy"); // Hide processing message
 				}
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to no data error");
 				serverTransactions();
@@ -1455,7 +1452,7 @@
 				return;
 			}
 
-			setProgressText("Importing NetFlow data...");
+			setProcessingText("Importing NetFlow data...");
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 2. Importing NetFlow data...");
 			}
@@ -1464,7 +1461,7 @@
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 2. Importing NetFlow data... Done");
 			}
 			
-			setProgressText("Complementing flow records...");
+			setProcessingText("Complementing flow records...");
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 3. Complementing flow records...");
 			}
@@ -1480,7 +1477,7 @@
 		 * This function contains the second stage of processing.
 		 */		
 		function processing() {
-			setProgressText("Initializing lines...");
+			setProcessingText("Initializing lines...");
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines...");
 			}
@@ -1489,7 +1486,7 @@
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 4. Initializing lines... Done");
 			}
 
-			setProgressText("Initializing markers...");
+			setProcessingText("Initializing markers...");
 			if (debugLogging == 1) {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 5. Initializing markers...");
 			}
@@ -1499,7 +1496,7 @@
 			}
 			
 			if (demoMode == 0) {
-				setProgressText("Initializing legend...");
+				setProcessingText("Initializing legend...");
 				if (debugLogging == 1) {
 					queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 6. Initializing legend...");
 				}
@@ -1518,10 +1515,10 @@
 				queueManager.addElement(queueManager.queueTypes.STAT, new StatData("geocoderRequestsBlock", blockedGeocodingRequests));
 			}
 
-			setProgressText("Finished loading...");
+			setProcessingText("Finished loading...");
 			queueManager.addElement(queueManager.queueTypes.INFO, "Initialized");
 			
-			$("#dialog").dialog("destroy"); // Hide progress bar
+			$("#dialog").dialog("destroy"); // Hide processing message
 
 			if (getErrorCode() >= 2 && getErrorCode() <= 4) {
 				generateAlert("invalidWindow");
@@ -1728,8 +1725,8 @@
 			} else {
 		    	$('input[type=submit]', this).attr('disabled', 'disabled');
 				$(".trigger").trigger("click");
-				showDialog("progress", "");
-				setProgressText("Querying NetFlow data...");
+				showDialog("processing", "");
+				setProcessingText("Querying NetFlow data...");
 				return true;
 			}
 		});
@@ -1795,8 +1792,8 @@
 		    if (event.keyCode == 13) return false;
 		});
 		
-		// Generate progress bar (jQuery)
-		showDialog("progress", "");
+		// Generate processing message (jQuery)
+		showDialog("processing", "");
 		
 	   /*
 		* Checks whether a (suspected) heavy query has been selected. This is done based on the amount
@@ -1833,7 +1830,18 @@
 				var idCount = flowRecordCount;
 			}
 			
-			var netflowDataDetailsTable = "<table border='0' style='text-align: center;'><thead class='netflowDataDetailsTitle'><tr><th>Duration</th><th>Source IP</th><th>Source Port</th><th>Destination IP</th><th>Destination Port</th><th>Protocol</th><th>Packets</th><th>Octets</th>";
+			var netflowDataDetailsTable = " \
+					<table style='text-align: center;'> \
+						<thead class='netflowDataDetailsTitle'> \
+							<tr> \
+								<th>Duration</th> \
+								<th>Source IP</th> \
+								<th>Source Port</th> \
+								<th>Destination IP</th> \
+								<th>Destination Port</th> \
+								<th>Protocol</th> \
+								<th>Packets</th> \
+								<th>Octets</th>";
 			
 			// If NfSen is used as the information source and its 'Stat TopN' option is used
 			if (nfsenOption == 1) {
@@ -1843,7 +1851,10 @@
 				var columns = 8;
 			}
 			
-			netflowDataDetailsTable += "</tr></thead><tbody class='netflowDataDetails'>";
+			netflowDataDetailsTable += " \
+							</tr> \
+						</thead> \
+						<tbody class='netflowDataDetails'>";
 
 			if (idCount == 0) {
 				netflowDataDetailsTable += "<tr><td colspan='" + columns + "' style='text-align: center;'>No flow records are available...</td></tr>";				
@@ -1855,17 +1866,37 @@
 					if (flowIDs != "") currentID = idArray[i];
 					else currentID = i;
 
-					netflowDataDetailsTable += "<td title='Duration'>" + flowRecords[currentID].duration + "</td><td title='Source IP address'>" + flowRecords[currentID].srcIP + "</td><td title='Source port'>" + flowRecords[currentID].srcPort + "</td><td title='Destination IP address'>" + flowRecords[currentID].dstIP + "</td><td title='Destination port'>" + flowRecords[currentID].dstPort + "</td><td title='Protocol'>" + flowRecords[currentID].protocol + "</td><td title='Packets'>" + applySIScale(flowRecords[currentID].packets) + "</td><td title='Octets'>" + applySIScale(flowRecords[currentID].octets) + "</td>";
+					netflowDataDetailsTable += " \
+							<td>" + flowRecords[currentID].duration + "</td> \
+							<td class=\"ipAddress\">" + flowRecords[currentID].srcIP + "</td> \
+							<td>" + flowRecords[currentID].srcPort + "</td> \
+							<td class=\"ipAddress\">" + flowRecords[currentID].dstIP + "</td> \
+							<td>" + flowRecords[currentID].dstPort + "</td> \
+							<td>" + flowRecords[currentID].protocol + "</td> \
+							<td>" + applySIScale(flowRecords[currentID].packets) + "</td> \
+							<td>" + applySIScale(flowRecords[currentID].octets) + "</td>";
 					if (nfsenOption == 1) {
-						netflowDataDetailsTable += "<td title='Flows'>" + flowRecords[currentID].flows + "</td>";
+						netflowDataDetailsTable += " \
+							<td title='Flows'>" + flowRecords[currentID].flows + "</td>";
 					}
 
 					netflowDataDetailsTable += "</tr>";
 				}
 			}
 
-			netflowDataDetailsTable += "</tbody></table>";
+			netflowDataDetailsTable += " \
+						</tbody> \
+					</table>";
 			showDialog("netflowDetails", netflowDataDetailsTable);
+			
+			$("td.ipAddress:visible").each(function(index) {
+				if (!resolvedDNSNames.hasOwnProperty($(this).text())) {
+					queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
+				}					
+			});
+				
+			// Store ID of setInterval in first array position
+			DNSNameResolveQueue.push(setInterval("processResolvedDNSNames()", 250));
 		}
 
 	   /*
