@@ -1643,12 +1643,12 @@
 				+ "<span style=\"width:127px; float:right;\"><input type=\"text\" id=\"flowsinput\" name=\"amount\" style=\"width:35px; padding:2px 0px 2px 0px; text-align:center;\" maxlength=\"4\" value=\"" + entryCount + "\" /><label for=\"flowsinput\"> flows</label><span>"	
 			+ "</div><br />"
 			+ "<div style=\"margin-top:10px; width:195px;\">"
-				+ "<span style=\"float:left;\">Filter</span><br />"
-				+ "<textarea name=\"nfsenfilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\" onkeyup=\"checkForHeavyQuery();\">" + nfsenDisplayFilter + "</textarea>"
+				+ "<span style=\"float:left;\">Flow filter</span><br />"
+				+ "<textarea class=\"filterinput\" name=\"nfsenfilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + nfsenDisplayFilter + "</textarea>"
 			+ "</div><br />"
 			+ "<div style=\"width:195px;\">"
-				+ "<span style=\"float:left;\">GeoFilter</span><br />"
-				+ "<textarea name=\"geofilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + geoFilter + "</textarea>"
+				+ "<span style=\"float:left;\">Geo filter</span><br />"
+				+ "<textarea class=\"filterinput\" name=\"geofilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\">" + geoFilter + "</textarea>"
 			+ "</div><br />"			
 			+ "<div style=\"text-align:center; width:195px;\">"
 				+ "<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've selected a potentially heavy query!</div>"
@@ -1743,6 +1743,11 @@
 			}
 		});
 		
+		// Forbid entering 'new line' in filter input textarea
+		$(".filterinput").keypress(function (e) {
+		    if (e.keyCode == 13) return false;
+		});
+		
 		// Generate progress bar (jQuery)
 		showDialog("progress", "");
 		
@@ -1755,7 +1760,6 @@
 			var timePeriod = ($('#datetime2').datetimepicker('getDate') - $('#datetime1').datetimepicker('getDate')) / 1000;
 			
 			if ($("#nfsensources").multiselect("widget").find("input:checked").length > 4
-					|| $("textarea[name=nfsenfilter]").val().length > 100
 					|| timePeriod > 3600) { // 1800 seconds -> 60 minutes
 				heavyQuery = true;
 			}
