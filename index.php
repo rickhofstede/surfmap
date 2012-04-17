@@ -34,10 +34,10 @@
 	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->NetFlowData);
 	$sessionData->geoCoderData = $connectionHandler->retrieveDataGeocoderDB($sessionData->geoLocationData);
 	
-	// Apply GeoFilter
+	// Apply geo filter
 	for ($i = 0; $i < $sessionData->flowRecordCount; $i++) {
 		try {
-			if (!evaluateGeoFilter($sessionData->geoLocationData[$i], $_SESSION['SURFmap']['geofilter'])) {
+			if (!evaluateGeoFilter($sessionData->geoLocationData[$i], $_SESSION['SURFmap']['geoFilter'])) {
 				$sessionData->flowRecordCount--;
 
 				array_splice($sessionData->NetFlowData, $i, 1);
@@ -99,11 +99,11 @@
 		/* NfSen settings */
 		var nfsenQuery = "<?php echo $sessionData->query; ?>";
 		var nfsenProfile = "<?php echo $_SESSION['SURFmap']['nfsenProfile'] ?>"
-		var nfsenFilter = "<?php echo $_SESSION['SURFmap']['nfsenfilter']; ?>";
-		var nfsenDisplayFilter = "<?php echo $sessionData->nfsenDisplayFilter; ?>";
 		var nfsenAllSources = "<?php echo $_SESSION['SURFmap']['nfsenAllSources']; ?>".split(":");
 		var nfsenSelectedSources = "<?php echo $_SESSION['SURFmap']['nfsenSelectedSources']; ?>".split(":");
-		var geoFilter = "<?php echo $_SESSION['SURFmap']['geofilter']; ?>";
+		var flowFilter = "<?php echo $_SESSION['SURFmap']['flowFilter']; ?>";
+		var flowDisplayFilter = "<?php echo $sessionData->flowDisplayFilter; ?>";
+		var geoFilter = "<?php echo $_SESSION['SURFmap']['geoFilter']; ?>";
 		
 		var date1 = "<?php echo $_SESSION['SURFmap']['date1']; ?>";
 		var date2 = "<?php echo $_SESSION['SURFmap']['date2']; ?>";
@@ -1301,9 +1301,10 @@
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "EntryCount: " + entryCount);
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "FlowRecordCount: " + flowRecordCount);
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "NfSenQuery: " + nfsenQuery);
-			queueManager.addElement(queueManager.queueTypes.DEBUG, "NfSenFilter: " + nfsenFilter);
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "NfSenAllSources: " + nfsenAllSources);
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "NfSenSelectedSources: " + nfsenSelectedSources);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "FlowFilter: " + flowFilter);
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "FlowDisplayFilter: " + flowDisplayFilter);
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "GeoFilter: " + geoFilter);
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "geocoderRequestsSuccess: " + geocoderRequestsSuccess);
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "geocoderRequestsError: " + geocoderRequestsError);
@@ -1427,7 +1428,7 @@
 			}
 
 			if (getErrorCode() == 1) {
-				generateAlert("nfsenFilterError");
+				generateAlert("flowFilterError");
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to NfSen filter error");
 				serverTransactions();
 				return;			
@@ -1528,29 +1529,55 @@
 	</script>
 </head>
 <body>
-	<div id="header" style="width:<?php if (strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>;clear:both;">
-		<a href="http://www.utwente.nl/en" target="_blank"><img src="images/UT_Logo.png" style="height:76px;width:280px;float:right;" alt="University of Twente"/></a>
+	<div id="header" style="width:<?php if (strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>; clear:both;">
+		<span id="logo" style="float:right;"><a href="http://www.utwente.nl/en" target="_blank"><img src="images/UT_Logo.png" alt="University of Twente"/></a></span>
+		<div id="headerText"><p /></div>
 	
 	<script type="text/javascript">
+		var clientHeight = parent.document.documentElement.clientHeight;
+		
 		/*
 		 * IE8/IE9 does not properly support an iFrame width/height of 100% 
 		 * when "<meta http-equiv="X-UA-Compatible" content="IE=edge" />" is used.
 		 * http://brondsema.net/blog/index.php/2007/06/06/100_height_iframe
 		 */
-		if ($("meta[http-equiv='X-UA-Compatible'][content='IE=edge']").length > 0 && // Check whether the problematic meta-tag has been set
-				$.browser.msie && parseInt($.browser.version) >= 8) {
-			var clientHeight = parent.document.documentElement.clientHeight;
+		if ($("meta[http-equiv='X-UA-Compatible'][content='IE=edge']").length > 0 // Check whether the problematic meta-tag has been set
+				&& $.browser.msie && parseInt($.browser.version) >= 8) {
 			parent.document.getElementById("surfmapParentIFrame").style.height = clientHeight +"px";
 		}
-	
-		if (demoMode == 1) {
-			document.write("<div id=\"header-text-demo\" style=\"height:76px; font-size:30pt; text-align:center;\"><p style=\"margin-top:18px;\">" + demoModePageTitle + " (" + hours1 + ":" + minutes1 + ")</p></div>");
+
+		if (clientHeight < 750) {
+			$('#headerText').css('text-align', 'center');
+			$('#logo').hide();
+			
+			if (demoMode == 1) {
+				$('#headerText').css('font-size', '20pt');
+				$('#headerText').css('height', '40px');
+				$('#headerText p').text(demoModePageTitle + ' (' + hours1 + ':' + minutes1 + ')');
+			} else {
+				$('#headerText').css('font-size', '10pt');
+				$('#headerText').css('height', '30px');
+				$('#headerText p').html('<b>SURFmap</b> - <i>A network monitoring tool based on the Google Maps API</i>');
+			}
 		} else {
-			document.write("<div id=\"header-text\" style=\"height:76px; font-size:10pt; float:right;\"><p style=\"margin-top:18px;\"><b>SURFmap</b><br /><i>A network monitoring tool based on the Google Maps API</i></p></div>");
+			$('#headerText p').css('margin-top', '18px');
+			
+			if (demoMode == 1) {
+				$('#headerText').css('font-size', '30pt');
+				$('#headerText').css('height', '60px');
+				$('#headerText').css('text-align', 'center');
+				$('#headerText p').text(demoModePageTitle + ' (' + hours1 + ':' + minutes1 + ')');
+				$('#logo').hide();
+			} else {
+				$('#headerText').css('float', 'right');
+				$('#headerText').css('font-size', '10pt');
+				$('#headerText').css('height', '76px');
+				$('#headerText p').html('<b>SURFmap</b><br /><i>A network monitoring tool based on the Google Maps API</i>');
+			}
 		}
 	</script>
 	
-	</div>
+	</div> <!-- Close header -->
 	
 	<div id="map_canvas" style="width:<?php if (strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>; height:<?php if (strpos($RELATIVE_MAP_HEIGHT, "%") === false) echo "$RELATIVE_MAP_HEIGHT%"; else echo $RELATIVE_MAP_HEIGHT; ?>;"></div>
 	<div id="footer" style="width:<?php if (strpos($RELATIVE_MAP_WIDTH, "%") === false) echo "$RELATIVE_MAP_WIDTH%"; else echo $RELATIVE_MAP_WIDTH; ?>;">
@@ -1645,14 +1672,14 @@
 						<span id=\"flowFilterButton\" class=\"ui-icon filterButton\" title=\"Show flow filter\"></span> \
 					</div> \
 					<span id=\"flowFilterHeader\" class=\"filterHeader\" style=\"float:left; cursor:pointer;\">Flow filter</span><br /> \
-					<textarea id=\"nfsenfilter\" class=\"filterinput\" name=\"nfsenfilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\"></textarea> \
+					<textarea id=\"flowFilter\" class=\"filterinput\" name=\"flowFilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\"></textarea> \
 				</div><br /> \
 				<div style=\"width:195px;\"> \
 					<div class=\"ui-state-default ui-corner-all noButtonBackground\" style=\"float:left;\"> \
 						<span id=\"geoFilterButton\" class=\"ui-icon filterButton\" title=\"Show geo filter\"></span> \
 					</div> \
 					<span id=\"geoFilterHeader\" class=\"filterHeader\" style=\"float:left; cursor:pointer;\">Geo filter</span><br /> \
-					<textarea id=\"geofilter\" class=\"filterinput\" name=\"geofilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\"></textarea> \
+					<textarea id=\"geoFilter\" class=\"filterinput\" name=\"geoFilter\" rows=\"2\" cols=\"26\" style=\"font-size:11px; margin-top:2px;\"></textarea> \
 				</div><br /> \
 				<div style=\"text-align:center; width:195px;\"> \
 					<div id=\"heavyquerymessage\" style=\"color:#FF192A; display:none; margin-bottom:5px;\">Warning: you've selected a potentially heavy query!</div> \
@@ -1701,9 +1728,10 @@
 		}
 		
 		if (demoMode == 1) {
-			document.getElementById("map_canvas").style.cssText = "width:100%; height:100%;";
-			document.getElementById("legend").style.display = "none";
-			document.getElementById("footerfunctions").style.display = "none";
+			$('#map_canvas').css('width', '100%');
+			$('#map_canvas').css('height', '100%');
+			$('#legend').hide();
+			$('#footerfunctions').hide();
 		}
 		
 		// Initialize date/time pickers (http://trentrichardson.com/examples/timepicker/)
@@ -1749,19 +1777,19 @@
 		});
 		
 		// Initialize filter areas
-		if (nfsenDisplayFilter == "") {
+		if (flowDisplayFilter == "") {
 			$('#flowFilterButton').addClass('ui-icon-triangle-1-e');
-			$('#nfsenfilter').hide();
+			$('#flowFilter').hide();
 		} else {
 			$('#flowFilterButton').addClass('ui-icon-triangle-1-s');
-			$('#nfsenfilter').text(nfsenDisplayFilter);
+			$('#flowFilter').text(flowDisplayFilter);
 		}
 		if (geoFilter == "") {
 			$('#geoFilterButton').addClass('ui-icon-triangle-1-e');
-			$('#geofilter').hide();
+			$('#geoFilter').hide();
 		} else {
 			$('#geoFilterButton').addClass('ui-icon-triangle-1-s');
-			$('#geofilter').text(geoFilter);
+			$('#geoFilter').text(geoFilter);
 		}
 		$('.filterHeader, .filterButton').click(function(event) {
 			var target = $('#' + event.target.id);
@@ -1775,9 +1803,9 @@
 
 			var textArea;
 			if (target.attr('id') == "flowFilterHeader" || target.attr('id') == "flowFilterButton") {
-				textArea = $('#nfsenfilter');
+				textArea = $('#flowFilter');
 			} else {
-				textArea = $('#geofilter');
+				textArea = $('#geoFilter');
 			}
 			
 			if (target.hasClass('ui-icon-triangle-1-s')) {

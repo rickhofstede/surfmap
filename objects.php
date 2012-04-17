@@ -93,7 +93,7 @@
 		var $originalTime2Window;
 		
 		var $NetFlowData;
-		var $nfsenDisplayFilter; // Filter string without static filters
+		var $flowDisplayFilter; // Filter string without static filters
 		var $firstNfSenSource = "";
 		var $geoLocationData;
 		var $geoCoderData;

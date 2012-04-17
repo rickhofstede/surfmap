@@ -19,9 +19,9 @@
 			$("#dialog").dialog("destroy");
 		}
 		
-		if (type == "nfsenFilterError") {
+		if (type == "flowFilterError") {
 			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /> \
-					<b>Filter</b>: " + nfsenFilter + "<br /> \
+					<b>Filter</b>: " + flowFilter + "<br /> \
 					<b>Error message</b>: " +  getErrorMessage() + "</br /><br /> \
 					Please check <a href='http://nfdump.sourceforge.net/' style='text-decoration:underline;' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.", "Filter error");
 		} else if (type == "geoFilterError") {

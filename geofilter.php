@@ -22,36 +22,7 @@
 	$object2[1] = array('COUNTRY' => 'Netherlands', 'REGION' => 'OVERIJSSEL', 'CITY' => 'AMSTERDAM');
 	
 	$filter1 = "src ctry NL";
-	$filter2 = "ctry NL";
-	$filter3 = "(not src ctry CZ)";
-	$filter4 = "not ctry DE";
-	$filter5 = "src ctry CZ or src ctry NL";
-	$filter6 = "src ctry CZ or ctry DE or src ctry NL";
-	$filter7 = "dst ctry CZ and src ctry NL";
-	$filter8 = "not (src ctry CZ or dst ctry NL)";
-	$filter9 = "(dst ctry CZ) and (src ctry NL)";
-	$filter10 = "src ctry NL and (dst ctry CZ or dst ctry DE)";
-	$filter11 = "(src ctry US and dst ctry NL) or src ctry NL or (src ctry CZ and dst ctry DE)";
-	$filter12 = "(dst ctry CZ and src ctry NL) and (src ctry NL or src ctry CZ)";
-	$filter13 = "(dst ctry CZ and (src ctry NL or src ctry DE)) and (src ctry NL and dst ctry CZ)";
-	$filter14 = "($filter13)";
-	$filter15 = "(src ctry NL and (src rgn GELDERLAND or src rgn OVERIJSSEL) and (cty enschede or CTY hengelo))";
-	$filter16 = "src ctry NL and src city Enschede or src city Brno";
-	$filter17 = "src ctry NL and not (dst city Brno)";
-	$filter18 = "src ctry Netherlands";
-	
-	// Erroneous filters
-	$filter19 = "src ctry NL dst ctry CZ";
-	$filter20 = "(src ctry NL) (dst ctry CZ)";
-	$filter21 = "($filter20)";
-	$filter22 = "NL";
-	$filter23 = "cy NL";
-	$filter24 = "src NL";
-	$filter25 = "src ctry Neetherlands";
-	$filter26 = ""; // empty filter
-	$filter27 = "src ctry";
-
-	$currentFilter = $filter13;
+	$currentFilter = $filter1;
 	
 	try {
 		if ($GEOFILTER_DEBUG) echo "-----<br>Filter result: ".varToString(evaluateGeoFilter($object1, $currentFilter));
@@ -70,7 +41,10 @@
 	function evaluateGeoFilter ($object, $expression) {
 		global $logicOperators, $originOperators, $geolocationOperators, $GEOFILTER_DEBUG;
 		
-		$expression = trim($expression);
+		$expression = trim($expression); // Removes unwanted chars from *beginning* and *end*
+		$expression = str_replace("\n", "", $expression);
+		$expression = str_replace("\r", "", $expression);
+		
 		if ($GEOFILTER_DEBUG) echo "Expression: <i>$expression</i><br>";
 		if ($GEOFILTER_DEBUG) echo "- Needs truncation: ".varToString(containsLogicOperator($expression) !== false || containsBrackets($expression) !== false)."<br>";
 		

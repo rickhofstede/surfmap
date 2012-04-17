@@ -21,7 +21,8 @@
 			
 			// Prepare session variable
 			if (!isset($_SESSION['SURFmap']['entryCount'])) $_SESSION['SURFmap']['entryCount'] = -1;
-			if (!isset($_SESSION['SURFmap']['nfsenfilter'])) $_SESSION['SURFmap']['nfsenfilter'] = "";
+			if (!isset($_SESSION['SURFmap']['flowFilter'])) $_SESSION['SURFmap']['flowFilter'] = "";
+			if (!isset($_SESSION['SURFmap']['geoFilter'])) $_SESSION['SURFmap']['geoFilter'] = "";
 			if (!isset($_SESSION['SURFmap']['nfsenOption'])) $_SESSION['SURFmap']['nfsenOption'] = -1;
 			if (!isset($_SESSION['SURFmap']['nfsenStatOrder'])) $_SESSION['SURFmap']['nfsenStatOrder'] = "-1";
 			if (!isset($_SESSION['SURFmap']['nfsenProfile'])) $_SESSION['SURFmap']['nfsenProfile'] = "";
@@ -29,7 +30,6 @@
 			if (!isset($_SESSION['SURFmap']['nfsenAllSources'])) $_SESSION['SURFmap']['nfsenAllSources'] = "";
 			if (!isset($_SESSION['SURFmap']['nfsenSelectedSources'])) $_SESSION['SURFmap']['nfsenSelectedSources'] = "";
 			if (!isset($_SESSION['SURFmap']['nfsenPreviousProfile'])) $_SESSION['SURFmap']['nfsenPreviousProfile'] = "";
-			if (!isset($_SESSION['SURFmap']['geofilter'])) $_SESSION['SURFmap']['geofilter'] = "";
 			if (!isset($_SESSION['SURFmap']['refresh'])) $_SESSION['SURFmap']['refresh'] = 0;
 			
 			if (!isset($_SESSION['SURFmap']['date1'])) $_SESSION['SURFmap']['date1'] = "-1";
@@ -53,8 +53,8 @@
 			$this->setEntryCount();
 			$this->setNfSenOption();
 			$this->setNfSenStatOrder();
-			$this->setNfSenFilter();
 			$this->setNfSenProfileAndSources();
+			$this->setFlowFilter();
 			$this->setGeoFilter();
 			$this->setDatesAndTimes();
 
@@ -103,99 +103,6 @@
 				$_SESSION['SURFmap']['nfsenStatOrder'] = $_GET['nfsenstatorder'];
 			} else if ($_SESSION['SURFmap']['nfsenStatOrder'] == "-1") { // initialization value
 				$_SESSION['SURFmap']['nfsenStatOrder'] = $DEFAULT_QUERY_TYPE_STAT_ORDER;
-			}
-		}
-		
-		/*
-		 * Writes the 'nfsenfilter' for this session to the session variable.
-		 */		
-		function setNfSenFilter () {
-			global $INTERNAL_DOMAINS, $HIDE_INTERNAL_DOMAIN_TRAFFIC, $sessionData;
-			
-			if (isset($_GET['nfsenfilter'])) {
-				$_SESSION['SURFmap']['nfsenfilter'] = trim(str_replace("\r\n", " ", $_GET['nfsenfilter']));
-				$_SESSION['SURFmap']['nfsenfilter'] = str_replace(";", "", $_SESSION['SURFmap']['nfsenfilter']);
-			}
-			
-			// If filter input contains "ipv6", change it to "not ipv6"
-			if (strpos($_SESSION['SURFmap']['nfsenfilter'], "ipv6") && !strpos($_SESSION['SURFmap']['nfsenfilter'], "not ipv6")) {
-				$_SESSION['SURFmap']['nfsenfilter'] = substr_replace($_SESSION['SURFmap']['nfsenfilter'], "not ipv6", strpos($_SESSION['SURFmap']['nfsenfilter'], "ipv6"));
-			}
-			
-			// ***** 1. Prepare filters *****
-			if (strlen($INTERNAL_DOMAINS) != 0) {
-				$internalDomains = explode(";", $INTERNAL_DOMAINS);
-				foreach ($internalDomains as $domain) {
-					if (isset($static_filter_internal_domain_traffic)) {
-						$static_filter_internal_domain_traffic .= " and not (src net ".$domain." and dst net ".$domain.")";
-					} else {
-						$static_filter_internal_domain_traffic = "not (src net ".$domain." and dst net ".$domain.")";
-					}
-				}
-				unset($domain);
-			}
-
-			$static_filter_broadcast_traffic = "not host 255.255.255.255";
-			$static_filter_multicast_traffic = "not net 224.0/4";
-			$static_filter_ipv6_traffic = "not ipv6";
-			$static_filters = array();
-			
-			// ***** 2. Collect filters if needed *****
-			if ($HIDE_INTERNAL_DOMAIN_TRAFFIC && isset($static_filter_internal_domain_traffic) && strpos($_SESSION['SURFmap']['nfsenfilter'], $static_filter_internal_domain_traffic) === false) {
-				array_push($static_filters, $static_filter_internal_domain_traffic);
-			}
-			if (strpos($_SESSION['SURFmap']['nfsenfilter'], $static_filter_broadcast_traffic) === false) {
-				array_push($static_filters, $static_filter_broadcast_traffic);
-			}
-			if (strpos($_SESSION['SURFmap']['nfsenfilter'], $static_filter_multicast_traffic) === false) {
-				array_push($static_filters, $static_filter_multicast_traffic);
-			}
-			if (strpos($_SESSION['SURFmap']['nfsenfilter'], $static_filter_ipv6_traffic) === false) {
-				array_push($static_filters, $static_filter_ipv6_traffic);
-			}
-
-			$combined_static_filter = "";
-			for ($i = 0; $i < sizeof($static_filters); $i++) {
-				if (strlen($combined_static_filter) == 0) {
-					$combined_static_filter = $static_filters[$i];
-				} else {
-					$combined_static_filter .= " and ".$static_filters[$i];
-				}
-			}
-			
-			if (sizeof($static_filters) > 0) {
-				if ($_SESSION['SURFmap']['nfsenfilter'] == "") {
-					$_SESSION['SURFmap']['nfsenfilter'] = $combined_static_filter;
-				} else {
-					$_SESSION['SURFmap']['nfsenfilter'].= " and ".$combined_static_filter;
-				}
-			}
-			
-			// ***** 3. Remove static filters from display filter *****
-			/*
-			 * This should be done separately from the procedures above,
-			 * since the static filters can also have been passed by HTTP GET
-			 */
-			$sessionData->nfsenDisplayFilter = $_SESSION['SURFmap']['nfsenfilter'];
-			if (strpos($sessionData->nfsenDisplayFilter, $static_filter_internal_domain_traffic) === 0) {
-				$sessionData->nfsenDisplayFilter = str_replace($static_filter_internal_domain_traffic, "", $sessionData->nfsenDisplayFilter);
-			} else {
-				$sessionData->nfsenDisplayFilter = str_replace(" and ".$static_filter_internal_domain_traffic, "", $sessionData->nfsenDisplayFilter);
-			}
-			if (strpos($sessionData->nfsenDisplayFilter, $static_filter_broadcast_traffic) === 0) {
-				$sessionData->nfsenDisplayFilter = str_replace($static_filter_broadcast_traffic, "", $sessionData->nfsenDisplayFilter);
-			} else {
-				$sessionData->nfsenDisplayFilter = str_replace(" and ".$static_filter_broadcast_traffic, "", $sessionData->nfsenDisplayFilter);
-			}
-			if (strpos($sessionData->nfsenDisplayFilter, $static_filter_multicast_traffic) === 0) {
-				$sessionData->nfsenDisplayFilter = str_replace($static_filter_multicast_traffic, "", $sessionData->nfsenDisplayFilter);
-			} else {
-				$sessionData->nfsenDisplayFilter = str_replace(" and ".$static_filter_multicast_traffic, "", $sessionData->nfsenDisplayFilter);
-			}
-			if (strpos($sessionData->nfsenDisplayFilter, $static_filter_ipv6_traffic) === 0) {
-				$sessionData->nfsenDisplayFilter = str_replace($static_filter_ipv6_traffic, "", $sessionData->nfsenDisplayFilter);
-			} else {
-				$sessionData->nfsenDisplayFilter = str_replace(" and ".$static_filter_ipv6_traffic, "", $sessionData->nfsenDisplayFilter);
 			}
 		}
 		
@@ -276,11 +183,104 @@
 		}
 		
 		/*
-		 * Writes the 'geofilter' for this session to the session variable.
+		 * Writes the 'flowFilter' for this session to the session variable.
+		 */		
+		function setFlowFilter () {
+			global $INTERNAL_DOMAINS, $HIDE_INTERNAL_DOMAIN_TRAFFIC, $sessionData;
+			
+			if (isset($_GET['flowFilter'])) {
+				$_SESSION['SURFmap']['flowFilter'] = trim(str_replace("\r\n", " ", $_GET['flowFilter']));
+				$_SESSION['SURFmap']['flowFilter'] = str_replace(";", "", $_SESSION['SURFmap']['flowFilter']);
+			}
+			
+			// If filter input contains "ipv6", change it to "not ipv6"
+			if (strpos($_SESSION['SURFmap']['flowFilter'], "ipv6") && !strpos($_SESSION['SURFmap']['flowFilter'], "not ipv6")) {
+				$_SESSION['SURFmap']['flowFilter'] = substr_replace($_SESSION['SURFmap']['flowFilter'], "not ipv6", strpos($_SESSION['SURFmap']['flowFilter'], "ipv6"));
+			}
+			
+			// ***** 1. Prepare filters *****
+			if (strlen($INTERNAL_DOMAINS) != 0) {
+				$internalDomains = explode(";", $INTERNAL_DOMAINS);
+				foreach ($internalDomains as $domain) {
+					if (isset($static_filter_internal_domain_traffic)) {
+						$static_filter_internal_domain_traffic .= " and not (src net ".$domain." and dst net ".$domain.")";
+					} else {
+						$static_filter_internal_domain_traffic = "not (src net ".$domain." and dst net ".$domain.")";
+					}
+				}
+				unset($domain);
+			}
+
+			$static_filter_broadcast_traffic = "not host 255.255.255.255";
+			$static_filter_multicast_traffic = "not net 224.0/4";
+			$static_filter_ipv6_traffic = "not ipv6";
+			$static_filters = array();
+			
+			// ***** 2. Collect filters if needed *****
+			if ($HIDE_INTERNAL_DOMAIN_TRAFFIC && isset($static_filter_internal_domain_traffic) && strpos($_SESSION['SURFmap']['flowFilter'], $static_filter_internal_domain_traffic) === false) {
+				array_push($static_filters, $static_filter_internal_domain_traffic);
+			}
+			if (strpos($_SESSION['SURFmap']['flowFilter'], $static_filter_broadcast_traffic) === false) {
+				array_push($static_filters, $static_filter_broadcast_traffic);
+			}
+			if (strpos($_SESSION['SURFmap']['flowFilter'], $static_filter_multicast_traffic) === false) {
+				array_push($static_filters, $static_filter_multicast_traffic);
+			}
+			if (strpos($_SESSION['SURFmap']['flowFilter'], $static_filter_ipv6_traffic) === false) {
+				array_push($static_filters, $static_filter_ipv6_traffic);
+			}
+
+			$combined_static_filter = "";
+			for ($i = 0; $i < sizeof($static_filters); $i++) {
+				if (strlen($combined_static_filter) == 0) {
+					$combined_static_filter = $static_filters[$i];
+				} else {
+					$combined_static_filter .= " and ".$static_filters[$i];
+				}
+			}
+			
+			if (sizeof($static_filters) > 0) {
+				if ($_SESSION['SURFmap']['flowFilter'] == "") {
+					$_SESSION['SURFmap']['flowFilter'] = $combined_static_filter;
+				} else {
+					$_SESSION['SURFmap']['flowFilter'].= " and ".$combined_static_filter;
+				}
+			}
+			
+			// ***** 3. Remove static filters from display filter *****
+			/*
+			 * This should be done separately from the procedures above,
+			 * since the static filters can also have been passed by HTTP GET
+			 */
+			$sessionData->flowDisplayFilter = $_SESSION['SURFmap']['flowFilter'];
+			if (strpos($sessionData->flowDisplayFilter, $static_filter_internal_domain_traffic) === 0) {
+				$sessionData->flowDisplayFilter = str_replace($static_filter_internal_domain_traffic, "", $sessionData->flowDisplayFilter);
+			} else {
+				$sessionData->flowDisplayFilter = str_replace(" and ".$static_filter_internal_domain_traffic, "", $sessionData->flowDisplayFilter);
+			}
+			if (strpos($sessionData->flowDisplayFilter, $static_filter_broadcast_traffic) === 0) {
+				$sessionData->flowDisplayFilter = str_replace($static_filter_broadcast_traffic, "", $sessionData->flowDisplayFilter);
+			} else {
+				$sessionData->flowDisplayFilter = str_replace(" and ".$static_filter_broadcast_traffic, "", $sessionData->flowDisplayFilter);
+			}
+			if (strpos($sessionData->flowDisplayFilter, $static_filter_multicast_traffic) === 0) {
+				$sessionData->flowDisplayFilter = str_replace($static_filter_multicast_traffic, "", $sessionData->flowDisplayFilter);
+			} else {
+				$sessionData->flowDisplayFilter = str_replace(" and ".$static_filter_multicast_traffic, "", $sessionData->flowDisplayFilter);
+			}
+			if (strpos($sessionData->flowDisplayFilter, $static_filter_ipv6_traffic) === 0) {
+				$sessionData->flowDisplayFilter = str_replace($static_filter_ipv6_traffic, "", $sessionData->flowDisplayFilter);
+			} else {
+				$sessionData->flowDisplayFilter = str_replace(" and ".$static_filter_ipv6_traffic, "", $sessionData->flowDisplayFilter);
+			}
+		}
+		
+		/*
+		 * Writes the 'geoFilter' for this session to the session variable.
 		 */
 		function setGeoFilter () {
-			if (isset($_GET['geofilter'])) {
-				$_SESSION['SURFmap']['geofilter'] = $_GET['geofilter'];
+			if (isset($_GET['geoFilter'])) {
+				$_SESSION['SURFmap']['geoFilter'] = $_GET['geoFilter'];
 			}
 		}
 		

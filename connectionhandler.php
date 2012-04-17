@@ -57,7 +57,7 @@
 			$cmd_opts['profile'] = $_SESSION['SURFmap']['nfsenProfile'];
 			$cmd_opts['type'] = $_SESSION['SURFmap']['nfsenProfileType'];
 			$cmd_opts['srcselector'] = $_SESSION['SURFmap']['nfsenSelectedSources'];	
-			$cmd_opts['filter'] = array($_SESSION['SURFmap']['nfsenfilter']);
+			$cmd_opts['filter'] = array($_SESSION['SURFmap']['flowFilter']);
 
 			// Execute NfSen query
 			$cmd_out = nfsend_query("run-nfdump", $cmd_opts);
