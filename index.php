@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120417)";
+	$version = "v2.3 dev (20120418)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -143,9 +143,7 @@
 	
 		var greenIcon = new google.maps.MarkerImage("images/green_marker.png", new google.maps.Size(20, 34));
 		var protocols = ["Reserved", "ICMP", "IGMP", "GGP", "Encapsulated IP", "ST", "TCP", "UCL", "EGP", "IGP", "BBN-RCC-MON", "NVP-II", "PUP", "ARGUS", "EMCON", "XNET", "CHAOS", "UDP", "MUX", "DCN-MEAS", "HMP", "PRM", "XNS-IDP", "trUNK-1", "trUNK-2", "LEAF-1", "LEAF-2", "RDP", "IRTP", "ISO-TP4", "NETBLT", "MFE-NSP", "MERIT-INP", "SEP", "3PC", "IDPR", "XTP", "DDP", "IDPR-CMTP", "TP++", "IL", "SIP", "SDRP", "SIP-SR", "SIP-FRAG", "IDRP", "RSVP", "GRE", "MHRP", "BNA", "SIPP-ESP", "SIPP-AH", "I-NLSP", "SWIPE", "NHRP", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Unassigned", "Any host internal protocol", "CFTP", "Any local network", "SAT-EXPAK", "KRYPTOLAN", "RVD", "IPPC", "Any distributed file system", "SAT-MON", "VISA", "IPCV", "CPNX", "CPHB", "WSN", "PVP", "BR-SAT-MON", "SUN-ND", "WB-MON", "WB-EXPAK", "ISO-IP", "VMTP", "SECURE-VMTP", "VIVES", "TTP", "NSFNET-IGP", "DGP", "TCF", "IGRP", "OSPFIGP", "Sprite-RPC", "LARP", "MTP", "AX.25", "IFIP", "MICP", "SCC-SP", "ETHERIP", "ENCAP", "Any private encryption scheme", "GMTP"];
-		var GEOLOCATION_DB = "<?php echo $GEOLOCATION_DB; ?>";
-		var IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION = "<?php echo $IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION; ?>";
-		
+
 		var resolvedDNSNames = [];
 		var DNSNameResolveQueue = [];
 		
@@ -163,6 +161,9 @@
 		var blockedGeocodingRequests = 0; // blocked geocoding requests
 		var outputGeocodingErrorMessage = 0; // indicates if an geocoding error message has been shown to the user (this should happen only once)
 		
+		var GEOLOCATION_DB = "<?php echo $GEOLOCATION_DB; ?>";
+		var IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION = "<?php echo $IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION; ?>";
+		var INTERNAL_DOMAIN_COUNTRY = "<?php echo $INTERNAL_DOMAINS_COUNTRY ?>";
 		var USE_GEOCODER_DB = <?php if (is_numeric($USE_GEOCODER_DB)) { echo $USE_GEOCODER_DB; } else {echo "0";} ?>;
 		var WRITE_DATA_TO_GEOCODER_DB = <?php if (is_numeric($WRITE_DATA_TO_GEOCODER_DB)) { echo $WRITE_DATA_TO_GEOCODER_DB; } else {echo "0";} ?>;
 		// --- End of Geocoding parameters
@@ -1156,115 +1157,7 @@
 			
 			return (lineColor == undefined) ? black : lineColor;
 		}
-		
-	    /*
-		 * This function creates GMarkers, according to the specified coordinates
-		 * and puts the specified text into the marker's information window.
-		 * Parameters:
-		 *	coordinates - the coordinates on which the marker should be created
-		 *	level - the SURFmap zoom level for which the marker is created
-		 *  title - tooltip to be shown on rollover
-		 *	text - the text that has to be put into the marker's information window
-		 */			
-		function createMarker (coordinates, level, title, text) {
-			var internalTrafficMarker = 0;
-			
-			for (var i = 0; i < lines[level].length; i++) {
-				if (parseFloat(lineProperties[level][i].lat1).toFixed(5) == parseFloat(coordinates.lat()).toFixed(5)
-						&& parseFloat(lineProperties[level][i].lat1).toFixed(5) == parseFloat(lineProperties[level][i].lat2).toFixed(5)
-						&& parseFloat(lineProperties[level][i].lng1).toFixed(5) == parseFloat(coordinates.lng()).toFixed(5)
-						&& parseFloat(lineProperties[level][i].lng1).toFixed(5) == parseFloat(lineProperties[level][i].lng2).toFixed(5)) {
-					internalTrafficMarker = 1;
-					break;
-				}
-			}
-			
-			var markerOptions;
-			if (internalTrafficMarker == 1) {
-				markerOptions = {
-					icon: greenIcon,
-					position: coordinates,
-					title: title
-				}
-			} else {
-				markerOptions = {
-					position: coordinates,
-					title: title
-				}
-			}
-			var marker = new google.maps.Marker(markerOptions);
-
-			google.maps.event.addListener(marker, "click", function(event) {
-				document.getElementById("netflowDataDetails").innerHTML = "";
-				map.setCenter(event.latLng);
-				infoWindow.close();
-				infoWindow.setContent(text);
-				infoWindow.open(map, marker);
 				
-				// Make all instances of 'Not available' in information windows italic
-				$(".informationWindowBody td:contains(Not available)").css("font-style", "italic");
-				
-				$("td.ipAddress:visible").each(function(index) {
-					if (!resolvedDNSNames.hasOwnProperty($(this).text())) {
-						queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
-					}					
-				});
-				DNSNameResolveQueue.push(setInterval("processResolvedDNSNames()", 250));
-			});
-
-			return marker;
-		}
-				
-	    /*
-	     * This function creates GPolylines, according to the specified coordinates
-		 * and puts the specified text into the line's information window.
-		 * Parameters:
-		 *	coordinate1 - one end point of the line
-		 *	coordinate2 - one end point of the line
-		 *	text - the text that has to be put into the line's information window
-		 *	color - color of the line (used for line color classification)
-		 */
-		function createLine (coordinate1, coordinate2, text, color) {
-			var lineOptions = {
-				geodesic: true,
-				path: [coordinate1, coordinate2],
-				strokeColor: color,
-				strokeOpacity: 1.0,
-				strokeWeight: 2
-			}
-			var line = new google.maps.Polyline(lineOptions);
-			
-			google.maps.event.addListener(line, "click", function(event) {
-				document.getElementById("netflowDataDetails").innerHTML = "";
-				map.setCenter(event.latLng);
-				infoWindow.close();
-				
-				if (event.latLng == undefined) {
-					// When clickRandomLine() is used, a google.maps.LatLng object is passed as the 'event' parameter
-					infoWindow.setPosition(event);
-				} else {
-					infoWindow.setPosition(event.latLng);
-				}
-				
-				infoWindow.setContent(text);
-				infoWindow.open(map);
-				
-				// Make all instances of 'Not available' in information windows italic
-				$(".informationWindowBody td:contains(Not available)").css("font-style", "italic");
-
-				$("td.ipAddress:visible").each(function(index) {
-					if (!resolvedDNSNames.hasOwnProperty($(this).text())) {
-						queueManager.addElement(queueManager.queueTypes.DNS, $(this).text());
-					}					
-				});
-				
-				// Store ID of setInterval in first array position
-				DNSNameResolveQueue.push(setInterval("processResolvedDNSNames()", 250));
-			});
-			
-			return line;
-		}
-		
 	    /*
 	     * Checks whether all the DNS names of the IP address in the currently
 		 * opened information window are resolved. The resolved names are added

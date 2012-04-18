@@ -5,7 +5,7 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 ---
 
-Release notes [v2.3 dev (20120417)]:
+Release notes [v2.3 dev (20120418)]:
 
 - [FEATURE] Added GeoFilter support
 - [FEATURE] Added 'Now' button to date/time-selectors, for navigating to latest available time slot
