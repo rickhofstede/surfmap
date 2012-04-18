@@ -1607,17 +1607,25 @@
 		
 		// Initialize panel
 		if (demoMode == 0) {
-			$(".trigger").click(function(){
+			$('a.trigger').click(function(){
 				$(".panel").toggle("fast");
 				$(this).toggleClass("active");
 				return false;
 			});
+			
+			if (clientHeight < 750) {
+				$('a.trigger').css('top', '43px');
+				$('.panel').css('top', '43px');
+			} else {
+				$('a.trigger').css('top', '89px');
+				$('.panel').css('top', '89px');
+			}
 		} else {
-			$(".trigger").hide();
+			$('a.trigger').hide();
 		}
 		
 		if (autoOpenMenu == 1 || getErrorCode() == 1) {
-			$(".trigger").trigger("click");
+			$('a.trigger').trigger('click');
 		}
 		
 		if (demoMode == 1) {
@@ -1645,7 +1653,7 @@
 				return false;
 			} else {
 		    	$('input[type=submit]', this).attr('disabled', 'disabled');
-				$(".trigger").trigger("click");
+				$('a.trigger').trigger("click");
 				showDialog("processing", "");
 				setProcessingText("Querying NetFlow data...");
 				return true;
