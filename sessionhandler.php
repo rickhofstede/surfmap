@@ -188,7 +188,13 @@
 		function setFlowFilter () {
 			global $INTERNAL_DOMAINS, $HIDE_INTERNAL_DOMAIN_TRAFFIC, $sessionData;
 			
-			if (isset($_GET['flowFilter'])) {
+			if (strpos($_SERVER['HTTP_REFERER'], 'nfsen.php?tab=5') !== false) {
+				/*
+				 * Only accept prefedined filter if 'SURFmap' subtab was pressed or
+				 * after submitting panel selections.
+				 */
+				$_SESSION['SURFmap']['flowFilter'] = '';
+			} else if (isset($_GET['flowFilter'])) {
 				$_SESSION['SURFmap']['flowFilter'] = trim(str_replace("\r\n", " ", $_GET['flowFilter']));
 				$_SESSION['SURFmap']['flowFilter'] = str_replace(";", "", $_SESSION['SURFmap']['flowFilter']);
 			}
@@ -279,7 +285,13 @@
 		 * Writes the 'geoFilter' for this session to the session variable.
 		 */
 		function setGeoFilter () {
-			if (isset($_GET['geoFilter'])) {
+			if (strpos($_SERVER['HTTP_REFERER'], 'nfsen.php?tab=5') !== false) {
+				/*
+				 * Only accept prefedined filter if 'SURFmap' subtab was pressed or
+				 * after submitting panel selections.
+				 */
+				$_SESSION['SURFmap']['geoFilter'] = '';
+			} else if (isset($_GET['geoFilter'])) {
 				$_SESSION['SURFmap']['geoFilter'] = $_GET['geoFilter'];
 			}
 		}
