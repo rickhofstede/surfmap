@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120418)";
+	$version = "v2.3 dev (20120419)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1440,16 +1440,17 @@
 		}
 
 		if (clientHeight < 750) {
-			$('#headerText').css('text-align', 'center');
 			$('#logo').hide();
 			
 			if (demoMode == 1) {
 				$('#headerText').css('font-size', '20pt');
 				$('#headerText').css('height', '40px');
+				$('#headerText').css('text-align', 'center');
 				$('#headerText p').text(demoModePageTitle + ' (' + hours1 + ':' + minutes1 + ')');
 			} else {
 				$('#headerText').css('font-size', '10pt');
 				$('#headerText').css('height', '30px');
+				$('#headerText').css('text-align', 'right');
 				$('#headerText p').html('<b>SURFmap</b> - <i>A network monitoring tool based on the Google Maps API</i>');
 			}
 		} else {
@@ -1536,11 +1537,11 @@
 					</tr> \
 				</table><br /> \
 				<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"if (!$('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionStatTopN\">Stat TopN</label><br /> \
-				<div id=\"nfsenstatorder\" style=\"margin-top:10px; margin-bottom:10px; text-align:right;\"> \
-					<input type=\"radio\" id=\"nfsenstatorderflows\" name=\"nfsenstatorder\" value=\"flows\" /><label for=\"nfsenstatorderflows\">flows</label> \
-					<input type=\"radio\" id=\"nfsenstatorderpackets\" name=\"nfsenstatorder\" value=\"packets\" /><label for=\"nfsenstatorderpackets\">packets</label> \
-					<input type=\"radio\" id=\"nfsenstatorderbytes\" name=\"nfsenstatorder\" value=\"bytes\" /><label for=\"nfsenstatorderbytes\">bytes</label> \
-				</div> \
+				<div id=\"nfsenstatorder\" style=\"margin-top:10px; margin-bottom:10px; text-align:right;\">"
+				+ "<input type=\"radio\" id=\"nfsenstatorderflows\" name=\"nfsenstatorder\" value=\"flows\" /><label for=\"nfsenstatorderflows\">flows</label>"
+				+ "<input type=\"radio\" id=\"nfsenstatorderpackets\" name=\"nfsenstatorder\" value=\"packets\" /><label for=\"nfsenstatorderpackets\">packets</label>"
+				+ "<input type=\"radio\" id=\"nfsenstatorderbytes\" name=\"nfsenstatorder\" value=\"bytes\" /><label for=\"nfsenstatorderbytes\">bytes</label>"
+				+ "</div> \
 				<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if ($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionListFlows\">List Flows</label><br /> \
 				<div style=\"margin-top:10px; width:195px;\"> \
 					<span style=\"float:left;\">Begin</span> \
@@ -1613,7 +1614,7 @@
 				return false;
 			});
 			
-			if (clientHeight < 750) {
+			if (clientHeight < 850) {
 				$('a.trigger').css('top', '43px');
 				$('.panel').css('top', '43px');
 			} else {
