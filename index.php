@@ -1655,8 +1655,7 @@
 			} else {
 		    	$('input[type=submit]', this).attr('disabled', 'disabled');
 				$('a.trigger').trigger("click");
-				showDialog("processing", "");
-				setProcessingText("Querying NetFlow data...");
+				setTimeout("showDialog('processing', '');setProcessingText('Querying NetFlow data...');", 100);
 				return true;
 			}
 		});
