@@ -10,8 +10,9 @@
 # $Id: install.sh 204 2012-04-20 08:22:58Z rickhofstede $
 #
 
-SURFMAP_VER=$(wget --spider http://sourceforge.net/projects/surfmap/files/latest/download?source=files 2>&1 | grep -m1 '.tar.gz' | sed 's/.*SURFmap_v//; s/.tar.gz.*//')		# get latest version number
+SURFMAP_VER=2.3
 SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
+SURFMAP_TMP=SURFmap_tmp
 GEO_DB=GeoLiteCity.dat.gz
 
 err () {
@@ -66,13 +67,17 @@ if [ -d ${FRONTEND_PLUGINDIR}/SURFmap ]; then
 fi
 
 # Unpack SURFmap
-echo "Installing SURFmap plugin version ${SURFMAP_VER} to ${FRONTEND_PLUGINDIR}/SURFmap"
-tar zxf ${SURFMAP_REL} --directory=${FRONTEND_PLUGINDIR}
+echo "Unpacking files"
+tar zxf ${SURFMAP_REL} --directory=.
+mv SURFmap ${SURFMAP_TMP}
 
 # Install backend and frontend plugin files
-echo "Installing backend and frontend plugin files - SURFmap.pm, SURFmap.php"
-cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/backend/SURFmap.pm ${BACKEND_PLUGINDIR}
-cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/frontend/SURFmap.php ${FRONTEND_PLUGINDIR}
+echo "Installing SURFmap ${SURFMAP_VER} to ${FRONTEND_PLUGINDIR}/SURFmap"
+cp -r ./${SURFMAP_TMP}/backend/* ${BACKEND_PLUGINDIR}
+cp -r ./${SURFMAP_TMP}/frontend/* ${FRONTEND_PLUGINDIR}
+
+# Deleting temporary files
+rm -rf ${SURFMAP_TMP}
 
 # Unpack GeoLocation database
 echo "Installing MaxMind GeoLite City database to ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind"

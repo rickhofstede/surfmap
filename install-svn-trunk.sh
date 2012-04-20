@@ -20,8 +20,8 @@ echo "Exporting SVN trunk snapshot"
 svn export svn://svn.code.sf.net/p/surfmap/code/trunk SURFmap
 
 echo "Updating install script for SVN install"
-cp SURFmap/setup/scripts/install.sh .
-SURFMAP_VER=$(cat SURFmap/index.php | grep -m1 \$version | sed 's/.*"v//; s/ .*//')
+cp SURFmap/install.sh .
+SURFMAP_VER=$(cat SURFmap/frontend/SURFmap/index.php | grep -m1 \$version | sed 's/.*"v//; s/ .*//')
 sed -i "s/SURFMAP_VER=.*/SURFMAP_VER=${SURFMAP_VER}/g" install.sh
 
 echo "Creating SURFmap SVN tar ball"
