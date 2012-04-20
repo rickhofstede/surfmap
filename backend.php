@@ -27,9 +27,9 @@
 	$allSources = (isset($arguments['s'])) ? $arguments['s'] : "";
 
 	$logHandler = new LogHandler();
-	$connectionHandler = new ConnectionHandler($logHandler);
 	$sessionData = new SessionData();
 	$sessionHandler = new SessionHandler($logHandler, $profile, $profileType, $allSources);
+	$connectionHandler = new ConnectionHandler($logHandler, $sessionHandler);
 
 	$sessionData->NetFlowData = $connectionHandler->retrieveDataNfSen();
 	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->NetFlowData);

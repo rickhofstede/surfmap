@@ -20,15 +20,15 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.3 dev (20120419)";
+	$version = "v2.3 dev (20120420)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
 	
 	$logHandler = new LogHandler();
-	$connectionHandler = new ConnectionHandler($logHandler);
 	$sessionData = new SessionData();
 	$sessionHandler = new SessionHandler($logHandler);
+	$connectionHandler = new ConnectionHandler($logHandler, $sessionHandler);
 	
 	$sessionData->NetFlowData = $connectionHandler->retrieveDataNfSen();
 	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->NetFlowData);
@@ -114,7 +114,7 @@
 		var latestDate = "<?php echo $sessionData->latestDate; ?>";
 		var latestHour = "<?php echo $sessionData->latestHour; ?>";
 		var latestMinute = "<?php echo $sessionData->latestMinute; ?>";
-		var errorCode = "<?php echo $sessionData->errorCode; ?>";
+		var errorCode = <?php echo intval($sessionData->errorCode); ?>;
 		var errorMessage = "<?php echo $sessionData->errorMessage; ?>";
 		var originalDate1Window = "<?php echo $sessionData->originalDate1Window; ?>";
 		var originalTime1Window = "<?php echo $sessionData->originalTime1Window; ?>";
@@ -1213,31 +1213,16 @@
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "LatestMinute: " + latestMinute);
 			
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "AutoRefresh: " + autoRefresh);
-			queueManager.addElement(queueManager.queueTypes.DEBUG, "ErrorCode: " + getErrorCode());
+			queueManager.addElement(queueManager.queueTypes.DEBUG, "ErrorCode: " + errorCode);
 			
-			if (getErrorMessage() == "") {
+			if (errorMessage == "") {
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "ErrorMessage: (empty)");
 			} else {
-				queueManager.addElement(queueManager.queueTypes.DEBUG, "ErrorMessage: " + getErrorMessage());
+				queueManager.addElement(queueManager.queueTypes.DEBUG, "ErrorMessage: " + errorMessage);
 			}
 			
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "PHP version: <?php echo phpversion(); ?>");
 			queueManager.addElement(queueManager.queueTypes.DEBUG, "Client Web browser: " + navigator.appName + "(" + navigator.appVersion + ")");
-		}
-		
-		/*
-		 * Parses and returns the error code of the current session.
-		 */		
-		function getErrorCode () {
-			if (errorCode != "") return parseInt(errorCode);
-			else return 0; // no error
-		}
-		
-		/*
-		 * Parses and returns the error code of the current session, if available.
-		 */		
-		function getErrorMessage () {
-			return errorMessage;
 		}
 		
 	    /*
@@ -1251,6 +1236,9 @@
 			importPHPLogQueue("ERROR");
 			
 			if (debugLogging == 1) printDebugLogging();
+			
+			// Generate processing message (jQuery)
+			showDialog("processing", "");
 
 			if (initialZoomLevel == -1) {
 				currentSURFmapZoomLevel = initialSURFmapZoomLevel;
@@ -1320,30 +1308,40 @@
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 1. Basic initialization completed");
 			}
 
-			if (getErrorCode() == 1) {
-				generateAlert("flowFilterError");
-				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to NfSen filter error");
-				serverTransactions();
-				return;			
-			} else if (getErrorCode() == 5) {
-				if (showWarningOnNoData == 1) {
-					generateAlert("noDataError");
-				} else {
-					$("#dialog").dialog("destroy"); // Hide processing message
+			if (errorCode != 0 && (errorCode < 2 || errorCode > 4)) { // an error has occurred
+				switch (errorCode) {
+					case 1:		generateAlert(1);
+								queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to flow filter error");
+								break;
+							
+					case 5:		if (showWarningOnNoData == 1) {
+									generateAlert(5);
+								} else {
+									$("#dialog").dialog("destroy"); // Hide processing message
+								}
+								queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to no data error");
+								break;
+
+					case 6:		generateAlert(6);
+								queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to profile error");
+								break;
+
+					case 7:		generateAlert(7);
+								queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to GeoFilter error");
+								break;
+
+					case 8:		generateAlert(8);
+								queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to flow query kill");
+								$("#dialog").dialog("destroy"); // Hide processing message
+								break;
+		
+					default:	generateAlert(errorCode);
+								break;
 				}
-				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to no data error");
+				
+				$('#legend').hide();
 				serverTransactions();
-				return;				
-			} else if (getErrorCode() == 6) {
-				generateAlert("profileError");
-				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to profile error");
-				serverTransactions();
-				return;
-			} else if (getErrorCode() == 7) {
-				generateAlert("geoFilterError");
-				queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to GeoFilter error");
-				serverTransactions();
-				return;
+				return;	
 			}
 
 			setProcessingText("Importing NetFlow data...");
@@ -1414,8 +1412,8 @@
 			
 			$("#dialog").dialog("destroy"); // Hide processing message
 
-			if (getErrorCode() >= 2 && getErrorCode() <= 4) {
-				generateAlert("invalidWindow");
+			if (errorCode >= 2 && errorCode <= 4) {
+				generateAlert(errorCode);
 			}
 		}
 
@@ -1439,7 +1437,7 @@
 			parent.document.getElementById("surfmapParentIFrame").style.height = clientHeight +"px";
 		}
 
-		if (clientHeight < 750) {
+		if (clientHeight < 850) {
 			$('#logo').hide();
 			
 			if (demoMode == 1) {
@@ -1536,13 +1534,13 @@
 						</td> \
 					</tr> \
 				</table><br /> \
-				<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"if (!$('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionStatTopN\">Stat TopN</label><br /> \
+				<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"if (!$('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');checkForHeavyQuery();\" /><label for=\"nfsenoptionStatTopN\">Stat TopN</label><br /> \
 				<div id=\"nfsenstatorder\" style=\"margin-top:10px; margin-bottom:10px; text-align:right;\">"
 				+ "<input type=\"radio\" id=\"nfsenstatorderflows\" name=\"nfsenstatorder\" value=\"flows\" /><label for=\"nfsenstatorderflows\">flows</label>"
 				+ "<input type=\"radio\" id=\"nfsenstatorderpackets\" name=\"nfsenstatorder\" value=\"packets\" /><label for=\"nfsenstatorderpackets\">packets</label>"
 				+ "<input type=\"radio\" id=\"nfsenstatorderbytes\" name=\"nfsenstatorder\" value=\"bytes\" /><label for=\"nfsenstatorderbytes\">bytes</label>"
 				+ "</div> \
-				<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if ($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');\" /><label for=\"nfsenoptionListFlows\">List Flows</label><br /> \
+				<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if ($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');checkForHeavyQuery();\" /><label for=\"nfsenoptionListFlows\">List Flows</label><br /> \
 				<div style=\"margin-top:10px; width:195px;\"> \
 					<span style=\"float:left;\">Begin</span> \
 					<input type=\"text\" id=\"datetime1\" class=\"dateTimeInput\" name=\"datetime1\" /> \
@@ -1625,7 +1623,7 @@
 			$('a.trigger').hide();
 		}
 		
-		if (autoOpenMenu == 1 || getErrorCode() == 1) {
+		if (autoOpenMenu == 1 || errorCode == 1) {
 			$('a.trigger').trigger('click');
 		}
 		
@@ -1650,7 +1648,7 @@
 		// Initialize buttons (jQuery)
 		$('#options').submit(function() {
 			if ($("#nfsensources").multiselect("widget").find("input:checked").length == 0) {
-				generateAlert("noSourcesSelectedError");
+				generateAlert(999); // This error code is only client-side
 				return false;
 			} else {
 		    	$('input[type=submit]', this).attr('disabled', 'disabled');
@@ -1720,10 +1718,7 @@
 		$(".filterinput").keypress(function(event) {
 		    if (event.keyCode == 13) return false;
 		});
-		
-		// Generate processing message (jQuery)
-		showDialog("processing", "");
-		
+
 	   /*
 		* Checks whether a (suspected) heavy query has been selected. This is done based on the amount
 		* of selected sources and the filter length.
@@ -1731,9 +1726,9 @@
 		function checkForHeavyQuery () {
 			var heavyQuery = false;
 			var timePeriod = ($('#datetime2').datetimepicker('getDate') - $('#datetime1').datetimepicker('getDate')) / 1000;
-			
+
 			if ($("#nfsensources").multiselect("widget").find("input:checked").length > 4
-					|| timePeriod > 3600) { // 1800 seconds -> 60 minutes
+					|| (timePeriod > 3600 && $('#nfsenoptionStatTopN').attr('checked') == 'checked')) { // 1800 seconds -> 60 minutes
 				heavyQuery = true;
 			}
 

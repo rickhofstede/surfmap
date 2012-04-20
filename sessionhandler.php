@@ -14,6 +14,7 @@
 		 */
 		function __construct($logHandler, $profile = "", $profileType = "", $allSources = "") {
 			global $sessionData;
+			$sessionData->errorCode = 0;
 			
 			$this->logHandler = $logHandler;
 
@@ -56,7 +57,7 @@
 			$this->setNfSenProfileAndSources();
 			$this->setFlowFilter();
 			$this->setGeoFilter();
-			$this->setDatesAndTimes();
+			$this->setDatesAndTimes(false);
 
 			session_write_close();
 		}
@@ -300,7 +301,7 @@
 		 * Writes the session variables related to dates and times of the
 		 * current session.
 		 */		
-		function setDatesAndTimes () {
+		function setDatesAndTimes ($forceLatest) {
 			global $sessionData;
 			
 			// Latest date/time slot (depending on files available by nfcapd)
@@ -319,7 +320,10 @@
 			}
 
 			// Dates (ordering is based on priorities)
-			if (PHP_SAPI === "cli" || isset($_GET['autorefresh']) || $_SESSION['SURFmap']['date1'] == "-1") {  // initialization value
+			if (PHP_SAPI === "cli" 
+					|| isset($_GET['autorefresh']) 
+					|| $forceLatest
+					|| $_SESSION['SURFmap']['date1'] == "-1") {  // initialization value
 				$sessionData->originalDate1Window = substr($sessionData->latestDate, 0, 4)."/".substr($sessionData->latestDate, 4, 2)."/".substr($sessionData->latestDate, 6, 2);
 				$sessionData->originalDate2Window = $sessionData->originalDate1Window;
 				
@@ -356,7 +360,11 @@
 			}
 			
 			// Times (ordering is based on priorities)
-			if (PHP_SAPI === "cli" || isset($_GET['autorefresh']) || $_SESSION['SURFmap']['hours1'] == "-1" || $_SESSION['SURFmap']['minutes1'] == "-1") { // initialization value
+			if (PHP_SAPI === "cli" 
+					|| isset($_GET['autorefresh']) 
+					|| $forceLatest
+					|| $_SESSION['SURFmap']['hours1'] == "-1" 
+					|| $_SESSION['SURFmap']['minutes1'] == "-1") { // initialization value
 				$sessionData->originalTime1Window = $sessionData->latestHour.":".$sessionData->latestMinute;
 				$sessionData->originalTime2Window = $sessionData->originalTime1Window;
 				
@@ -439,7 +447,6 @@
 						$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2']."");
 			}
 		}
-	
 	}
 	
 	/*

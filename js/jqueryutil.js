@@ -10,47 +10,56 @@
 	* Prepares a jQuery alert.
 	*
 	* Parameters:
-	*		type - indicates which contents should be shown inside the dialog. The possible
-	*				options are:
-	*					1. 'filterError'
+	*		code - error code
 	*/	
-	function generateAlert(type) {
+	function generateAlert(code) {
 		if ($("#dialog").dialog("isOpen")) {
 			$("#dialog").dialog("destroy");
 		}
 		
-		if (type == "flowFilterError") {
-			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /> \
-					<b>Filter</b>: " + flowFilter + "<br /> \
-					<b>Error message</b>: " +  getErrorMessage() + "</br /><br /> \
-					Please check <a href='http://nfdump.sourceforge.net/' style='text-decoration:underline;' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.", "Filter error");
-		} else if (type == "geoFilterError") {
-			jAlert("The filter you provided does not adhere to the expected syntax.<br /><br /> \
-					<b>Filter</b>: " + geoFilter + "<br /> \
-					<b>Error message</b>: " +  getErrorMessage() + "</br /><br /> \
-					Please check the SURFmap manual for the filter syntax.", "Filter error");
-		} else if (type == "noDataError") {
-			jAlert("No NetFlow data has been found for the selected profile, source and filter. Please change your settings.", "No data available");
-		} else if (type == "profileError") {
-			jAlert("You have an error in your configuration. <br /><br /><b>Error message</b>: " +  getErrorMessage(), "Error");
-		} else if (type == "invalidWindow") {
-			if (getErrorCode() == 2) {
-				// The first (normal) selected date/time is invalid.
-				jAlert("The selected date/time window (" + originalDate1Window + " " + originalTime1Window + ") does not exist.<br /><br /> \
-						The last available/valid time window will be selected.", "Error");
-			} else if (getErrorCode() == 3) {
-				// The second (time range) selected date/time is invalid.
-				jAlert("The (second) selected date/time window (" + originalDate2Window + " " + originalTime2Window + ") does not exist.<br /><br /> \
-						The last available/valid time window will be selected.", "Error");
-			} else if (getErrorCode() == 4) {
-				// The second (time range) selected date/time is invalid.
-				jAlert("Both selected date/time windows (" + originalDate1Window + " " + originalTime1Window + " - " + originalDate2Window + " " + originalTime2Window + ") do not exist.<br /><br /> \
-						The last available/valid time window will be selected.", "Error");
-			}
-		} else if (type = "noSourcesSelectedError") {
-			jAlert("You have no source selected, while you should have selected at least one.", "Error");
-		} else {
-			jAlert("An unknown error occured.", "Error");
+		switch (code) {
+			case 1:		jAlert("The flow filter you provided does not adhere to the expected syntax.<br /><br /> \
+								<b>Filter</b>: " + flowFilter + "<br /> \
+								<b>Error message</b>: " +  errorMessage + "</br /><br /> \
+								Please check <a href='http://nfdump.sourceforge.net/' style='text-decoration:underline;' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.", "Filter error");
+						break;
+						
+			case 2:		// The first (normal) selected date/time is invalid.
+						jAlert("The selected date/time window (" + originalDate1Window + " " + originalTime1Window + ") does not exist.<br /><br /> \
+								The last available/valid time window will be selected.", "Error");
+						break;
+						
+			case 3:		// The second (time range) selected date/time is invalid.
+						jAlert("The (second) selected date/time window (" + originalDate2Window + " " + originalTime2Window + ") does not exist.<br /><br /> \
+								The last available/valid time window will be selected.", "Error");
+						break;
+						
+			case 4:		// The second (time range) selected date/time is invalid.
+						jAlert("Both selected date/time windows (" + originalDate1Window + " " + originalTime1Window + " - " + originalDate2Window + " " + originalTime2Window + ") do not exist.<br /><br /> \
+								The last available/valid time window will be selected.", "Error");
+						break;
+								
+			case 5:		jAlert("No NetFlow data has been found for the selected profile, source and filter. Please change your settings.", "No data available");
+						break;
+						
+			case 6:		jAlert("You have an error in your configuration. <br /><br /><b>Error message</b>: " +  errorMessage, "Error");
+						break;
+						
+			case 7:		jAlert("The geo filter you provided does not adhere to the expected syntax.<br /><br /> \
+								<b>Filter</b>: " + geoFilter + "<br /> \
+								<b>Error message</b>: " +  errorMessage + "</br /><br /> \
+								Please check the SURFmap manual for the filter syntax.", "Filter error");
+						break;
+			
+			case 8:		jAlert("You have killed your flow query. Please select another query.", "Error");
+						break;
+						
+			case 999:	 // Error code is only client-side
+						jAlert("You have no source selected, while you should have selected at least one.", "Error");
+						break;
+						
+			default:	jAlert("An unknown error occured.", "Error");
+						break;
 		}
 	}
 
@@ -144,6 +153,7 @@
 						<div id='processingText' style='font-size:8pt; margin-top:15px;'></div> \
 					</div>";
 			createDialog(250, 80, "center", true, false, true, false);
+			setProcessingText("Loading...");
 		} else if (type == "configurationCheckerHelp") {
 			var splittedString = text.split("##");
 			document.getElementById("dialog").setAttribute("title", splittedString[0]);
