@@ -1,9 +1,10 @@
 #!/bin/sh
 #
-# Simple script to install SURFmap plugin.
+# Simple script to install SURFmap.
 #
 # Copyright (C) 2011 INVEA-TECH a.s.
-# Author(s): Pavel CELEDA <celeda@invea-tech.com>
+# Author(s): 	Pavel Celeda <celeda@invea-tech.com>
+#				Rick Hofstede <r.j.hofstede@utwente.nl>
 #
 # LICENSE TERMS - 3-clause BSD license
 #
