@@ -1308,7 +1308,7 @@
 				queueManager.addElement(queueManager.queueTypes.DEBUG, "Progress: 1. Basic initialization completed");
 			}
 
-			if (errorCode != 0 && (errorCode < 2 || errorCode > 4)) { // an error has occurred
+			if (errorCode == 1 || errorCode >= 5) { // an error has occurred
 				switch (errorCode) {
 					case 1:		generateAlert(1);
 								queueManager.addElement(queueManager.queueTypes.DEBUG, "Stopped initialization due to flow filter error");

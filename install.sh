@@ -22,7 +22,7 @@ err () {
 echo "SURFmap installation script"
 echo "---------------------------"
 
-# discover NfSen configuration
+# Discover NfSen configuration
 NFSEN_VARFILE=/tmp/nfsen-tmp.conf
 if [ ! -n "$(ps axo command | grep [n]fsend | grep -v nfsend-comm)" ]; then
 	err "NfSen - nfsend not running. Can not detect nfsen.conf location!"
@@ -31,14 +31,14 @@ fi
 NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep [n]fsend | grep -v nfsend-comm | cut -d' ' -f3) | grep libexec | cut -d'"' -f2)
 NFSEN_CONF=$(cat ${NFSEN_LIBEXECDIR}/NfConf.pm | grep \/nfsen.conf | cut -d'"' -f2)
 
-# parse nfsen.conf file
+# Parse nfsen.conf file
 cat ${NFSEN_CONF} | grep -v \# | egrep '\$BASEDIR|\$BINDIR|\$HTMLDIR|\$FRONTEND_PLUGINDIR|\$BACKEND_PLUGINDIR|\$WWWGROUP|\$WWWUSER|\$USER' | tr -d ';' | tr -d ' ' | cut -c2- | sed 's,/",",g' > ${NFSEN_VARFILE}
 . ${NFSEN_VARFILE}
 rm -rf ${NFSEN_VARFILE}
 
 SURFMAP_CONF=${FRONTEND_PLUGINDIR}/SURFmap/config.php
 
-# check permissions to install SURFmap plugin - you must be ${USER} or root
+# Check permissions to install SURFmap plugin - you must be ${USER} or root
 if [ "$(id -u)" != "$(id -u ${USER})" ] && [ "$(id -u)" != "0" ]; then
 	err "You do not have sufficient permissions to install plugin on this server!"
 fi
@@ -47,7 +47,7 @@ if [ "$(id -u)" = "$(id -u ${USER})" ]; then
 	WWWUSER=${USER}		# we are installing as normal user
 fi
 
-# download files from Internet
+# Download files from Internet
 if [ ! -f  ${SURFMAP_REL} ]; then
 	echo "Downloading SURFmap plugin tar ball - http://surfmap.sf.net/"
 	wget http://downloads.sourceforge.net/project/surfmap/source/${SURFMAP_REL}
@@ -58,37 +58,37 @@ if [ ! -f  ${GEO_DB} ]; then
 	wget http://geolite.maxmind.com/download/geoip/database/${GEO_DB}
 fi
 
-# backup old SURFmap installation
+# Backup old SURFmap installation
 if [ -d ${FRONTEND_PLUGINDIR}/SURFmap ]; then
 	SURFMAP_BACKUPDIR=${FRONTEND_PLUGINDIR}/SURFmap-$(date +%s)
 	echo "Backuping old SURFmap installation to ${SURFMAP_BACKUPDIR}"
 	mv ${FRONTEND_PLUGINDIR}/SURFmap ${SURFMAP_BACKUPDIR}
 fi
 
-# unpack SURFmap plugin
+# Unpack SURFmap
 echo "Installing SURFmap plugin version ${SURFMAP_VER} to ${FRONTEND_PLUGINDIR}/SURFmap"
 tar zxf ${SURFMAP_REL} --directory=${FRONTEND_PLUGINDIR}
 
-# install backend and frontend plugin files
+# Install backend and frontend plugin files
 echo "Installing backend and frontend plugin files - SURFmap.pm, SURFmap.php"
 cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/backend/SURFmap.pm ${BACKEND_PLUGINDIR}
 cp ${FRONTEND_PLUGINDIR}/SURFmap/setup/frontend/SURFmap.php ${FRONTEND_PLUGINDIR}
 
-# unpack GeoLocation database
+# Unpack GeoLocation database
 echo "Installing MaxMind GeoLite City database to ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind"
 gunzip -c ${GEO_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind/$(basename ${GEO_DB} .gz)
 
-# set permissions - owner and group
+# Set permissions - owner and group
 echo "Setting plugin files permissions - user \"${WWWUSER}\" and group \"${WWWGROUP}\""
 chown -R ${WWWUSER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap
 chown ${WWWUSER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap.php
 chown ${WWWUSER}:${WWWGROUP} ${BACKEND_PLUGINDIR}/SURFmap.pm
 
-# update plugin configuration file - config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
+# Update plugin configuration file - config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
 echo "Updating plugin configuration file ${SURFMAP_CONF}"
 sed -i "s,$(grep NFSEN_CONF ${SURFMAP_CONF} | cut -d'"' -f2),${NFSEN_CONF},g" ${SURFMAP_CONF}
 
-# get my location information
+# Get my location information
 cd ${FRONTEND_PLUGINDIR}/SURFmap/setup
 
 i=0
@@ -104,7 +104,7 @@ done
 
 cd - > /dev/null
 
-# fill my location in plugin configuration file
+# Fill my location in plugin configuration file
 if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 	OLDENTRY=$(grep INTERNAL_DOMAINS_COUNTRY ${SURFMAP_CONF} | cut -d'"' -f2)
 	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
@@ -119,13 +119,13 @@ if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f4-)/g" ${SURFMAP_CONF}
 fi
 
-# enable plugin
+# Enable plugin
 echo "Updating NfSen configuration file ${NFSEN_CONF}"
 sed -i "/SURFmap/d" ${NFSEN_CONF}
 
 OLDENTRY=$(grep \@plugins ${NFSEN_CONF})
 sed -i "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
 
-# restart/reload NfSen
+# Restart/reload NfSen
 echo "Please restart/reload NfSen to finish installation e.g. sudo ${BINDIR}/nfsen reload"
 
