@@ -3,7 +3,7 @@
  # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
  # University of Twente, The Netherlands
  #
- # LICENSE TERMS: BSD-license.html
+ # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
  *******************************/
 
    /*
@@ -124,7 +124,7 @@
 			createDialog(500, "auto", "center", false, true, false, true);				
 		} else if (type == "license") {
 			document.getElementById("dialog").setAttribute("title", "License");
-			$("#dialog").load("BSD-license.html #license", function() {
+			$("#dialog").load("license.html #license", function() {
 				// Don't show dialog before contents have been loaded
 				createDialog("auto", "auto", "center", false, true, false, true);
 			});

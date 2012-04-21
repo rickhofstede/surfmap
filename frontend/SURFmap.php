@@ -1,4 +1,11 @@
 <?php
+	/*******************************
+	 # backend.php [SURFmap]
+	 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+	 # University of Twente, The Netherlands
+	 #
+	 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
+	 *******************************/
 	
 	function SURFmap_ParseInput( $plugin_id ) {
 		$_SESSION['refresh'] = 0;
