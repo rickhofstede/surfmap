@@ -24,12 +24,8 @@ check 2.4; for installation verification, check 2.5):
 
 2.1) Automated tar ball installation (latest stable, recommended)
 
-- Create download directory:
-	$ mkdir -p ~/SURFmap_tmp
-	$ cd ~/SURFmap_tmp
-
 - Download installation script:
-	$ wget http://sourceforge.net/projects/surfmap/files/install.sh/download
+	$ wget http://downloads.sourceforge.net/project/surfmap/install.sh
 	$ chmod +x install.sh
 
 - Install plugin:
@@ -45,7 +41,8 @@ check 2.4; for installation verification, check 2.5):
 	$ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 
 - Unpack installation package to temporary directory:
-	$ tar zxf SURFmap_v2.3.tar.gz --directory=~/SURFmap_tmp
+	$ tar zxf SURFmap_v2.3.tar.gz --directory=.
+	$ mv SURFmap SURFmap_tmp
 
 - Install plugin files:
 	$ cp -r ~/SURFmap_tmp/backend/* /data/nfsen/plugins/ (last path might differ, depending 

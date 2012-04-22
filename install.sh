@@ -17,7 +17,7 @@ SURFMAP_TMP=SURFmap_tmp
 GEO_DB=GeoLiteCity.dat.gz
 
 err () {
-	echo "ERROR : ${*}"
+	echo "ERROR: ${*}"
 	exit 1
 }
 
@@ -77,12 +77,13 @@ echo "Installing SURFmap ${SURFMAP_VER} to ${FRONTEND_PLUGINDIR}/SURFmap"
 cp -r ./${SURFMAP_TMP}/backend/* ${BACKEND_PLUGINDIR}
 cp -r ./${SURFMAP_TMP}/frontend/* ${FRONTEND_PLUGINDIR}
 
-# Deleting temporary files
-rm -rf ${SURFMAP_TMP}
-
 # Unpack GeoLocation database
 echo "Installing MaxMind GeoLite City database to ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind"
 gunzip -c ${GEO_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind/$(basename ${GEO_DB} .gz)
+
+# Deleting temporary files
+rm -rf ${SURFMAP_TMP}
+rm -rf ${GEO_DB}
 
 # Set permissions - owner and group
 echo "Setting plugin files permissions - user \"${WWWUSER}\" and group \"${WWWGROUP}\""
