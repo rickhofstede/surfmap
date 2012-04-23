@@ -1,14 +1,14 @@
 #!/bin/sh
 #
-# Simple script to install SURFmap.
+# Simple script to install SURFmap plugin.
 #
-# Copyright (C) 2011 INVEA-TECH a.s.
+# Copyright (C) 2012 INVEA-TECH a.s.
 # Author(s): 	Pavel Celeda <celeda@invea-tech.com>
 #				Rick Hofstede <r.j.hofstede@utwente.nl>
 #
 # LICENSE TERMS - 3-clause BSD license
 #
-# $Id: install.sh 204 2012-04-20 08:22:58Z rickhofstede $
+# $Id: $
 #
 
 SURFMAP_VER=2.3
@@ -42,14 +42,14 @@ SURFMAP_CONF=${FRONTEND_PLUGINDIR}/SURFmap/config.php
 
 # Check permissions to install SURFmap plugin - you must be ${USER} or root
 if [ "$(id -u)" != "$(id -u ${USER})" ] && [ "$(id -u)" != "0" ]; then
-	err "You do not have sufficient permissions to install plugin on this server!"
+	err "You do not have sufficient permissions to install SURFmap on this server!"
 fi
 
 if [ "$(id -u)" = "$(id -u ${USER})" ]; then
 	WWWUSER=${USER}		# we are installing as normal user
 fi
 
-# Download files from Internet
+# Download files from Web
 if [ ! -f  ${SURFMAP_REL} ]; then
 	echo "Downloading SURFmap plugin tar ball - http://surfmap.sf.net/"
 	wget http://downloads.sourceforge.net/project/surfmap/source/${SURFMAP_REL}
@@ -134,5 +134,5 @@ OLDENTRY=$(grep \@plugins ${NFSEN_CONF})
 sed -i "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
 
 # Restart/reload NfSen
-echo "Please restart/reload NfSen to finish installation e.g. sudo ${BINDIR}/nfsen reload"
+echo "Please restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
 

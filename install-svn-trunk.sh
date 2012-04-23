@@ -2,13 +2,13 @@
 #
 # Simple script to install SURFmap plugin from SVN.
 #
-# Copyright (C) 2011 INVEA-TECH a.s.
+# Copyright (C) 2012 INVEA-TECH a.s.
 # Author(s): 	Pavel Celeda <celeda@invea-tech.com>
 #				Rick Hofstede <r.j.hofstede@utwente.nl>
 #
 # LICENSE TERMS - 3-clause BSD license
 #
-# $Id: install-svn-trunk.sh 203 2012-04-20 08:22:38Z rickhofstede $
+# $Id: $
 #
 
 echo "SURFmap SVN installation script"
