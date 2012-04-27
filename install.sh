@@ -86,10 +86,9 @@ rm -rf ${SURFMAP_TMP}
 rm -rf ${GEO_DB}
 
 # Set permissions - owner and group
-echo "Setting plugin files permissions - user \"${WWWUSER}\" and group \"${WWWGROUP}\""
-chown -R ${WWWUSER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap
-chown ${WWWUSER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap.php
-chown ${WWWUSER}:${WWWGROUP} ${BACKEND_PLUGINDIR}/SURFmap.pm
+echo "Setting plugin files permissions - user \"${USER}\" and group \"${WWWGROUP}\""
+chown -R ${USER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap*
+chown -R ${USER}:${WWWGROUP} ${BACKEND_PLUGINDIR}/SURFmap*
 
 # Update plugin configuration file - config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
 echo "Updating plugin configuration file ${SURFMAP_CONF}"
