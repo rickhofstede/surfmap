@@ -65,14 +65,14 @@ check 2.4; for installation verification, check 2.5):
 		$INTERNAL_DOMAINS_CITY in config.php
 
 - Enable plugin:
-	$ vim /data/nfsen/etc/nfsen.conf (path might differ, depending on your setup)
+	$ vi /data/nfsen/etc/nfsen.conf (path might differ, depending on your setup)
 		[ 'live', 'SURFmap' ],
 
 - Start plugin:
-	$ sudo /etc/init.d/nfsen reload
+	$ sudo /data/nfsen/bin/nfsen reload
 
 2.3) SVN trunk installation (latest development version)
-	$ wget http://svn.code.sf.net/p/surfmap/code/trunk/setup/scripts/install-svn-trunk.sh
+	$ wget http://svn.code.sf.net/p/surfmap/code/trunk/install-svn-trunk.sh
 	$ chmod +x install-svn-trunk.sh
 	$ ./install-svn-trunk.sh
 
