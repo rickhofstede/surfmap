@@ -132,6 +132,8 @@ sed -i "/SURFmap/d" ${NFSEN_CONF}
 OLDENTRY=$(grep \@plugins ${NFSEN_CONF})
 sed -i "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
 
+echo ""
+
 # Restart/reload NfSen
-echo "\nPlease restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
+echo "Please restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
 
