@@ -112,6 +112,7 @@
 		 *  6: profile error
 		 *	7: GeoFilter error
 		 *  8: flow query killed
+		 *  9: NfSen session not set
 		 */
 		var $errorCode = 0;
 		var $errorMessage = "";

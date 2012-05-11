@@ -59,6 +59,12 @@
 			$cmd_opts['type'] = $_SESSION['SURFmap']['nfsenProfileType'];
 			$cmd_opts['srcselector'] = $_SESSION['SURFmap']['nfsenSelectedSources'];	
 			$cmd_opts['filter'] = array($_SESSION['SURFmap']['flowFilter']);
+			
+			if (!isset($_SESSION['profile'])) {
+				$sessionData->errorCode = 9; // filter error
+				$sessionData->flowRecordCount = 0;
+				return;
+			}
 
 			// Execute NfSen query
 			$cmd_out = nfsend_query("run-nfdump", $cmd_opts);

@@ -54,7 +54,10 @@
 			case 8:		jAlert("You have killed your flow query. Please select another query.", "Error");
 						break;
 						
-			case 999:	 // Error code is only client-side
+			case 9:		jAlert("The NfSen session has not been set properly. Please start SURFmap from the 'Plugins' tab in NfSen.", "Error");
+						break;
+						
+			case 999:	 // Error code is client-side-only
 						jAlert("You have no source selected, while you should have selected at least one.", "Error");
 						break;
 						
