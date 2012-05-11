@@ -1498,10 +1498,10 @@
 	<script type="text/javascript">
 		// Panel: Zoom levels
 		document.getElementById("zoomLevelPanel").innerHTML = "<table id=\"zoomLevels\"><tr><td style=\"width:85px;\">"
-			+ "<form><input type=\"radio\" id=\"countryZoomRadio\" name=\"zoomLevel\" value=\"country\" onclick=\"zoom(1, 0, 2);\" /><label for=\"countryZoomRadio\">Country</label><br />"
-			+ "<input type=\"radio\" id=\"regionZoomRadio\" name=\"zoomLevel\" value=\"region\" onclick=\"zoom(1, 0, 5);\" /><label for=\"regionZoomRadio\">Region</label><br />"
-			+ "<input type=\"radio\" id=\"cityZoomRadio\" name=\"zoomLevel\" value=\"city\" onclick=\"zoom(1, 0, 8);\" /><label for=\"cityZoomRadio\">City</label><br />"
-			+ "<input type=\"radio\" id=\"hostZoomRadio\" name=\"zoomLevel\" value=\"host\" onclick=\"zoom(1, 0, 11);\" /><label for=\"hostZoomRadio\">Host</label><br />"
+			+ "<form><input type=\"radio\" id=\"countryZoomRadio\" name=\"zoomLevel\" value=\"country\" onclick=\"zoom(1, 0, 2);\" /><label for=\"countryZoomRadio\" class=\"clickable\">Country</label><br />"
+			+ "<input type=\"radio\" id=\"regionZoomRadio\" name=\"zoomLevel\" value=\"region\" onclick=\"zoom(1, 0, 5);\" /><label for=\"regionZoomRadio\" class=\"clickable\">Region</label><br />"
+			+ "<input type=\"radio\" id=\"cityZoomRadio\" name=\"zoomLevel\" value=\"city\" onclick=\"zoom(1, 0, 8);\" /><label for=\"cityZoomRadio\" class=\"clickable\">City</label><br />"
+			+ "<input type=\"radio\" id=\"hostZoomRadio\" name=\"zoomLevel\" value=\"host\" onclick=\"zoom(1, 0, 11);\" /><label for=\"hostZoomRadio\" class=\"clickable\">Host</label><br />"
 			+ "</form></td><td style=\"vertical-align:bottom;\">"
 			+ "<input type=\"checkbox\" id=\"auto-refresh\" onclick=\"manageAutoRefresh(this.id);\" /><label for=\"auto-refresh\">Auto-refresh</label></td></tr></table>";
 		
@@ -1534,29 +1534,29 @@
 						</td> \
 					</tr> \
 				</table><br /> \
-				<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"if (!$('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');checkForHeavyQuery();\" /><label for=\"nfsenoptionStatTopN\">Stat TopN</label><br /> \
+				<input type=\"radio\" id=\"nfsenoptionStatTopN\" name=\"nfsenoption\" value=\"1\" onclick=\"if (!$('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle();checkForHeavyQuery();\" /><label for=\"nfsenoptionStatTopN\" class=\"clickable\">Stat TopN</label><br /> \
 				<div id=\"nfsenstatorder\" style=\"margin-top:10px; margin-bottom:10px; text-align:right;\">"
 				+ "<input type=\"radio\" id=\"nfsenstatorderflows\" name=\"nfsenstatorder\" value=\"flows\" /><label for=\"nfsenstatorderflows\">flows</label>"
 				+ "<input type=\"radio\" id=\"nfsenstatorderpackets\" name=\"nfsenstatorder\" value=\"packets\" /><label for=\"nfsenstatorderpackets\">packets</label>"
 				+ "<input type=\"radio\" id=\"nfsenstatorderbytes\" name=\"nfsenstatorder\" value=\"bytes\" /><label for=\"nfsenstatorderbytes\">bytes</label>"
 				+ "</div> \
-				<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if ($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle('fast');checkForHeavyQuery();\" /><label for=\"nfsenoptionListFlows\">List Flows</label><br /> \
+				<input type=\"radio\" id=\"nfsenoptionListFlows\" name=\"nfsenoption\" value=\"0\" onclick=\"if ($('#nfsenstatorder').is(':visible')) $('#nfsenstatorder').toggle();checkForHeavyQuery();\" /><label for=\"nfsenoptionListFlows\" class=\"clickable\">List Flows</label><br /> \
 				<div style=\"margin-top:10px; width:195px;\"> \
-					<span style=\"float:left;\">Begin</span> \
+					<span style=\"float:left; margin-top:3px;\">Begin</span> \
 					<input type=\"text\" id=\"datetime1\" class=\"dateTimeInput\" name=\"datetime1\" /> \
-					<div class=\"ui-state-default ui-corner-all noButtonBackground\" style=\"float:right;\"> \
+					<div class=\"ui-state-default ui-corner-all noButtonBackground\" style=\"float:right; margin-top:2px;\"> \
 						<span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'end' time to here\" onclick=\"copyDateTime('datetime2', 'datetime1');\"></span> \
 					</div> \
 				</div><br /> \
 				<div style=\"margin-top:10px; width:195px;\"> \
-					<span style=\"float:left;\">End</span> \
+					<span style=\"float:left; margin-top:3px;\">End</span> \
 					<input type=\"text\" id=\"datetime2\" class=\"dateTimeInput\" name=\"datetime2\" /> \
-					<div class=\"ui-state-default ui-corner-all noButtonBackground\" style=\"float:right;\"> \
+					<div class=\"ui-state-default ui-corner-all noButtonBackground\" style=\"float:right; margin-top:2px;\"> \
 						<span class=\"ui-icon ui-icon-arrowthick-1-e\" title=\"Copy 'begin' time to here\" onclick=\"copyDateTime('datetime1', 'datetime2');\"></span> \
 					</div> \
 				</div><br /> \
 				<div style=\"margin-top:10px; width:195px;\"> \
-					<span style=\"float:left;\">Limit to</span> \
+					<span style=\"float:left; margin-top:3px;\">Limit to</span> \
 					<span style=\"width:127px; float:right;\"><input type=\"text\" id=\"flowsinput\" name=\"amount\" style=\"width:35px; padding:2px 0px 2px 0px; text-align:center;\" maxlength=\"4\" value=\"" + entryCount + "\" /><label for=\"flowsinput\"> flows</label><span> \
 				</div><br /> \
 				<div style=\"margin-top:15px; width:195px;\"> \
