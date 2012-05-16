@@ -1,4 +1,4 @@
-# SURFmap back-end plugin
+# SURFmap backend plugin
 # Author: Rick Hofstede
 # University of Twente, The Netherlands
 #
@@ -26,7 +26,7 @@ my($SURFMAP_PATH) = "$NfConf::FRONTEND_PLUGINDIR"."/SURFmap/";
 #
 sub Init {
 	if ($LOG_DEBUG == 1) {
-		syslog("info", "[SURFmap Back-end]: Init");
+		syslog("info", "[SURFmap Backend]: Init");
 	}
 	return 1;
 }
@@ -37,7 +37,7 @@ sub Init {
 #
 sub Cleanup {
 	if ($LOG_DEBUG == 1) {
-		syslog("info", "[SURFmap Back-end]: Cleanup");
+		syslog("info", "[SURFmap Backend]: Cleanup");
 	}
 }
 
@@ -50,7 +50,7 @@ sub Cleanup {
 #
 sub run {
 	if ($LOG_DEBUG == 1) {
-		syslog("info", "[SURFmap Back-end]: Run");
+		syslog("info", "[SURFmap Backend]: Run");
 	}	
 
 	my $argref       = shift;
@@ -63,24 +63,24 @@ sub run {
 
 	if ($ENABLE_GEOCODING == 1) {
 		unless(-e $SURFMAP_PATH && -d $SURFMAP_PATH) {
-			syslog("info", "[SURFmap Back-end]: The specified SURFmap directory (${SURFMAP_PATH}) could not be found!");
+			syslog("info", "[SURFmap Backend]: The specified SURFmap directory (${SURFMAP_PATH}) could not be found!");
 			return;
 		}
 		
 		my $phpLocation = `which php`;
 		unless($phpLocation) {
-			syslog("info", "[SURFmap Back-end]: PHP CLI not found! Add PHP CLI to your PATH variable!");
+			syslog("info", "[SURFmap Backend]: PHP CLI not found! Add PHP CLI to your PATH variable!");
 			return;
 		}
 		
 		my $phpOutput = `php ${SURFMAP_PATH}backend.php -p $profile -t $profileinfo{'type'} -s $allsources`;
 		unless($phpOutput) {
-			syslog("info", "[SURFmap Back-end]: Empty result from PHP CLI! Check file permissions of 'backend.php'");
+			syslog("info", "[SURFmap Backend]: Empty result from PHP CLI! Check file permissions of 'backend.php'");
 			return;
 		}
 		
 		if ($LOG_DEBUG == 1) {
-			syslog("info", "[SURFmap Back-end]: Command: 'php ${SURFMAP_PATH}backend.php -p $profile -t $profileinfo{'type'} -s $allsources'");
+			syslog("info", "[SURFmap Backend]: Command: 'php ${SURFMAP_PATH}backend.php -p $profile -t $profileinfo{'type'} -s $allsources'");
 		}
 		
 		my @splitResult = split(/##/, $phpOutput);
@@ -88,21 +88,21 @@ sub run {
 			if($line =~ m/^(successful|erroneous|skipped|total|flow records)/i) { # String starts with geocoding statistics
 				# Check whether the geocoding completed with errors when successful geocodings == 0 and the total amount of geocodings > 0
 				if ($line !~ m/successful/i || ($line =~ m/successful: 0/i && $line =~ m/skipped: 0/i && $line !~ m/total: 0/i)) {
-					syslog("info", "[SURFmap Back-end]: Done (with errors)");
+					syslog("info", "[SURFmap Backend]: Done (with errors)");
 				} elsif ($line =~ m/successful: 0/i && $line !~ m/skipped: 0/i && $line !~ m/total: 0/i) {
-					syslog("info", "[SURFmap Back-end]: Done (with errors: your machine might be blacklisted by Google GeoCoder)");
+					syslog("info", "[SURFmap Backend]: Done (with errors: your machine might be blacklisted by Google GeoCoder)");
 				} else {
-					syslog("info", "[SURFmap Back-end]: Done");
+					syslog("info", "[SURFmap Backend]: Done");
 				}
 				
 				if ($LOG_DEBUG == 1) {
-					syslog("info", "[SURFmap Back-end]: Result: '$line'");
+					syslog("info", "[SURFmap Backend]: Result: '$line'");
 				}
 			} elsif ($LOG_GEOCODING_ERRORS == 1) {
-				syslog("info", "[SURFmap Back-end]: $line");
+				syslog("info", "[SURFmap Backend]: $line");
 			}
 		}
 	} else {
-		syslog("info", "[SURFmap Back-end]: Backend geocoding disabled");
+		syslog("info", "[SURFmap Backend]: Backend geocoding disabled");
 	}
 }
