@@ -588,38 +588,25 @@
 	 *		ipAddress - IPv4 address in octet notation (e.g. '192.168.1.1')
 	 * 		ipNet - IPv4 subnet range, in nfdump filter notation
 	 */
-	function ipAddressBelongsToNet ($ipAddress, $ipNet) {
-		if (substr_count($ipAddress, ".") != 3) return false; // A valid IPv4 address should have 3 dots
-		if (substr_count($ipAddress, ".") < 1 && substr_count($ipAddress, "/") != 1) return false; // A valid IPv4 subNet should have at least 1 dot and exactly 1 slash
+ 	function ipAddressBelongsToNet ($ipAddress, $ipNet) {
+ 		if (substr_count($ipAddress, ".") != 3) return false; // A valid IPv4 address should have 3 dots
+ 		if (substr_count($ipAddress, ".") < 1 && substr_count($ipAddress, "/") != 1) return false; // A valid IPv4 subNet should have at least 1 dot and exactly 1 slash
 		
-		$ipAddressOctets = explode(".", $ipAddress);
-		$netMaskIndex = strpos($ipNet, "/");
+ 		$ipAddressOctets = explode(".", $ipAddress);		
+ 		$ipAddressDec = ($ipAddressOctets[0] << 24) + ($ipAddressOctets[1] << 16) + ($ipAddressOctets[2] << 8) + $ipAddressOctets[3];
 		
-		// Add ".0" in order to obtain a subnet notation with 3 dots
-		for ($i = 0; $i < (3 - substr_count($ipAddress, ".")); $i++) {
-			str_replace("/", ".0/", $ipNet);
-		}
+ 		$netMask = intval(substr($ipNet, strpos($ipNet, "/") + 1));
+		
+ 		// Since we use nfdump subnet notation, we need to make the subnet address complete
+ 		$completeIPNet = substr($ipNet, 0, strpos($ipNet, "/"));
+ 		for ($i = 3 - substr_count($ipNet, "."); $i > 0; $i--) {
+ 			$completeIPNet .= ".0";
+ 		}
 
-		$subNetOctets = explode(".", substr($ipNet, 0, $netMaskIndex));
-		$netMask = intval(substr($ipNet, $netMaskIndex + 1));
-		
-		$completeOctets = floor($netMask / 8); // Check all 'complete' octets
-		for ($i = 0; $i < $completeOctets; $i++) {
-			if ($ipAddressOctets[$i] != $subNetOctets[$i]) {
-				return false;
-			}
-		}
-		
-		$incompleteOctetSize = $netMask % 8; // Check whether an 'incomplete' octet is present in the net mask and what its size is
-		if (($incompleteOctetSize) > 0) {
-			$binIPAddress = decbin($ipAddressOctets[$completeOctets]);
-			$binSubNet = decbin($subNetOctets[$completeOctets]);
-			
-			if (bindec(substr(decbin($ipAddressOctets[$completeOctets]), 0, $incompleteOctetSize)) !=
-					bindec(substr(decbin($subNetOctets[$completeOctets]), 0, $incompleteOctetSize))) return false;
-		}
+ 		$ipNetOctets = explode(".", $completeIPNet);
+ 		$ipNetDec = ($ipNetOctets[0] << 24) + ($ipNetOctets[1] << 16) + ($ipNetOctets[2] << 8) + $ipNetOctets[3];
 
-		return true;
-	}
+ 		return ($ipAddressDec & (-1 << (32 - $netMask))) == $ipNetDec;
+ 	}
 
 ?>

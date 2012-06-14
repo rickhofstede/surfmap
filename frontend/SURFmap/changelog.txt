@@ -5,6 +5,9 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 ---
 
+Release notes [v2.4 dev (20120614)]:
+- [BUGFIX] Fixed an issue that caused several subnet masks not to be processed properly
+
 Release notes [v2.3 stable (20120530)]:
 
 - [FEATURE] Added GeoFilter support
