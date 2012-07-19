@@ -228,12 +228,12 @@
 
 			$GeoData = array();
 
-			for ($i = 0; $i < count($INTERNAL_DOMAINS); $i++) {
-				$internalDomainNets = explode(";", $INTERNAL_DOMAINS[$i]->domain);
+			foreach ($INTERNAL_DOMAINS as $key => $value) {
+				$internalDomainNets = explode(";", $key);
 				
-				for ($j = 0; $j < count($NetFlowData); $j++) {
-					$source = $NetFlowData[$j]->ipv4_src;
-					$destination = $NetFlowData[$j]->ipv4_dst;
+				for ($i = 0; $i < count($NetFlowData); $i++) {
+					$source = $NetFlowData[$i]->ipv4_src;
+					$destination = $NetFlowData[$i]->ipv4_dst;
 
 					/*
 					 * Check whether a NATed setup was used. If so, use the geolocation data provided
@@ -256,21 +256,21 @@
 					}
 					unset($subNet);
 				
-					for ($k = 0; $k < 2; $k++) { // Source and destination
-						if (($k == 0 && $srcNAT === true) || ($k == 1 && $dstNAT === true)) { // Source or destination uses a NATed setup
-							$country = strtoupper($INTERNAL_DOMAINS[$i]->country);
+					for ($j = 0; $j < 2; $j++) { // Source and destination
+						if (($j == 0 && $srcNAT === true) || ($j == 1 && $dstNAT === true)) { // Source or destination uses a NATed setup
+							$country = strtoupper($value["country"]);
 							if ($country == "") $country = "(UNKNOWN)";
 						
-							$region = strtoupper($INTERNAL_DOMAINS[$i]->region);
+							$region = strtoupper($value["region"]);
 							if ($region == "") $region = "(UNKNOWN)";
 						
-							$city = strtoupper($INTERNAL_DOMAINS[$i]->city);
+							$city = strtoupper($value["city"]);
 							if ($city == "") $city = "(UNKNOWN)";
 						} else if ($GEOLOCATION_DB == "IP2Location") {
 							$GEO_database = new ip2location();
 							$GEO_database->open($IP2LOCATION_PATH);
 						
-							if ($k == 0) $data = $GEO_database->getAll($source);
+							if ($j == 0) $data = $GEO_database->getAll($source);
 							else $data = $GEO_database->getAll($destination);
 						
 							$country = $data->countryLong;
@@ -284,7 +284,7 @@
 						} else if ($GEOLOCATION_DB == "MaxMind") {
 							$GEO_database = geoip_open($MAXMIND_PATH, GEOIP_STANDARD);
 						
-							if ($k == 0) $record = geoip_record_by_addr($GEO_database, $source);
+							if ($j == 0) $record = geoip_record_by_addr($GEO_database, $source);
 							else $record = geoip_record_by_addr($GEO_database, $destination);
 						
 							if (isset($record->country_name)) {
@@ -312,7 +312,7 @@
 						$country = fixCommaSeparatedNames(stripAccentedCharacters($country));
 						$region = fixCommaSeparatedNames(stripAccentedCharacters($region));
 						$city = fixCommaSeparatedNames(stripAccentedCharacters($city));					
-						$GeoData[$j][$k] = array("COUNTRY" => $country, "REGION" => $region, "CITY" => $city);
+						$GeoData[$i][$j] = array("COUNTRY" => $country, "REGION" => $region, "CITY" => $city);
 					
 						// Reset variables for next iteration
 						unset($country, $region, $city);

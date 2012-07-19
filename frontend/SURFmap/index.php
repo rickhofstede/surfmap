@@ -7,8 +7,8 @@
 	 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
 	 *******************************/
 
-	require_once("objects.php");
 	require_once("config.php");
+	require_once("objects.php");
 	require_once("connectionhandler.php");
 	require_once("loghandler.php");
 	require_once("sessionhandler.php");

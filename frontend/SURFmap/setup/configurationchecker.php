@@ -123,8 +123,8 @@
 	else $mapCenterSyntaxOK = 0;
 	
 	// 12. Check internal domain syntax
-	for ($i = 0; $i < count($INTERNAL_DOMAINS); $i++) {
-		$internalDomainExploded = explode(";", $INTERNAL_DOMAINS[$i]->domain);
+	foreach ($INTERNAL_DOMAINS as $key => $value) {
+		$internalDomainExploded = explode(";", $key);
 		$internalDomainSyntaxOK = 1;
 		if (sizeof($internalDomainExploded) > 0) {
 			foreach($internalDomainExploded as $domain) {
@@ -150,8 +150,8 @@
 	} else {
 		$extIPNAT = false;
 		
-		for ($i = 0; $i < count($INTERNAL_DOMAINS); $i++) {
-			$internalDomainNets = explode(";", $INTERNAL_DOMAINS[$i]->domain);
+		foreach ($INTERNAL_DOMAINS as $key => $value) {
+			$internalDomainNets = explode(";", $key);
 			
 			foreach($internalDomainNets as $subNet) {
 				if (ipAddressBelongsToNet($extIP, $subNet)) {
@@ -452,7 +452,7 @@
 			var additionalSrcSelectorSyntaxOK = <?php echo $additionalSrcSelectorSyntaxOK; ?>;
 			var mapCenterSyntaxOK = <?php echo $mapCenterSyntaxOK; ?>;
 			var internalDomainSyntaxOK = <?php echo $internalDomainSyntaxOK; ?>;
-			var firstInternalDomain = "<?php echo $INTERNAL_DOMAINS[0]->domain; ?>";
+			var firstInternalDomain = "<?php reset($INTERNAL_DOMAINS); echo key($INTERNAL_DOMAINS); ?>";
 			
 			var mbstringModuleOK = <?php echo $mbstringModuleOK; ?>;
 			
@@ -474,24 +474,11 @@
 			} else if (extIPCountry != "(UNKNOWN)") {
 				var region = (extIPRegion == "(UNKNOWN)") ? "" : extIPRegion;
 				var city = (extIPCity == "(UNKNOWN)") ? "" : extIPCity;
-				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAIN1 = \
-						new InternalDomain(\"" + firstInternalDomain + "\", \"" + extIPCountry + "\", \"" + region + "\", \"" + city + "\");<br /> \
-						$INTERNAL_DOMAINS = array($INTERNAL_DOMAIN1);";
+				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS = array( <br />\
+								<span style=\"padding-left: 50px;\">\"" + firstInternalDomain + "\" => array(\"country\" => \"" + extIPCountry + "\", \"region\" => \"" + region + "\", \"city\" => \"" + city + "\")</span><br /> \
+						);"
 			}
-			
-			/*
-			if (extIPNAT || extIPError != "") {
-				document.getElementById("setupguidelines").style.display = "none";
-			} else if (extIPCountry != "(UNKNOWN)") {
-				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_COUNTRY=\"" + extIPCountry + "\";<br />";
-			}
-			if (extIPRegion != "(UNKNOWN)") {
-				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_REGION=\"" + extIPRegion + "\";<br />";
-			}
-			if (extIPCity != "(UNKNOWN)") {
-				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_CITY=\"" + extIPCity + "\";<br />";
-			}
-			*/
+
 			// 1. NfSen configuration file (nfsen.conf) availability
 			if (nfsenConfigReadable == 1) {
 				document.getElementById("checkitem1").className += " checkitem_success";

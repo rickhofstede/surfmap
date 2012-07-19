@@ -206,9 +206,9 @@
 			}
 			
 			// ***** 1. Prepare filters *****
-			for ($i = 0; $i < count($INTERNAL_DOMAINS); $i++) {
-				if (strlen($INTERNAL_DOMAINS[$i]->domain) != 0) {
-					$internalDomains = explode(";", $INTERNAL_DOMAINS[$i]->domain);
+			foreach ($INTERNAL_DOMAINS as $key => $value) {
+				if (strlen($key) != 0) {
+					$internalDomains = explode(";", $key);
 					foreach ($internalDomains as $domain) {
 						if (isset($static_filter_internal_domain_traffic)) {
 							$static_filter_internal_domain_traffic .= " and not (src net ".$domain." and dst net ".$domain.")";

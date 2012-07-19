@@ -39,17 +39,20 @@
 	$GEOCODER_DB_SQLITE3="geocoder/geocoder_cache.sqlite3"; // Path to the SQLite3 database file [default: 'geocoder/geocoder_cache.sqlite3']
 	
 	/* [Internal traffic]
-	 * InternalDomain class parameter notes:
-	 *		1: (Domains) NfSen filter subnet notation to indicate your internal domain (e.g. NATed) traffic. Multiple domains must be separated by a semicolon [example: '192.168/16;172.16/12;10.0/8']
-	 *		2: (Country) Indicates the country in which a NATed network relies. If left empty, matching flow records will be ignored.
- 	 *		3: (Region) Indicates the region in which a NATed network relies. Leave this setting empty, if unknown..
- 	 *		4: (City) Indicates the city in which a NATed network relies. Leave this setting empty, if unknown..
+	 * You can specify 'internal domains' here which force SURFmap to apply static geocoding. This is especially useful in NATed setups, where private IP addresses are used.
+	 * The default configuration can be extended by adding a new line to the $INTERNAL_DOMAINS array (Don't forget to add a comma after each line in the array, except for the last line!):
 	 *
-	 * You can add multiple internal domains by creating a new InternalDomain instance (e.g. $INTERNAL_DOMAIN2 = new InternalDomain("192.168/16;172.16/12;10.0/8", "NETHERLANDS", "OVERIJSSEL", "ENSCHEDE");)/
-	 * Don't forget to add the new instance to the $INTERNAL_DOMAINS instance!
+	 * "<domains>" => array("country" => "<country>", "region" => "<region>", "city" => "<city>")
+	 * 
+	 * Explanation of the fields:
+	 *		1: domains - NfSen filter subnet notation to indicate your internal domain (e.g. NATed) traffic. Multiple domains must be separated by a semicolon [example: '192.168/16;172.16/12;10.0/8']
+	 *		2: country - Indicates the country in which a NATed network relies. If left empty, matching flow records will be ignored.
+ 	 *		3: region - Indicates the region in which a NATed network relies. Leave this setting empty, if unknown..
+ 	 *		4: city - Indicates the city in which a NATed network relies. Leave this setting empty, if unknown..
 	 */
-	$INTERNAL_DOMAIN1 = new InternalDomain("192.168/16;172.16/12;10.0/8", "NETHERLANDS", "OVERIJSSEL", "ENSCHEDE");
-	$INTERNAL_DOMAINS = array($INTERNAL_DOMAIN1);
+	$INTERNAL_DOMAINS = array(
+			"192.168/16;172.16/12;10.0/8" => array("country" => "THE NETHERLANDS", "region" => "OVERIJSSEL", "city" => "ENSCHEDE")
+	);
 	
 	$HIDE_INTERNAL_DOMAIN_TRAFFIC=1; // Indicates whether your internal domain traffic should be visualized in SURFmap - 0: no, 1: yes [default: 1]
 	$IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION=1; // Indicates whether traffic 'inside' a marker (e.g., inside a country, region or city) should be ignored in the line color classification process - 0: no, 1: yes [default: 1]
