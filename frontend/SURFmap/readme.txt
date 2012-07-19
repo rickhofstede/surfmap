@@ -61,8 +61,7 @@ check 2.4; for installation verification, check 2.5):
 	-> Get geolocation information for your setup
 		http://[your machine IP]/nfsen/plugins/SURFmap/setup/configurationchecker.php
 
-	-> Update $MAP_CENTER, $INTERNAL_DOMAINS_COUNTRY, $INTERNAL_DOMAINS_REGION, 
-		$INTERNAL_DOMAINS_CITY in config.php
+	-> Update $MAP_CENTER and $INTERNAL_DOMAINS in config.php
 
 - Enable plugin:
 	$ vi /data/nfsen/etc/nfsen.conf (path might differ, depending on your setup)

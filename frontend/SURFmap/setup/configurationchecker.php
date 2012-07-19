@@ -34,7 +34,7 @@
 	}
 	
 	try {
-		// 4. Check Geocoder database connection
+		// 4. PHP PDO SQLite driver availability
 		$geocoderDBFile = $GEOCODER_DB_SQLITE3;
 		if (in_array("sqlite", PDO::getAvailableDrivers())) {
 			$phpPDOSqliteDriverOK = 1;
@@ -51,10 +51,11 @@
 		$geocoderDBFile = "sqlite:$geocoderDBFile";
 		$geocoderDBConnection = new PDO($geocoderDBFile); // does not throw exception when file does not exist
 		
+		// 5. Geocoder database connection
 		if (isset($geocoderDBConnection)) {
 			$geocoderDatabaseConnectionOK = 1;
 
-			// 5. Check Geocoder database writability
+			// 6. Check Geocoder database writability
 			$geocoderDBConnection->exec("INSERT INTO geocoder VALUES (".$geocoderDBConnection->quote("_TEST_").", 1.0, -1.0)");
 			$queryResult = $geocoderDBConnection->query("SELECT * FROM geocoder WHERE location = ".$geocoderDBConnection->quote("_TEST_"));
 			$row = $queryResult->fetch(PDO::FETCH_ASSOC);
@@ -76,17 +77,17 @@
 		$geocoderDatabaseOK = 0;
 	}
 	
-	// 6. Check IP2Location DB path
+	// 7. Check IP2Location DB path
 	$ip2LocationPath = (substr($IP2LOCATION_PATH, 0, 1) === "/") ? $IP2LOCATION_PATH : "../".$IP2LOCATION_PATH; // Check for absolute or relative path
 	if (@file_exists($ip2LocationPath)) $ip2LocationDBPathOK = 1;
 	else $ip2LocationDBPathOK = 0;
 	
-	// 7. Check MaxMind DB path
+	// 8. Check MaxMind DB path
 	$maxMindPath = (substr($MAXMIND_PATH, 0, 1) === "/") ? $MAXMIND_PATH : "../".$MAXMIND_PATH; // Check for absolute or relative path
 	if (@file_exists($maxMindPath)) $maxmindDBPathOK = 1;
 	else $maxmindDBPathOK = 0;
 	
-	// 8. Check file permissions
+	// 9. Check file permissions
 	$dir = dir_tree("..");
 	$filePermOK = 1;
 	$filesWithWrongPerm = "";
@@ -107,7 +108,7 @@
 		}
 	}
 	
-	// 9. Check additional NetFlow source selector syntax
+	// 10. Check additional NetFlow source selector syntax
 	$additionalSrcSelectorExploded = explode(";", $NFSEN_DEFAULT_SOURCES);
 	if ($NFSEN_DEFAULT_SOURCES == "" ||
 			(substr_count($NFSEN_DEFAULT_SOURCES, ",") == 0 && substr_count($NFSEN_DEFAULT_SOURCES, ":") == 0 &&
@@ -117,44 +118,50 @@
 		$additionalSrcSelectorSyntaxOK = 0;
 	}
 	
-	// 10. Check map center coordinates syntax
+	// 11. Check map center coordinates syntax
 	if (substr_count($MAP_CENTER, ",") == 1 && substr_count($MAP_CENTER, ".") <= 2) $mapCenterSyntaxOK = 1;
 	else $mapCenterSyntaxOK = 0;
 	
-	// 11. Check internal domain syntax
-	$internalDomainExploded = explode(";", $INTERNAL_DOMAINS);
-	$internalDomainSyntaxOK = 1;
-	if (sizeof($internalDomainExploded) > 0) {
-		foreach($internalDomainExploded as $domain) {
-			if (substr_count($domain, ".") < 1 || substr_count($domain, "/") != 1) {
-				$internalDomainSyntaxOK = 0;
-				break;
+	// 12. Check internal domain syntax
+	for ($i = 0; $i < count($INTERNAL_DOMAINS); $i++) {
+		$internalDomainExploded = explode(";", $INTERNAL_DOMAINS[$i]->domain);
+		$internalDomainSyntaxOK = 1;
+		if (sizeof($internalDomainExploded) > 0) {
+			foreach($internalDomainExploded as $domain) {
+				if (substr_count($domain, ".") < 1 || substr_count($domain, "/") != 1 || intval(substr($domain, strpos($domain, "/") + 1)) > 32) {
+					$internalDomainSyntaxOK = 0;
+					break;
+				}
 			}
 		}
 	}
 	
-	// 12. Check availability of 'mbstring' PHP module (for MaxMind API)
+	// 13. Check availability of 'mbstring' PHP module (for MaxMind API)
 	if (extension_loaded("mbstring")) {
 		$mbstringModuleOK = 1;
 	} else {
 		$mbstringModuleOK = 0;
 	}
 	
-	// 13. External IP address and location
+	// 14. External IP address and location
 	$extIP = (!getenv("SERVER_ADDR")) ? "127.0.0.1" : getenv("SERVER_ADDR");
 	if ($extIP === "127.0.0.1") {
 		$extIPNAT = true;
 	} else {
 		$extIPNAT = false;
-		$internalDomainNets = explode(";", $INTERNAL_DOMAINS);
-		foreach($internalDomainNets as $subNet) {
-			if (ipAddressBelongsToNet($extIP, $subNet)) {
-				$extIPNAT = true;
-				break;
+		
+		for ($i = 0; $i < count($INTERNAL_DOMAINS); $i++) {
+			$internalDomainNets = explode(";", $INTERNAL_DOMAINS[$i]->domain);
+			
+			foreach($internalDomainNets as $subNet) {
+				if (ipAddressBelongsToNet($extIP, $subNet)) {
+					$extIPNAT = true;
+					break;
+				}
 			}
 		}
 	}
-
+	
 	/*
 	 * If the found (external) IP address of the server is the localhost
 	 * address or a NATed address, try do find it using WhatIsMyIP
@@ -174,7 +181,7 @@
 					}
 
 					curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-					curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
+					curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
 					
 					if ($USE_PROXY === 1) {
 						curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
@@ -207,7 +214,6 @@
 			}
 		} catch (Exception $e) {}
 	}
-
 	
 	// Check whether the (eventually) discovered external IP address is still a NATed one
 	$extIPNAT = false;
@@ -328,7 +334,7 @@
 			$curl_handle = curl_init();
 			curl_setopt($curl_handle, CURLOPT_URL, $requestURL);
 			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
+			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
 			$result = curl_exec($curl_handle);
 			curl_close($curl_handle);
 			$xml = simplexml_load_string($result);
@@ -349,7 +355,7 @@
 		
 		return ($status == "OK" && isset($lat) && isset($lng)) ? array($lat, $lng) : false;
 	}
-	
+
 ?>
 
 <!DOCTYPE html>
@@ -372,7 +378,7 @@
 				border-style: solid;
 				border-width: 1px;
 				margin: 10px;
-				width: 600px;
+				width: 1000px;
 			}
 			.checkitem_success {
 				background-color:rgb(0,255,128);
@@ -408,20 +414,20 @@
 			and a help window will appear.</p>
 			
 		<div id="setupguidelines" class="checkitem"><b>Setup guidelines</b><br /><br />You can use the following settings in config.php:<br /><br /></div>
-		<div id="checkitem1" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem1Title + '##' + checkItem1Text);">1. NfSen configuration file (<?php echo $NFSEN_CONF; ?>) available.</div>
-		<div id="checkitem2" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem2Title + '##' + checkItem2Text);">2. NfSen communication socket available.</div>
-		<div id="checkitem3" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem3Title + '##' + checkItem3Text);">3. NfSen source data directory available.</div>
-		<div id="checkitem4" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. PHP PDO SQLite driver available.</div>
-		<div id="checkitem5" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem5Title + '##' + checkItem5Text);">5. GeoCoder database connection (<?php if (isset($geocoderDBFile)) { echo $geocoderDBFile; } else { echo ""; } ?>) available.</div>
-		<div id="checkitem6" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem6Title + '##' + checkItem6Text);">6. GeoCoder database writability OK ('<?php echo $geocoderDBFile; ?>' should be writable).</div>
-		<div id="checkitem7" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem7Title + '##' + checkItem7Text);">7. IP2Location database (<?php echo $ip2LocationPath; ?>) available.</div>
-		<div id="checkitem8" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem8Title + '##' + checkItem8Text);">8. MaxMind database (<?php echo $maxMindPath; ?>) available.</div>
-		<div id="checkitem9" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem9Title + '##' + checkItem9Text);">9. Permissions of all directory contents OK.</div>
-		<div id="checkitem10" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem10Title + '##' + checkItem10Text);">10. Additional NetFlow source selector (<?php echo $NFSEN_DEFAULT_SOURCES; ?>) syntax OK.</div>
-		<div id="checkitem11" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem11Title + '##' + checkItem11Text);">11. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
-		<div id="checkitem12" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem12Title + '##' + checkItem12Text);">12. Internal domain (<?php echo $INTERNAL_DOMAINS; ?>) syntax OK.</div>
-		<div id="checkitem13" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. PHP 'mbstring' module available.</div>
-		<div id="checkitem14" class="checkitem" onclick="generateDialog('configurationCheckerHelp', checkitem14Title + '##' + checkitem14Text);">14. External IP address: <?php if ($extIPError !== "") echo $extIPError; else echo $extIP; ?><br />Geolocated country: <?php echo $extIPCountry; ?><br />Geolocated region: <?php echo $extIPRegion; ?><br />Geolocated city: <?php echo $extIPCity; ?></div>
+		<div id="checkitem1" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem1Title + '##' + checkItem1Text);">1. NfSen configuration file (<?php echo $NFSEN_CONF; ?>) available.</div>
+		<div id="checkitem2" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem2Title + '##' + checkItem2Text);">2. NfSen communication socket available.</div>
+		<div id="checkitem3" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem3Title + '##' + checkItem3Text);">3. NfSen source data directory available.</div>
+		<div id="checkitem4" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem4Title + '##' + checkItem4Text);">4. PHP PDO SQLite driver available.</div>
+		<div id="checkitem5" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem5Title + '##' + checkItem5Text);">5. GeoCoder database connection (<?php if (isset($geocoderDBFile)) { echo $geocoderDBFile; } else { echo ""; } ?>) available.</div>
+		<div id="checkitem6" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem6Title + '##' + checkItem6Text);">6. GeoCoder database writability OK ('<?php echo $geocoderDBFile; ?>' should be writable).</div>
+		<div id="checkitem7" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem7Title + '##' + checkItem7Text);">7. IP2Location database (<?php echo $ip2LocationPath; ?>) available.</div>
+		<div id="checkitem8" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem8Title + '##' + checkItem8Text);">8. MaxMind database (<?php echo $maxMindPath; ?>) available.</div>
+		<div id="checkitem9" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem9Title + '##' + checkItem9Text);">9. Permissions of all directory contents OK.</div>
+		<div id="checkitem10" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem10Title + '##' + checkItem10Text);">10. Additional NetFlow source selector (<?php echo $NFSEN_DEFAULT_SOURCES; ?>) syntax OK.</div>
+		<div id="checkitem11" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem11Title + '##' + checkItem11Text);">11. Map center coordinates (<?php echo $MAP_CENTER; ?>) syntax OK.</div>
+		<div id="checkitem12" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem12Title + '##' + checkItem12Text);">12. Internal domain syntax OK.</div>
+		<div id="checkitem13" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkItem13Title + '##' + checkItem13Text);">13. PHP 'mbstring' module available.</div>
+		<div id="checkitem14" class="checkitem" onclick="showDialog('configurationCheckerHelp', checkitem14Title + '##' + checkitem14Text);">14. External IP address: <?php if ($extIPError !== "") echo $extIPError; else echo $extIP; ?><br />Geolocated country: <?php echo $extIPCountry; ?><br />Geolocated region: <?php echo $extIPRegion; ?><br />Geolocated city: <?php echo $extIPCity; ?></div>
 				
 		<div id="dialog"></div>
 		<div id="configdata" style="display:none;"><?php echo $locationString; ?></div>
@@ -446,6 +452,7 @@
 			var additionalSrcSelectorSyntaxOK = <?php echo $additionalSrcSelectorSyntaxOK; ?>;
 			var mapCenterSyntaxOK = <?php echo $mapCenterSyntaxOK; ?>;
 			var internalDomainSyntaxOK = <?php echo $internalDomainSyntaxOK; ?>;
+			var firstInternalDomain = "<?php echo $INTERNAL_DOMAINS[0]->domain; ?>";
 			
 			var mbstringModuleOK = <?php echo $mbstringModuleOK; ?>;
 			
@@ -458,6 +465,21 @@
 			var extIPCoordinates = "<?php if (isset($latLng) && is_array($latLng)) { echo $latLng[0].','.$latLng[1]; } else { echo ''; } ?>";
 
 			// Setup guidelines
+			if (extIPCoordinates != "") {
+				document.getElementById("setupguidelines").innerHTML += "$MAP_CENTER=\"" + extIPCoordinates + "\";<br /><br />";
+			}
+			
+			if (extIPNAT || extIPError != "") {
+				document.getElementById("setupguidelines").style.display = "none";
+			} else if (extIPCountry != "(UNKNOWN)") {
+				var region = (extIPRegion == "(UNKNOWN)") ? "" : extIPRegion;
+				var city = (extIPCity == "(UNKNOWN)") ? "" : extIPCity;
+				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAIN1 = \
+						new InternalDomain(\"" + firstInternalDomain + "\", \"" + extIPCountry + "\", \"" + region + "\", \"" + city + "\");<br /> \
+						$INTERNAL_DOMAINS = array($INTERNAL_DOMAIN1);";
+			}
+			
+			/*
 			if (extIPNAT || extIPError != "") {
 				document.getElementById("setupguidelines").style.display = "none";
 			} else if (extIPCountry != "(UNKNOWN)") {
@@ -469,10 +491,7 @@
 			if (extIPCity != "(UNKNOWN)") {
 				document.getElementById("setupguidelines").innerHTML += "$INTERNAL_DOMAINS_CITY=\"" + extIPCity + "\";<br />";
 			}
-			if (extIPCoordinates != "") {
-				document.getElementById("setupguidelines").innerHTML += "$MAP_CENTER=\"" + extIPCoordinates + "\";<br />";
-			}
-
+			*/
 			// 1. NfSen configuration file (nfsen.conf) availability
 			if (nfsenConfigReadable == 1) {
 				document.getElementById("checkitem1").className += " checkitem_success";

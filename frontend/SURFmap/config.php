@@ -6,6 +6,7 @@
 	 #
 	 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
 	 *******************************/
+	require_once("objects.php");
 	
 	/* [Application parameters] */
 	$MAP_CENTER="52.217,6.9"; // Center of the map, specified by latitude and longitude coordinates; coordinates should be separated by a comma (,) [default: '52.217,6.9']
@@ -37,11 +38,19 @@
 	$WRITE_DATA_TO_GEOCODER_DB=1; // Indicates whether geocoded locations should be written to geocoder cache database - 0: no, 1: yes [default: 1]
 	$GEOCODER_DB_SQLITE3="geocoder/geocoder_cache.sqlite3"; // Path to the SQLite3 database file [default: 'geocoder/geocoder_cache.sqlite3']
 	
-	/* [Internal traffic] */
-	$INTERNAL_DOMAINS="192.168/16;172.16/12;10.0/8"; // Use the NfSen filter subnet notation to indicate your internal domain (e.g. NATed) traffic. Multiple domains must be separated by a semicolon [example: '192.168/16;172.16/12;10.0/8']
-	$INTERNAL_DOMAINS_COUNTRY="NETHERLANDS"; // Indicates the country in which a NATed network relies. If left empty, matching flow records will be ignored. Consult the ConfigurationChecker for more information.
-	$INTERNAL_DOMAINS_REGION="OVERIJSSEL"; // Indicates the region in which a NATed network relies. Leave this setting empty, if unknown. Consult the ConfigurationChecker for more information.
-	$INTERNAL_DOMAINS_CITY="ENSCHEDE"; // Indicates the city in which a NATed network relies. Leave this setting empty, if unknown. Consult the ConfigurationChecker for more information.
+	/* [Internal traffic]
+	 * InternalDomain class parameter notes:
+	 *		1: (Domains) NfSen filter subnet notation to indicate your internal domain (e.g. NATed) traffic. Multiple domains must be separated by a semicolon [example: '192.168/16;172.16/12;10.0/8']
+	 *		2: (Country) Indicates the country in which a NATed network relies. If left empty, matching flow records will be ignored.
+ 	 *		3: (Region) Indicates the region in which a NATed network relies. Leave this setting empty, if unknown..
+ 	 *		4: (City) Indicates the city in which a NATed network relies. Leave this setting empty, if unknown..
+	 *
+	 * You can add multiple internal domains by creating a new InternalDomain instance (e.g. $INTERNAL_DOMAIN2 = new InternalDomain("192.168/16;172.16/12;10.0/8", "NETHERLANDS", "OVERIJSSEL", "ENSCHEDE");)/
+	 * Don't forget to add the new instance to the $INTERNAL_DOMAINS instance!
+	 */
+	$INTERNAL_DOMAIN1 = new InternalDomain("192.168/16;172.16/12;10.0/8", "NETHERLANDS", "OVERIJSSEL", "ENSCHEDE");
+	$INTERNAL_DOMAINS = array($INTERNAL_DOMAIN1);
+	
 	$HIDE_INTERNAL_DOMAIN_TRAFFIC=1; // Indicates whether your internal domain traffic should be visualized in SURFmap - 0: no, 1: yes [default: 1]
 	$IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION=1; // Indicates whether traffic 'inside' a marker (e.g., inside a country, region or city) should be ignored in the line color classification process - 0: no, 1: yes [default: 1]
 

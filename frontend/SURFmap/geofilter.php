@@ -4,31 +4,10 @@
 	 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
 	 # University of Twente, The Netherlands
 	 #
-	 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
+	 # LICENSE TERMS: outlined in BSD-license.html
 	 *******************************/
 	
 	require_once("iso3166.php");
-	
-	$GEOFILTER_DEBUG = 0;
-
-	$logicOperators = array('and', 'or'); // 'not' is also a logic operator, but should not be used here (although it is supported by this geofilter parser)
-	$originOperators = array('src' => 0, 'dst' => 1);
-	$geolocationOperators = array('country' => 'COUNTRY', 'region' => 'REGION', 'city' => 'CITY', 'ctry' => 'COUNTRY', 'rgn' => 'REGION', 'cty' => 'CITY');
-	
-	$object1[0] = array('COUNTRY' => 'Netherlands', 'REGION' => 'OVERIJSSEL', 'CITY' => 'ENSCHEDE');
-	$object1[1] = array('COUNTRY' => 'Czech Republic', 'REGION' => 'JIHOMORAVSKY KRAJ', 'CITY' => 'BRNO');
-	
-	$object2[0] = array('COUNTRY' => 'Czech Republic', 'REGION' => 'JIHOMORAVSKY KRAJ', 'CITY' => 'BRNO');	
-	$object2[1] = array('COUNTRY' => 'Netherlands', 'REGION' => 'OVERIJSSEL', 'CITY' => 'AMSTERDAM');
-	
-	$filter1 = "src ctry NL";
-	$currentFilter = $filter1;
-	
-	try {
-		if ($GEOFILTER_DEBUG) echo "-----<br>Filter result: ".varToString(evaluateGeoFilter($object1, $currentFilter));
-	} catch (GeoFilterException $ex) {
-		if ($GEOFILTER_DEBUG) echo "-----<br>Filter result: ERROR (<i>".$ex->errorMessage()."</i>)";
-	}
 	
 	/*
 	 * Validates the provided object against the provided expression.
@@ -39,21 +18,16 @@
 	 *		false.
 	 */	
 	function evaluateGeoFilter ($object, $expression) {
-		global $logicOperators, $originOperators, $geolocationOperators, $GEOFILTER_DEBUG;
+		global $logicOperators, $originOperators, $geolocationOperators;
 		
 		$expression = trim($expression); // Removes unwanted chars from *beginning* and *end*
 		$expression = str_replace("\n", "", $expression);
 		$expression = str_replace("\r", "", $expression);
 		
-		if ($GEOFILTER_DEBUG) echo "Expression: <i>$expression</i><br>";
-		if ($GEOFILTER_DEBUG) echo "- Needs truncation: ".varToString(containsLogicOperator($expression) !== false || containsBrackets($expression) !== false)."<br>";
-		
 		if (empty($expression)) {
 			return true;
 		} else if (containsLogicOperator($expression) !== false || containsBrackets($expression) !== false) { // expression needs to be truncated
-			if ($GEOFILTER_DEBUG) echo "-----<br>";
-			$outerExpressions = getOuterExpressions($expression); // returns array
-			if ($GEOFILTER_DEBUG) echo "Outer expressions: ".varToString($outerExpressions)."<br>";
+			$outerExpressions = getOuterFilterExpressions($expression); // returns array
 			
 			$result = null;
 			$currentLogicOperator = null;
@@ -70,18 +44,10 @@
 				} else if (isset($result)) { // second or later element of outer expression; $currentLogicOperator should therefore be set
 					if (strcasecmp($currentLogicOperator, "and") === 0) {
 						// If the first result in an 'and' operation is false, evaluation of the second expression can be skipped
-						if ($result === false) {
-							if ($GEOFILTER_DEBUG) echo "-> Skipping expression evaluation due to predetermined result<br>";
-						} else {
-							$result = performLogicAND(array($result, evaluateGeoFilter($object, $outerExpression)));
-						}
+						if ($result) $result = performLogicAND(array($result, evaluateGeoFilter($object, $outerExpression)));
 					} else if (strcasecmp($currentLogicOperator, "or") === 0) { // logic OR
 						// If the first result in an 'or' operation is true, evaluation of the second expression can be skipped
-						if ($result === true) {
-							if ($GEOFILTER_DEBUG) echo "-> Skipping expression evaluation due to predetermined result<br>";
-						} else {
-							$result = performLogicOR(array($result, evaluateGeoFilter($object, $outerExpression)));
-						}
+						if ($result === true) $result = performLogicOR(array($result, evaluateGeoFilter($object, $outerExpression)));
 					} else {
 						throw new GeoFilterException("Logic operator (and/or) is missing (near '$outerExpression')");
 					}
@@ -94,16 +60,11 @@
 			return $result;
 		} else {
 			$logicNegationOperator = getLogicNegationOperator($expression);
-			if ($GEOFILTER_DEBUG) echo "- Logic negation operator: ".varToString($logicNegationOperator)."<br>";
-
 			$originOperator = getOriginOperator($expression);
-			if ($GEOFILTER_DEBUG) echo "- Origin operator: ".varToString($originOperator)."<br>";
-
 			$geolocationOperator = getGeolocationOperator($expression);
 			if ($geolocationOperator === false) {
 				throw new GeoFilterException("Geolocation operator (country/region/city/ctry/rgn/cty) is missing (near '$expression')");
 			}
-			if ($GEOFILTER_DEBUG) echo "- Geolocation operator: ".varToString($geolocationOperator)."<br>";
 
 			$filterValue = getFilterValue($expression, $logicNegationOperator, $originOperator, $geolocationOperator);
 			foreach ($geolocationOperators as $operator => $objectMapping) {
@@ -124,7 +85,6 @@
 					throw new GeoFilterException("Invalid filter value ($filterValue) (near '$expression')");
 				}
 			}
-			if ($GEOFILTER_DEBUG) echo "- Value: $filterValue<br>";
 
 			// Case-insensitive comparisons
 			if ($originOperator === false) { // ANY origin
@@ -136,8 +96,6 @@
 			}
 			
 			$result = ($logicNegationOperator) ? performLogicNegation($result) : $result;
-			if ($GEOFILTER_DEBUG) echo "- Result: ".varToString($result)."<br>";
-
 			return $result;
 		}
 	}
@@ -145,7 +103,7 @@
 	/*
 	 * Checks whether the specified expression contains a logic operator (and/or).
 	 * Parameters:
-	 *		expression - filter expression.
+	 *		expression - expression.
 	 * Return:
 	 *		First found logic operator (String), in case it was found. Otherwise, 
 	 *		false.
@@ -165,7 +123,7 @@
 	/*
 	 * Checks whether the specified expression contains brackets (i.e. '(').
 	 * Parameters:
-	 *		expression - filter expression.
+	 *		expression - expression.
 	 * Return:
 	 *		Position of the first found 'opening' bracket (i.e. '(') (int), in case
 	 *		it was found. Otherwise, false.
@@ -179,7 +137,7 @@
 	 * Checks whether the specified expression contains a logic negation operator 
 	 * 		(i.e. 'not').
 	 * Parameters:
-	 *		expression - filter expression.
+	 *		expression - expression.
 	 * Return:
 	 *		True, in case a logic negation operator was found. Otherwise, false.
 	 */	
@@ -191,7 +149,7 @@
 	 * Gets the origin operator (i.e. 'src' or 'dst') in case it is present
 	 * in the specified expression.
 	 * Parameters:
-	 *		expression - filter expression.
+	 *		expression - expression.
 	 * Return:
 	 *		First found origin operator, in case it was	found. Otherwise, false.
 	 */	
@@ -211,9 +169,9 @@
 	 * Gets the geolocation operator (e.g. 'country' or 'ctry') in case it is present
 	 * in the specified expression.
 	 * Parameters:
-	 *		expression - filter expression.
+	 *		expression - expression.
 	 * Return:
-	 *		First found geolocation operator, in case it was	found. Otherwise, false.
+	 *		First found geolocation operator, in case it was found. Otherwise, false.
 	 */	
 	function getGeolocationOperator ($expression) {
 		global $geolocationOperators;
@@ -251,7 +209,7 @@
 	 * Parameters:
 	 *		expression - filter expression.
 	 */	
-	function getOuterExpressions ($expression) {
+	function getOuterFilterExpressions ($expression) {
 		if (containsLogicOperator($expression) === false && !containsBrackets($expression) === false) {
 			return $expression;
 		}
@@ -341,7 +299,7 @@
 	 * 		"(dst ctry CZ and (src ctry NL and src ctry DE)) and (src ctry NL or src ctry CZ)" => 0
 	 * 		"((dst ctry CZ and (src ctry NL and src ctry DE)) and (src ctry NL or src ctry CZ))" => 1
 	 * Parameters:
-	 *		expression - filter expression.
+	 *		expression - expression.
 	 */	
 	function getMinimumExpressionDepth ($expression) {
 		if (containsBrackets($expression) === false) {

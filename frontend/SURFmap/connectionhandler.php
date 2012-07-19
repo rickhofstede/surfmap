@@ -224,97 +224,99 @@
 		 * either 'IP2Location' or 'MaxMind'.
 		 */
 		function retrieveDataGeolocation ($NetFlowData) {
-			global $GEOLOCATION_DB, $IP2LOCATION_PATH, $MAXMIND_PATH, $GEOIP_REGION_NAME, // $GEOIP_REGION_NAME is part of the MaxMind API
-					$INTERNAL_DOMAINS, $INTERNAL_DOMAINS_COUNTRY, $INTERNAL_DOMAINS_REGION, $INTERNAL_DOMAINS_CITY;
+			global $GEOLOCATION_DB, $IP2LOCATION_PATH, $MAXMIND_PATH, $INTERNAL_DOMAINS, $GEOIP_REGION_NAME; // $GEOIP_REGION_NAME is part of the MaxMind API
 
 			$GeoData = array();
-			$internalDomainNets = explode(";", $INTERNAL_DOMAINS);
 
-			for ($i = 0; $i < count($NetFlowData); $i++) {
-				$source = $NetFlowData[$i]->ipv4_src;
-				$destination = $NetFlowData[$i]->ipv4_dst;
-
-				/*
-				 * Check whether a NATed setup was used. If so, use the geolocation data provided
-				 * in the configuration file. Otherwise, use a geolocation service.
-				 */
-				$srcNAT = false;
-				$dstNAT = false;
+			for ($i = 0; $i < count($INTERNAL_DOMAINS); $i++) {
+				$internalDomainNets = explode(";", $INTERNAL_DOMAINS[$i]->domain);
 				
-				foreach ($internalDomainNets as $subNet) {
-					if (ipAddressBelongsToNet($source, $subNet)) {
-						$srcNAT = true;
-						break;
-					}
-				}
-				foreach ($internalDomainNets as $subNet) {
-					if (ipAddressBelongsToNet($destination, $subNet)) {
-						$dstNAT = true;
-						break;
-					}
-				}
-				unset($subNet);
+				for ($j = 0; $j < count($NetFlowData); $j++) {
+					$source = $NetFlowData[$j]->ipv4_src;
+					$destination = $NetFlowData[$j]->ipv4_dst;
+
+					/*
+					 * Check whether a NATed setup was used. If so, use the geolocation data provided
+					 * in the configuration file. Otherwise, use a geolocation service.
+					 */
+					$srcNAT = false;
+					$dstNAT = false;
 				
-				for ($j = 0; $j < 2; $j++) { // Source and destination
-					if (($j == 0 && $srcNAT === true) || ($j == 1 && $dstNAT === true)) { // Source or destination uses a NATed setup
-						$country = strtoupper($INTERNAL_DOMAINS_COUNTRY);
-						if ($country == "") $country = "(UNKNOWN)";
-						
-						$region = strtoupper($INTERNAL_DOMAINS_REGION);
-						if ($region == "") $region = "(UNKNOWN)";
-						
-						$city = strtoupper($INTERNAL_DOMAINS_CITY);
-						if ($city == "") $city = "(UNKNOWN)";
-					} else if ($GEOLOCATION_DB == "IP2Location") {
-						$GEO_database = new ip2location();
-						$GEO_database->open($IP2LOCATION_PATH);
-						
-						if ($j == 0) $data = $GEO_database->getAll($source);
-						else $data = $GEO_database->getAll($destination);
-						
-						$country = $data->countryLong;
-						if ($country == "-") $country = "(UNKNOWN)";
-						
-						$region = $data->region;
-						if ($region == "-") $region = "(UNKNOWN)";
-						
-						$city = $data->city;
-						if ($city == "-") $city = "(UNKNOWN)";
-					} else if ($GEOLOCATION_DB == "MaxMind") {
-						$GEO_database = geoip_open($MAXMIND_PATH, GEOIP_STANDARD);
-						
-						if ($j == 0) $record = geoip_record_by_addr($GEO_database, $source);
-						else $record = geoip_record_by_addr($GEO_database, $destination);
-						
-						if (isset($record->country_name)) {
-							$country = strtoupper($record->country_name);
+					foreach ($internalDomainNets as $subNet) {
+						if (ipAddressBelongsToNet($source, $subNet)) {
+							$srcNAT = true;
+							break;
 						}
-						if (!isset($country) || $country == "") $country = "(UNKNOWN)";
-
-						if (isset($record->country_code) && isset($record->region)
-								&& array_key_exists($record->country_code, $GEOIP_REGION_NAME)
-								&& array_key_exists($record->region, $GEOIP_REGION_NAME[$record->country_code])) {
-							$region = strtoupper($GEOIP_REGION_NAME[$record->country_code][$record->region]);
-						}
-						if (!isset($region) || $region == "") $region = "(UNKNOWN)";
-
-						if (isset($record->city)) {
-							$city = strtoupper($record->city);
-						}
-						if (!isset($city) || $city == "") $city = "(UNKNOWN)";
-					} else {
-						$country = "";
-						$region = "";
-						$city = "";
 					}
+					foreach ($internalDomainNets as $subNet) {
+						if (ipAddressBelongsToNet($destination, $subNet)) {
+							$dstNAT = true;
+							break;
+						}
+					}
+					unset($subNet);
+				
+					for ($k = 0; $k < 2; $k++) { // Source and destination
+						if (($k == 0 && $srcNAT === true) || ($k == 1 && $dstNAT === true)) { // Source or destination uses a NATed setup
+							$country = strtoupper($INTERNAL_DOMAINS[$i]->country);
+							if ($country == "") $country = "(UNKNOWN)";
+						
+							$region = strtoupper($INTERNAL_DOMAINS[$i]->region);
+							if ($region == "") $region = "(UNKNOWN)";
+						
+							$city = strtoupper($INTERNAL_DOMAINS[$i]->city);
+							if ($city == "") $city = "(UNKNOWN)";
+						} else if ($GEOLOCATION_DB == "IP2Location") {
+							$GEO_database = new ip2location();
+							$GEO_database->open($IP2LOCATION_PATH);
+						
+							if ($k == 0) $data = $GEO_database->getAll($source);
+							else $data = $GEO_database->getAll($destination);
+						
+							$country = $data->countryLong;
+							if ($country == "-") $country = "(UNKNOWN)";
+						
+							$region = $data->region;
+							if ($region == "-") $region = "(UNKNOWN)";
+						
+							$city = $data->city;
+							if ($city == "-") $city = "(UNKNOWN)";
+						} else if ($GEOLOCATION_DB == "MaxMind") {
+							$GEO_database = geoip_open($MAXMIND_PATH, GEOIP_STANDARD);
+						
+							if ($k == 0) $record = geoip_record_by_addr($GEO_database, $source);
+							else $record = geoip_record_by_addr($GEO_database, $destination);
+						
+							if (isset($record->country_name)) {
+								$country = strtoupper($record->country_name);
+							}
+							if (!isset($country) || $country == "") $country = "(UNKNOWN)";
+
+							if (isset($record->country_code) && isset($record->region)
+									&& array_key_exists($record->country_code, $GEOIP_REGION_NAME)
+									&& array_key_exists($record->region, $GEOIP_REGION_NAME[$record->country_code])) {
+								$region = strtoupper($GEOIP_REGION_NAME[$record->country_code][$record->region]);
+							}
+							if (!isset($region) || $region == "") $region = "(UNKNOWN)";
+
+							if (isset($record->city)) {
+								$city = strtoupper($record->city);
+							}
+							if (!isset($city) || $city == "") $city = "(UNKNOWN)";
+						} else {
+							$country = "";
+							$region = "";
+							$city = "";
+						}
 					
-					$country = fixCommaSeparatedNames(stripAccentedCharacters($country));
-					$region = fixCommaSeparatedNames(stripAccentedCharacters($region));
-					$city = fixCommaSeparatedNames(stripAccentedCharacters($city));					
-					$GeoData[$i][$j] = array("COUNTRY" => $country, "REGION" => $region, "CITY" => $city);
+						$country = fixCommaSeparatedNames(stripAccentedCharacters($country));
+						$region = fixCommaSeparatedNames(stripAccentedCharacters($region));
+						$city = fixCommaSeparatedNames(stripAccentedCharacters($city));					
+						$GeoData[$j][$k] = array("COUNTRY" => $country, "REGION" => $region, "CITY" => $city);
 					
-					// Reset variables for next iteration
-					unset($country, $region, $city);
+						// Reset variables for next iteration
+						unset($country, $region, $city);
+					}
 				}
 			}
 

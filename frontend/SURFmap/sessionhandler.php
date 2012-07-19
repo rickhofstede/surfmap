@@ -206,16 +206,18 @@
 			}
 			
 			// ***** 1. Prepare filters *****
-			if (strlen($INTERNAL_DOMAINS) != 0) {
-				$internalDomains = explode(";", $INTERNAL_DOMAINS);
-				foreach ($internalDomains as $domain) {
-					if (isset($static_filter_internal_domain_traffic)) {
-						$static_filter_internal_domain_traffic .= " and not (src net ".$domain." and dst net ".$domain.")";
-					} else {
-						$static_filter_internal_domain_traffic = "not (src net ".$domain." and dst net ".$domain.")";
+			for ($i = 0; $i < count($INTERNAL_DOMAINS); $i++) {
+				if (strlen($INTERNAL_DOMAINS[$i]->domain) != 0) {
+					$internalDomains = explode(";", $INTERNAL_DOMAINS[$i]->domain);
+					foreach ($internalDomains as $domain) {
+						if (isset($static_filter_internal_domain_traffic)) {
+							$static_filter_internal_domain_traffic .= " and not (src net ".$domain." and dst net ".$domain.")";
+						} else {
+							$static_filter_internal_domain_traffic = "not (src net ".$domain." and dst net ".$domain.")";
+						}
 					}
+					unset($domain);
 				}
-				unset($domain);
 			}
 
 			$static_filter_broadcast_traffic = "not host 255.255.255.255";

@@ -7,8 +7,8 @@
 	 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
 	 *******************************/
 
-	require_once("config.php");
 	require_once("objects.php");
+	require_once("config.php");
 	require_once("connectionhandler.php");
 	require_once("loghandler.php");
 	require_once("sessionhandler.php");
@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.4 dev (20120614)";
+	$version = "v2.4 dev (20120719)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -163,7 +163,6 @@
 		
 		var GEOLOCATION_DB = "<?php echo $GEOLOCATION_DB; ?>";
 		var IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION = "<?php echo $IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION; ?>";
-		var INTERNAL_DOMAIN_COUNTRY = "<?php echo $INTERNAL_DOMAINS_COUNTRY ?>";
 		var USE_GEOCODER_DB = <?php if (is_numeric($USE_GEOCODER_DB)) { echo $USE_GEOCODER_DB; } else {echo "0";} ?>;
 		var WRITE_DATA_TO_GEOCODER_DB = <?php if (is_numeric($WRITE_DATA_TO_GEOCODER_DB)) { echo $WRITE_DATA_TO_GEOCODER_DB; } else {echo "0";} ?>;
 		// --- End of Geocoding parameters

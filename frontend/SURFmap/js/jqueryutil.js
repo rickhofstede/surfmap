@@ -161,7 +161,7 @@
 			var splittedString = text.split("##");
 			document.getElementById("dialog").setAttribute("title", splittedString[0]);
 			document.getElementById("dialog").innerHTML = splittedString[1];
-			createDialog(350, "auto", "center", false, true, true);
+			createDialog(350, "auto", "center", false, true, false, true);
 		}
 	}
 	

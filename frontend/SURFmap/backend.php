@@ -101,7 +101,7 @@
 				$curl_handle = curl_init();
 				curl_setopt($curl_handle, CURLOPT_URL, $requestURL);
 				curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
+				curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
 				
 				if ($USE_PROXY === 1) {
 					curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');

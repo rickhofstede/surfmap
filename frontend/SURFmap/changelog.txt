@@ -5,8 +5,11 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 ---
 
-Release notes [v2.4 dev (20120614)]:
-- [BUGFIX] Fixed an issue that caused several subnet masks not to be processed properly
+Release notes [v2.4 dev (20120719)]:
+- [FEATURE] Added support for multiple internal domains at multiple geographical locations
+- [BUGFIX] Fixed a bug that caused several subnet masks not to be processed properly
+- [BUGFIX] Fixed a bug that caused the information dialog in the ConfigurationChecker not to be shown
+- [BUGFIX] Increased responsiveness of ConfigurationChecker
 
 Release notes [v2.3 stable (20120530)]:
 

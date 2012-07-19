@@ -78,6 +78,15 @@
 		}
 	}
 
+	class InternalDomain {
+		function __construct($domain = "", $country = "", $region = "", $city = "") {
+			$this->domain = $domain;
+			$this->country = $country;
+			$this->region = $region;
+			$this->city = $city;
+		}
+	}
+
 	/*
 	 * Stores session data that shouldn't be stored in the PHP session data
 	 */
