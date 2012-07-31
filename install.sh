@@ -112,13 +112,13 @@ cd - > /dev/null
 
 # Fill my location in plugin configuration file
 if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
-	OLDENTRY=$(grep INTERNAL_DOMAINS_COUNTRY ${SURFMAP_CONF} | cut -d'"' -f2)
+	OLDENTRY=$(sed -e '/$INTERNAL_DOMAINS = array/,/);/!d' ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f6)
 	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
 
-	OLDENTRY=$(grep INTERNAL_DOMAINS_REGION ${SURFMAP_CONF} | cut -d'"' -f2)
+	OLDENTRY=$(sed -e '/$INTERNAL_DOMAINS = array/,/);/!d' ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f10)
 	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f2)/g" ${SURFMAP_CONF}
 
-	OLDENTRY=$(grep INTERNAL_DOMAINS_CITY ${SURFMAP_CONF} | cut -d'"' -f2)
+	OLDENTRY=$(sed -e '/$INTERNAL_DOMAINS = array/,/);/!d' ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f14)
 	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f3)/g" ${SURFMAP_CONF}
 
 	OLDENTRY=$(grep MAP_CENTER ${SURFMAP_CONF} | cut -d'"' -f2)

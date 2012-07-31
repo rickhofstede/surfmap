@@ -45,14 +45,12 @@
 	 * "<domains>" => array("country" => "<country>", "region" => "<region>", "city" => "<city>")
 	 * 
 	 * Explanation of the fields:
-	 *		1: domains - NfSen filter subnet notation to indicate your internal domain (e.g. NATed) traffic. Multiple domains must be separated by a semicolon [example: '192.168/16;172.16/12;10.0/8']
-	 *		2: country - Indicates the country in which a NATed network relies. If left empty, matching flow records will be ignored.
- 	 *		3: region - Indicates the region in which a NATed network relies. Leave this setting empty, if unknown..
- 	 *		4: city - Indicates the city in which a NATed network relies. Leave this setting empty, if unknown..
+	 *		domains - NfSen filter subnet notation to indicate your internal domain (e.g. NATed) traffic. Multiple domains must be separated by a semicolon [example: '192.168/16;172.16/12;10.0/8']
+	 *		country - Indicates the country in which a NATed network relies. If left empty, matching flow records will be ignored.
+ 	 *		region - Indicates the region in which a NATed network relies. Leave this setting empty, if unknown..
+ 	 *		city - Indicates the city in which a NATed network relies. Leave this setting empty, if unknown..
 	 */
-	$INTERNAL_DOMAINS = array(
-			"192.168/16;172.16/12;10.0/8" => array("country" => "THE NETHERLANDS", "region" => "OVERIJSSEL", "city" => "ENSCHEDE")
-	);
+	$INTERNAL_DOMAINS = array("192.168/16;172.16/12;10.0/8" => array("country" => "THE NETHERLANDS", "region" => "OVERIJSSEL", "city" => "ENSCHEDE"));
 	
 	$HIDE_INTERNAL_DOMAIN_TRAFFIC=1; // Indicates whether your internal domain traffic should be visualized in SURFmap - 0: no, 1: yes [default: 1]
 	$IGNORE_MARKER_INTERNAL_TRAFFIC_IN_LINE_COLOR_CLASSIFICATION=1; // Indicates whether traffic 'inside' a marker (e.g., inside a country, region or city) should be ignored in the line color classification process - 0: no, 1: yes [default: 1]
