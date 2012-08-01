@@ -17,6 +17,11 @@ echo "-------------------------------"
 echo "Removing previous SVN trunk snapshot"
 rm -rf SURFmap SURFmap_v*.tar.gz install.sh
 
+if [ ! "$(which svn)" ]; then
+	echo "Subversion (SVN) is not installed on your system. Install it first, or download the latest stable version of SURFmap from http://surfmap.sf.net"
+	exit 1
+fi
+
 echo "Exporting SVN trunk snapshot"
 svn export svn://svn.code.sf.net/p/surfmap/code/trunk SURFmap
 
