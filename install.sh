@@ -116,13 +116,25 @@ if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
 
 	OLDENTRY=$(sed -e '/$INTERNAL_DOMAINS = array/,/);/!d' ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f10)
-	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f2)/g" ${SURFMAP_CONF}
+	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f2)
+	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
+		NEWENTRY=""
+	fi
+	sed -i "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 
 	OLDENTRY=$(sed -e '/$INTERNAL_DOMAINS = array/,/);/!d' ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f14)
-	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f3)/g" ${SURFMAP_CONF}
+	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f3)
+	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
+		NEWENTRY=""
+	fi
+	sed -i "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 
 	OLDENTRY=$(grep MAP_CENTER ${SURFMAP_CONF} | cut -d'"' -f2)
-	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f4-)/g" ${SURFMAP_CONF}
+	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f4)
+	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
+		NEWENTRY=""
+	fi
+	sed -i "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 fi
 
 # Enable plugin
