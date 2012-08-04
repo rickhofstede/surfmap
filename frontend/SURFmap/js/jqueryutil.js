@@ -119,7 +119,7 @@
 						</table><br />";
 			}
 			
-			document.getElementById("dialog").innerHTML += "<div style='font-size:80%;'>Application version: " + applicationVersion + "</div>";	
+			document.getElementById("dialog").innerHTML += "<div style='font-size:80%;text-align:center;'>Application version: " + applicationVersion + "</div>";	
 			createDialog(400, "auto", "center", false, true, false, true);
 		} else if (type == "help") {
 			document.getElementById("dialog").setAttribute("title", "Help");
