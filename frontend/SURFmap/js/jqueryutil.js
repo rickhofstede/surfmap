@@ -90,7 +90,13 @@
 			document.getElementById("dialog").innerHTML = " \
 					SURFmap has been developed by:<br /><br /> \
 					Rick Hofstede<br /> \
-					<i>University of Twente, The Netherlands</i><br /><br /> \
+					<i>University of Twente, The Netherlands</i><br /><br /><hr /> \
+					Third-party software: \
+					<ul> \
+						<li><a href=\"http://www.erichynds.com/jquery/jquery-ui-multiselect-widget/\" target=\"_blank\" style=\"text-decoration:underline;\">jQuery UI MultiSelect Widget</a> / Eric Hynds</li> \
+						<li><a href=\"http://trentrichardson.com/examples/timepicker/\" target=\"_blank\" style=\"text-decoration:underline;\">jQuery UI Datepicker</a> / Trent Richardson</li> \
+						<li><a href=\"http://www.abeautifulsite.net/blog/2008/12/jquery-alert-dialogs/\" target=\"_blank\" style=\"text-decoration:underline;\">jQuery Alert Dialogs Plugin</a> / A Beautiful Site</li> \
+					</ul><hr /><br /> \
 					SURFmap is available on <a href=\"http://sourceforge.net/p/surfmap\" target=\"_blank\" style=\"text-decoration:underline;\">SourceForge</a> \
 					and is distributed under the <a href=\"javascript:showDialog('license')\" style=\"text-decoration:underline;\">BSD license</a>.<br /><br /> \
 					Special thanks to Pavel Celeda from INVEA-TECH, for his valuable contributions.<br /><br />";
@@ -114,7 +120,7 @@
 			}
 			
 			document.getElementById("dialog").innerHTML += "<div style='font-size:80%;'>Application version: " + applicationVersion + "</div>";	
-			createDialog(350, "auto", "center", false, true, false, true);
+			createDialog(400, "auto", "center", false, true, false, true);
 		} else if (type == "help") {
 			document.getElementById("dialog").setAttribute("title", "Help");
 			document.getElementById("dialog").innerHTML = "Welcome to the SURFmap help. Some main principles of SURFmap are explained here.<br /><br />"
