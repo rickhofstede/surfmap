@@ -91,7 +91,7 @@
 					SURFmap has been developed by:<br /><br /> \
 					Rick Hofstede<br /> \
 					<i>University of Twente, The Netherlands</i><br /><br /><hr /> \
-					Third-party software: \
+					Included third-party software: \
 					<ul> \
 						<li><a href=\"http://www.erichynds.com/jquery/jquery-ui-multiselect-widget/\" target=\"_blank\" style=\"text-decoration:underline;\">jQuery UI MultiSelect Widget</a> / Eric Hynds</li> \
 						<li><a href=\"http://trentrichardson.com/examples/timepicker/\" target=\"_blank\" style=\"text-decoration:underline;\">jQuery UI Datepicker</a> / Trent Richardson</li> \
