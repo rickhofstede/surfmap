@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.4 dev (20120810)";
+	$version = "v2.4 dev (20120816)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1641,8 +1641,23 @@
 				checkForHeavyQuery();
 			}
 		});
-		$('#datetime1').datetimepicker('setDate', new Date(date1.substr(0, 4), parseInt(date1.substr(4, 2)) - 1, date1.substr(6, 2), hours1, minutes1));
-		$('#datetime2').datetimepicker('setDate', new Date(date2.substr(0, 4), parseInt(date2.substr(4, 2)) - 1, date2.substr(6, 2), hours2, minutes2));
+		
+		/*
+		 * Bug in Firefox & Chrome, where parseInt("08") and parseInt("09") return "0":
+		 *		https://bugzilla.mozilla.org/show_bug.cgi?id=43425
+		 *		https://bugzilla.mozilla.org/show_bug.cgi?id=428292
+		 */
+		date1_month = date1.substr(4, 2)
+		if (date1_month.substr(0, 1) == "0") {
+			date1_month = date1_month.substr(1,1);
+		}
+		$('#datetime1').datetimepicker('setDate', new Date(date1.substr(0, 4), parseInt(date1_month) - 1, date1.substr(6, 2), hours1, minutes1));
+		
+		date2_month = date2.substr(4, 2)
+		if (date2_month.substr(0, 1) == "0") {
+			date2_month = date2_month.substr(1,1);
+		}
+		$('#datetime2').datetimepicker('setDate', new Date(date2.substr(0, 4), parseInt(date2_month) - 1, date2.substr(6, 2), hours2, minutes2));
 		
 		// Initialize buttons (jQuery)
 		$('#options').submit(function() {

@@ -5,11 +5,12 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 ---
 
-Release notes [v2.4 dev (20120810)]:
+Release notes [v2.4 dev (20120816)]:
 - [FEATURE] Added support for multiple internal domains at multiple geographical locations
 - [BUGFIX] Fixed a bug that caused several subnet masks not to be processed properly
 - [BUGFIX] Fixed a bug that caused the information dialog in the ConfigurationChecker not to be shown
 - [BUGFIX] Increased responsiveness of ConfigurationChecker
+- [BUGFIX] Fixed a bug that caused the date/time pickers to show incorrect dates/times in August and September, due to Mozilla bug #43425 / #428292
 
 Release notes [v2.3 stable (20120530)]:
 
