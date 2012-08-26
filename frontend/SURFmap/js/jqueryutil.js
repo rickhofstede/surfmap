@@ -119,14 +119,14 @@
 						</table><br />";
 			}
 			
-			document.getElementById("dialog").innerHTML += "<table style='font-size:80%;text-align:center;'><tr><td>Application version: " + applicationVersion + "</td><td id=\"update_result\"></td></tr></table";	
+			document.getElementById("dialog").innerHTML += "<table style='font-size:80%; text-align:center;'><tr><td>Application version: " + applicationVersion + "</td><td id=\"update_result\" style=\"padding-left:10px;\"></td></tr></table";	
 			
 			// Retrieve version number of latest stable build
 			$.getJSON("http://surfmap.sourceforge.net/get_version_number.php?callback=?", { type:"stable" }, function(data) {
 				if (applicationVersion.substring(1, applicationVersion.indexOf(" ")) >= data.version) {
-					$('#update_result').html("<img style=\"height:80%; width:80%\" src=\"images/check.gif\" title=\"Your SURFmap is up-to-date.\" />");
+					$('#update_result').html("<img style=\"height:25px; width:25px;\" src=\"images/check.gif\" title=\"Your SURFmap is up-to-date.\" />");
 				} else {
-					$('#update_result').html("<img style=\"height:80%; width:80%\" src=\"images/information.gif\" title=\"A newer version of SURFmap is available for download at http://surfmap.sf.net/.\" />");
+					$('#update_result').html("<img style=\"height:25px; width:25px;\" src=\"images/information.gif\" title=\"A newer version of SURFmap is available for download at http://surfmap.sf.net/.\" />");
 				}
 			});
 
