@@ -61,12 +61,12 @@
    	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<title>SURFmap -- A Network Monitoring Tool Based on the Google Maps API</title>
-	<link type="text/css" rel="stylesheet" href="jquery/css/start/jquery-ui-1.8.22.custom.css" />
+	<link type="text/css" rel="stylesheet" href="jquery/css/start/jquery-ui-1.8.23.custom.css" />
 	<link type="text/css" rel="stylesheet" href="css/jquery.alerts.css" /> <!-- http://abeautifulsite.net/blog/2008/12/jquery-alert-dialogs/ -->
 	<link type="text/css" rel="stylesheet" href="css/surfmap.css" />
 	<script type="text/javascript" src="<?php if ($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
-	<script type="text/javascript" src="jquery/js/jquery-1.7.2.min.js"></script>
-	<script type="text/javascript" src="jquery/js/jquery-ui-1.8.22.custom.min.js"></script>
+	<script type="text/javascript" src="jquery/js/jquery-1.8.0.min.js"></script>
+	<script type="text/javascript" src="jquery/js/jquery-ui-1.8.23.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery.alerts.js"></script>
 	<script type="text/javascript" src="js/jquery.multiselect.js"></script> <!-- http://www.erichynds.com/examples/jquery-ui-multiselect-widget/demos/ -->
 	<script type="text/javascript" src="js/jqueryutil.js"></script>
