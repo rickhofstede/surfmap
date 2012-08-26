@@ -119,7 +119,14 @@
 						</table><br />";
 			}
 			
-			document.getElementById("dialog").innerHTML += "<div style='font-size:80%;text-align:center;'>Application version: " + applicationVersion + "</div>";	
+			// Retrieve version number of latest stable build
+			$.getJSON("http://surfmap.sourceforge.net/get_version_number.php?callback=?", { type:"stable" }, function(data) {
+				alert("First success: " + data.version); 
+			}).error(function(jqXhr, textStatus, error) {
+				alert("Error: " + textStatus + ", " + error);
+			});
+
+			document.getElementById("dialog").innerHTML += "<div style='font-size:80%;text-align:center;'>Application version: " + applicationVersion + "</div><div id=\"update\"><img src=\"images/check.gif\" /></div>";	
 			createDialog(400, "auto", "center", false, true, false, true);
 		} else if (type == "help") {
 			document.getElementById("dialog").setAttribute("title", "Help");
