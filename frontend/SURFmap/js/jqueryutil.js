@@ -119,14 +119,17 @@
 						</table><br />";
 			}
 			
+			document.getElementById("dialog").innerHTML += "<table style='font-size:80%;text-align:center;'><tr><td>Application version: " + applicationVersion + "</td><td id=\"update_result\"></td></tr></table";	
+			
 			// Retrieve version number of latest stable build
 			$.getJSON("http://surfmap.sourceforge.net/get_version_number.php?callback=?", { type:"stable" }, function(data) {
-				alert("First success: " + data.version); 
-			}).error(function(jqXhr, textStatus, error) {
-				alert("Error: " + textStatus + ", " + error);
+				if (applicationVersion.substring(1, applicationVersion.indexOf(" ")) >= data.version) {
+					$('#update_result').html("<img style=\"height:80%; width:80%\" src=\"images/check.gif\" title=\"Your SURFmap is up-to-date.\" />");
+				} else {
+					$('#update_result').html("<img style=\"height:80%; width:80%\" src=\"images/information.gif\" title=\"A newer version of SURFmap is available for download at http://surfmap.sf.net/.\" />");
+				}
 			});
 
-			document.getElementById("dialog").innerHTML += "<div style='font-size:80%;text-align:center;'>Application version: " + applicationVersion + "</div><div id=\"update\"><img src=\"images/check.gif\" /></div>";	
 			createDialog(400, "auto", "center", false, true, false, true);
 		} else if (type == "help") {
 			document.getElementById("dialog").setAttribute("title", "Help");
