@@ -92,7 +92,7 @@
 		var markers = new Array(4); // 4 zoom levels
 		var markerProperties = new Array(4); // 4 zoom levels	
 
-		var green = "#00cc00"; var yellow = "#ffff00"; var orange = "#ff6600"; var red = "#ff0000"; var black = "#000000";
+		var green = "#00cc00"; var yellow = "#ffff00"; var orange = "#ff6600"; var red = "#ff0000";
 		var lineColors = 4;
 		var lineColorClassification = [];
 		
@@ -1054,12 +1054,20 @@
 							lineTotal += parseInt(lineProperties[i][j].lineRecords[k].octets);
 						}
 					}
+					
+					lineColor = determineLineColor(lineTotal);
+					
+					if (lineColor == green) lineWeight = 1.5;
+					else if (lineColor == yellow) lineWeight = 2.0;
+					else if (lineColor == orange) lineWeight = 2.5;
+					else lineWeight = 3.0;
+					
 					lines[i].push(createLine(
 							new google.maps.LatLng(lineProperties[i][j].lat1, lineProperties[i][j].lng1), 
 							new google.maps.LatLng(lineProperties[i][j].lat2, lineProperties[i][j].lng2), 
 							"<div id=\"content\">" + tableHeader + tableBody + tableFooter + "</div>", 
-							determineLineColor(lineTotal),
-							2 // line weight (in pixels)
+							lineColor,
+							lineWeight
 					));
 				}
 			}
@@ -1138,7 +1146,7 @@
 		 * Returns the actual line color of a line, based on the classification made 
 		 * in 'determineLineColorRanges'.
 		 * Parameters:
-		 *	lineTotal - sum of either flows, packets or bytes of the specific line
+		 *		lineTotal - sum of either flows, packets or bytes of the specific line
 		 */
 		function determineLineColor (lineTotal) {
 			var lineColor;
@@ -1157,7 +1165,7 @@
 				else if (lineTotal >= lineColorClassification[3] && lineTotal <= lineColorClassification[4]) lineColor = red;
 			}
 			
-			return (lineColor == undefined) ? black : lineColor;
+			return (lineColor == undefined) ? red : lineColor;
 		}
 				
 	    /*
