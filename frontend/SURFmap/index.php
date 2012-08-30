@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.4 dev (20120826)";
+	$version = "v2.4 dev (20120830)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1054,10 +1054,13 @@
 							lineTotal += parseInt(lineProperties[i][j].lineRecords[k].octets);
 						}
 					}
-					lines[i].push(createLine(new google.maps.LatLng(lineProperties[i][j].lat1, lineProperties[i][j].lng1), 
+					lines[i].push(createLine(
+							new google.maps.LatLng(lineProperties[i][j].lat1, lineProperties[i][j].lng1), 
 							new google.maps.LatLng(lineProperties[i][j].lat2, lineProperties[i][j].lng2), 
 							"<div id=\"content\">" + tableHeader + tableBody + tableFooter + "</div>", 
-							determineLineColor(lineTotal)));
+							determineLineColor(lineTotal),
+							2 // line weight (in pixels)
+					));
 				}
 			}
 			

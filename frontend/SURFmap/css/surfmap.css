@@ -113,6 +113,11 @@ a.active.trigger {
 	margin-left:10px;
 }
 
+#update_result img {
+	height:	20px;
+	width:	20px;
+}
+
 /* TimePicker (jQuery) */
 .ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
 .ui-timepicker-div dl { text-align: left; }

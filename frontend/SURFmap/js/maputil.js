@@ -101,18 +101,19 @@
 	 * This function creates GPolylines, according to the specified coordinates
 	 * and puts the specified text into the line's information window.
 	 * Parameters:
-	 *	coordinate1 - one end point of the line
-	 *	coordinate2 - one end point of the line
-	 *	text - the text that has to be put into the line's information window
-	 *	color - color of the line (used for line color classification)
+	 *		coordinate1 - one end point of the line
+	 *		coordinate2 - one end point of the line
+	 *		text - the text that has to be put into the line's information window
+	 *		color - color of the line (used for line color classification)
+	 *		weight - width of the line (in pixels)
 	 */
-	function createLine (coordinate1, coordinate2, text, color) {
+	function createLine (coordinate1, coordinate2, text, color, weight) {
 		var lineOptions = {
 			geodesic: true,
 			path: [coordinate1, coordinate2],
 			strokeColor: color,
-			strokeOpacity: 1.0,
-			strokeWeight: 2
+			strokeOpacity: 0.7,
+			strokeWeight: weight
 		}
 		var line = new google.maps.Polyline(lineOptions);
 			
