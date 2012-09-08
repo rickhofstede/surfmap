@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.4 dev (20120830)";
+	$version = "v2.4 dev (20120908)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -65,10 +65,10 @@
 	<link type="text/css" rel="stylesheet" href="css/jquery.alerts.css" /> <!-- http://abeautifulsite.net/blog/2008/12/jquery-alert-dialogs/ -->
 	<link type="text/css" rel="stylesheet" href="css/surfmap.css" />
 	<script type="text/javascript" src="<?php if ($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
-	<script type="text/javascript" src="jquery/js/jquery-1.8.0.min.js"></script>
+	<script type="text/javascript" src="jquery/js/jquery-1.8.1.min.js"></script>
 	<script type="text/javascript" src="jquery/js/jquery-ui-1.8.23.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery.alerts.js"></script>
-	<script type="text/javascript" src="js/jquery.multiselect.js"></script> <!-- http://www.erichynds.com/examples/jquery-ui-multiselect-widget/demos/ -->
+	<script type="text/javascript" src="js/jquery.multiselect.min.js"></script> <!-- http://www.erichynds.com/examples/jquery-ui-multiselect-widget/demos/ -->
 	<script type="text/javascript" src="js/jqueryutil.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script> <!-- http://trentrichardson.com/examples/timepicker/ -->
 	<script type="text/javascript" src="js/maputil.js"></script>
