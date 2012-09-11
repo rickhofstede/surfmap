@@ -130,7 +130,7 @@ if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 	sed -i "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 
 	OLDENTRY=$(grep MAP_CENTER ${SURFMAP_CONF} | cut -d'"' -f2)
-	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f4)
+	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f4,f5)
 	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
 		NEWENTRY=""
 	fi
