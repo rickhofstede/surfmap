@@ -1,16 +1,16 @@
 <?php
 	/******************************
-	 # sessionhandler.php [SURFmap]
+	 # sessionmanager.php [SURFmap]
 	 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
 	 # University of Twente, The Netherlands
 	 #
 	 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
 	 *******************************/
 	
-	class SessionHandler {
+	class SessionManager {
 		
 		/*
-		 * Constructs a new SessionHandler object.
+		 * Constructs a new SessionManager object.
 		 */
 		function __construct($logHandler, $profile = "", $profileType = "", $allSources = "") {
 			global $sessionData;
