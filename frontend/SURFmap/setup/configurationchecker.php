@@ -9,7 +9,7 @@
 	
 	require_once("../config.php");
 	require_once("../connectionhandler.php");
-	require_once("../sessionhandler.php");
+	require_once("../sessionmanager.php");
 	
 	$nfsenConfigReadable = 0;
 	$nfsenSocketOK = 0;

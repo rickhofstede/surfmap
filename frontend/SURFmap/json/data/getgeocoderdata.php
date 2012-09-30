@@ -38,20 +38,25 @@ foreach ($requests as $request) {
     $place = $split_request[count($split_request) - 1]; // Last element in array is actual place name
     
     if ($place === "-" || stripos($place, "NKNOWN")) {
-        array_push($result['geocoder_data'], array($request => array('lat' => 0, 'lng' => 0)));
+        $lat = 0;
+        $lng = 0;
     } else if ($USE_GEOCODER_DB) {
 		$queryResult = $Geocoder_DB->query("SELECT latitude, longitude FROM geocoder WHERE location = ".$Geocoder_DB->quote($request));
 		$row = $queryResult->fetch(PDO::FETCH_ASSOC);
 		unset($queryResult);
         
 		if ($row) { // Country name was found in our GeoCoder database
-            array_push($result['geocoder_data'], array($request => array('lat' => $row['latitude'], 'lng' => $row['longitude'])));
+            $lat = $row['latitude'];
+            $lng = $row['longitude'];
 		} else {
-            array_push($result['geocoder_data'], array($request => array('lat' => -1, 'lng' => -1)));
+            $lat = -1;
+            $lng = -1;
 		}
     } else {
-        array_push($result['geocoder_data'], array($request => array('lat' => -1, 'lng' => -1)));
+        $lat = -1;
+        $lng = -1;
     }
+    array_push($result['geocoder_data'], array('request' => $request, 'lat' => $lat, 'lng' => $lng));
 }
 			
 // Check geocoder request history for current day

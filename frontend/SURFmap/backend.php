@@ -11,7 +11,7 @@
 	require_once("objects.php");
 	require_once("connectionhandler.php");
 	require_once("loghandler.php");
-	require_once("sessionhandler.php");
+	require_once("sessionmanager.php");
 	require_once("servertransaction.php");
 	
 	$nfsenConfig = readNfSenConfig();
@@ -28,8 +28,8 @@
 
 	$logHandler = new LogHandler();
 	$sessionData = new SessionData();
-	$sessionHandler = new SessionHandler($logHandler, $profile, $profileType, $allSources);
-	$connectionHandler = new ConnectionHandler($logHandler, $sessionHandler);
+	$sessionManager = new SessionManager($logHandler, $profile, $profileType, $allSources);
+	$connectionHandler = new ConnectionHandler($logHandler, $sessionManager);
 
 	$sessionData->NetFlowData = $connectionHandler->retrieveDataNfSen();
 	$sessionData->geoLocationData = $connectionHandler->retrieveDataGeolocation($sessionData->NetFlowData);

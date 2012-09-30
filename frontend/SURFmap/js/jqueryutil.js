@@ -56,9 +56,18 @@
 						
 			case 9:		jAlert("The NfSen session has not been set properly. Please start SURFmap from the 'Plugins' tab in NfSen.", "Error");
 						break;
-						
-			case 999:	 // Error code is client-side-only
-						jAlert("You have no source selected, while you should have selected at least one.", "Error");
+			
+            // Client-side-only error codes
+			case 996:	jAlert("Could not retrieve geolocation data. Check your network connectivity and try again.", "Error");
+						break;
+                        
+			case 997:	jAlert("Could not retrieve flow data. Check your network connectivity and try again.", "Error");
+						break;
+                       
+			case 998:	jAlert("An error occurred while communicating with your Web server. Check your network connectivity and try again.", "Error");
+						break;
+            
+			case 999:	jAlert("You have no source selected, while you should have selected at least one.", "Error");
 						break;
 						
 			default:	jAlert("An unknown error occured.", "Error");

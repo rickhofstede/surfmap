@@ -16,11 +16,11 @@
 		/*
 		 * Constructs a new ConnectionHandler object.
 		 */
-		function __construct ($logHandler, $sessionHandler) {
+		function __construct ($logHandler, $sessionManager) {
 			global $USE_GEOCODER_DB, $GEOCODER_DB_SQLITE3;
 			
 			$this->logHandler = $logHandler;
-			$this->sessionHandler = $sessionHandler;
+			$this->sessionManager = $sessionManager;
 			
 			if ($USE_GEOCODER_DB) {
 				try {
@@ -78,7 +78,7 @@
 					
 					if ($sessionData->errorMessage == "Killed") {
 						$sessionData->errorCode = 8; // flow query killed
-						$this->sessionHandler->setDatesAndTimes(true);
+						$this->sessionManager->setDatesAndTimes(true);
 					}
 				}
 
