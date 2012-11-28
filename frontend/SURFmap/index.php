@@ -20,7 +20,7 @@
 	require_once($nfsenConfig['HTMLDIR']."/conf.php");
 	require_once($nfsenConfig['HTMLDIR']."/nfsenutil.php");
 
-	$version = "v2.4 dev (20120930)";
+	$version = "v2.4 dev (20121128)";
 
 	// Initialize session
 	if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -52,17 +52,12 @@
 			$sessionData->errorMessage = $ex->errorMessage();
 		}
 	}
-    
-    /*
-    TODO - Fix GeoCoder request history (getgeocoderdata.php)
-    */
 
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
-   	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<title>SURFmap -- A Network Monitoring Tool Based on the Google Maps API</title>
 	<link type="text/css" rel="stylesheet" href="jquery/css/start/jquery-ui-1.8.23.custom.css" />
@@ -1606,9 +1601,9 @@
 		}
 
 		if (nfsenOption == 1) { // Stat TopN
-			document.getElementById("nfsenoptionStatTopN").checked = true;
+            $('#nfsenoptionStatTopN').attr('checked', true);
 		} else {
-			document.getElementById("nfsenoptionListFlows").checked = true;
+            $('#nfsenoptionListFlows').attr('checked', true);
 			$('#nfsenstatorder').hide();
 		}
 		
@@ -1672,161 +1667,6 @@
                 $('a.trigger').trigger("click");
                 setTimeout("showDialog('processing', '');setProcessingText('Querying NetFlow data...');", 100);
                 return true;
-                /*
-                // Flow data
-                var selected_nfsen_sources = [];
-                $("#nfsensources option:selected").each(function() {
-                    selected_nfsen_sources.push($(this).val());
-                });
-                $.ajax({
-                    url: 'json/data/getflowdata.php',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: { request: {
-                        'date1': date1, 'date2': date2, 
-                        'hours1': hours1, 'hours2': hours2, 
-                        'minutes1': minutes1, 'minutes2': minutes2,
-                        'entry_count': entryCount,
-                        'nfsen_filter': flowFilter,
-                        'nfsen_option': nfsenOption,
-                        'nfsen_profile': nfsenProfile,
-                        'nfsen_profile_type': nfsenProfileType,
-                        'nfsen_selected_sources': selected_nfsen_sources,
-                        'nfsen_stat_order': nfsenStatOrder,
-                        'nfsen_html_dir': '<?php echo $nfsenConfig['HTMLDIR']; ?>' 
-                    }},
-                    proccessData: false,
-                    success: function(flow_data) {
-                        if (flow_data.status == 0) { // Success
-                            // Collect all IP addresses
-                            geolocation_request = [];
-                            $.each(flow_data.flow_data, function(key, value) {
-                                if ($.inArray(value.ipv4_src, geolocation_request) == -1) {
-                                    geolocation_request.push(value.ipv4_src);
-                                }
-                            });
-                            
-                            // Geolocation data
-                            $.ajax({
-                                url: 'json/data/getgeolocationdata.php',
-                                type: 'POST',
-                                dataType: 'json',
-                                data: { request: geolocation_request },
-                                proccessData: false,
-                                success: function(geolocation_data) {
-                                    if (geolocation_data.status == 0) { // Success
-                                        // Collect all location names
-                                        geocoder_request = [];
-                                        $.each(geolocation_data.geolocation_data, function(key, value) {
-                                            if ($.inArray(value.country, geocoder_request) == -1) {
-                                                geocoder_request.push(value.country);
-                                            }
-                                            if ($.inArray(value.country + ";" + value.region, geocoder_request) == -1) {
-                                                geocoder_request.push(value.country + ";" + value.region);
-                                            }
-                                            if ($.inArray(value.country + ";" + value.region + ";" + value.city, geocoder_request) == -1) {
-                                                geocoder_request.push(value.country + ";" + value.region + ";" + value.city);
-                                            }
-                                        });
-                                        
-                                        // Add retrieved geolocation data (geolocation_data) to flow data (flow_data)
-                                        $.each(flow_data.flow_data, function(flow_key, flow_value) {
-                                            // Source address
-                                            $.each(geolocation_data.geolocation_data, function(geolocation_key, geolocation_value) {
-                                                if (flow_value.ipv4_src == geolocation_value.address) {
-                                                    flow_value.src_country = geolocation_value.country;
-                                                    flow_value.src_region = geolocation_value.region;
-                                                    flow_value.src_city = geolocation_value.city;
-                                                    return false;
-                                                }
-                                            });
-                                            
-                                            // Destination address
-                                            $.each(geolocation_data.geolocation_data, function(geolocation_key, geolocation_value) {
-                                                if (flow_value.ipv4_dst == geolocation_value.address) {
-                                                    flow_value.dst_country = geolocation_value.country;
-                                                    flow_value.dst_region = geolocation_value.region;
-                                                    flow_value.dst_city = geolocation_value.city;
-                                                    return false;
-                                                }
-                                            });
-                                        });
-                                        
-                                        // Geocoder data
-                                        $.ajax({
-                                            url: 'json/data/getgeocoderdata.php',
-                                            type: 'POST',
-                                            dataType: 'json',
-                                            data: { request: geocoder_request },
-                                            proccessData: false,
-                                            success: function(geocoder_data) {
-                                                if (geocoder_data.status == 0) { // Success
-                                                    
-                                                    // Add retrieved geolocation data (geolocation_data) to flow data (flow_data)
-                                                    $.each(flow_data.flow_data, function(flow_key, flow_value) {
-                                                        // Source address
-                                                        $.each(geocoder_data.geocoder_data, function(geocoder_key, geocoder_value) {
-                                                            if (flow_value.src_country == geocoder_value.request) {
-                                                                flow_value.src_country_lat = geocoder_value.lat;
-                                                                flow_value.src_country_lng = geocoder_value.lng;
-                                                                return false;
-                                                            }
-                                                            if (flow_value.src_country + ";" + flow_value.src_region == geocoder_value.request) {
-                                                                flow_value.src_region_lat = geocoder_value.lat;
-                                                                flow_value.src_region_lng = geocoder_value.lng;
-                                                                return false;
-                                                            }
-                                                            if (flow_value.src_country + ";" + flow_value.src_region + ";" + flow_value.src_city == geocoder_value.request) {
-                                                                flow_value.src_city_lat = geocoder_value.lat;
-                                                                flow_value.src_city_lng = geocoder_value.lng;
-                                                                return false;
-                                                            }
-                                                        });
-                                                        
-                                                        // Destination address
-                                                        $.each(geocoder_data.geocoder_data, function(geocoder_key, geocoder_value) {
-                                                            if (flow_value.dst_country == geocoder_value.request) {
-                                                                flow_value.dst_country_lat = geocoder_value.lat;
-                                                                flow_value.dst_country_lng = geocoder_value.lng;
-                                                                return false;
-                                                            }
-                                                            if (flow_value.dst_country + ";" + flow_value.dst_region == geocoder_value.request) {
-                                                                flow_value.dst_region_lat = geocoder_value.lat;
-                                                                flow_value.dst_region_lng = geocoder_value.lng;
-                                                                return false;
-                                                            }
-                                                            if (flow_value.dst_country + ";" + flow_value.dst_region + ";" + flow_value.dst_city == geocoder_value.request) {
-                                                                flow_value.dst_city_lat = geocoder_value.lat;
-                                                                flow_value.dst_city_lng = geocoder_value.lng;
-                                                                return false;
-                                                            }
-                                                        });
-                                                    });
-                                                }
-                                            },
-                                            error: function() {
-                                                generateAlert(998);
-                                            }
-                                        });
-                                    } else {
-                                        generateAlert(996);
-                                    }
-                                },
-                                error: function() {
-                                    generateAlert(998);
-                                }
-                			});
-                        } else {
-                            generateAlert(997);
-                        }
-                    },
-                    error: function() {
-                        generateAlert(998);
-                    }
-                });
-                
-                return false;
-                */
 			}
 		});
 		
