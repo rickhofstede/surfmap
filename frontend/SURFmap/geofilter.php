@@ -8,6 +8,10 @@
 	 *******************************/
 	
 	require_once("iso3166.php");
+    
+	$logicOperators = array('and', 'or'); // 'not' is also a logic operator, but should not be used here (although it is supported by this geofilter parser)
+	$originOperators = array('src' => 0, 'dst' => 1);
+	$geolocationOperators = array('country' => 'COUNTRY', 'region' => 'REGION', 'city' => 'CITY', 'ctry' => 'COUNTRY', 'rgn' => 'REGION', 'cty' => 'CITY');
 	
 	/*
 	 * Validates the provided object against the provided expression.
