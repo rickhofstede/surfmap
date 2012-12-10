@@ -5,7 +5,7 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 ---
 
-Release notes [v2.4 dev (20120918)]:
+Release notes [v2.4 stable (20121211)]:
 - [FEATURE] Added support for multiple internal domains at multiple geographical locations
 - [FEATURE] Improved support for PHP 5.4
 - [BUGFIX] Fixed a bug that caused several subnet masks not to be processed properly
