@@ -363,11 +363,11 @@
 	<head>
 		<title>SURFmap Configuration Checker</title>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-		<link type="text/css" rel="stylesheet" href="../jquery/css/start/jquery-ui-1.8.18.custom.css" />
+		<link type="text/css" rel="stylesheet" href="../jquery/css/start/jquery-ui-1.8.23.custom.css" />
 		<link type="text/css" rel="stylesheet" href="../css/surfmap.css" />
 		<script type="text/javascript" src="<?php if ($FORCE_HTTPS) {echo 'https';} else {echo 'http';} ?>://maps.google.com/maps/api/js?sensor=false"></script>
-		<script type="text/javascript" src="../jquery/js/jquery-1.7.1.min.js"></script>
-		<script type="text/javascript" src="../jquery/js/jquery-ui-1.8.18.custom.min.js"></script>
+		<script type="text/javascript" src="../jquery/js/jquery-1.8.1.min.js"></script>
+		<script type="text/javascript" src="../jquery/js/jquery-ui-1.8.23.custom.min.js"></script>
 		<script type="text/javascript" src="../js/jqueryutil.js"></script>
 		<style type="text/css">
 			body {
