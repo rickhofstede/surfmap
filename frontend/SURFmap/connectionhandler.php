@@ -9,6 +9,7 @@
 	
 	require_once("MaxMind/geoipcity.inc");
 	require_once("IP2Location/ip2location.class.php");
+    require_once("surfmaputil.php");
 	
 	class ConnectionHandler {
 		var $GeocoderDatabase;
