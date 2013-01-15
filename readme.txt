@@ -1,6 +1,6 @@
 SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 
-Version: v2.4
+Version: 2.4.1
 Author: Rick Hofstede, University of Twente <r.j.hofstede@utwente.nl>
 
 --
