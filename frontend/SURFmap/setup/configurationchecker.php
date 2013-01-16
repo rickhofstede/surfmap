@@ -107,6 +107,7 @@
 			$filePermOK = 0;
 		}
 	}
+    unset($entry);
 	
 	// 10. Check additional NetFlow source selector syntax
 	$additionalSrcSelectorExploded = explode(";", $NFSEN_DEFAULT_SOURCES);
@@ -135,6 +136,7 @@
 			}
 		}
 	}
+    unset($key, $value);
 	
 	// 13. Check availability of 'mbstring' PHP module (for MaxMind API)
 	if (extension_loaded("mbstring")) {
@@ -159,7 +161,9 @@
 					break;
 				}
 			}
+            unset($subnet);
 		}
+        unset($key, $value);
 	}
 	
 	/*
@@ -167,7 +171,7 @@
 	 * address or a NATed address, try do find it using WhatIsMyIP
 	 */
 	$extIPError = "";
-	if ($extIPNAT === true) {
+	if ($extIPNAT) {
 		$NATIP = $extIP;
 		try {
 			if (extension_loaded("curl")) {
@@ -183,12 +187,12 @@
 					curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
 					curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
 					
-					if ($USE_PROXY === 1) {
+					if ($USE_PROXY) {
 						curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
 						curl_setopt($curl_handle, CURLOPT_PROXY, $PROXY_IP);
 						curl_setopt($curl_handle, CURLOPT_PROXYPORT, $PROXY_PORT);
 					
-						if ($PROXY_USERNAME_PASSWORD === 1) {
+						if ($PROXY_USERNAME_PASSWORD) {
 							curl_setopt($curl_handle, CURLOPT_PROXYUSERPWD, $PROXY_USERNAME_PASSWORD);
 						}
 					}
@@ -196,37 +200,27 @@
 					$extIP = curl_exec($curl_handle);
 					curl_close($curl_handle);
 
-					if (substr_count($extIP, ".") != 3) {
-						sleep(1);
-						continue;
-					} else {
-						break;
+					if (substr_count($extIP, ".") == 3) {
+                        if ($extIP == $NATIP) $extIPNAT = false;
+                        break;
 					}
+					
+                    sleep(1);
 				}
 			}
 
 			/*
-			 * If $extIP == $NATIP, cURL is probably not installed/activated.
+			 * If 'substr_count($extIP, ".") != 3' it means that it was not an IP address that was downloaded,
+             * which can be the case when whatismyip.org spawns an error message.
 			 */
-			if (substr_count($extIP, ".") != 3  || $extIP == $NATIP) {
+			if (substr_count($extIP, ".") != 3  || !extension_loaded("curl")) {
 				$extIP = $NATIP;
 				$extIPError = "Unable to retrieve external IP address";
 			}
 		} catch (Exception $e) {}
 	}
 	
-	// Check whether the (eventually) discovered external IP address is still a NATed one
-	$extIPNAT = false;
-	if (isset($internalDomainNets)) {
-		foreach($internalDomainNets as $subNet) {
-			if (ipAddressBelongsToNet($extIP, $subNet)) {
-				$extIPNAT = true;
-				break;
-			}
-		}
-	}
-	
-	if ($extIPNAT === false && $GEOLOCATION_DB === "IP2Location" && $ip2LocationDBPathOK === 1) {
+	if ($GEOLOCATION_DB === "IP2Location" && $ip2LocationDBPathOK === 1) {
 		$GEO_database = new ip2location();
 		$GEO_database->open($ip2LocationPath);
 		$data = $GEO_database->getAll($extIP);
@@ -239,7 +233,7 @@
 		
 		$extIPCity = $data->city;
 		if ($extIPCity == "-") $extIPCity = "(UNKNOWN)";
-	} else if ($extIPNAT === false && $GEOLOCATION_DB === "MaxMind" && $maxmindDBPathOK === 1) {
+	} else if ($GEOLOCATION_DB === "MaxMind" && $maxmindDBPathOK === 1) {
 		$GEO_database = geoip_open($maxMindPath, GEOIP_STANDARD);
 		$data = geoip_record_by_addr($GEO_database, $extIP);
 		

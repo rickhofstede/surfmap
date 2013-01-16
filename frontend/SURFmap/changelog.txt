@@ -7,6 +7,7 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 Release notes [v2.4.1 stable (20130116)]:
 - [BUGFIX] Fixed a bug that caused the ConfigurationChecker to run in some setups
+- [BUGFIX] Various stability improvements to ConfigurationChecker
 
 Release notes [v2.4 stable (20121211)]:
 - [FEATURE] Added support for multiple internal domains at multiple geographical locations
