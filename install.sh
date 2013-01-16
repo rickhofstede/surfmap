@@ -11,7 +11,7 @@
 # $Id$
 #
 
-SURFMAP_VER=2.3
+SURFMAP_VER=2.4.1
 SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
 SURFMAP_TMP=SURFmap_tmp
 GEO_DB=GeoLiteCity.dat.gz
