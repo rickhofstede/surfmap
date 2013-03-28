@@ -15,8 +15,10 @@ SURFMAP_VER=2.4.1
 SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
 SURFMAP_TMP=SURFmap_tmp
 GEO_DB=GeoLiteCity.dat.gz
+GEOv6_DB=GeoLiteCityv6.dat.gz
 
 err () {
+    echo "-----"
 	echo "ERROR: ${*}"
 	exit 1
 }
@@ -60,6 +62,11 @@ if [ ! -f  ${GEO_DB} ]; then
 	wget http://geolite.maxmind.com/download/geoip/database/${GEO_DB}
 fi
 
+if [ ! -f  ${GEOv6_DB} ]; then
+	echo "Downloading MaxMind GeoLite City (IPv6) database - http://geolite.maxmind.com"
+	wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/${GEOv6_DB}
+fi
+
 # Backup old SURFmap installation
 if [ -d ${FRONTEND_PLUGINDIR}/SURFmap ]; then
 	SURFMAP_BACKUPDIR=${FRONTEND_PLUGINDIR}/SURFmap-$(date +%s)
@@ -77,13 +84,23 @@ echo "Installing SURFmap ${SURFMAP_VER} to ${FRONTEND_PLUGINDIR}/SURFmap"
 cp -r ./${SURFMAP_TMP}/backend/* ${BACKEND_PLUGINDIR}
 cp -r ./${SURFMAP_TMP}/frontend/* ${FRONTEND_PLUGINDIR}
 
-# Unpack GeoLocation database
+# Unpack geoLocation database
 echo "Installing MaxMind GeoLite City database to ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind"
 gunzip -c ${GEO_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind/$(basename ${GEO_DB} .gz)
+if [ $? != 0 ]; then
+    err "The MaxMind GeoLite City database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
+fi
+
+echo "Installing MaxMind GeoLite City (IPv6) database to ${FRONTEND_PLUGINDIR}/SSHCure/lib/MaxMind"
+gunzip -c ${GEOv6_DB} > ${FRONTEND_PLUGINDIR}/SSHCure/lib/MaxMind/$(basename ${GEOv6_DB} .gz)
+if [ $? != 0 ]; then
+    err "The MaxMind GeoLite City (IPv6) database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
+fi
 
 # Deleting temporary files
 rm -rf ${SURFMAP_TMP}
 rm -rf ${GEO_DB}
+rm -rf ${GEOv6_DB}
 
 # Set permissions - owner and group
 echo "Setting plugin files permissions - user \"${USER}\" and group \"${WWWGROUP}\""
@@ -144,7 +161,7 @@ sed -i "/SURFmap/d" ${NFSEN_CONF}
 OLDENTRY=$(grep \@plugins ${NFSEN_CONF})
 sed -i "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
 
-echo ""
+echo "-----"
 
 # Restart/reload NfSen
 echo "Please restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
