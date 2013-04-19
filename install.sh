@@ -3,8 +3,8 @@
 # Simple script to install SURFmap plugin.
 #
 # Copyright (C) 2013 INVEA-TECH a.s.
-# Author(s): 	Pavel Celeda    <celeda@invea-tech.com>
-#				Rick Hofstede   <r.j.hofstede@utwente.nl>
+# Author(s): 	Rick Hofstede   <r.j.hofstede@utwente.nl>
+#               Pavel Celeda    <celeda@invea-tech.com>
 #
 # LICENSE TERMS - 3-clause BSD license
 #
@@ -163,6 +163,12 @@ sed -i "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
 
 echo "-----"
 
-# Restart/reload NfSen
-echo "Please restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
+# Check available PHP modules
+AVAILABLE_PHP_MODULES=$(php -m | grep -w 'mbstring\|pdo_sqlite' 2> /dev/null)
+
+if [[ "$AVAILABLE_PHP_MODULES" != *mbstring* || "$AVAILABLE_PHP_MODULES" != *pdo_sqlite* ]]; then
+    echo "Some required PHP modules are missing. Try to install the 'php5-sqlite' (Ubuntu/Debian), or 'php-pdo' and 'php-mbstring' (Red Hat/CentOS, using EPEL) package(s)"
+else
+    echo "Please restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
+fi
 

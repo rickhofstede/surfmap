@@ -3,8 +3,8 @@
 # Simple script to install SURFmap plugin from SVN.
 #
 # Copyright (C) 2013 INVEA-TECH a.s.
-# Author(s): 	Pavel Celeda    <celeda@invea-tech.com>
-#				Rick Hofstede   <r.j.hofstede@utwente.nl>
+# Author(s): 	Rick Hofstede   <r.j.hofstede@utwente.nl>
+#               Pavel Celeda    <celeda@invea-tech.com>
 #
 # LICENSE TERMS - 3-clause BSD license
 #
