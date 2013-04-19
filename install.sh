@@ -167,7 +167,7 @@ echo "-----"
 AVAILABLE_PHP_MODULES=$(php -m | grep -w 'mbstring\|pdo_sqlite' 2> /dev/null)
 
 if [[ "$AVAILABLE_PHP_MODULES" != *mbstring* || "$AVAILABLE_PHP_MODULES" != *pdo_sqlite* ]]; then
-    echo "Some required PHP modules are missing. Try to install the 'php5-sqlite' (Ubuntu/Debian), or 'php-pdo' and 'php-mbstring' (Red Hat/CentOS, using EPEL) package(s)"
+        echo "Some required PHP modules are missing. Try to install the 'php5-sqlite' (Ubuntu/Debian), or 'php-pdo' and 'php-mbstring' (Red Hat/CentOS, using EPEL) package(s). Don't forget to restart your Web server after installing the package(s)"
 else
     echo "Please restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
 fi
