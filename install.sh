@@ -164,11 +164,13 @@ sed -i "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
 echo "-----"
 
 # Check available PHP modules
-AVAILABLE_PHP_MODULES=$(php -m | grep -w 'mbstring\|pdo_sqlite' 2> /dev/null)
+PHP_MBSTRING=$(php -m | grep 'mbstring' 2> /dev/null)
+PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite' 2> /dev/null)
 
-if [[ "$AVAILABLE_PHP_MODULES" != *mbstring* || "$AVAILABLE_PHP_MODULES" != *pdo_sqlite* ]]; then
-        echo "Some required PHP modules are missing. Try to install the 'php5-sqlite' (Ubuntu/Debian), or 'php-pdo' and 'php-mbstring' (Red Hat/CentOS, using EPEL) package(s). Don't forget to restart your Web server after installing the package(s)"
+if [ "$PHP_MBSTRING" != "mbstring" ]; then
+    echo "The PHP 'mbstring' module is missing. Try to install the 'php-mbstring' (Red Hat/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
+elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
+    echo "The PHP PDO SQLite v3 module is missing. Try to install the 'php5-sqlite' (Ubuntu/Debian) or 'php-pdo' (Red Hat/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
 else
     echo "Please restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
 fi
-
