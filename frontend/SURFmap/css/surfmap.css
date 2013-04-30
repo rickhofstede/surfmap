@@ -1,0 +1,382 @@
+/*******************************
+ * surfmap.css [SURFmap]
+ * Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+ * University of Twente, The Netherlands
+ *
+ * LICENSE TERMS: 3-clause BSD license (outlined in license.html)
+ *******************************/
+
+html { 
+    height:         	90% 
+}
+
+body {
+    height:         	90%;
+    margin:         	10px;
+    font-family:    	Verdana;
+	font-size:			10pt;
+}
+
+a:link {
+    color:          	black;
+    text-decoration:	none;
+    outline:            none;
+}
+
+img {
+    border:         	0;
+}
+
+input[type=text], textarea { 
+    border-width:   	1px;
+    border-style:   	solid;
+    border-color:   	black;
+    font-size:      	11px;
+}
+
+label.zoom_level_label {
+    margin-left:    	2px;
+}
+
+textarea.filter {
+    font-size:      	11px;
+    margin-top:     	2px;
+    display:        	none;
+}
+
+div#loading_dialog {
+    font-size:          7pt;
+}
+
+div#error_dialog {
+    font-size:          8pt;
+}
+
+div#warning_dialog {
+    font-size:          8pt;
+}
+
+div#info_dialog {
+    font-size:          9pt;
+}
+
+div#error_messages {
+	clear:				both;
+	margin-bottom:		10px;
+	width:				97%;
+}
+
+div#error_messages span {
+	float:				left;
+	margin-left:		5px;
+	margin-right:		5px;
+}
+
+div#legend {
+    margin-top:         5px;
+    vertical-align:     text-top;
+}
+
+div#legend div#legend_description {
+    width:              75px;
+    float:              left;
+}
+
+div#legend div#legend_scale {
+    float:              left;
+    width:              810px;
+}
+
+div#legend div#legend_scale_color {
+    position:           absolute;
+    z-index:            0;
+}
+
+div#legend span#legend_scale_text {
+    position:           relative;
+    z-index:            1;
+}
+
+div#legend div#legend_scale span#legend_scale_text_left {
+    padding-left:       5px;
+}
+
+div#legend div#legend_scale span#legend_scale_text_mid {
+    display:            inline-block;
+    text-align:         center;
+}
+
+div#legend div#legend_scale span#legend_scale_text_right {
+    padding-right:      5px;
+	color:				white;
+}
+
+table.flow_info_table {
+    border-spacing:     0;
+    font-size:          8pt;
+    text-align:         center;
+}
+
+table.flow_info_table tr.even {
+    background-color:   #F0F0F0;
+}
+
+table.flow_info_table tr.footer td {
+    padding-top:        5px;
+}
+
+table.flow_info_table tr.footer td a {
+    margin-left:        3px;
+    margin-right:       3px;
+}
+
+table.flow_info_table th {
+    border-bottom:      1.5px solid #6678b1;
+    color:              #1482AF;
+    padding-left:       7px;
+    padding-right:      7px;
+}
+
+table.flow_info_table th.left {
+    padding-left:       0;
+}
+
+table.flow_info_table th.right {
+    padding-right:      0;
+}
+
+table.flow_info_table .src_column {
+    cursor:             default;
+    text-align:         left;
+}
+
+table.flow_info_table td.src_column {
+    padding-right:      5px;
+}
+
+table.flow_info_table .dst_column {
+    cursor:             default;
+    text-align:         right;
+}
+
+table.flow_info_table th.dst_column {
+    padding-right:      0;
+}
+
+table.flow_info_table td.dst_column {
+    padding-left:      5px;
+}
+
+table.flow_info_table td {
+    white-space:        nowrap;
+}
+
+
+table#help td.help_item {
+    font-weight:        bold;
+    vertical-align:     text-top;
+    width:              100px;
+}
+
+.clickable {
+    cursor:         pointer;
+}
+
+.date_time_input { 
+    width:          120px;
+    padding:        2px 0px 2px 5px;
+    float:          right;
+}
+
+/* --------------------- */
+
+/* remove label borders in IE6 because IE6 does not support transparency */
+* html .ui-multiselect-checkboxes label { border:none }
+
+/* jQuery */
+.ui-dialog .ui-button {
+    font-size:      8pt;
+}
+.ui-dialog-title {
+    font-size:      9pt;
+}
+.dialog_no_title .ui-dialog-titlebar { 
+    display:        none;
+}
+
+.no-icon-background { 
+    background:     none;
+    border-style:   none;
+    cursor:         pointer;
+    margin-right:   5px;
+}
+
+.ui-widget {
+    font-size:      8pt;
+}
+
+.ui-widget-overlay { 
+    background:     #FFFFFF;
+    opacity:        .60; 
+    filter:         Alpha(Opacity=60);
+}
+
+.ui-tooltip {
+    font-size:      10px;
+    padding:        5px 10px;
+}
+
+/* Menu panel (http://spyrestudios.com/how-to-create-a-sexy-vertical-sliding-panel-using-jquery-and-css3/) */
+.panel {
+	background:         #6E6E6E;
+	border:             1px solid #111111;
+	border-radius:      20px 0px 0px 20px;
+	color:              #CCCCCC;
+	display:            none;
+	height:             auto;
+	margin:             0 0 15px 0;
+	opacity:            .90;
+	padding:            0px 20px 10px 15px;
+	position:           absolute;
+	right:              5px;
+	width:              210px;
+	filter:             alpha(opacity=90);
+	-moz-border-radius-topleft: 20px;
+	-webkit-border-top-left-radius: 20px;
+	-moz-border-radius-bottomleft: 20px;
+	-webkit-border-bottom-left-radius: 20px;
+}
+
+div.panel_trigger {
+	position:           absolute;
+	text-decoration:    none;
+	right:              5px;
+	font-size:          16px;
+	letter-spacing:     -1px;
+	color:              #FFFFFF;
+	padding:            15px 10px 15px 35px;
+	font-weight:        700;
+	background:         #333333 url(../images/plus.png) 15% 55% no-repeat;
+	border:             1px solid #444444;
+	border-radius:      20px 0px 0px 20px;
+    display:            block;
+	-moz-border-radius-topleft: 20px;
+	-webkit-border-top-left-radius: 20px;
+	-moz-border-radius-bottomleft: 20px;
+	-webkit-border-bottom-left-radius: 20px;
+	-moz-border-radius-bottomright: 0px;
+	-webkit-border-bottom-right-radius: 0px;
+}
+
+div.panel_trigger:hover {
+    position:           absolute;
+	text-decoration:    none;
+	top:                86px;
+    right:              5px;
+	font-size:          16px;
+	letter-spacing:     -1px;
+	color:              #FFFFFF;
+	padding:            15px 10px 15px 45px;
+	font-weight:        700;
+	background:         #222222 url(../images/plus.png) 15% 55% no-repeat;
+	border:             1px solid #444444;
+	border-radius:      20px 0px 0px 20px;
+    display:            block;
+    cursor:             pointer;
+	-moz-border-radius-topleft: 20px;
+	-webkit-border-top-left-radius: 20px;
+	-moz-border-radius-bottomleft: 20px;
+	-webkit-border-bottom-left-radius: 20px;
+	-moz-border-radius-bottomright: 0px;
+	-webkit-border-bottom-right-radius: 0px;
+}
+
+div.active.panel_trigger {
+	background:#222222 url(../images/minus.png) 15% 55% no-repeat;
+}
+
+.panel_section_title {
+	color:#FF192A;
+}
+
+.panel_section_content {
+	font-size: 8pt;
+	margin-left:10px;
+}
+
+#update_result img {
+	height:	20px;
+	width:	20px;
+}
+
+/* Page header */
+div#header {
+	width:	            97%;
+    clear:              both;
+}
+
+div#header div#header_text {
+    float:              right;
+    margin-top:         8px;
+}
+
+div#header div#header_text p {
+    text-align:         right;
+}
+
+div#header div#header_line {
+    border-right:       thin solid #000000;
+    float:              right;
+    height:             45px;
+    margin-left:        18px;
+    margin-top:         15px;
+}
+
+div#header span#logo {
+    float:              right;
+}
+
+/* Map */
+div#map_canvas {
+	height:	            95%;
+	width:	            97%;
+}
+
+/* Page footer */
+div#footer {
+	width:	            97%;
+    font-size:          8pt;
+    clear:              both;
+}
+
+/* TimePicker (jQuery) */
+#ui-datepicker-div { font-size: 9pt; }
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div { margin-left: 5px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+
+/* MultiSelect (jQuery) */
+.ui-multiselect { padding:3px 0 2px 6px; text-align:left; font-size:7pt; } /* .ui-multiselect { padding:2px 0 2px 4px; text-align:left; } */
+.ui-multiselect span.ui-icon { float:right }
+.ui-multiselect-single .ui-multiselect-checkboxes input { position:absolute !important; top: auto !important; left:-9999px; }
+.ui-multiselect-single .ui-multiselect-checkboxes label { padding:5px !important }
+
+.ui-multiselect-header { margin-bottom:3px; padding:3px 0 3px 4px; font-weight:normal; }
+.ui-multiselect-header ul { font-size: 0.9em; }
+.ui-multiselect-header ul li { float:left; padding:0 10px 0 0 }
+.ui-multiselect-header a { text-decoration:none }
+.ui-multiselect-header a:hover { text-decoration:underline }
+.ui-multiselect-header span.ui-icon { float:left }
+.ui-multiselect-header li.ui-multiselect-close { float:right; text-align:right; padding-right:0 }
+
+.ui-multiselect-menu { display:none; padding:3px; position:absolute; z-index:10000; font-size: 8pt; }
+.ui-multiselect-checkboxes { position:relative /* fixes bug in IE6/7 */; overflow-y:scroll }
+.ui-multiselect-checkboxes label { cursor:default; display:block; border:1px solid transparent; padding:3px 1px }
+.ui-multiselect-checkboxes label input { position:relative; top:1px }
+.ui-multiselect-checkboxes li { clear:both; font-size:0.9em; padding-right:3px }
+.ui-multiselect-checkboxes li.ui-multiselect-optgroup-label { text-align:center; font-weight:bold; border-bottom:1px solid }
+.ui-multiselect-checkboxes li.ui-multiselect-optgroup-label a { display:block; padding:3px; margin:1px 0; text-decoration:none }
