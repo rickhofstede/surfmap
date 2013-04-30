@@ -188,6 +188,9 @@
                             break;
             
                 // Client-side-only error codes
+                case 996:   message = "You have specified an invalid map center. Please check your configuration.";
+                            break;
+                            
                 case 997:   message = "You have selected an invalid time range. The end time should come after the begin time.";
                             break;
             

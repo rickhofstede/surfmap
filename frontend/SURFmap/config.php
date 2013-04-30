@@ -22,7 +22,7 @@
 	
 	/* [NfSen] */
 	$config['nfsen_config'] = "/data/nfsen/etc/nfsen.conf"; // Path to NfSen configuration file [example: '/data/nfsen/etc/nfsen.conf']
-	$config['nfsen_default_sources'] = "invea-10g-seinhuis"; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [default: '', example: 'core-router;backup-router']
+	$config['nfsen_default_sources'] = ""; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [default: '', example: 'core-router;backup-router']
 	
 	/* [GeoLocation] */
 	$config['geolocation_db'] = "MaxMind"; // "IP2Location" or "MaxMind" [default: 'MaxMind']

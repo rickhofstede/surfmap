@@ -1,5 +1,5 @@
 # *******************************
-# backend.php [SURFmap]
+# SURFmap.pm [SURFmap]
 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
 # University of Twente, The Netherlands
 #
@@ -9,7 +9,7 @@
 package SURFmap;
 
 use strict;
-our $VERSION = 130;
+our $VERSION = 135;
 
 sub Init {
 	return 1;

@@ -510,6 +510,10 @@
         var map_center = new google.maps.LatLng(
                 parseFloat(session_data['map_center'].substring(0, session_data['map_center'].indexOf(","))),
                 parseFloat(session_data['map_center'].substring(session_data['map_center'].indexOf(",") + 1)));
+        
+        if (isNaN(map_center.lat()) || isNaN(map_center.lng())) {
+            show_error(996);
+        }
             
         map = new google.maps.Map(document.getElementById("map_canvas"), {
             zoom: parseFloat(session_data['zoom_level']),

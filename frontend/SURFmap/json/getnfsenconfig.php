@@ -13,7 +13,7 @@
 	$nfsen_config = array();
 	$comment = "#";
     
-	if ($fp = fopen($config['nfsen_config'], "r")) {
+	if (@$fp = fopen($config['nfsen_config'], "r")) {
 		while (!feof($fp)) {
 			$line = trim(fgets($fp));
 			if ($line && !preg_match("/^$comment/", $line) && strpos($line, "=") && strpos($line, ";")) {
@@ -41,6 +41,7 @@
 		fclose($fp);
 	} else {
         $result['status'] = 1;
+        $result['status_message'] = "Could not open the NfSen configuration file (nfsen.conf). Please check your settings to make sure the correct path is provided.";
         echo json_encode($result);
         die();
 	}
