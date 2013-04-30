@@ -86,7 +86,7 @@ cp -r ./${SURFMAP_TMP}/frontend/* ${FRONTEND_PLUGINDIR}
 
 # Unpack geoLocation database
 echo "Installing MaxMind GeoLite City database to ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind"
-gunzip -c ${GEO_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind/$(basename ${GEO_DB} .gz)
+gunzip -c ${GEO_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind/$(basename ${GEO_DB} .gz)
 if [ $? != 0 ]; then
     err "The MaxMind GeoLite City database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
 fi
