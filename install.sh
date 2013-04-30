@@ -91,8 +91,8 @@ if [ $? != 0 ]; then
     err "The MaxMind GeoLite City database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
 fi
 
-echo "Installing MaxMind GeoLite City (IPv6) database to ${FRONTEND_PLUGINDIR}/SSHCure/lib/MaxMind"
-gunzip -c ${GEOv6_DB} > ${FRONTEND_PLUGINDIR}/SSHCure/lib/MaxMind/$(basename ${GEOv6_DB} .gz)
+echo "Installing MaxMind GeoLite City (IPv6) database to ${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind"
+gunzip -c ${GEOv6_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind/$(basename ${GEOv6_DB} .gz)
 if [ $? != 0 ]; then
     err "The MaxMind GeoLite City (IPv6) database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
 fi
