@@ -116,7 +116,7 @@ cd ${FRONTEND_PLUGINDIR}/SURFmap/setup
 
 i=0
 while true; do
-	MY_LOC=$(php configurationchecker.php | grep configdata | cut -d'>' -f2 | cut -d'<' -f1)
+	MY_LOC=$(php retrievelocation.php | grep config_data | cut -d'>' -f2 | cut -d'<' -f1)
 	echo "Geocoding plugin location - ${MY_LOC}"
 
 	i=$(( i + 1 ))		# check 5 times before giving up
