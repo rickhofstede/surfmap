@@ -1,14 +1,16 @@
 <?php
-/*******************************
- # retrievelocation.php [SURFmap]
- # Author: Rick Hofstede
- # University of Twente, The Netherlands
- #
- # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
- *******************************/
+    /*******************************
+     # retrievelocation.php [SURFmap]
+     # Author: Rick Hofstede
+     # University of Twente, The Netherlands
+     #
+     # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
+     *******************************/
 	
     require_once("../config.php");
-	require_once("../json/getgeolocationdata.php");
+    require_once("../util.php");
+    require_once("../lib/MaxMind/geoipcity.inc");
+    require_once("../lib/IP2Location/ip2location.class.php");
 	
 	// Retrieve External IP address and location
 	$ext_IP = (!getenv("SERVER_ADDR")) ? "127.0.0.1" : getenv("SERVER_ADDR");
@@ -86,7 +88,7 @@
 	
 	if ($config['geolocation_db'] == "IP2Location") {
 		$GEO_database = new ip2location();
-		$GEO_database->open($ip2LocationPath);
+		$GEO_database->open("../".$config['ip2location_path']);
 		$data = $GEO_database->getAll($ext_IP);
 		
 		$ext_IP_country = $data->countryLong;
@@ -97,14 +99,14 @@
 		
 		$ext_IP_city = $data->city;
 		if ($ext_IP_city == "-") $ext_IP_city = "(UNKNOWN)";
-	} else if ($GEOLOCATION_DB == "MaxMind") {
-		$GEO_database = geoip_open($maxMindPath, GEOIP_STANDARD);
+	} else if ($config['geolocation_db'] == "MaxMind") {
+		$GEO_database = geoip_open("../".$config['maxmind_path'], GEOIP_STANDARD);
 		$data = geoip_record_by_addr($GEO_database, $ext_IP);
 		
 		if (isset($data->country_name)) {
 			$ext_IP_country = strtoupper($data->country_name);
 		}
-		if (!isset($ext_IP_country) || $extIPCountry == "") $ext_IP_country = "(UNKNOWN)";
+		if (!isset($ext_IP_country) || $ext_IP_country == "") $ext_IP_country = "(UNKNOWN)";
 
 		if (isset($data->country_code) && isset($data->region)
 				&& array_key_exists($data->country_code, $GEOIP_REGION_NAME)
@@ -123,9 +125,9 @@
 		$ext_IP_city = "(UNKNOWN)";
 	}
 	
-	$ext_IP_country = stripAccentedCharacters($ext_IP_country);
-	$ext_IP_region = stripAccentedCharacters($ext_IP_region);
-	$ext_IP_city = stripAccentedCharacters($ext_IP_city);
+	$ext_IP_country = replace_accented_characters($ext_IP_country);
+	$ext_IP_region = replace_accented_characters($ext_IP_region);
+	$ext_IP_city = replace_accented_characters($ext_IP_city);
 	
 	if ($ext_IP_city != "(UNKNOWN)") {
 		$lat_lng = geocode($ext_IP_city);
@@ -185,22 +187,22 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>SURFmap -- Retrieve Location</title>
+		<title>SURFmap / Retrieve Location</title>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 	</head>
 	<body>
-		<h1>SURFmap -- Retrieve Location</h1>
+		<h1>SURFmap / Retrieve Location</h1>
 			
-		<div id="setup_guidelines"><b>Setup guidelines</b><br /><br />You can use the following settings in config.php:<br /><br /></div>		
+		<div id="setup_guidelines">You can use the following settings in config.php:<br /><br /></div>		
 		<div id="config_data" style="display:none;"><?php echo $location; ?></div>
 		
 		<script type="text/javascript">
-			var ext_IP_NAT = <?php if ($extIPNAT) echo "1"; else echo "0"; ?>;
-			var ext_IP_error = "<?php echo $ext_IP_error; ?>";
+			var ext_IP_NAT = <?php if ($ext_IP_NAT) echo "1"; else echo "0"; ?>;
+			var ext_IP_error = "<?php if (isset($ext_IP_error)) echo $ext_IP_error; ?>";
 			var ext_IP_country = "<?php echo $ext_IP_country; ?>";
 			var ext_IP_region = "<?php echo $ext_IP_region; ?>";
 			var ext_IP_city = "<?php echo $ext_IP_city; ?>";
-			var ext_IP_coordinates = "<?php if (isset($lat_lng) && is_array($lat_lng)) { echo $lat_lng[0].\",\".$lat_lng[1]; } else { echo \"\"; } ?>";
+			var ext_IP_coordinates = "<?php if (isset($lat_lng) && is_array($lat_lng)) { echo $lat_lng[0].','.$lat_lng[1]; } ?>";
             var first_internal_domain = "<?php reset($config['internal_domains']); echo key($config['internal_domains']); ?>";
 
 			// Setup guidelines
@@ -217,9 +219,6 @@
 								<span style=\"padding-left: 50px;\">\"" + first_internal_domain + "\" => array(\"country\" => \"" + ext_IP_country + "\", \"region\" => \"" + region + "\", \"city\" => \"" + city + "\")</span><br /> \
 						);"
 			}
-
-			var checkItem14Title = "External IP address and location";
-			var checkItem14Text = "If your PHP configuration contains your public IP address, it is likely to be geolocatable. In that case, it is shown here. If the locations are unknown, you need to geolocate it manually.";
 		</script>
 	</body>
 </html>

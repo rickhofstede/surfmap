@@ -57,6 +57,6 @@
 	$config['proxy_port'] = 8080; // Port to connect to the proxy [default: 8080]
 	$config['proxy_user_authentication'] = 0; // Enable this setting if your proxy requires authentication (username and password) [default: 0]
 	$config['proxy_username'] = "username"; // Username to be used for proxy authentication
-    $config['proxy_password'] = "password"; // Username to be used for proxy authentication
+    $config['proxy_password'] = "password"; // Password to be used for proxy authentication
     
 ?>
