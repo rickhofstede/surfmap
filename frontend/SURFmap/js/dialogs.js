@@ -375,7 +375,8 @@
             field_names['location_src'] = 'Source location';
             field_names['location_dst'] = 'Destination location';
             
-            field_count = 11 + extensions.length;
+            var static_field_count = 11;
+            var field_count = static_field_count + extensions.length;
             
             protocols = [];
             protocols[1] = 'ICMP';
@@ -460,6 +461,13 @@
                     body_line.append(field);
                 }
                 
+                // Merge 'Source location' and 'Destination location' if they are equal
+                var line_fields = body_line.children('td');
+                if ($(line_fields[static_field_count - 2]).text() == $(line_fields[static_field_count - 1]).text()) {
+                    $(line_fields[static_field_count - 2]).attr('colspan', '2');
+                    $(line_fields[static_field_count - 1]).remove();
+                }
+                
                 body.append(body_line);
                 line_class = (line_class == 'odd') ? 'even' : 'odd';
             });
@@ -491,6 +499,10 @@
                     <div style='font-size:8pt; margin-top:15px;'> \
                     <p id='loading_text_upper'>Loading...</p> \
                     <p id='loading_text_lower'></p> \
+                    <p id='loading_text_long' style='display:none;'>Your request is still being \
+                                processed by the server. Please don't refresh the page, \
+                                as that will result in serious performance degradation \
+                                of your server.</p> \
                     </div> \
                 </div>");
             
@@ -502,21 +514,28 @@
                 resizable: false,
                 stack: true,
                 width: 250,
-                close: function (event, ui) {
-                    clearTimeout(loading_message_timeout_handle);
-                }
             }).dialog('open');
             
             // loading_message_timeout_handle has been declared in index.php
-            loading_message_timeout_handle = setTimeout(
+            loading_message_timeout_handle = setInterval(
                 function () {
                     if ($('#loading_dialog').dialog('isOpen')) {
                         $('#loading_dialog').dialog('close');
-                        $('#loading_text_upper').text("Your request is still being \
-                                processed by the server. Please don't refresh the page, \
-                                as that will result in serious performance degradation \
-                                of your server.");
-                        $('#loading_text_lower').hide();
+                        
+                        // Check whether message for long duration is visible (and therefore p#loading_text_lower is not)
+                        var width;
+                        if ($('#loading_dialog p#loading_text_long').css('display') == "none") {
+                            $('#loading_dialog p#loading_text_long').show();
+                            $('#loading_dialog p#loading_text_upper').hide();
+                            $('#loading_dialog p#loading_text_lower').hide();
+                            width = 450;
+                        } else {
+                            $('#loading_dialog p#loading_text_long').hide();
+                            $('#loading_dialog p#loading_text_upper').show();
+                            $('#loading_dialog p#loading_text_lower').show();
+                            width = 250;
+                        }
+                        
                         $('#loading_dialog').dialog({
                             closeOnEscape: false,
                             dialogClass: 'dialog_no_title',
@@ -524,13 +543,10 @@
                             position: 'center',
                             resizable: false,
                             stack: true,
-                            width: 450,
-                            close: function (event, ui) {
-                                clearTimeout(loading_message_timeout_handle);
-                            }
+                            width: width,
                         }).dialog('open');
                     }
-                }, 20000);
+                }, 5000);
         }
         
         if (text == '' || text == undefined) {

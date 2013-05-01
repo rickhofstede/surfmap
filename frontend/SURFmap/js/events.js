@@ -741,7 +741,10 @@ $(document).ready(function() {
         if ($('input[type=submit]').prop('disabled') != undefined) {
             $('input[type=submit]').removeAttr('disabled');
         }
-        if ($('#loading_dialog').dialog('isOpen')) $('#loading_dialog').dialog('close');
+        if ($('#loading_dialog').dialog('isOpen')) {
+            $('#loading_dialog').dialog('close');
+            clearInterval(loading_message_timeout_handle);
+        }
         
         if (config['show_warnings']) {
             if ($.browser.msie) { // IE is used

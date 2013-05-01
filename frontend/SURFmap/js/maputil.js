@@ -120,7 +120,8 @@
                 field_names['duration']  = 'Duration';
                 field_names['flows']     = 'Flows';
             
-                field_count = 9 + extensions.length;
+                var static_field_count = 9;
+                var field_count = static_field_count + extensions.length;
             
                 protocols = [];
                 protocols[1] = 'ICMP';

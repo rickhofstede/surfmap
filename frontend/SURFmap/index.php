@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "v3.0 dev (20130430)";
+     $version = "v3.0 dev (20130501)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -999,6 +999,7 @@
                             Yes: function () {
                                 $(this).dialog('close');
                                 start();
+                                return false;
                             },
                             No: function () {
                                 $(this).dialog('close');
@@ -1016,6 +1017,7 @@
                     return false;
                 } else {
                     start();
+                    return false;
                 }
                 
                 function start () {
