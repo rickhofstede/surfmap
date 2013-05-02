@@ -109,7 +109,8 @@ chown -R ${USER}:${WWWGROUP} ${BACKEND_PLUGINDIR}/SURFmap*
 
 # Update plugin configuration file - config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
 echo "Updating plugin configuration file ${SURFMAP_CONF}"
-sed -i "s,$(grep NFSEN_CONF ${SURFMAP_CONF} | cut -d'"' -f2),${NFSEN_CONF},g" ${SURFMAP_CONF}
+LINE=$(grep nfsen_config ${SURFMAP_CONF} | awk '{ START=index($0,"="); LENGTH=length($0)-START; print substr($0,START,LENGTH) }' | cut -d"\"" -f2)
+sed -i.tmp "s,$LINE,${NFSEN_CONF},g" ${SURFMAP_CONF}
 
 # Get my location information
 cd ${FRONTEND_PLUGINDIR}/SURFmap/setup
@@ -130,36 +131,48 @@ cd - > /dev/null
 # Fill my location in plugin configuration file
 if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 	OLDENTRY=$(sed -e '/$INTERNAL_DOMAINS = array/,/);/!d' ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f6)
-	sed -i "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
+	sed -i.tmp "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
 
 	OLDENTRY=$(sed -e '/$INTERNAL_DOMAINS = array/,/);/!d' ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f10)
 	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f2)
 	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
 		NEWENTRY=""
 	fi
-	sed -i "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
+	sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 
 	OLDENTRY=$(sed -e '/$INTERNAL_DOMAINS = array/,/);/!d' ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f14)
 	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f3)
 	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
 		NEWENTRY=""
 	fi
-	sed -i "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
+	sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 
 	OLDENTRY=$(grep MAP_CENTER ${SURFMAP_CONF} | cut -d'"' -f2)
 	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f4,5)
 	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
 		NEWENTRY=""
 	fi
-	sed -i "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
+	sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 fi
 
 # Enable plugin
 echo "Updating NfSen configuration file ${NFSEN_CONF}"
-sed -i "/SURFmap/d" ${NFSEN_CONF}
 
 OLDENTRY=$(grep \@plugins ${NFSEN_CONF})
-sed -i "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
+
+# Check whether we are running Linux of BSD (BSD sed does not support inserting new lines (\n))
+if [ $(uname) = "Linux" ]; then
+    # Linux
+    sed -i.tmp "/SURFmap/d" ${NFSEN_CONF}
+    sed -i.tmp "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
+else
+    # Something else (we assume *BSD)
+    if grep "SURFmap" ${NFSEN_CONF} > /dev/null; then
+        echo "Found 'SURFmap' in ${NFSEN_CONF}, assuming it is already configured"
+    else
+        sed -i.tmp "s/${OLDENTRY}/${OLDENTRY}\ \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
+    fi
+fi
 
 echo "-----"
 
