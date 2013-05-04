@@ -66,7 +66,7 @@
                             IP_addresses_to_be_removed.push(address_index);
                             
                             // Add (previously resolved) hostname as tooltip to IP address
-                            $('.flow_info_table tbody td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
+                            $('#map_canvas .flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
                             
                             return false;
                         }
@@ -95,7 +95,7 @@
                                 resolved_hostnames.push(tuple);
                                 
                                 // Add hostname as tooltip to IP addresses
-                                $('.flow_info_table tbody td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
+                                $('#map_canvas .flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
                             });
                         } else {
                             show_error(815, data.status_message);
@@ -108,104 +108,8 @@
             }
             
             // Attach click handler for opening Flow Details
-            $('a:contains(Flow Details)').click(function (event) {
-                var field_names = [];
-                field_names['ipv4_src']  = 'Src. address';
-                field_names['ipv4_dst']  = 'Dst. address';
-                field_names['port_src']  = 'Src. port';
-                field_names['port_dst']  = 'Dst. port';
-                field_names['protocol']  = 'Protocol';
-                field_names['packets']   = 'Packets';
-                field_names['octets']    = 'Octets';
-                field_names['duration']  = 'Duration';
-                field_names['flows']     = 'Flows';
-            
-                var static_field_count = 9;
-                var field_count = static_field_count + extensions.length;
-            
-                protocols = [];
-                protocols[1] = 'ICMP';
-                protocols[2] = 'IGMP';
-                protocols[6] = 'TCP';
-                protocols[17] = 'UDP';
-                protocols[47] = 'GRE';
-            
-                // TODO Add support for extensions
-            
-                var body = $('<tbody/>');
-                var header_line = $('<tr/>', {'class': 'header'});
-                var key_index = 0;
-                for (var key in field_names) {
-                    var element = $('<th/>').text(field_names[key]);
-                
-                    if (key_index == 0) { // First field
-                        element.addClass('left');
-                    } else if (key_index == field_count - 1) { // Last field
-                        element.addClass('right');
-                    }
-                
-                    if (key == 'ipv4_src') {
-                        element.addClass('src_column');
-                    } else if (key == 'ipv4_dst') {
-                        element.addClass('dst_column');
-                    }
-                
-                    header_line.append(element);
-                    key_index++;
-                }
-                body.append(header_line);
-                
-                var line_class = 'odd';
-                $.each(associated_flow_indices, function () {
-                    var body_line = $('<tr/>', {'class': line_class});
-                
-                    for (var key in field_names) {
-                        var field = $('<td/>');
-                    
-                        if (key == 'ipv4_src') {
-                            field.addClass('src_column');
-                        } else if (key == 'ipv4_dst') {
-                            field.addClass('dst_column');
-                        }
-                    
-                        if (key == 'protocol') {
-                            // Replace protocol number by protocol name, if known
-                            if (protocols[flow_data[this][key]] != undefined) {
-                                field.text(protocols[flow_data[this][key]]);
-                            } else {
-                                field.text(flow_data[this][key]);
-                            }
-                        } else {
-                            field.text(flow_data[this][key]);
-                        }
-                        
-                        if (config['resolve_hostnames'] && (key == 'ipv4_src' || key == 'ipv4_dst')) {
-                            $.each(resolved_hostnames, function () {
-                                if (this.address == field.text()) {
-                                    field.attr('title', this.hostname);
-                                    return false;
-                                }
-                            });
-                        }
-                    
-                        body_line.append(field);
-                    }
-                
-                    body.append(body_line);
-                    line_class = (line_class == 'odd') ? 'even' : 'odd';
-                });
-                
-                $('#info_dialog').html("<table class=\"flow_info_table\">" + body.html() + "</table>");
-                $('#info_dialog').dialog({
-                    closeOnEscape: true,
-                    height: 'auto',
-                    modal: false,
-                    position: 'center',
-                    resizable: true,
-                    stack: true,
-                    title: 'Flow details',
-                    width: 'auto'
-                }).dialog('open');
+            flow_details_button.click(function (event) {
+                show_flow_details(associated_flow_indices);
             });
             
             // Make all instances of 'Not available' in information windows italic
@@ -257,7 +161,7 @@
                             IP_addresses_to_be_removed.push(address_index);
                             
                             // Add (previously resolved) hostname as tooltip to IP address
-                            $('.flow_info_table tbody td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
+                            $('.flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
                             
                             return false;
                         }
@@ -286,7 +190,7 @@
                                 resolved_hostnames.push(tuple);
                                 
                                 // Add hostnames as tooltip to IP addresses
-                                $('.flow_info_table tbody td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
+                                $('.flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
                             });
                         } else {
                             show_error(815, data.status_message);

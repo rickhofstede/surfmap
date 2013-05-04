@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "v3.0 dev (20130501)";
+     $version = "v3.0 dev (20130504)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -40,7 +40,7 @@
     <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript" src="lib/jquery/js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="lib/jquery/js/jquery-ui-1.10.2.custom.min.js"></script>
-    <!-- <script src="https://code.jquery.com/jquery-migrate-1.1.0.js"></script> -->
+    <!-- <script src="https://code.jquery.com/jquery-migrate-1.2.0.js"></script> -->
     <script type="text/javascript" src="lib/jquery_browser/jquery.browser.js"></script> <!-- https://github.com/gabceb/jquery-browser-plugin -->
     <script type="text/javascript" src="lib/json2/json2.js"></script> <!-- https://github.com/carhartl/jquery-cookie -->
     <script type="text/javascript" src="lib/jquery_cookie/jquery.cookie.js"></script> <!-- https://github.com/carhartl/jquery-cookie -->
@@ -245,7 +245,7 @@
             </div>
         </div>
         <div class="footer" id="footerfunctions" style='float:right;'>
-            <a href="Javascript:show_info('flow_details');" title="Show flow details">Flow details</a> | 
+            <a href="Javascript:show_flow_details();" title="Show flow details">Flow details</a> | 
             <a href="Javascript:show_info('help');" title="Show help information">Help</a> | 
             <a href="Javascript:show_info('about');" title="Show about information">About</a>
         </div>

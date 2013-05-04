@@ -361,128 +361,6 @@
                 title: 'Help',
                 width: '500px'
             }).dialog('open');
-        } else if (type == 'flow_details') {
-            var field_names = [];
-            field_names['ipv4_src']  = 'Src. address';
-            field_names['ipv4_dst']  = 'Dst. address';
-            field_names['port_src']  = 'Src. port';
-            field_names['port_dst']  = 'Dst. port';
-            field_names['protocol']  = 'Protocol';
-            field_names['packets']   = 'Packets';
-            field_names['octets']    = 'Octets';
-            field_names['duration']  = 'Duration';
-            field_names['flows']     = 'Flows';
-            field_names['location_src'] = 'Source location';
-            field_names['location_dst'] = 'Destination location';
-            
-            var static_field_count = 11;
-            var field_count = static_field_count + extensions.length;
-            
-            protocols = [];
-            protocols[1] = 'ICMP';
-            protocols[2] = 'IGMP';
-            protocols[6] = 'TCP';
-            protocols[17] = 'UDP';
-            protocols[47] = 'GRE';
-            
-            // TODO Add support for extensions
-            
-            var body = $('<tbody/>');
-            var header_line = $('<tr/>', {'class': 'header'});
-            var key_index = 0;
-            for (var key in field_names) {
-                var element = $('<th/>').text(field_names[key]);
-                
-                if (key_index == 0) { // First field
-                    element.addClass('left');
-                } else if (key_index == field_count - 1) { // Last field
-                    element.addClass('right');
-                }
-                
-                if (key == 'ipv4_src') {
-                    element.addClass('src_column');
-                } else if (key == 'ipv4_dst') {
-                    element.addClass('dst_column');
-                }
-                
-                header_line.append(element);
-                key_index++;
-            }
-            body.append(header_line);
-            
-            var line_class = 'odd';
-            $.each(flow_data, function (flow_index, flow_item) {
-                var body_line = $('<tr/>', {'class': line_class});
-                
-                for (var key in field_names) {
-                    var field = $('<td/>');
-                    
-                    if (key == 'ipv4_src') {
-                        field.addClass('src_column');
-                    } else if (key == 'ipv4_dst') {
-                        field.addClass('dst_column');
-                    }
-                    
-                    if (key == 'protocol') {
-                        // Replace protocol number by protocol name, if known
-                        if (protocols[flow_item[key]] != undefined) {
-                            field.text(protocols[flow_item[key]]);
-                        } else {
-                            field.text(flow_item[key]);
-                        }
-                    } else if (key == 'location_src') {
-                        var location_string = format_location_name(flow_item['src_country']);
-                        
-                        if (flow_item['src_region'] != "(UNKNOWN)") {
-                            location_string += ", " + format_location_name(flow_item['src_region']);
-                        }
-                        
-                        if (flow_item['src_city'] != "(UNKNOWN)") {
-                            location_string += ", " + format_location_name(flow_item['src_city']);
-                        }
-                        
-                        field.text(location_string).css('padding-right', '5px');
-                    } else if (key == 'location_dst') {
-                        var location_string = format_location_name(flow_item['dst_country']);
-                        
-                        if (flow_item['dst_region'] != "(UNKNOWN)") {
-                            location_string += ", " + format_location_name(flow_item['dst_region']);
-                        }
-                        
-                        if (flow_item['dst_city'] != "(UNKNOWN)") {
-                            location_string += ", " + format_location_name(flow_item['dst_city']);
-                        }
-                        
-                        field.text(location_string).css('padding-left', '5px');
-                    } else {
-                        field.text(flow_item[key]);
-                    }
-                    
-                    body_line.append(field);
-                }
-                
-                // Merge 'Source location' and 'Destination location' if they are equal
-                var line_fields = body_line.children('td');
-                if ($(line_fields[static_field_count - 2]).text() == $(line_fields[static_field_count - 1]).text()) {
-                    $(line_fields[static_field_count - 2]).attr('colspan', '2');
-                    $(line_fields[static_field_count - 1]).remove();
-                }
-                
-                body.append(body_line);
-                line_class = (line_class == 'odd') ? 'even' : 'odd';
-            });
-            
-            $('#info_dialog').html("<table class=\"flow_info_table\">" + body.html() + "</table>");
-            $('#info_dialog').dialog({
-                closeOnEscape: true,
-                height: 'auto',
-                modal: false,
-                position: 'center',
-                resizable: true,
-                stack: true,
-                title: 'Flow details',
-                width: 'auto'
-            }).dialog('open');
         }
     }
     
@@ -500,9 +378,7 @@
                     <p id='loading_text_upper'>Loading...</p> \
                     <p id='loading_text_lower'></p> \
                     <p id='loading_text_long' style='display:none;'>Your request is still being \
-                                processed by the server. Please don't refresh the page, \
-                                as that will result in serious performance degradation \
-                                of your server.</p> \
+                                processed by the server. Please don't refresh this page.</p> \
                     </div> \
                 </div>");
             
@@ -513,40 +389,26 @@
                 position: 'center',
                 resizable: false,
                 stack: true,
-                width: 250,
+                width: 300,
             }).dialog('open');
             
             // loading_message_timeout_handle has been declared in index.php
             loading_message_timeout_handle = setInterval(
                 function () {
                     if ($('#loading_dialog').dialog('isOpen')) {
-                        $('#loading_dialog').dialog('close');
                         
                         // Check whether message for long duration is visible (and therefore p#loading_text_lower is not)
-                        var width;
                         if ($('#loading_dialog p#loading_text_long').css('display') == "none") {
                             $('#loading_dialog p#loading_text_long').show();
                             $('#loading_dialog p#loading_text_upper').hide();
                             $('#loading_dialog p#loading_text_lower').hide();
-                            width = 450;
                         } else {
                             $('#loading_dialog p#loading_text_long').hide();
                             $('#loading_dialog p#loading_text_upper').show();
                             $('#loading_dialog p#loading_text_lower').show();
-                            width = 250;
                         }
-                        
-                        $('#loading_dialog').dialog({
-                            closeOnEscape: false,
-                            dialogClass: 'dialog_no_title',
-                            modal: true,
-                            position: 'center',
-                            resizable: false,
-                            stack: true,
-                            width: width,
-                        }).dialog('open');
                     }
-                }, 5000);
+                }, 15000);
         }
         
         if (text == '' || text == undefined) {
@@ -562,4 +424,164 @@
                 $('#loading_text_lower').show();
             }
         }
+    }
+    
+    /*
+     * Generates a dialog showing 'Flow Details'.
+     * 
+     * Parameters:
+     *      flow_indices - Indices of flow data in 'flow_data' array of
+     *                          which the flow data needs to be shown.
+     */
+    function show_flow_details (flow_indices) {
+        var field_names = [];
+        field_names['ipv4_src']  = 'Src. address';
+        field_names['ipv4_dst']  = 'Dst. address';
+        field_names['port_src']  = 'Src. port';
+        field_names['port_dst']  = 'Dst. port';
+        field_names['protocol']  = 'Protocol';
+        field_names['packets']   = 'Packets';
+        field_names['octets']    = 'Octets';
+        field_names['duration']  = 'Duration';
+        field_names['flows']     = 'Flows';
+        
+        var static_field_count;
+        if (flow_indices == undefined) { // General 'Flow Details'
+            field_names['location_src'] = 'Source location';
+            field_names['location_dst'] = 'Destination location';
+            static_field_count = 11;
+        } else { // 'Flow Details' from information window
+            static_field_count = 9;
+        }
+        
+        var field_count = static_field_count + extensions.length;
+        
+        protocols = [];
+        protocols[1] = 'ICMP';
+        protocols[2] = 'IGMP';
+        protocols[6] = 'TCP';
+        protocols[17] = 'UDP';
+        protocols[47] = 'GRE';
+        
+        // TODO Add support for extensions
+        
+        var body = $('<tbody/>');
+        var header_line = $('<tr/>', {'class': 'header'});
+        var key_index = 0;
+        for (var key in field_names) {
+            var element = $('<th/>').text(field_names[key]);
+            
+            if (key_index == 0) { // First field
+                element.addClass('left');
+            } else if (key_index == field_count - 1) { // Last field
+                element.addClass('right');
+            }
+            
+            if (key == 'ipv4_src') {
+                element.addClass('src_column');
+            } else if (key == 'ipv4_dst') {
+                element.addClass('dst_column');
+            }
+            
+            header_line.append(element);
+            key_index++;
+        }
+        body.append(header_line);
+        
+        var line_class = 'odd';
+        $.each(flow_data, function (flow_index, flow_item) {
+            // Skip flow record if it doesn't belong to the current information window
+            if (flow_indices != undefined && jQuery.inArray(flow_index, flow_indices) == -1) {
+                return true;
+            }
+            
+            var body_line = $('<tr/>', {'class': line_class});
+            
+            for (var key in field_names) {
+                var field = $('<td/>');
+                
+                if (key == 'ipv4_src') {
+                    field.addClass('src_column');
+                } else if (key == 'ipv4_dst') {
+                    field.addClass('dst_column');
+                }
+                
+                if (key == 'protocol') {
+                    // Replace protocol number by protocol name, if known
+                    if (protocols[flow_item[key]] != undefined) {
+                        field.text(protocols[flow_item[key]]);
+                    } else {
+                        field.text(flow_item[key]);
+                    }
+                } else if (key == 'location_src') {
+                    var location_string = format_location_name(flow_item['src_country']);
+                    
+                    if (flow_item['src_region'] != "(UNKNOWN)") {
+                        location_string += ", " + format_location_name(flow_item['src_region']);
+                    }
+                    
+                    if (flow_item['src_city'] != "(UNKNOWN)") {
+                        location_string += ", " + format_location_name(flow_item['src_city']);
+                    }
+                    
+                    field.text(location_string).css('padding-right', '5px');
+                } else if (key == 'location_dst') {
+                    var location_string = format_location_name(flow_item['dst_country']);
+                    
+                    if (flow_item['dst_region'] != "(UNKNOWN)") {
+                        location_string += ", " + format_location_name(flow_item['dst_region']);
+                    }
+                    
+                    if (flow_item['dst_city'] != "(UNKNOWN)") {
+                        location_string += ", " + format_location_name(flow_item['dst_city']);
+                    }
+                    
+                    field.text(location_string).css('padding-left', '5px');
+                } else {
+                    field.text(flow_item[key]);
+                }
+                
+                body_line.append(field);
+            }
+            
+            // Merge 'Source location' and 'Destination location' if they are equal
+            var line_fields = body_line.children('td');
+            
+            /* Only try to merge source and destination location names if 'Flow details' has not been
+             * called from information window (i.e. source and destination location names are visible).
+             */
+            if (flow_indices == undefined
+                    && $(line_fields[static_field_count - 2]).text() == $(line_fields[static_field_count - 1]).text()) {
+                $(line_fields[static_field_count - 2]).attr('colspan', '2');
+                $(line_fields[static_field_count - 1]).remove();
+            }
+            
+            body.append(body_line);
+            line_class = (line_class == 'odd') ? 'even' : 'odd';
+        });
+        
+        $('#info_dialog').html("<table class=\"flow_info_table\">" + body.html() + "</table>");
+        $('#info_dialog').dialog({
+            closeOnEscape: true,
+            height: 'auto',
+            modal: false,
+            position: 'center',
+            resizable: true,
+            stack: true,
+            title: 'Flow details',
+            width: 'auto'
+        }).dialog('open');
+        
+        /* Add (previously) resolved hostnames. This applies only when 'Flow Details' has been called from
+         * an information window. Otherwise, no explicit resolving action is performed and only the previously
+         * known hostnames are added.
+         */
+        $.each(resolved_hostnames, function (index, tuple) {
+            var ip_address = $('#info_dialog .flow_info_table td:contains(' + tuple.address + ')');
+            
+            // If the IP address is present, add its hostname
+            if (ip_address.length > 0) {
+                ip_address.attr('title', tuple.hostname);
+            }
+        });
     }
