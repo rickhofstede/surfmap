@@ -7,12 +7,12 @@
  *******************************/
 
 $(document).ready(function() {
-    jQuery.ajaxSetup({
-        cache: false,
-        dataType: 'json',
-        proccessData: false,
-        type: 'POST'
-    });
+    // jQuery.ajaxSetup({
+//         cache: false,
+//         dataType: 'json',
+//         proccessData: false,
+//         type: 'POST'
+//     });
             
     $('#error_dialog').dialog({
         autoOpen:   false,
@@ -107,9 +107,6 @@ $(document).ready(function() {
                 } else {
                     show_error(803, data.status_message);
                 }
-            },
-            error: function() {
-                show_error(800);
             }
         });
     });
@@ -131,9 +128,6 @@ $(document).ready(function() {
                 } else {
                     show_error(807, data.status_message);
                 }
-            },
-            error: function() {
-                show_error(800);
             }
         });
     });
@@ -175,10 +169,6 @@ $(document).ready(function() {
                     show_error(804, data.status_message);
                     $(document).trigger('loading_cancelled');
                 }
-            },
-            error: function() {
-                show_error(800);
-                $(document).trigger('loading_cancelled');
             }
         });
     });
@@ -215,10 +205,6 @@ $(document).ready(function() {
                     show_error(805, data.status_message);
                     $(document).trigger('loading_cancelled');
                 }
-            },
-            error: function() {
-                show_error(800);
-                $(document).trigger('loading_cancelled');
             }
         });
     });
@@ -294,10 +280,6 @@ $(document).ready(function() {
                         show_error(814, data.status_message);
                         $(document).trigger('loading_cancelled');
                     }
-                },
-                error: function() {
-                    show_error(800);
-                    $(document).trigger('loading_cancelled');
                 }
             });
         }
@@ -393,10 +375,6 @@ $(document).ready(function() {
                         show_error(806, data.status_message);
                         $(document).trigger('loading_cancelled');
                     }
-                },
-                error: function() {
-                    show_error(800);
-                    $(document).trigger('loading_cancelled');
                 }
             });
         } else {
@@ -532,10 +510,6 @@ $(document).ready(function() {
                             show_error(808, data.status_message);
                             $(document).trigger('loading_cancelled');
                         }
-                    },
-                    error: function() {
-                        show_error(800);
-                        $(document).trigger('loading_cancelled');
                     }
                 });
             }
@@ -706,9 +680,6 @@ $(document).ready(function() {
                             show_error(809, data.status_message);
                             $(document).trigger('loading_cancelled');
                         }
-                    },
-                    error: function() {
-                        show_error(800);
                     }
                 });
             }
@@ -734,7 +705,10 @@ $(document).ready(function() {
         if ($('input[type=submit]').prop('disabled') != undefined) {
             $('input[type=submit]').removeAttr('disabled');
         }
-        if ($('#loading_dialog').dialog('isOpen')) $('#loading_dialog').dialog('close');
+        if ($('#loading_dialog').dialog('isOpen')) {
+            $('#loading_dialog').dialog('close');
+            clearInterval(loading_message_timeout_handle);
+        }
     });
             
     $(document).bind('loaded', function () {

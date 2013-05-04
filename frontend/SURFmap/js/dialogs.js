@@ -62,10 +62,12 @@
                 modal: true,
                 position: 'center',
                 resizable: false,
-                stack: true,
                 title: 'Warning',
                 width: 'auto'
             }).dialog('open');
+            
+            // Give the error dialog the highest priority
+            $('#error_dialog').dialog('moveToTop');
         }
     }
 
@@ -227,10 +229,12 @@
                 modal: false,
                 position: 'center',
                 resizable: false,
-                stack: true,
                 title: 'Error',
                 width: 'auto'
             }).dialog('open');
+            
+            // Give the error dialog the highest priority
+            $('#error_dialog').dialog('moveToTop');
         }
     }
 
@@ -314,10 +318,12 @@
                 modal: true,
                 position: 'center',
                 resizable: false,
-                stack: true,
                 title: 'About',
                 width: 'auto'
             }).dialog('open');
+            
+            // Give the error dialog the highest priority
+            $('#error_dialog').dialog('moveToTop');
         } else if (type == 'license') {
             $('#info_dialog').load('license.html #license', function() {
                 $('#info_dialog').dialog({
@@ -326,10 +332,12 @@
                     modal: true,
                     position: 'center',
                     resizable: false,
-                    stack: true,
                     title: 'License',
                     width: 'auto'
                 }).dialog('open');
+                
+                // Give the error dialog the highest priority
+                $('#error_dialog').dialog('moveToTop');
             });
         } else if (type == 'help') {
             $('#info_dialog').html('Welcome to the SURFmap help. Some main principles of SURFmap are explained here.<br /><br /> \
@@ -357,10 +365,12 @@
                 modal: false,
                 position: 'center',
                 resizable: false,
-                stack: true,
                 title: 'Help',
                 width: '500px'
             }).dialog('open');
+            
+            // Give the error dialog the highest priority
+            $('#error_dialog').dialog('moveToTop');
         }
     }
     
@@ -388,13 +398,20 @@
                 modal: true,
                 position: 'center',
                 resizable: false,
-                stack: true,
                 width: 300,
             }).dialog('open');
+            
+            // Give the error dialog the highest priority
+            $('#error_dialog').dialog('moveToTop');
             
             // loading_message_timeout_handle has been declared in index.php
             loading_message_timeout_handle = setInterval(
                 function () {
+                    if (ajax_error) {
+                        clearInterval(loading_message_timeout_handle);
+                        $('#loading_dialog').dialog('close');
+                        return;
+                    }
                     if ($('#loading_dialog').dialog('isOpen')) {
                         
                         // Check whether message for long duration is visible (and therefore p#loading_text_lower is not)
@@ -408,7 +425,7 @@
                             $('#loading_dialog p#loading_text_lower').show();
                         }
                     }
-                }, 15000);
+                }, 10000);
         }
         
         if (text == '' || text == undefined) {
@@ -567,10 +584,12 @@
             modal: false,
             position: 'center',
             resizable: true,
-            stack: true,
             title: 'Flow details',
             width: 'auto'
         }).dialog('open');
+        
+        // Give the error dialog the highest priority
+        $('#error_dialog').dialog('moveToTop');
         
         /* Add (previously) resolved hostnames. This applies only when 'Flow Details' has been called from
          * an information window. Otherwise, no explicit resolving action is performed and only the previously

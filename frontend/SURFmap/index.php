@@ -51,6 +51,8 @@
     <script type="text/javascript" src="js/maputil.js"></script>
     <script type="text/javascript" src="js/util.js"></script>
     <script type="text/javascript">
+        var ajax_error = 0;
+        
         // Enable JSON support in cookies
         $.cookie.json = true;
     
@@ -78,13 +80,12 @@
         var warning_dialog_queue = [];
         
         // Google Maps-related elements
+        var lines;
+        var markers;
         var map;
         var geocoder = new google.maps.Geocoder();
         var info_window = new google.maps.InfoWindow();
         var green_marker = new google.maps.MarkerImage("images/green_marker.png", new google.maps.Size(20, 34));
-        
-        var lines;
-        var markers;
         
         var zoom_levels = {
             0:  'country',
@@ -117,6 +118,19 @@
             - Errors
         */
         
+        jQuery.ajaxSetup({
+            cache: false,
+            dataType: 'json',
+            proccessData: false,
+            type: 'POST'
+        });
+        
+        $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+            ajax_error = 1;
+            $(document).trigger('loading_cancelled');
+            show_error(800, thrownError);
+        });
+        
         // Retrieve config
         $.ajax({
             url: 'json/getconfig.php',
@@ -127,9 +141,6 @@
                 } else {
                     show_error(801, data.status_message);
                 }
-            },
-            error: function() {
-                show_error(800);
             }
         });
         
@@ -143,9 +154,6 @@
                 } else {
                     show_error(813, data.status_message);
                 }
-            },
-            error: function() {
-                show_error(800);
             }
         });
         
@@ -159,9 +167,6 @@
                 } else {
                     show_error(802, data.status_message);
                 }
-            },
-            error: function() {
-                show_error(800);
             }
         });
         
@@ -175,9 +180,6 @@
                 } else {
                     show_error(811, data.status_message);
                 }
-            },
-            error: function() {
-                show_error(800);
             }
         });
         
@@ -214,9 +216,6 @@
                     } else {
                         show_error(810, data.status_message);
                     }
-                },
-                error: function() {
-                    show_error(800);
                 }
             });
         }
@@ -1010,7 +1009,6 @@
                         modal: true,
                         position: 'center',
                         resizable: false,
-                        stack: true,
                         title: 'Warning',
                         width: 'auto'
                     }).dialog('open');
@@ -1355,18 +1353,12 @@
                                     } else {
                                         show_error(813, data.status_message);
                                     }
-                                },
-                                error: function() {
-                                    show_error(800);
                                 }
                             });
                         }
                     } else {
                         show_error(812, data.status_message);
                     }
-                },
-                error: function() {
-                    show_error(800);
                 }
             });
         }
@@ -1394,9 +1386,6 @@
                     if (data.status != 0) { // Failure
                         show_error(816, data.status_message);
                     }
-                },
-                error: function() {
-                    show_error(800);
                 }
             });
         }
@@ -1451,9 +1440,6 @@
                     if (data.status != 0) { // Failure
                         show_error(816, data.status_message);
                     }
-                },
-                error: function() {
-                    show_error(800);
                 }
             });
         }
