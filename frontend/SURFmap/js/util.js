@@ -103,6 +103,17 @@
 	}
     
 	/*
+	 * Retrieves the specified key-value-pair of the specified cookie.
+	 * Parameters:
+	 *		cookie_name - Name of the cookie
+     *      key - key of the key-value pair that needs to be retrieved
+	 */	
+    function get_cookie_value (cookie_name, key) {
+        var cookie = $.cookie(cookie_name);
+        return (cookie == undefined || cookie[key] == undefined) ? undefined : cookie[key];
+    }
+    
+	/*
 	 * Adds the specified key-value-pair to the specified cookie. If either the
      * cookie or the key does not exist yet, they are created.
 	 * Parameters:

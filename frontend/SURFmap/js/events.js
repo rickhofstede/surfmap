@@ -6,14 +6,7 @@
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
  *******************************/
 
-$(document).ready(function() {
-    // jQuery.ajaxSetup({
-//         cache: false,
-//         dataType: 'json',
-//         proccessData: false,
-//         type: 'POST'
-//     });
-            
+$(document).ready(function() {        
     $('#error_dialog').dialog({
         autoOpen:   false,
         zIndex:     4000
@@ -45,20 +38,16 @@ $(document).ready(function() {
         }
         
         if (constants != undefined) {
-            var cookie = $.cookie('SURFmap');
-            if (cookie == undefined
-                    || cookie['last_used_version_number_retrieved'] == undefined
-                    || cookie['last_used_version_number_retrieved'] == 0) {
+            var cookie_value = get_cookie_value('SURFmap', 'last_used_version_number_retrieved');
+            if (cookie_value == undefined || cookie_value == 0) {
                 retrieve_last_used_version_number();
             }
         }
     });
     $(document).bind('constants_loaded', function () {
         if (config != undefined) {
-            
-            var cookie = $.cookie('SURFmap');
-            if (cookie['last_used_version_number_retrieved'] == undefined
-                    || cookie['last_used_version_number_retrieved'] == 0) {
+            var cookie_value = get_cookie_value('SURFmap', 'last_used_version_number_retrieved');
+            if (cookie_value == undefined || cookie_value == 0) {
                 retrieve_last_used_version_number();
             }
         }
@@ -722,8 +711,8 @@ $(document).ready(function() {
         
         if (config['show_warnings']) {
             if ($.browser.msie) { // IE is used
-                var cookie = $.cookie('SURFmap');
-                if (cookie == undefined || cookie['msie'] == undefined) {
+                var cookie_value = get_cookie_value('SURFmap', 'msie');
+                if (cookie_value == undefined || cookie_value == 0) {
                     show_warning(1);
                     update_cookie_value('SURFmap', 'msie', 1);
                 }

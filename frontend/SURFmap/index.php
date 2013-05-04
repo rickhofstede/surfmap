@@ -173,7 +173,6 @@
         // Retrieve list of active extensions
         $.ajax({
             url: 'json/getextensions.php',
-            type: 'POST',
             success: function(data) {
                 if (data.status == 0) { // Success
                     $(document).trigger('active_extensions_list_loaded', data);
@@ -184,13 +183,10 @@
         });
         
         // Retrieve errors from server
-        var cookie = $.cookie('SURFmap');
-        if (cookie == undefined
-                || cookie['errors_retrieved'] == undefined
-                || cookie['errors_retrieved'] == 0) {
+        var cookie_value = get_cookie_value('SURFmap', 'errors_retrieved');
+        if (cookie_value == undefined || cookie_value == 0) {
             $.ajax({
                 url: 'json/geterrors.php',
-                type: 'POST',
                 success: function(data) {
                     if (data.status == 0) { // Success
                         if (data.error_codes.length == 0) {
@@ -897,9 +893,9 @@
                     mid = parseInt(mid);
                     max = parseInt(max);
                 } else {
-                    min = parseInt(apply_SI_Scale(min));
-                    mid = parseInt(apply_SI_Scale(mid));
-                    max = parseInt(apply_SI_Scale(max));
+                    min = apply_SI_Scale(parseInt(min));
+                    mid = apply_SI_Scale(parseInt(mid));
+                    max = apply_SI_Scale(parseInt(max));
                 }
                 
                 $('#legend_scale_text_left').text(min);
