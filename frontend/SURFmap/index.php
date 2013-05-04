@@ -711,13 +711,13 @@
                             });
                         }
                         
-                        // Create marker entry, if necessary. Otherwise, update (existing) marker entry.
+                        // Create marker entry, if necessary. Otherwise, update (existing) marker entry
                         if (entries_index == -1) {
                             var marker_entry = {};
                             marker_entry.text = entry_text;
                             
                             if (zoom_level_index == 3) { // Host
-                                marker_entry.flows = 1;
+                                marker_entry.flows = flow_item.flows;
                             } else { // Country, region, city
                                 marker_entry.hosts = [];
                                 
@@ -736,7 +736,7 @@
                             
                             if (zoom_level_index == 3) { // Host
                                 if (host == markers[markers_index].entries[entries_index].text) {
-                                    markers[markers_index].entries[entries_index].flows++;
+                                    markers[markers_index].entries[entries_index].flows += flow_item.flows;
                                 }
                             } else { // Country, region, city
                                 // Only add hosts if they haven't been accounted yet
