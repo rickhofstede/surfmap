@@ -1366,7 +1366,7 @@
                                          */
                                         update_cookie_value('SURFmap', 'last_used_version_number_retrieved', 1);
                                     } else {
-                                        show_error(813, data.status_message);
+                                        show_error(817, data.status_message);
                                     }
                                 }
                             });

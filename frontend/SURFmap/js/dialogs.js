@@ -188,6 +188,9 @@
                         
                 case 816:   message = "Could not write to syslog.";
                             break;
+                            
+                case 817:   message = "Could not store misc values.";
+                            break;
             
                 // Client-side-only error codes
                 case 996:   message = "You have specified an invalid map center. Please check your configuration.";

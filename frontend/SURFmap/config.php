@@ -9,7 +9,7 @@
 	
 	/* [Application parameters] */
 	$config['map_center'] = "52.217,6.9"; // Center of the map, specified by latitude and longitude coordinates; coordinates should be separated by a comma (,) [default: '52.217,6.9']
-	$config['default_flow_record_count'] = 5; // Default number of flow records to be selected [default: 50]
+	$config['default_flow_record_count'] = 50; // Default number of flow records to be selected [default: 50]
 	$config['default_query_type'] = 1; // Default NfSen option - 0: Flow listing, 1: Stat TopN [default: 1]
 	$config['default_query_type_stat_order'] = 2; // Indicates the field on which statistics should be based - 0: flows, 1: packets, 2: bytes [default: 2]
 	$config['default_zoom_level'] = 0; // Default SURFmap zoom level - 0: country, 1: region, 2: city, 3: host [default: 0]
