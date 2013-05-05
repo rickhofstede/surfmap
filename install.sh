@@ -29,7 +29,7 @@ echo "---------------------------"
 # Discover NfSen configuration
 NFSEN_VARFILE=/tmp/nfsen-tmp.conf
 if [ ! -n "$(ps axo command | grep [n]fsend | grep -v nfsend-comm)" ]; then
-	err "NfSen - nfsend not running. Can not detect nfsen.conf location!"
+	err "NfSen - nfsend not running. Cannot detect nfsen.conf location!"
 fi
 
 NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep [n]fsend | grep -v nfsend-comm | cut -d' ' -f3) | grep libexec | cut -d'"' -f2)
@@ -44,7 +44,7 @@ SURFMAP_CONF=${FRONTEND_PLUGINDIR}/SURFmap/config.php
 
 # Check permissions to install SURFmap plugin - you must be ${USER} or root
 if [ "$(id -u)" != "$(id -u ${USER})" ] && [ "$(id -u)" != "0" ]; then
-	err "You do not have sufficient permissions to install SURFmap on this server!"
+	err "You do not have sufficient permissions to install SURFmap on this machine!"
 fi
 
 if [ "$(id -u)" = "$(id -u ${USER})" ]; then
@@ -103,9 +103,10 @@ rm -rf ${GEO_DB}
 rm -rf ${GEOv6_DB}
 
 # Set permissions - owner and group
-echo "Setting plugin files permissions - user \"${USER}\" and group \"${WWWGROUP}\""
+echo "Setting plugin file permissions - user \"${USER}\" and group \"${WWWGROUP}\""
 chown -R ${USER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap*
 chown -R ${USER}:${WWWGROUP} ${BACKEND_PLUGINDIR}/SURFmap*
+chmod g+w ${FRONTEND_PLUGINDIR}/SURFmap/db/*
 
 # Update plugin configuration file - config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
 echo "Updating plugin configuration file ${SURFMAP_CONF}"
