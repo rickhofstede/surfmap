@@ -125,10 +125,25 @@
             type: 'POST'
         });
         
-        $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+        $(document).ajaxError(function(event, jqXHR, ajaxSettings, exception) {
             ajax_error = 1;
             $(document).trigger('loading_cancelled');
-            show_error(800, thrownError);
+            
+            if (jqXHR.status === 0) {
+                // show_error(800, "Could not connect to the server. Please check your network connectivity.");
+            } else if (jqXHR.status == 404) {
+                show_error(800, "The requested page could not be found (HTTP 404).");
+            } else if (jqXHR.status == 500) {
+                show_error(800, "Internal server error (HTTP 500).");
+            } else if (exception === 'parsererror') {
+                show_error(800, "The requested JSON document could not be parsed.");;
+            } else if (exception === 'timeout') {
+                show_error(800, "Timeout error.");
+            } else if (exception === 'abort') {
+                show_error(800, "The AJAX request has been aborted.");
+            } else {
+                show_error(800);
+            }
         });
         
         // Retrieve config

@@ -101,7 +101,7 @@ $(document).ready(function() {
     });
            
     $(document).bind('session_data_changed', function (event, session_params) {
-        // Store session data
+        // Add 'nfsen_profile_data_dir'
         session_params['nfsen_profile_data_dir'] = nfsen_config['PROFILEDATADIR'];
         $.ajax({
             url: 'json/setsessiondata.php',
