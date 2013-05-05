@@ -32,6 +32,9 @@
 		}
         unset($key, $value);
 	}
+    
+    // Used if cURL detects some IPv6-related connectivity problems
+    $IPv6_problem = 0;
 	
 	/*
 	 * If the found (external) IP address of the server is the localhost
@@ -41,37 +44,42 @@
 		$NAT_IP = $ext_IP;
 		try {
 			if (extension_loaded("curl")) {
-				for ($i = 0; $i < 6; $i++) {
-					$curl_handle = curl_init();
-					
-					if ($i < 3) {
+				for ($i = 0; $i < 4; $i++) {
+                    $curl_handle = curl_init();
+    				curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+    				curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
+				
+    				if ($config['use_proxy']) {
+    					curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
+    					curl_setopt($curl_handle, CURLOPT_PROXY, $config['proxy_ip']);
+    					curl_setopt($curl_handle, CURLOPT_PROXYPORT, $config['proxy_port']);
+				
+    					if ($config['proxy_user_authentication']) {
+    						curl_setopt($curl_handle, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
+    					}
+    				}
+                    
+                    if ($IPv6_problem) {
+                        curl_setopt($curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                    }
+                    
+					if ($i % 2 == 0) {
 						curl_setopt($curl_handle, CURLOPT_URL, "http://surfmap.sourceforge.net/get_ext_ip.php");
 					} else {
 						curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/"); 
 					}
-
-					curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-					curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
-					
-					if ($config['use_proxy']) {
-						curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
-						curl_setopt($curl_handle, CURLOPT_PROXY, $config['proxy_ip']);
-						curl_setopt($curl_handle, CURLOPT_PROXYPORT, $config['proxy_port']);
-					
-						if ($config['proxy_user_authentication']) {
-							curl_setopt($curl_handle, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
-						}
-					}
-					
 					$ext_IP = curl_exec($curl_handle);
-					curl_close($curl_handle);
-
+                    
+                    if ($ext_IP === false && curl_error($curl_handle) == "name lookup timed out") {
+                        $IPv6_problem = 1;
+                    }
+                    
 					if (substr_count($ext_IP, ".") == 3) {
                         if ($ext_IP == $NAT_IP) $ext_IP_NAT = false;
                         break;
 					}
-					
-                    sleep(1);
+                    
+                    curl_close($curl_handle);
 				}
 			}
 
@@ -151,28 +159,50 @@
 	 *		array(lat, lng) on success, or 'false' (bool) on failure
 	 */	
 	function geocode($place) {
-		global $FORCE_HTTPS;
+		global $config, $IPv6_problem;
 		
 		$requestURL = "https://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
 		
 		// Prefer cURL over the 'simplexml_load_file' command, for increased stability
 		if (extension_loaded("curl")) {
-			$curl_handle = curl_init();
-			curl_setopt($curl_handle, CURLOPT_URL, $requestURL);
-			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
-			$result = curl_exec($curl_handle);
-			curl_close($curl_handle);
-			$xml = simplexml_load_string($result);
+            for ($i = 0; $i < 2; $i++) {
+                $curl_handle = curl_init();
+    			curl_setopt($curl_handle, CURLOPT_URL, $requestURL);
+    			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+    			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
+            
+    			if ($config['use_proxy']) {
+    				curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
+    				curl_setopt($curl_handle, CURLOPT_PROXY, $config['proxy_ip']);
+    				curl_setopt($curl_handle, CURLOPT_PROXYPORT, $config['proxy_port']);
+			
+    				if ($config['proxy_user_authentication']) {
+    					curl_setopt($curl_handle, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
+    				}
+    			}
+            
+                if ($IPv6_problem) {
+                    curl_setopt($curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                }
+                
+    			$result = curl_exec($curl_handle);
+    			$xml = simplexml_load_string($result);
+                
+                curl_close($curl_handle);
+                
+                // Stop when successful
+                if (isset($xml->result->geometry->location)) break;
+            }
 		} else {
 			$xml = simplexml_load_file($requestURL);
 		}
 		
-		$status = $xml->status;
-		if (isset($xml->result->geometry)) {
+		if (isset($xml->result->geometry->location)) {
 			$lat = $xml->result->geometry->location->lat;
 		    $lng = $xml->result->geometry->location->lng;
 		}
+        
+        $status = $xml->status;
 		
 		if ($status == "OVER_QUERY_LIMIT") {
 			time_nanosleep(0, 1000000000);
