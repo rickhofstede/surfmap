@@ -1374,6 +1374,7 @@
             var log_data = [
                 "Application version: " + version,
                 "PHP version: <?php echo phpversion(); ?>",
+                "PHP loaded extensions:  <?php echo implode(', ', get_loaded_extensions()); ?>",
                 "CLient Web browser: " + navigator.userAgent,
                 "CLient Web browser cookies enabled: " + navigator.cookieEnabled
             ]

@@ -84,16 +84,9 @@
 		if (strpos($_SESSION['SURFmap']['flow_filter'], $static_filter_ipv6_traffic) === false) {
 			array_push($static_filters, $static_filter_ipv6_traffic);
 		}
-
-		$combined_static_filter = "";
-		for ($i = 0; $i < sizeof($static_filters); $i++) {
-			if (strlen($combined_static_filter) == 0) {
-				$combined_static_filter = $static_filters[$i];
-			} else {
-				$combined_static_filter .= " and ".$static_filters[$i];
-			}
-		}
-			
+        
+        $combined_static_filter = implode(" and ", $static_filters);
+		
 		if (sizeof($static_filters) > 0) {
 			if ($_SESSION['SURFmap']['flow_filter'] == "") {
 				$_SESSION['SURFmap']['flow_filter'] = $combined_static_filter;
@@ -101,7 +94,7 @@
 				$_SESSION['SURFmap']['flow_filter'] .= " and ".$combined_static_filter;
 			}
 		}
-			
+		error_log("--> ".$_SESSION['SURFmap']['flow_filter']);
 		// ***** 3. Remove static filters from display filter *****
 		$_SESSION['SURFmap']['flow_display_filter'] = $_SESSION['SURFmap']['flow_filter'];
 		if (strpos($_SESSION['SURFmap']['flow_display_filter'], $static_filter_internal_domain_traffic) === 0) {
