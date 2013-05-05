@@ -43,10 +43,10 @@
             if (!$query_result) {
                 $error_info = $stmnt->errorInfo();
                 switch ($error_info[1]) {
-                    case 8:     $result['status_message'] = "No write permissions for geocoder cache DB.";
+                    case 8:     $result['status_message'] = "No write permissions for the database.";
                                 break;
                                 
-                    default:    $result['status_message'] = "Data could not be written to geocoder cache DB (SQLite error: ".$error_info[1].").";
+                    default:    $result['status_message'] = "Data could not be written to the database (SQLite error: ".$error_info[1].").";
                                 break;
                 }
                 

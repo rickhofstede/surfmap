@@ -106,7 +106,7 @@ rm -rf ${GEOv6_DB}
 echo "Setting plugin file permissions - user \"${USER}\" and group \"${WWWGROUP}\""
 chown -R ${USER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap*
 chown -R ${USER}:${WWWGROUP} ${BACKEND_PLUGINDIR}/SURFmap*
-chmod g+w ${FRONTEND_PLUGINDIR}/SURFmap/db/*
+chmod R g+w ${FRONTEND_PLUGINDIR}/SURFmap/db
 
 # Update plugin configuration file - config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
 echo "Updating plugin configuration file ${SURFMAP_CONF}"
