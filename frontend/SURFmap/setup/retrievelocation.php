@@ -53,12 +53,12 @@
 					curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
 					curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
 					
-					if ($USE_PROXY) {
+					if ($config['use_proxy']) {
 						curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
 						curl_setopt($curl_handle, CURLOPT_PROXY, $config['proxy_ip']);
 						curl_setopt($curl_handle, CURLOPT_PROXYPORT, $config['proxy_port']);
 					
-						if ($PROXY_USERNAME_PASSWORD) {
+						if ($config['proxy_user_authentication']) {
 							curl_setopt($curl_handle, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
 						}
 					}
