@@ -1,7 +1,7 @@
 SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 
-Version: v3.0
-Author: Rick Hofstede, University of Twente <r.j.hofstede@utwente.nl>
+Version:    3.0
+Author:     Rick Hofstede, University of Twente <r.j.hofstede@utwente.nl>
 
 --
 
@@ -14,8 +14,8 @@ etc., can be found in the SURFmap manual.
 SURFmap is a network monitoring tool based on the Google Maps API and is available 
 as a plugin for NfSen. It adds a geographical dimension to network traffic by geolocating 
 IP addresses of end hosts. For more details, the following resources are available:
-	- [Website] http://surfmap.sf.net
-	- [Mailing list] surfmap-discuss@lists.sourceforge.net
+    - [Website] http://surfmap.sf.net
+    - [Mailing list] surfmap-discuss@lists.sourceforge.net
 
 2) Installation instructions
 
@@ -25,62 +25,62 @@ check 2.4; for installation verification, check 2.5):
 2.1) Automated tar ball installation (latest stable, recommended)
 
 - Create download directory:
-	$ mkdir -p ~/surfmap
-	$ cd ~/surfmap
+    $ mkdir -p ~/surfmap
+    $ cd ~/surfmap
 
 - Download installation script:
-	$ wget http://sourceforge.net/projects/surfmap/files/install.sh/download
-	$ chmod +x install.sh
+    $ wget http://sourceforge.net/projects/surfmap/files/install.sh/download
+    $ chmod +x install.sh
 
 - Install plugin:
-	$ ./install.sh
-	$ sudo /data/nfsen/bin/nfsen reload (this path might differ, depending on your setup)
+    $ ./install.sh
+    $ sudo /data/nfsen/bin/nfsen reload (this path might differ, depending on your setup)
 
 2.2) Manual tar ball installation (latest stable)
 
 - Create download directory:
-	$ mkdir -p ~/surfmap
-	$ cd ~/surfmap
+    $ mkdir -p ~/surfmap
+    $ cd ~/surfmap
 
 - Download tar ball from SourceForge repository:
-	$ wget http://downloads.sourceforge.net/project/surfmap/source/SURFmap_v2.2.tar.gz
+    $ wget http://downloads.sourceforge.net/project/surfmap/source/SURFmap_v2.2.tar.gz
 
 - Download MaxMind GeoLite City database:
-	$ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+    $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 
 - Unpack installation packages:
-	$ tar zxf SURFmap_v2.2.tar.gz --directory=/var/www/nfsen/plugins/ (this path 
-		might differ, depending on your setup)
-	$ gunzip -c GeoLiteCity.dat.gz > /var/www/nfsen/plugins/SURFmap/MaxMind/GeoLiteCity.dat
+    $ tar zxf SURFmap_v2.2.tar.gz --directory=/var/www/nfsen/plugins/ (this path 
+        might differ, depending on your setup)
+    $ gunzip -c GeoLiteCity.dat.gz > /var/www/nfsen/plugins/SURFmap/MaxMind/GeoLiteCity.dat
 
 - Install back-end and front-end plugin files:
-	$ cd /var/www/nfsen/plugins/
-	$ cp SURFmap/setup/backend/SURFmap.pm /data/nfsen/plugins/SURFmap.pm (the last 
-		path might differ, depending on your setup)
-	$ cp SURFmap/setup/frontend/SURFmap.php .
+    $ cd /var/www/nfsen/plugins/
+    $ cp SURFmap/setup/backend/SURFmap.pm /data/nfsen/plugins/SURFmap.pm (the last 
+        path might differ, depending on your setup)
+    $ cp SURFmap/setup/frontend/SURFmap.php .
 
 - Configure plugin (config.php):
-	$ vi SURFmap/config.php
-		$NFSEN_CONF="/data/nfsen/etc/nfsen.conf"; (this path might differ, depending on 
-			your setup)
+    $ vi SURFmap/config.php
+        $NFSEN_CONF="/data/nfsen/etc/nfsen.conf"; (this path might differ, depending on 
+            your setup)
 
-	-> Get geolocation information for your setup
-		http://[your machine IP]/nfsen/plugins/SURFmap/setup/configurationchecker.php
+    -> Get geolocation information for your setup
+        http://[your machine IP]/nfsen/plugins/SURFmap/setup/configurationchecker.php
 
-	-> Update $MAP_CENTER, $INTERNAL_DOMAINS_COUNTRY, $INTERNAL_DOMAINS_REGION, 
-		$INTERNAL_DOMAINS_CITY in config.php
+    -> Update $MAP_CENTER, $INTERNAL_DOMAINS_COUNTRY, $INTERNAL_DOMAINS_REGION, 
+        $INTERNAL_DOMAINS_CITY in config.php
 
 - Enable plugin:
-	$ vim /data/nfsen/etc/nfsen.conf (this path might differ, depending on your setup)
-		[ 'live', 'SURFmap' ],
+    $ vim /data/nfsen/etc/nfsen.conf (this path might differ, depending on your setup)
+        [ 'live', 'SURFmap' ],
 
 - Start plugin:
-	$ sudo /etc/init.d/nfsen reload
+    $ sudo /etc/init.d/nfsen reload
 
 2.3) SVN trunk installation (latest development version)
-	$ wget http://svn.code.sf.net/p/surfmap/code/trunk/setup/scripts/install-svn-trunk.sh
-	$ chmod +x install-svn-trunk.sh
-	$ ./install-svn-trunk.sh
+    $ wget http://svn.code.sf.net/p/surfmap/code/trunk/setup/scripts/install-svn-trunk.sh
+    $ chmod +x install-svn-trunk.sh
+    $ ./install-svn-trunk.sh
 
 2.4) Upgrading existing installation
 

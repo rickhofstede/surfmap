@@ -278,7 +278,7 @@
                 'margin-left':  '5px'
             });
             
-            var current_version = version.substring(1, version.indexOf(' '));
+            var current_version = version.substring(0, version.indexOf(' '));
             
             $.ajax({
                 url: 'json/getversion.php',
@@ -291,9 +291,39 @@
                 },
                 success: function(data) {
                     if (data.status == 0) { // Success
-                        if (current_version >= data.version) {
+                        var result = 0; // 0: up-to-date, 1: never version available
+                        
+                        if (data.version.indexOf('b') == -1) { // Retrieved version is stable
+                            var current_letter_pos = current_version.indexOf('b'); // Character position of 'b', or '-1' of neither of them
+                            var current_pre_letter = current_version.substring(0, current_letter_pos); // Version number that comes before 'b'
+                            
+                            if (data.version > current_version) {
+                                result = 1;
+                            } else if (data.version >= current_pre_letter && current_version.indexOf('b') != -1) {
+                                // Example situation: From v3.0b1 to v3.0 or from v3.0b1 to v3.0.1
+                                result = 1;
+                            }
+                        } else { // Retrieved version is beta
+                            var letter_pos = data.version.indexOf('b'); // Character position of 'b', or '-1' of neither of them
+                            var pre_letter = data.version.substring(0, letter_pos); // Version number that comes before 'b'
+                            var beta = data.version.substring(letter_pos + 1); // Beta number
+                            
+                            // Check if current 
+                            if (current_version.indexOf('b') == -1) { // Current version is stable
+                                // Beta number can be ignored
+                                if (pre_letter > current_version) result = 1;
+                            } else { // Current version is beta
+                                var current_letter_pos = current_version.indexOf('b');
+                                var current_pre_letter = current_version.substring(0, current_letter_pos);
+                                var current_beta = current_version.substring(current_letter_pos + 1);
+                                
+                                if (pre_letter > current_pre_letter || (pre_letter == current_pre_letter && beta > current_beta)) result = 1;
+                            }
+                        }
+                        
+                        if (result == 0) { // Up-to-date
                             update_result.attr('src', 'images/check.gif').attr('title', 'SURFmap is up-to-date.');
-                        } else {
+                        } else { // Never version available
                             update_result.attr('src', 'images/information.gif').attr('title', 'A newer version of SURFmap is available for download at http://surfmap.sf.net/.');
                         }
                     }

@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "v3.0 dev (20130505)";
+     $version = "3.0b1 dev (20130505)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -20,7 +20,6 @@
      // TODO - Add logging (also to geocode.php -> error, events)
      
      // TODO - Convert tabs to spaces
-     // TODO - Change default flow record count
      // TODO - Add extension support to 'Flow Details'
      // TODO - Fix all TODO/FIXME tags
     
