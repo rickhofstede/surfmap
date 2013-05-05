@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "v3.0 dev (20130504)";
+     $version = "v3.0 dev (20130505)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1213,20 +1213,28 @@
                 }
             });
             
-            $('#date_start').datetimepicker('setDate', new Date(
-                    session_data['date1'].substring(0,4),
-                    session_data['date1'].substring(4,6),
-                    session_data['date1'].substring(6,8),
-                    session_data['hours1'],
-                    session_data['minutes1']
-            ));
-            $('#date_end').datetimepicker('setDate', new Date(
-                    session_data['date2'].substring(0,4),
-                    session_data['date2'].substring(4,6),
-                    session_data['date2'].substring(6,8),
-                    session_data['hours2'],
-                    session_data['minutes2']
-            ));
+            /* Set date/time twice because of a bug in date/time selector that causes
+             * minutes not to be updated after the first action. See copy_date_time_selector
+             * for more details.
+             */
+            for (var i = 0; i < 2; i++) {
+                $('#date_start').datetimepicker('setDate', new Date(
+                        session_data['date1'].substring(0,4),
+                        session_data['date1'].substring(4,6) - 1, // Months are zero-indexed
+                        session_data['date1'].substring(6,8),
+                        session_data['hours1'],
+                        session_data['minutes1'],
+                        0 // milliseconds
+                ));
+                $('#date_end').datetimepicker('setDate', new Date(
+                        session_data['date2'].substring(0,4),
+                        session_data['date2'].substring(4,6) - 1, // Months are zero-indexed
+                        session_data['date2'].substring(6,8),
+                        session_data['hours2'],
+                        session_data['minutes2'],
+                        0 // milliseconds
+                ));
+            }
             
             // Initialize flow record count
             $('#flow_record_count_input').val(session_data['flow_record_count'].toString()).change(function () {

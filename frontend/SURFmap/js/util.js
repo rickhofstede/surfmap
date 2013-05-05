@@ -37,13 +37,10 @@
 	*		selector2 - ID of the destination date/time selector
 	*/			
 	function copy_date_time_selector (selector1, selector2) {
-		$("#" + selector2).datetimepicker('setDate', new Date($("#" + selector1).datetimepicker('getDate')));
-			
-		// Workaround for date/time picker copying, as described here: https://github.com/trentrichardson/jQuery-Timepicker-Addon/issues/280
-		var setDate = $("#" + selector2).datetimepicker('getDate');
-		if (setDate.getHours() == 0 && setDate.getMinutes() == 0) {
-			$("#" + selector2).datetimepicker('setDate', new Date($("#" + selector1).datetimepicker('getDate')));
-		}
+        // Workaround for date/time picker copying, as described here: https://github.com/trentrichardson/jQuery-Timepicker-Addon/issues/280
+        for (var i = 0; i < 2; i++) {
+            $("#" + selector2).datetimepicker('setDate', new Date($("#" + selector1).datetimepicker('getDate')));
+        }
 	}
     
 	/*
