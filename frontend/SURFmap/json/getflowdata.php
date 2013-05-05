@@ -158,6 +158,14 @@
     $result['flow_record_count'] = sizeof($cmd_out['nfdump']);
     $result['flow_data'] = array();
     foreach ($cmd_out['nfdump'] as $line) {
+        if ($line == "No matched flows") {
+            $result['status'] = 1; // No flow records error
+            $result['status_message'] = "No flow records in result set";
+        	$result['flow_record_count'] = 0;
+            echo json_encode($result);
+            die();
+        }
+        
     	// Remove unused characters
     	for ($i = 0; $i < strlen($line); $i++) {
             if (ord(substr($line, $i, 1)) < 32) {

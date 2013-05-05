@@ -53,6 +53,11 @@
         $version = $version['version'];
         
         curl_close($curl_handle);
+    } else {
+        $result['status'] = 1;
+        $result['status_message'] = "PHP cURL module is not installed";
+        echo json_encode($result);
+        die();
     }
 
     $result['version'] = $version;
