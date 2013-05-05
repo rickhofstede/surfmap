@@ -91,7 +91,7 @@
     	$run .= " -n ".$flow_record_count." -s record/".$nfsen_stat_order." -A proto,srcip,srcport,dstip,dstport";
     }
 
-    if ($nfsen_option == 0 && $config['sort_flow_records_by_start_time'] == 1) {
+    if ($nfsen_option == 0 && $config['order_flow_records_by_start_time'] == 1) {
     	$run .= " -m";
     }
 

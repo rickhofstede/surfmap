@@ -180,7 +180,7 @@ $(document).ready(function() {
                 geolocation_request.push(value.ipv4_dst);
             }
         });
-                
+        
         // Geolocation data
         $.ajax({
             url: 'json/getgeolocationdata.php',

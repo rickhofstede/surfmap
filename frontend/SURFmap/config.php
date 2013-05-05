@@ -9,16 +9,15 @@
 	
 	/* [Application parameters] */
 	$config['map_center'] = "52.217,6.9"; // Center of the map, specified by latitude and longitude coordinates; coordinates should be separated by a comma (,) [default: '52.217,6.9']
-	$config['default_flow_record_count'] = -1; // Default amount of flow records to be selected - '-1': let SURFmap decide depending on the selected geolocation service [default: -1]
-	$config['default_query_type'] = 0; // Default NfSen option - 0: Flow listing, 1: Stat TopN
-	$config['default_query_type_stat_order'] = 2; // Indicates the field on which statistics should be based - 0: flows, 1: packets, 2: bytes
-	$config['default_zoom_level'] = 0; // Default SURFmap zoom level (i.e. Country (0), Region (1), City (2), Host(3)) [default: 0]
+	$config['default_flow_record_count'] = 5; // Default number of flow records to be selected [default: 50]
+	$config['default_query_type'] = 1; // Default NfSen option - 0: Flow listing, 1: Stat TopN [default: 1]
+	$config['default_query_type_stat_order'] = 2; // Indicates the field on which statistics should be based - 0: flows, 1: packets, 2: bytes [default: 2]
+	$config['default_zoom_level'] = 0; // Default SURFmap zoom level - 0: country, 1: region, 2: city, 3: host [default: 0]
 	$config['log_debug'] = 0; // If enabled, debug logging is printed to the log file [default: 0]
-	$config['log_errors_only'] = 0; // If enabled, only log messages of type 'ERROR' are written to the log file [default: 0]
 	$config['auto_open_menu'] = 0; // If enabled, the settings menu will open automatically when SURFmap is loaded [default: 0]
     $config['resolve_hostnames'] = 1; // If enabled, hostnames will be resolved using DNS [default: 1]
     $config['show_warnings'] = 1; // If enabled, potential warnings are shown to the user [default: 1]
-	$config['sort_flow_records_by_start_time'] = 0; // Sorts flow records by start time - 0: no, 1: yes [default: 0]
+	$config['order_flow_records_by_start_time'] = 0; // Order flow records by their start time - 0: no, 1: yes [default: 0]
 	
 	/* [NfSen] */
 	$config['nfsen_config'] = "/data/nfsen/etc/nfsen.conf"; // Path to NfSen configuration file [example: '/data/nfsen/etc/nfsen.conf']
@@ -58,5 +57,5 @@
 	$config['proxy_user_authentication'] = 0; // Enable this setting if your proxy requires authentication (username and password) [default: 0]
 	$config['proxy_username'] = "username"; // Username to be used for proxy authentication
     $config['proxy_password'] = "password"; // Password to be used for proxy authentication
-    
+	
 ?>

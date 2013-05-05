@@ -636,8 +636,6 @@
                     line.obj = create_line (line.point1, line.point2, info_window_contents, color, thickness);
                 });
             });
-            
-            console.log("init_lines -- duration: " + (new Date() - start_time).toString() + " ms");
         }
         
         function init_markers () {
@@ -793,8 +791,6 @@
                     }
                 });
             });
-            
-            console.log("init_markers -- duration: " + (new Date() - start_time).toString() + " ms");
         }
      
         /*

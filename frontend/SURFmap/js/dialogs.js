@@ -554,6 +554,8 @@
                     }
                     
                     field.text(location_string).css('padding-left', '5px');
+                } else if (key == 'packets' || key == 'octets') {
+                    field.text(apply_SI_Scale(flow_item[key]));
                 } else {
                     field.text(flow_item[key]);
                 }
@@ -595,12 +597,14 @@
          * an information window. Otherwise, no explicit resolving action is performed and only the previously
          * known hostnames are added.
          */
-        $.each(resolved_hostnames, function (index, tuple) {
-            var ip_address = $('#info_dialog .flow_info_table td:contains(' + tuple.address + ')');
+        if (resolved_hostnames != undefined) {
+            $.each(resolved_hostnames, function (index, tuple) {
+                var ip_address = $('#info_dialog .flow_info_table td:contains(' + tuple.address + ')');
             
-            // If the IP address is present, add its hostname
-            if (ip_address.length > 0) {
-                ip_address.attr('title', tuple.hostname);
-            }
-        });
+                // If the IP address is present, add its hostname
+                if (ip_address.length > 0) {
+                    ip_address.attr('title', tuple.hostname);
+                }
+            });
+        }
     }

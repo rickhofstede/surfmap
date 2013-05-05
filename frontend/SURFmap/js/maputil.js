@@ -94,7 +94,7 @@
                             $.each(data.hostnames, function (index, tuple) {
                                 resolved_hostnames.push(tuple);
                                 
-                                // Add hostname as tooltip to IP addresses
+                                // Add hostnames as tooltip to IP addresses
                                 $('#map_canvas .flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
                             });
                         } else {
@@ -190,7 +190,7 @@
                                 resolved_hostnames.push(tuple);
                                 
                                 // Add hostnames as tooltip to IP addresses
-                                $('.flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
+                                $('#map_canvas .flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
                             });
                         } else {
                             show_error(815, data.status_message);
@@ -235,9 +235,9 @@
             // Country names can never be undefined, so no need to check it
             body_line.append($('<td/>', {'class': 'src_column'}).text(format_location_name(entry.src_text.country)));
             body_line.append($('<td/>', {'class': 'dst_column'}).text(format_location_name(entry.dst_text.country)));
-            body_line.append($('<td/>').text(entry.flows));
-            body_line.append($('<td/>').text(entry.packets));
-            body_line.append($('<td/>').text(entry.octets));
+            body_line.append($('<td/>').text(apply_SI_Scale(entry.flows)));
+            body_line.append($('<td/>').text(apply_SI_Scale(entry.packets)));
+            body_line.append($('<td/>').text(apply_SI_Scale(entry.octets)));
             
             var throughput = entry.octets / entry.duration;
             if (throughput == 'Infinity') throughput = 'Not available';
@@ -524,8 +524,6 @@
                 marker_item.obj.setMap(map);
             }
         });
-        
-        console.log("add_map_overlays -- duration: " + (new Date() - start_time).toString() + " ms");
     }
     
     /*
@@ -551,8 +549,6 @@
                 }
             });
         }
-        
-        console.log("remove_map_overlays -- duration: " + (new Date() - start_time).toString() + " ms");
     }
     
    /*

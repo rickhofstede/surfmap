@@ -34,16 +34,7 @@
 
     // Initialize flow_record_count
     if (!isset($_SESSION['SURFmap']['flow_record_count'])) {
-		if ($config['default_flow_record_count'] > 0) {
-			$_SESSION['SURFmap']['flow_record_count'] = $config['default_flow_record_count'];
-		} else if ($config['geolocation_db'] == "IP2Location" || $config['geolocation_db'] == "MaxMind") {
-            // $_SESSION['SURFmap']['flow_record_count'] = 100;
-            
-            // TODO - Remove this line
-            $_SESSION['SURFmap']['flow_record_count'] = 5;
-		} else {
-			$_SESSION['SURFmap']['flow_record_count'] = 25;
-		}
+        $_SESSION['SURFmap']['flow_record_count'] = $config['default_flow_record_count'];
     }
     
     // Initialize flow_filter
@@ -94,7 +85,7 @@
 				$_SESSION['SURFmap']['flow_filter'] .= " and ".$combined_static_filter;
 			}
 		}
-		error_log("--> ".$_SESSION['SURFmap']['flow_filter']);
+        
 		// ***** 3. Remove static filters from display filter *****
 		$_SESSION['SURFmap']['flow_display_filter'] = $_SESSION['SURFmap']['flow_filter'];
 		if (strpos($_SESSION['SURFmap']['flow_display_filter'], $static_filter_internal_domain_traffic) === 0) {
@@ -218,10 +209,10 @@
             case 0:     $_SESSION['SURFmap']['zoom_level'] = 2;
                         break;
                     
-            case 0:     $_SESSION['SURFmap']['zoom_level'] = 5;
+            case 1:     $_SESSION['SURFmap']['zoom_level'] = 5;
                         break;
                     
-            case 0:     $_SESSION['SURFmap']['zoom_level'] = 8;
+            case 2:     $_SESSION['SURFmap']['zoom_level'] = 8;
                         break;
                     
             default:    $_SESSION['SURFmap']['zoom_level'] = 11;
