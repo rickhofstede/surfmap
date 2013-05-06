@@ -153,7 +153,7 @@ if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 	fi
 	sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 
-	OLDENTRY=$(grep $config\['map_center'\] ${SURFMAP_CONF} | cut -d'"' -f2)
+	OLDENTRY=$(grep "$config\['map_center'\]" ${SURFMAP_CONF} | cut -d'"' -f2)
 	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f4,5)
     echo "OLDENTRY: ${OLDENTRY}"
     echo "NEWENTRY: ${NEWENTRY}"
@@ -187,7 +187,7 @@ echo "-----"
 # Check available PHP modules
 PHP_CURL=$(php -m | grep 'curl' 2> /dev/null)
 PHP_MBSTRING=$(php -m | grep 'mbstring' 2> /dev/null)
-PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite' 2> /dev/null)
+PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite$' 2> /dev/null)
 
 if [ "$PHP_CURL" != "curl" ]; then
     echo "The PHP 'cURL' module is missing. Try to install the 'php5-curl' (Ubuntu/Debian) or 'php-curl' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
