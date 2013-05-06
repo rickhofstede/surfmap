@@ -132,10 +132,13 @@ cd - > /dev/null
 # Fill my location in plugin configuration file
 if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 	OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f6)
+    echo "OLDENTRY: ${OLDENTRY}"
 	sed -i.tmp "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
 
 	OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f10)
 	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f2)
+    echo "OLDENTRY: ${OLDENTRY}"
+    echo "NEWENTRY: ${NEWENTRY}"
 	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
 		NEWENTRY=""
 	fi
@@ -143,6 +146,8 @@ if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 
 	OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f14)
 	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f3)
+    echo "OLDENTRY: ${OLDENTRY}"
+    echo "NEWENTRY: ${NEWENTRY}"
 	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
 		NEWENTRY=""
 	fi
@@ -150,6 +155,8 @@ if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 
 	OLDENTRY=$(grep $config\['map_center'\] ${SURFMAP_CONF} | cut -d'"' -f2)
 	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f4,5)
+    echo "OLDENTRY: ${OLDENTRY}"
+    echo "NEWENTRY: ${NEWENTRY}"
 	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
 		NEWENTRY=""
 	fi
@@ -185,7 +192,7 @@ PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite' 2> /dev/null)
 if [ "$PHP_CURL" != "curl" ]; then
     echo "The PHP 'cURL' module is missing. Try to install the 'php5-curl' (Ubuntu/Debian) or 'php-curl' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
 elif [ "$PHP_MBSTRING" != "mbstring" ]; then
-    echo "The PHP 'mbstring' module is missing. Try to install the 'php-mbstring' (RRHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
+    echo "The PHP 'mbstring' module is missing. Try to install the 'php-mbstring' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
 elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
     echo "The PHP PDO SQLite v3 module is missing. Try to install the 'php5-sqlite' (Ubuntu/Debian) or 'php-pdo' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
 else
