@@ -326,6 +326,8 @@
                         } else { // Never version available
                             update_result.attr('src', 'images/information.gif').attr('title', 'A newer version of SURFmap is available for download at http://surfmap.sf.net/.');
                         }
+                    } else {
+                        // No error message should be shown here
                     }
                 }
             });
@@ -539,78 +541,80 @@
         body.append(header_line);
         
         var line_class = 'odd';
-        $.each(flow_data, function (flow_index, flow_item) {
-            // Skip flow record if it doesn't belong to the current information window
-            if (flow_indices != undefined && jQuery.inArray(flow_index, flow_indices) == -1) {
-                return true;
-            }
-            
-            var body_line = $('<tr/>', {'class': line_class});
-            
-            for (var key in field_names) {
-                var field = $('<td/>');
-                
-                if (key == 'ipv4_src') {
-                    field.addClass('src_column');
-                } else if (key == 'ipv4_dst') {
-                    field.addClass('dst_column');
+        if (flow_data.length > 0) {
+            $.each(flow_data, function (flow_index, flow_item) {
+                // Skip flow record if it doesn't belong to the current information window
+                if (flow_indices != undefined && jQuery.inArray(flow_index, flow_indices) == -1) {
+                    return true;
                 }
+            
+                var body_line = $('<tr/>', {'class': line_class});
+            
+                for (var key in field_names) {
+                    var field = $('<td/>');
                 
-                if (key == 'protocol') {
-                    // Replace protocol number by protocol name, if known
-                    if (protocols[flow_item[key]] != undefined) {
-                        field.text(protocols[flow_item[key]]);
+                    if (key == 'ipv4_src') {
+                        field.addClass('src_column');
+                    } else if (key == 'ipv4_dst') {
+                        field.addClass('dst_column');
+                    }
+                
+                    if (key == 'protocol') {
+                        // Replace protocol number by protocol name, if known
+                        if (protocols[flow_item[key]] != undefined) {
+                            field.text(protocols[flow_item[key]]);
+                        } else {
+                            field.text(flow_item[key]);
+                        }
+                    } else if (key == 'location_src') {
+                        var location_string = format_location_name(flow_item['src_country']);
+                    
+                        if (flow_item['src_region'] != "(UNKNOWN)") {
+                            location_string += ", " + format_location_name(flow_item['src_region']);
+                        }
+                    
+                        if (flow_item['src_city'] != "(UNKNOWN)") {
+                            location_string += ", " + format_location_name(flow_item['src_city']);
+                        }
+                    
+                        field.text(location_string).css('padding-right', '5px');
+                    } else if (key == 'location_dst') {
+                        var location_string = format_location_name(flow_item['dst_country']);
+                    
+                        if (flow_item['dst_region'] != "(UNKNOWN)") {
+                            location_string += ", " + format_location_name(flow_item['dst_region']);
+                        }
+                    
+                        if (flow_item['dst_city'] != "(UNKNOWN)") {
+                            location_string += ", " + format_location_name(flow_item['dst_city']);
+                        }
+                    
+                        field.text(location_string).css('padding-left', '5px');
+                    } else if (key == 'packets' || key == 'octets') {
+                        field.text(apply_SI_Scale(flow_item[key]));
                     } else {
                         field.text(flow_item[key]);
                     }
-                } else if (key == 'location_src') {
-                    var location_string = format_location_name(flow_item['src_country']);
-                    
-                    if (flow_item['src_region'] != "(UNKNOWN)") {
-                        location_string += ", " + format_location_name(flow_item['src_region']);
-                    }
-                    
-                    if (flow_item['src_city'] != "(UNKNOWN)") {
-                        location_string += ", " + format_location_name(flow_item['src_city']);
-                    }
-                    
-                    field.text(location_string).css('padding-right', '5px');
-                } else if (key == 'location_dst') {
-                    var location_string = format_location_name(flow_item['dst_country']);
-                    
-                    if (flow_item['dst_region'] != "(UNKNOWN)") {
-                        location_string += ", " + format_location_name(flow_item['dst_region']);
-                    }
-                    
-                    if (flow_item['dst_city'] != "(UNKNOWN)") {
-                        location_string += ", " + format_location_name(flow_item['dst_city']);
-                    }
-                    
-                    field.text(location_string).css('padding-left', '5px');
-                } else if (key == 'packets' || key == 'octets') {
-                    field.text(apply_SI_Scale(flow_item[key]));
-                } else {
-                    field.text(flow_item[key]);
-                }
                 
-                body_line.append(field);
-            }
+                    body_line.append(field);
+                }
             
-            // Merge 'Source location' and 'Destination location' if they are equal
-            var line_fields = body_line.children('td');
+                // Merge 'Source location' and 'Destination location' if they are equal
+                var line_fields = body_line.children('td');
             
-            /* Only try to merge source and destination location names if 'Flow details' has not been
-             * called from information window (i.e. source and destination location names are visible).
-             */
-            if (flow_indices == undefined
-                    && $(line_fields[static_field_count - 2]).text() == $(line_fields[static_field_count - 1]).text()) {
-                $(line_fields[static_field_count - 2]).attr('colspan', '2');
-                $(line_fields[static_field_count - 1]).remove();
-            }
+                /* Only try to merge source and destination location names if 'Flow details' has not been
+                 * called from information window (i.e. source and destination location names are visible).
+                 */
+                if (flow_indices == undefined
+                        && $(line_fields[static_field_count - 2]).text() == $(line_fields[static_field_count - 1]).text()) {
+                    $(line_fields[static_field_count - 2]).attr('colspan', '2');
+                    $(line_fields[static_field_count - 1]).remove();
+                }
             
-            body.append(body_line);
-            line_class = (line_class == 'odd') ? 'even' : 'odd';
-        });
+                body.append(body_line);
+                line_class = (line_class == 'odd') ? 'even' : 'odd';
+            });
+        }
         
         $('#info_dialog').html("<table class=\"flow_info_table\">" + body.html() + "</table>");
         $('#info_dialog').dialog({
