@@ -180,7 +180,7 @@ echo "-----"
 # Check available PHP modules
 PHP_CURL=$(php -m | grep 'curl' 2> /dev/null)
 PHP_MBSTRING=$(php -m | grep 'mbstring' 2> /dev/null)
-PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite$' 2> /dev/null)
+PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite$' 2> /dev/null) # The dollar-sign ($) makes sure that 'pdo_sqlite2' is not accepted
 
 if [ "$PHP_CURL" != "curl" ]; then
     echo "The PHP 'cURL' module is missing. Try to install the 'php5-curl' (Ubuntu/Debian) or 'php-curl' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
