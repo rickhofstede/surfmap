@@ -131,17 +131,17 @@ cd - > /dev/null
 
 # Fill my location in plugin configuration file
 if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
-	OLDENTRY=$(sed -e "/$config['internal_domains'] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f6)
+	OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f6)
 	sed -i.tmp "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
 
-	OLDENTRY=$(sed -e "/$config['internal_domains'] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f10)
+	OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f10)
 	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f2)
 	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
 		NEWENTRY=""
 	fi
 	sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 
-	OLDENTRY=$(sed -e "/$config['internal_domains'] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f14)
+	OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f14)
 	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f3)
 	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
 		NEWENTRY=""
