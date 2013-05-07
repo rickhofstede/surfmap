@@ -518,7 +518,7 @@ $(document).ready(function() {
         var allowed_requests_client = 2400;
         var allowed_requests_server = 2400;
         if (session_data['use_db']) {
-            alowed_requests_client -=
+            allowed_requests_client -=
                     - session_data['geocoder_history']['client'].requests_success
                     - session_data['geocoder_history']['client'].requests_blocked
                     - session_data['geocoder_history']['client'].requests_error
