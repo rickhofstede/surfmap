@@ -1331,44 +1331,45 @@
          * has upgrade to a newer version.
          */
         function retrieve_last_used_version_number () {
-            // Retrieve last used version number
-            $.ajax({
-                url: 'json/getmiscvalue.php',
-                data: {
-                    params: [ 'last_used_version' ]
-                },
-                success: function(data) {
-                    if (data.status == 0) { // Success
-                        var last_used_version = data.values[0].value;
+            if (session_data['use_db']) {
+                $.ajax({
+                    url: 'json/getmiscvalue.php',
+                    data: {
+                        params: [ 'last_used_version' ]
+                    },
+                    success: function(data) {
+                        if (data.status == 0) { // Success
+                            var last_used_version = data.values[0].value;
                     
-                        if (last_used_version != version) {
-                            show_info('about');
+                            if (last_used_version != version) {
+                                show_info('about');
                         
-                            // Store new version number
-                            $.ajax({
-                                url: 'json/storemiscvalue.php',
-                                data: {
-                                    params: {
-                                        'last_used_version': version
+                                // Store new version number
+                                $.ajax({
+                                    url: 'json/storemiscvalue.php',
+                                    data: {
+                                        params: {
+                                            'last_used_version': version
+                                        }
+                                    },
+                                    success: function(data) {
+                                        if (data.status == 0) {
+                                            /* Set cookie so that last used version number is not
+                                             * retrieved another time within the same session
+                                             */
+                                            update_cookie_value('SURFmap', 'last_used_version_number_retrieved', 1);
+                                        } else {
+                                            show_error(817, data.status_message);
+                                        }
                                     }
-                                },
-                                success: function(data) {
-                                    if (data.status == 0) {
-                                        /* Set cookie so that last used version number is not
-                                         * retrieved another time within the same session
-                                         */
-                                        update_cookie_value('SURFmap', 'last_used_version_number_retrieved', 1);
-                                    } else {
-                                        show_error(817, data.status_message);
-                                    }
-                                }
-                            });
+                                });
+                            }
+                        } else {
+                            show_error(812, data.status_message);
                         }
-                    } else {
-                        show_error(812, data.status_message);
                     }
-                }
-            });
+                });
+            }
         }
         
         /*

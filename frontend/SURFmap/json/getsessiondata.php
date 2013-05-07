@@ -251,10 +251,10 @@
             if (!$query_result) {
                 $error_info = $stmnt->errorInfo();
                 switch ($error_info[1]) {
-                    case 8:     $result['status_message'] = "No write permissions for geocoder cache DB.";
+                    case 8:     $result['status_message'] = "No write permissions for the database.";
                                 break;
                                     
-                    default:    $result['status_message'] = "Data could not be retrieved from geocoder cache DB (SQLite error: ".$error_info[1].").";
+                    default:    $result['status_message'] = "Data could not be retrieved from the database (SQLite error: ".$error_info[1].").";
                                 break;
                 }
                     
@@ -325,7 +325,7 @@
             unset($query_result);
         } catch(PDOException $e) {
             $result['status'] = 1;
-            $result['status_message'] = "Data could not be fetched from geocoder cache DB.";
+            $result['status_message'] = "PHP PDO driver for SQLite 3 is missing";
             echo json_encode($result);
             die();
         }

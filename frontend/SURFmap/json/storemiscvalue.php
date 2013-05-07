@@ -57,7 +57,7 @@
             }
         } catch(PDOException $e) {
             $result['status'] = 1;
-            $result['status_message'] = "Data could not be written to the database.";
+            $result['status_message'] = "A PHP PDO driver has occurred";
             echo json_encode($result);
             die();
         }

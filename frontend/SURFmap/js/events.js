@@ -36,21 +36,9 @@ $(document).ready(function() {
         if (config['log_debug']) {
             log_system_information();
         }
-        
-        if (constants != undefined) {
-            var cookie_value = get_cookie_value('SURFmap', 'last_used_version_number_retrieved');
-            if (cookie_value == undefined || cookie_value == 0) {
-                retrieve_last_used_version_number();
-            }
-        }
     });
     $(document).bind('constants_loaded', function () {
-        if (config != undefined) {
-            var cookie_value = get_cookie_value('SURFmap', 'last_used_version_number_retrieved');
-            if (cookie_value == undefined || cookie_value == 0) {
-                retrieve_last_used_version_number();
-            }
-        }
+        
     });
             
     $(document).bind('nfsen_config_loaded', function () {
@@ -90,6 +78,11 @@ $(document).ready(function() {
     });
     $(document).bind('session_data_loaded', function (event, data) {
         session_data = data;
+        
+        var cookie_value = get_cookie_value('SURFmap', 'last_used_version_number_retrieved');
+        if (cookie_value == undefined || cookie_value == 0) {
+            retrieve_last_used_version_number();
+        }
         
         if (config['log_debug']) {
             var log_data = [
@@ -518,21 +511,29 @@ $(document).ready(function() {
                 geocoder_request.push(this.dst_country + ";" + this.dst_city);
             }
         });
-                
+        
         // If CURL is supported, balance geocoding process between client and server
         var geocoder_request_client = [];
-        var allowed_requests_client = 2400
-                - session_data['geocoder_history']['client'].requests_success
-                - session_data['geocoder_history']['client'].requests_blocked
-                - session_data['geocoder_history']['client'].requests_error
-                - session_data['geocoder_history']['client'].requests_skipped;
+        
+        var allowed_requests_client = 2400;
+        var allowed_requests_server = 2400;
+        if (session_data['use_db']) {
+            alowed_requests_client -=
+                    - session_data['geocoder_history']['client'].requests_success
+                    - session_data['geocoder_history']['client'].requests_blocked
+                    - session_data['geocoder_history']['client'].requests_error
+                    - session_data['geocoder_history']['client'].requests_skipped;
+        }
+        
         if (session_data['curl_loaded']) {
-            var allowed_requests_server = 2400
-                    - session_data['geocoder_history']['server'].requests_success
-                    - session_data['geocoder_history']['server'].requests_blocked
-                    - session_data['geocoder_history']['server'].requests_error
-                    - session_data['geocoder_history']['server'].requests_skipped;
-                    
+            if (session_data['use_db']) {
+                allowed_requests_server -=
+                        - session_data['geocoder_history']['server'].requests_success
+                        - session_data['geocoder_history']['server'].requests_blocked
+                        - session_data['geocoder_history']['server'].requests_error
+                        - session_data['geocoder_history']['server'].requests_skipped;
+            }
+            
             if (Math.ceil(geocoder_request.length / 2) > allowed_requests_client) { // More requests than allowed for client
                 geocoder_request_client = geocoder_request.slice(0, allowed_requests_client);
             } else {

@@ -21,20 +21,27 @@
         die();
     }
     
-    $db = new PDO("sqlite:../".$constants['cache_db']);
-    $result['values'] = array();
+    try {
+        $db = new PDO("sqlite:../".$constants['cache_db']);
+        $result['values'] = array();
     
-    foreach ($keys as $key) {
-		$query = "SELECT value FROM misc WHERE key = :key";
-        $stmnt = $db->prepare($query);
-        $stmnt->bindParam(":key", $key);
-        $stmnt->execute();
-        $query_result = $stmnt->fetch(PDO::FETCH_ASSOC);
-        $value = $query_result['value'];
+        foreach ($keys as $key) {
+    		$query = "SELECT value FROM misc WHERE key = :key";
+            $stmnt = $db->prepare($query);
+            $stmnt->bindParam(":key", $key);
+            $stmnt->execute();
+            $query_result = $stmnt->fetch(PDO::FETCH_ASSOC);
+            $value = $query_result['value'];
         
-        array_push($result['values'], array('key' => $key, 'value' => $value));
+            array_push($result['values'], array('key' => $key, 'value' => $value));
+        }
+        unset($key);
+    } catch(PDOException $e) {
+        $result['status'] = 1;
+        $result['status_message'] = "A PHP PDO driver has occurred";
+        echo json_encode($result);
+        die();
     }
-    unset($key);
     
     $result['status'] = 0;
     echo json_encode($result);
