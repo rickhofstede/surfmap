@@ -18,6 +18,11 @@ GEO_DB=GeoLiteCity.dat.gz
 GEOv6_DB=GeoLiteCityv6.dat.gz
 
 err () {
+	echo "ERROR: ${*}"
+	exit 1
+}
+
+err_line () {
     echo "-----"
 	echo "ERROR: ${*}"
 	exit 1
@@ -101,13 +106,13 @@ cp -r ./${SURFMAP_TMP}/frontend/* ${FRONTEND_PLUGINDIR}
 echo "Installing MaxMind GeoLite City database to ${FRONTEND_PLUGINDIR}/SURFmap/MaxMind"
 gunzip -c ${GEO_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind/$(basename ${GEO_DB} .gz)
 if [ $? != 0 ]; then
-    err "The MaxMind GeoLite City database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
+    err_line "The MaxMind GeoLite City database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
 fi
 
 echo "Installing MaxMind GeoLite City (IPv6) database to ${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind"
 gunzip -c ${GEOv6_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind/$(basename ${GEOv6_DB} .gz)
 if [ $? != 0 ]; then
-    err "The MaxMind GeoLite City (IPv6) database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
+    err_line "The MaxMind GeoLite City (IPv6) database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
 fi
 
 # Deleting temporary files
