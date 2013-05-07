@@ -62,6 +62,7 @@ elif [ "$PHP_MBSTRING" != "mbstring" ]; then
     err "The PHP 'mbstring' module is missing. Try to install the 'php-mbstring' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
 elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
     err "The PHP PDO SQLite v3 module is missing. Try to install the 'php5-sqlite' (Ubuntu/Debian) or 'php-pdo' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
+fi
 
 # Download files from Web
 if [ ! -f  ${SURFMAP_REL} ]; then
