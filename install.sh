@@ -51,6 +51,18 @@ if [ "$(id -u)" = "$(id -u ${USER})" ]; then
 	WWWUSER=${USER}		# we are installing as normal user
 fi
 
+# Check available PHP modules
+PHP_CURL=$(php -m | grep 'curl' 2> /dev/null)
+PHP_MBSTRING=$(php -m | grep 'mbstring' 2> /dev/null)
+PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite$' 2> /dev/null) # The dollar-sign ($) makes sure that 'pdo_sqlite2' is not accepted
+
+if [ "$PHP_CURL" != "curl" ]; then
+    err "The PHP 'cURL' module is missing. Try to install the 'php5-curl' (Ubuntu/Debian) or 'php-curl' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
+elif [ "$PHP_MBSTRING" != "mbstring" ]; then
+    err "The PHP 'mbstring' module is missing. Try to install the 'php-mbstring' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
+elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
+    err "The PHP PDO SQLite v3 module is missing. Try to install the 'php5-sqlite' (Ubuntu/Debian) or 'php-pdo' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
+
 # Download files from Web
 if [ ! -f  ${SURFMAP_REL} ]; then
 	echo "Downloading SURFmap plugin tar ball - http://surfmap.sf.net/"
@@ -176,18 +188,4 @@ else
 fi
 
 echo "-----"
-
-# Check available PHP modules
-PHP_CURL=$(php -m | grep 'curl' 2> /dev/null)
-PHP_MBSTRING=$(php -m | grep 'mbstring' 2> /dev/null)
-PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite$' 2> /dev/null) # The dollar-sign ($) makes sure that 'pdo_sqlite2' is not accepted
-
-if [ "$PHP_CURL" != "curl" ]; then
-    echo "The PHP 'cURL' module is missing. Try to install the 'php5-curl' (Ubuntu/Debian) or 'php-curl' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
-elif [ "$PHP_MBSTRING" != "mbstring" ]; then
-    echo "The PHP 'mbstring' module is missing. Try to install the 'php-mbstring' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
-elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
-    echo "The PHP PDO SQLite v3 module is missing. Try to install the 'php5-sqlite' (Ubuntu/Debian) or 'php-pdo' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
-else
-    echo "Please restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
-fi
+echo "Please restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
