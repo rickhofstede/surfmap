@@ -43,15 +43,21 @@ check 2.4; for installation verification, check 2.5):
     $ cd ~/surfmap
 
 - Download tar ball from SourceForge repository:
-    $ wget http://downloads.sourceforge.net/project/surfmap/source/SURFmap_v2.2.tar.gz
+    $ wget http://downloads.sourceforge.net/project/surfmap/source/SURFmap_v3.0.tar.gz
 
 - Download MaxMind GeoLite City database:
     $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+    
+- Download MaxMind GeoLite City (IPv6) database:
+    $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6.dat.gz
 
 - Unpack installation packages:
     $ tar zxf SURFmap_v2.2.tar.gz --directory=/var/www/nfsen/plugins/ (this path 
         might differ, depending on your setup)
     $ gunzip -c GeoLiteCity.dat.gz > /var/www/nfsen/plugins/SURFmap/MaxMind/GeoLiteCity.dat
+        (path might differ, depending on your setup)
+    $ gunzip -c GeoLiteCityv6.dat.gz > /var/www/nfsen/plugins/SURFmap/MaxMind/GeoLiteCityv6.dat
+        (path might differ, depending on your setup)
 
 - Install back-end and front-end plugin files:
     $ cd /var/www/nfsen/plugins/

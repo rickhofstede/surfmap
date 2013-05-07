@@ -11,22 +11,16 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "3.0b1 dev (20130505)";
+     $version = "3.0b1 dev (20130507)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
     
      // TODO - Integrate jQuery 'position' API for menu trigger
-     // TODO - Add logging (also to geocode.php -> error, events)
-     
      // TODO - Convert tabs to spaces
      // TODO - Add extension support to 'Flow Details'
      // TODO - Fix all TODO/FIXME tags
-    
-     // TODO - Check jQuery migrate plugin
-     // TODO - Remove all console.log and alert statements
      // TODO - Cleanup CSS file
-     
      // TODO - [TEST_SCENARIO] DB not writable
 ?>
 <!DOCTYPE html>
@@ -1378,7 +1372,9 @@
         }
         
         /*
-         * Writes client-related information to syslog.
+         * Writes client-related information to syslog. This method needs to stay
+         * in index.php (in contrast to the other debug logging actions in event.js),
+         * since it contains several PHP statements.
          */
         function log_system_information () {
             var log_data = [
@@ -1387,60 +1383,6 @@
                 "PHP loaded extensions:  <?php echo implode(', ', get_loaded_extensions()); ?>",
                 "CLient Web browser: " + navigator.userAgent,
                 "CLient Web browser cookies enabled: " + navigator.cookieEnabled
-            ]
-            
-            $.ajax({
-                url: 'json/writetosyslog.php',
-                data: {
-                    params: {
-                        'type': "debug",
-                        'lines' : log_data
-                    }
-                },
-                success: function(data) {
-                    if (data.status != 0) { // Failure
-                        show_error(816, data.status_message);
-                    }
-                }
-            });
-        }
-        
-        /*
-         * Writes session-related information to syslog.
-         */
-        function log_session_information () {
-            var log_data = [
-                "geocoder_history - client (S, B, E, S): "
-                        + session_data['geocoder_history']['client']['requests_success'] + ", " 
-                        + session_data['geocoder_history']['client']['requests_blocked'] + ", "
-                        + session_data['geocoder_history']['client']['requests_error'] + ", "
-                        + session_data['geocoder_history']['client']['requests_skipped'],
-                "geocoder_history - server (S, B, E, S): "
-                        + session_data['geocoder_history']['server']['requests_success'] + ", " 
-                        + session_data['geocoder_history']['server']['requests_blocked'] + ", "
-                        + session_data['geocoder_history']['server']['requests_error'] + ", "
-                        + session_data['geocoder_history']['server']['requests_skipped'],
-                "flow_record_count: " + session_data['flow_record_count'],
-                "flow_filter: " + session_data['flow_filter'],
-                "flow_display_filter: " + session_data['flow_display_filter'],
-                "flow_filter: " + session_data['geo_filter'],
-                "nfsen_option: " + session_data['nfsen_option'],
-                "nfsen_stat_order: " + session_data['nfsen_stat_order'],
-                "nfsen_profile: " + session_data['nfsen_profile'],
-                "nfsen_profile_type: " + session_data['nfsen_profile_type'],
-                "nfsen_all_sources: " + session_data['nfsen_all_sources'].join(", "),
-                "nfsen_selected_sources: " + session_data['nfsen_selected_sources'].join(", "),
-                "refresh: " + session_data['refresh'],
-                "date1: " + session_data['date1'],
-                "date2: " + session_data['date2'],
-                "hours1: " + session_data['hours1'],
-                "hours2: " + session_data['hours2'],
-                "minutes1: " + session_data['minutes1'],
-                "minutes2: " + session_data['minutes2'],
-                "map_center: " + session_data['map_center'],
-                "zoom_level: " + session_data['zoom_level'],
-                "curl_loaded: " + session_data['curl_loaded'],
-                "use_db: " + session_data['use_db']
             ]
             
             $.ajax({

@@ -27,6 +27,9 @@
     }
     
     foreach ($_POST['params']['lines'] as $line) {
+        if ($log_type == LOG_DEBUG) {
+            $line = "[DEBUG] ".$line;
+        }
 		syslog($log_type, "SURFmap: ".$line);
     }
     unset($line);
