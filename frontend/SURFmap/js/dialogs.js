@@ -541,7 +541,7 @@
         body.append(header_line);
         
         var line_class = 'odd';
-        if (flow_data.length > 0) {
+        if (flow_data != undefined) {
             $.each(flow_data, function (flow_index, flow_item) {
                 // Skip flow record if it doesn't belong to the current information window
                 if (flow_indices != undefined && jQuery.inArray(flow_index, flow_indices) == -1) {
