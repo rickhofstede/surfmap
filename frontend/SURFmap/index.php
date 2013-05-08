@@ -92,19 +92,6 @@
             'city':     -1
         }
         
-        /* Asynchronous communications (and dependencies)
-            - Config    \
-                         -> 
-            - Constants /
-            - NfSen config \
-                            ->
-                                - Session data        \
-                                                       ->
-                                - Active extensions   /
-            - Last used version number
-            - Errors
-        */
-        
         jQuery.ajaxSetup({
             cache: false,
             dataType: 'json',
@@ -168,18 +155,6 @@
                     $(document).trigger('nfsen_config_loaded');
                 } else {
                     show_error(802, data.status_message);
-                }
-            }
-        });
-        
-        // Retrieve list of active extensions
-        $.ajax({
-            url: 'json/getextensions.php',
-            success: function(data) {
-                if (data.status == 0) { // Success
-                    $(document).trigger('active_extensions_list_loaded', data);
-                } else {
-                    show_error(811, data.status_message);
                 }
             }
         });

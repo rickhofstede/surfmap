@@ -33,6 +33,20 @@ $(document).ready(function() {
         optimize_display();
         init_panel();
         
+        /* Retrieve list of active extensions
+         * --> Comes after config retrieval because 'active_extensions_list_loaded' uses config['log_debug']
+         */
+        $.ajax({
+            url: 'json/getextensions.php',
+            success: function(data) {
+                if (data.status == 0) { // Success
+                    $(document).trigger('active_extensions_list_loaded', data);
+                } else {
+                    show_error(811, data.status_message);
+                }
+            }
+        });
+        
         if (config['log_debug']) {
             log_system_information();
         }
