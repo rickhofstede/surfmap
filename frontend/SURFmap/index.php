@@ -11,14 +11,11 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "3.0b1 dev (20130508)";
+     $version = "3.0b1 (20130508)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
-    
-     // TODO - Integrate jQuery 'position' API for menu trigger
-     // TODO - Convert tabs to spaces
-     // TODO - Add extension support to 'Flow Details'
+     
 ?>
 <!DOCTYPE html>
 <html>
