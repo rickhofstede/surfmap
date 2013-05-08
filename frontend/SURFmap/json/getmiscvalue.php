@@ -1,7 +1,7 @@
 <?php
 /******************************************************
  # getmiscvalue.php
- # Author:		Rick Hofstede <r.j.hofstede@utwente.nl>
+ # Author:      Rick Hofstede <r.j.hofstede@utwente.nl>
  # University of Twente, The Netherlands
  #
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
@@ -26,7 +26,7 @@
         $result['values'] = array();
     
         foreach ($keys as $key) {
-    		$query = "SELECT value FROM misc WHERE key = :key";
+            $query = "SELECT value FROM misc WHERE key = :key";
             $stmnt = $db->prepare($query);
             $stmnt->bindParam(":key", $key);
             $stmnt->execute();

@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "3.0b1 dev (20130507)";
+     $version = "3.0b1 dev (20130508)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -19,9 +19,6 @@
      // TODO - Integrate jQuery 'position' API for menu trigger
      // TODO - Convert tabs to spaces
      // TODO - Add extension support to 'Flow Details'
-     // TODO - Fix all TODO/FIXME tags
-     // TODO - Cleanup CSS file
-     // TODO - [TEST_SCENARIO] DB not writable
 ?>
 <!DOCTYPE html>
 <html>
@@ -403,12 +400,14 @@
             global_line_minima = {
                 'country':  -1,
                 'region':   -1,
-                'city':     -1
+                'city':     -1,
+                'host':     -1
             }
             global_line_maxima = {
                 'country':  -1,
                 'region':   -1,
-                'city':     -1
+                'city':     -1,
+                'host':     -1
             }
             
             $.each(flow_data, function (flow_index, flow_item) {
@@ -874,8 +873,10 @@
                 case 2:     zoom_level_name = "city";
                             break;
                             
+                case 3:     zoom_level_name = "host";
+                            break;
+                            
                 default:    break;
-                // TODO Check HOST zoom level
             }
             
             var min = global_line_minima[zoom_level_name];

@@ -1,7 +1,7 @@
 <?php
 /******************************************************
  # geterrors.php
- # Author:		Rick Hofstede <r.j.hofstede@utwente.nl>
+ # Author:      Rick Hofstede <r.j.hofstede@utwente.nl>
  # University of Twente, The Netherlands
  #
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
@@ -18,21 +18,21 @@
     if (!in_array("sqlite", PDO::getAvailableDrivers())) {
         array_push($result['error_codes'], 0);
     }
-	
-	// Check database exists
-	if (!file_exists('../'.$constants['cache_db'])) {
-		array_push($result['error_codes'], 1);
-	}
-	
-	// Check database readable
-	if (!is_readable('../'.$constants['cache_db'])) {
-		array_push($result['error_codes'], 2);
-	}
-	
-	// Check database writable
-	if (!is_writable('../'.$constants['cache_db'])) {
-		array_push($result['error_codes'], 3);
-	}
+    
+    // Check database exists
+    if (!file_exists('../'.$constants['cache_db'])) {
+        array_push($result['error_codes'], 1);
+    }
+    
+    // Check database readable
+    if (!is_readable('../'.$constants['cache_db'])) {
+        array_push($result['error_codes'], 2);
+    }
+    
+    // Check database writable
+    if (!is_writable('../'.$constants['cache_db'])) {
+        array_push($result['error_codes'], 3);
+    }
     
     // Check geolocation database available
     if ($config['geolocation_db'] == 'MaxMind') {
@@ -66,7 +66,7 @@
             array_push($result['error_codes'], 7);
         }
     }
-	
+    
     $result['status'] = 0;
     echo json_encode($result);
     die();

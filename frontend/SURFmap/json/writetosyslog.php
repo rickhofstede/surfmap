@@ -1,7 +1,7 @@
 <?php
 /******************************************************
  # writetosyslog.php
- # Author:		Rick Hofstede <r.j.hofstede@utwente.nl>
+ # Author:      Rick Hofstede <r.j.hofstede@utwente.nl>
  # University of Twente, The Netherlands
  #
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
@@ -30,7 +30,7 @@
         if ($log_type == LOG_DEBUG) {
             $line = "[DEBUG] ".$line;
         }
-		syslog($log_type, "SURFmap: ".$line);
+        syslog($log_type, "SURFmap: ".$line);
     }
     unset($line);
     

@@ -1,14 +1,14 @@
 <?php
 /******************************************************
  # getflowdata.php
- # Author:		Rick Hofstede <r.j.hofstede@utwente.nl>
+ # Author:      Rick Hofstede <r.j.hofstede@utwente.nl>
  # University of Twente, The Netherlands
  #
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
  *****************************************************/
     
     function ReportLog($message) {
-    	// dummy function to avoid PHP errors
+        // dummy function to avoid PHP errors
     }
     
     if (!session_id()) session_start();
@@ -74,7 +74,7 @@
     $run = "-R nfcapd.".$date1.$hours1.$minutes1.":nfcapd.".$date2.$hours2.$minutes2
             ." -Nq -o \"fmt:".$field_list."\"";
     if ($nfsen_option == 0) {
-    	$run .= " -c ".$flow_record_count;
+        $run .= " -c ".$flow_record_count;
     } else {
         switch ($nfsen_stat_order) {
             case 0:     $nfsen_stat_order = "flows";
@@ -88,11 +88,11 @@
                         
             default:    break;
         }
-    	$run .= " -n ".$flow_record_count." -s record/".$nfsen_stat_order." -A proto,srcip,srcport,dstip,dstport";
+        $run .= " -n ".$flow_record_count." -s record/".$nfsen_stat_order." -A proto,srcip,srcport,dstip,dstport";
     }
 
     if ($nfsen_option == 0 && $config['order_flow_records_by_start_time'] == 1) {
-    	$run .= " -m";
+        $run .= " -m";
     }
 
     $cmd_opts['args'] = "-T $run";
@@ -126,31 +126,31 @@
     // error_log("--> \$cmd_out: ".implode(",", array_keys($cmd_out)));
     // error_log("--> \$cmd_out['nfdump']: ".implode(",", $cmd_out['nfdump']));
     // error_log("--> \$cmd_out['nfdump']: ".implode(",", array_keys($cmd_out['nfdump'])));
-			
+            
     if (isset($cmd_out['nfdump']) && $cmd_out["exit"] > 0) {
-    	$result['status'] = 1; // Filter error
+        $result['status'] = 1; // Filter error
         $result['status_message'] = "Syntax error in flow filter (".$cmd_out['nfdump'][0].")";
-				
-    	if (count($cmd_out['nfdump']) > 0) {
-    		if ($cmd_out['nfdump'][0] == "Killed") {
+                
+        if (count($cmd_out['nfdump']) > 0) {
+            if ($cmd_out['nfdump'][0] == "Killed") {
                 $result['status'] = 1;
                 $result['status_message'] = "Flow data query process was killed";
-    		}
-    	}
+            }
+        }
 
-    	$result['flow_record_count'] = 0;
+        $result['flow_record_count'] = 0;
         echo json_encode($result);
         die();
     } else if (isset($_SESSION['error']) && isset($_SESSION['error'][0])) {
         $result['status'] = 1; // Profile error
         $result['status_message'] = "Profile error (".$_SESSION['error'][0].")";
-    	$result['flow_record_count'] = 0;
+        $result['flow_record_count'] = 0;
         echo json_encode($result);
-        die();			
+        die();          
     } else if (!isset($cmd_out['nfdump']) || sizeof($cmd_out['nfdump']) == 0 || (isset($cmd_out['nfdump'][1]) && $cmd_out['nfdump'][1] == "Empty file list. No files to process")) {
         $result['status'] = 1; // No flow records error
         $result['status_message'] = "No flow records in result set";
-    	$result['flow_record_count'] = 0;
+        $result['flow_record_count'] = 0;
         echo json_encode($result);
         die();
     }
@@ -161,13 +161,13 @@
         if ($line == "No matched flows") {
             $result['status'] = 1; // No flow records error
             $result['status_message'] = "No flow records in result set";
-        	$result['flow_record_count'] = 0;
+            $result['flow_record_count'] = 0;
             echo json_encode($result);
             die();
         }
         
-    	// Remove unused characters
-    	for ($i = 0; $i < strlen($line); $i++) {
+        // Remove unused characters
+        for ($i = 0; $i < strlen($line); $i++) {
             if (ord(substr($line, $i, 1)) < 32) {
                 $line = substr_replace($line, '', $i, 1);
             }
@@ -190,21 +190,21 @@
         array_push($result['flow_data'], $record);
     }
     unset($line);
-	
+    
     $result['status'] = 0;
     echo json_encode($result);
     die();
     
-	class FlowRecord {
-		var $ipv4_src;
-		var $ipv4_dst;
-		var $port_src;
-		var $port_dst;
-		var $protocol;
-		var $packets;
-		var $octets;
-		var $duration;
-		var $flows; // is not a NetFlow field, but used later on
-	}
+    class FlowRecord {
+        var $ipv4_src;
+        var $ipv4_dst;
+        var $port_src;
+        var $port_dst;
+        var $protocol;
+        var $packets;
+        var $octets;
+        var $duration;
+        var $flows; // is not a NetFlow field, but used later on
+    }
 
 ?>

@@ -1,7 +1,7 @@
 <?php
 /******************************************************
  # getversion.php
- # Author:		Rick Hofstede <r.j.hofstede@utwente.nl>
+ # Author:      Rick Hofstede <r.j.hofstede@utwente.nl>
  # University of Twente, The Netherlands
  #
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
@@ -37,15 +37,15 @@
                 )
         );
         
-		if ($config['use_proxy']) {
+        if ($config['use_proxy']) {
             $options[CURLOPT_PROXYTYPE] = 'HTTP';
             $options[CURLOPT_PROXY] = $PROXY_IP;
             $options[CURLOPT_PROXYPORT] = $PROXY_PORT;
-		
-			if ($config['proxy_user_authentication']) {
+        
+            if ($config['proxy_user_authentication']) {
                 $options[CURLOPT_PROXYUSERPWD] = $PROXY_USERNAME_PASSWORD;
-			}
-		}
+            }
+        }
         
         curl_setopt_array($curl_handle, $options);
         

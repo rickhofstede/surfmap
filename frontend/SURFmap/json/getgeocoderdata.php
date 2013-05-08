@@ -1,7 +1,7 @@
 <?php
 /******************************************************
  # getgeocoderdata.php
- # Author:		Rick Hofstede <r.j.hofstede@utwente.nl>
+ # Author:      Rick Hofstede <r.j.hofstede@utwente.nl>
  # University of Twente, The Netherlands
  #
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
@@ -33,19 +33,19 @@
                 $lat = 0;
                 $lng = 0;
             } else {
-        		$query = "SELECT latitude, longitude FROM geocoder_cache WHERE location = :location";
+                $query = "SELECT latitude, longitude FROM geocoder_cache WHERE location = :location";
                 $stmnt = $db->prepare($query);
                 $stmnt->bindParam(":location", $request);
                 $stmnt->execute();
                 $query_result = $stmnt->fetch(PDO::FETCH_ASSOC);
         
-        		if ($query_result) { // Country name was found in DB
+                if ($query_result) { // Country name was found in DB
                     $lat = $query_result['latitude'];
                     $lng = $query_result['longitude'];
-        		} else {
+                } else {
                     $lat = -1;
                     $lng = -1;
-        		}
+                }
             }
             array_push($result['geocoder_data'], array('request' => $request, 'lat' => $lat, 'lng' => $lng));
         }

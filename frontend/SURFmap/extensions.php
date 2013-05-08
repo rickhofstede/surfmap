@@ -1,11 +1,11 @@
 <?php
     /*******************************
-	 # extensions.php [SURFmap]
-	 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
-	 # University of Twente, The Netherlands
-	 #
-	 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
-	 *******************************/
+     # extensions.php [SURFmap]
+     # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+     # University of Twente, The Netherlands
+     #
+     # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
+     *******************************/
     
     // Available extensions
     $EX_LOC = new Extension('Location-aware exporting', array(
@@ -14,9 +14,9 @@
         new ExtensionField('Latitude', 'Lat', '%location_lat'),
         new ExtensionField('Longitude', 'Lng', '%location_lng'),
     ));
-	
+    
     // Enabled extensions (comma-separated)
-	$extensions = array();
+    $extensions = array();
     
     // -----
     
@@ -41,5 +41,5 @@
             $this->nfdump_short = $nfdump_short;
         }
     }
-	
+    
 ?>

@@ -1,38 +1,38 @@
 <?php
     /*******************************
-	 # extensions.php [SURFmap]
-	 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
-	 # University of Twente, The Netherlands
-	 #
-	 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
-	 *******************************/
+     # extensions.php [SURFmap]
+     # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
+     # University of Twente, The Netherlands
+     #
+     # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
+     *******************************/
     
     /*
      * Checks whether the specified IPv4 address belongs to the specified IP
      * address range (net).
      * Parameters:
-     *		ipAddress - IPv4 address in octet notation (e.g. '192.168.1.1')
-     * 		ipNet - IPv4 subnet range, in nfdump filter notation
+     *      ipAddress - IPv4 address in octet notation (e.g. '192.168.1.1')
+     *      ipNet - IPv4 subnet range, in nfdump filter notation
      */
     function ip_address_belongs_to_net ($ipAddress, $ipNet) {
-    	if (substr_count($ipAddress, ".") != 3) return false; // A valid IPv4 address should have 3 dots
-    	if (substr_count($ipAddress, ".") < 1 && substr_count($ipAddress, "/") != 1) return false; // A valid IPv4 subNet should have at least 1 dot and exactly 1 slash
-		
-    	$ipAddressOctets = explode(".", $ipAddress);		
-    	$ipAddressDec = ($ipAddressOctets[0] << 24) + ($ipAddressOctets[1] << 16) + ($ipAddressOctets[2] << 8) + $ipAddressOctets[3];
-		
-    	$netMask = intval(substr($ipNet, strpos($ipNet, "/") + 1));
-		
-    	// Since we use nfdump subnet notation, we need to make the subnet address complete
-    	$completeIPNet = substr($ipNet, 0, strpos($ipNet, "/"));
-    	for ($i = 3 - substr_count($ipNet, "."); $i > 0; $i--) {
-    		$completeIPNet .= ".0";
-    	}
+        if (substr_count($ipAddress, ".") != 3) return false; // A valid IPv4 address should have 3 dots
+        if (substr_count($ipAddress, ".") < 1 && substr_count($ipAddress, "/") != 1) return false; // A valid IPv4 subNet should have at least 1 dot and exactly 1 slash
+        
+        $ipAddressOctets = explode(".", $ipAddress);        
+        $ipAddressDec = ($ipAddressOctets[0] << 24) + ($ipAddressOctets[1] << 16) + ($ipAddressOctets[2] << 8) + $ipAddressOctets[3];
+        
+        $netMask = intval(substr($ipNet, strpos($ipNet, "/") + 1));
+        
+        // Since we use nfdump subnet notation, we need to make the subnet address complete
+        $completeIPNet = substr($ipNet, 0, strpos($ipNet, "/"));
+        for ($i = 3 - substr_count($ipNet, "."); $i > 0; $i--) {
+            $completeIPNet .= ".0";
+        }
 
-    	$ipNetOctets = explode(".", $completeIPNet);
-    	$ipNetDec = ($ipNetOctets[0] << 24) + ($ipNetOctets[1] << 16) + ($ipNetOctets[2] << 8) + $ipNetOctets[3];
+        $ipNetOctets = explode(".", $completeIPNet);
+        $ipNetDec = ($ipNetOctets[0] << 24) + ($ipNetOctets[1] << 16) + ($ipNetOctets[2] << 8) + $ipNetOctets[3];
 
-    	return ($ipAddressDec & (-1 << (32 - $netMask))) == $ipNetDec;
+        return ($ipAddressDec & (-1 << (32 - $netMask))) == $ipNetDec;
     }
     
     function replace_accented_characters ($name) {
@@ -42,5 +42,5 @@
     
         return strtoupper(str_replace($search, $replace, $name));
     }
-	
+    
 ?>
