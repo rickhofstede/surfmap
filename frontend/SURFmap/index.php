@@ -72,7 +72,8 @@
         var map;
         var geocoder = new google.maps.Geocoder();
         var info_window = new google.maps.InfoWindow();
-        var green_marker = new google.maps.MarkerImage("images/green_marker.png", new google.maps.Size(20, 34));
+        var blue_marker = new google.maps.MarkerImage("images/markers/blue-dot.png", new google.maps.Size(30, 30));
+        var green_marker = new google.maps.MarkerImage("images/markers/green-dot.png", new google.maps.Size(30, 30));
         
         var zoom_levels = {
             0:  'country',
