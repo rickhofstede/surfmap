@@ -1,6 +1,6 @@
 <?php
     /*******************************
-     # extensions.php [SURFmap]
+     # util.php [SURFmap]
      # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
      # University of Twente, The Netherlands
      #
