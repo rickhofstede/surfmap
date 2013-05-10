@@ -174,7 +174,8 @@ $(document).ready(function() {
             url: 'json/getsessiondata.php',
             data: { 
                 params: { 
-                    'nfsen_profile_data_dir': nfsen_config['PROFILEDATADIR']
+                    'nfsen_profile_data_dir': nfsen_config['PROFILEDATADIR'],
+                    'nfsen_subdir_layout': nfsen_config['SUBDIRLAYOUT']
                 } 
             },
             success: function(data) {
@@ -188,8 +189,10 @@ $(document).ready(function() {
     });
            
     $(document).bind('session_data_changed', function (event, session_params) {
-        // Add 'nfsen_profile_data_dir'
+        // Add required parameters
         session_params['nfsen_profile_data_dir'] = nfsen_config['PROFILEDATADIR'];
+        session_params['nfsen_subdir_layout'] = nfsen_config['SUBDIRLAYOUT'];
+        
         $.ajax({
             url: 'json/setsessiondata.php',
             data: { 

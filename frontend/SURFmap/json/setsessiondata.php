@@ -15,6 +15,7 @@
     
     if (isset($_POST['params'])) {
         $nfsen_profile_data_dir = $_POST['params']['nfsen_profile_data_dir'];
+        $nfsen_subdir_layout = $_POST['params']['nfsen_subdir_layout'];
     } else {
         $result['status'] = 1;
         $result['status_message'] = "No parameters provided";
@@ -160,14 +161,7 @@
     
     // Set dates and times (1)
     if (isset($_POST['params']['date1']) || isset($_POST['params']['hours1']) || isset($_POST['params']['minutes1'])) {
-        if (isset($_POST['params']['nfsen_profile_data_dir'])) {
-            $nfsen_profile_data_dir = $_POST['params']['nfsen_profile_data_dir'];
-        } else {
-            $result['status'] = 1;
-            $result['status_message'] = "No parameter provided (nfsen_profile_data_dir)";
-        }
-        
-        if (sourceFilesExist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $_POST['params']['date1'], $_POST['params']['hours1'], $_POST['params']['minutes1'])) {
+        if (source_files_exist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $_POST['params']['date1'], $_POST['params']['hours1'], $_POST['params']['minutes1'])) {
             $_SESSION['SURFmap']['date1'] = $_POST['params']['date1'];
             $_SESSION['SURFmap']['hours1'] = $_POST['params']['hours1'];
             $_SESSION['SURFmap']['minutes1'] = $_POST['params']['minutes1'];
@@ -180,14 +174,7 @@
     
     // Set dates and times (2)
     if (isset($_POST['params']['date2']) || isset($_POST['params']['hours2']) || isset($_POST['params']['minutes2'])) {
-        if (isset($_POST['params']['nfsen_profile_data_dir'])) {
-            $nfsen_profile_data_dir = $_POST['params']['nfsen_profile_data_dir'];
-        } else {
-            $result['status'] = 1;
-            $result['status_message'] = "No parameter provided (nfsen_profile_data_dir)";
-        }
-        
-        if (sourceFilesExist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $_POST['params']['date2'], $_POST['params']['hours2'], $_POST['params']['minutes2'])) {
+        if (source_files_exist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $_POST['params']['date2'], $_POST['params']['hours2'], $_POST['params']['minutes2'])) {
             $_SESSION['SURFmap']['date2'] = $_POST['params']['date2'];
             $_SESSION['SURFmap']['hours2'] = $_POST['params']['hours2'];
             $_SESSION['SURFmap']['minutes2'] = $_POST['params']['minutes2'];
@@ -289,84 +276,6 @@
     die();
     
     /*
-     * Generates a date String (yyyymmdd) from either 1) a date selector in the
-     * SURFmap interface, or 2) the last available date for which an nfcapd dump
-     * file is available on the file system.
-     * Parameters:
-     *      bufferTime - buffer time between the real time and the most recent
-     *                      profile update, in minutes (default: 5)
-     */
-    function generateDateString ($bufferTime) {
-        $unprocessed_date = date("Ymd");
-
-        // If time is in interval [00:00, 00:{bufferTime}>, the date has to contain the previous day (and eventually month and year)
-        if (date("H") == 00 && date("i") < $bufferTime) {
-            $year = substr($unprocessed_date, 0, 4);
-            $month = substr($unprocessed_date, 4, 2);
-            $day = substr($unprocessed_date, 6, 2);
-
-            if ($month == 01 && $day == 01) {
-                $year--;
-                $month = 12;
-                $day = 31;
-            } else if (checkdate($month, $day - 1, $year)) {
-                $day--;
-            } else if (checkdate($month - 1, 31, $year)) {
-                $day = 31;
-                $month--;
-            } else if (checkdate($month - 1, 30, $year)) {
-                $day = 30;
-                $month--;
-            } else if (checkdate($month - 1, 29, $year)) {
-                $day = 29;
-                $month--;
-            } else if (checkdate($month - 1, 28, $year)) {
-                $day = 28;
-                $month--;
-            }
-
-            if (strlen($day) < 2) $day = "0".$day;
-            if (strlen($month) < 2) $month = "0".$month;
-
-            $date = $year.$month.$day;
-        } else {
-            $date = $unprocessed_date;
-        }
-        
-        return $date;
-    }
-
-    /*
-     * Generates a time String (hhmm) from either 1) a time selector in the
-     * SURFmap interface, or 2) the last available time for which an nfcapd dump
-     * file is available on the file system.
-     * Parameters:
-     *      bufferTime - buffer time between the real time and the most recent
-     *                      profile update, in minutes (default: 5)
-     */
-    function generateTimeString ($bufferTime) {
-        $hours = date("H");
-        $minutes = date("i") - (date("i") % 5);
-
-        if ($minutes < $bufferTime) {
-            if ($hours != 00) {
-                $hours--; // 'previous' hour of "00" is "23"
-            } else {
-                $hours = 23;
-            }
-
-            $minutes = 60 - ($bufferTime - $minutes);
-        } else {
-            $minutes = $minutes - $bufferTime;
-        }
-        
-        if (strlen($hours) < 2) $hours = "0".$hours;
-        if (strlen($minutes) < 2) $minutes = "0".$minutes;
-
-        return $hours.":".$minutes;
-    }
-    
-    /*
      * Generates a file name based on the specified file name format (in config.php)
      * and the specified parameters.
      * Parameters:
@@ -374,8 +283,8 @@
      *      hours - Hours for the file name (should be of the following format: hh)
      *      minutes - Minutes for the file name (should be of the following format: mm)
      */
-    function generateFileName ($date, $hours, $minutes) {
-        global $nfsenConfig;
+    function generate_file_name ($date, $hours, $minutes) {
+        global $nfsen_subdir_layout;
         
         $year = substr($date, 0, 4);
         $month = substr($date, 4, 2);
@@ -387,37 +296,21 @@
          1 %Y/%m/%d    year/month/day
          2 %Y/%m/%d/%H year/month/day/hour
         */
-        switch(intval($nfsenConfig['SUBDIRLAYOUT'])) {
-            case 0:     $fileName = "nfcapd.".$date.$hours.$minutes;
+        switch(intval($nfsen_subdir_layout)) {
+            case 0:     $file_name = "nfcapd.".$date.$hours.$minutes;
                         break;
                         
-            case 1:     $fileName = $year."/".$month."/".$day."/nfcapd.".$date.$hours.$minutes;
+            case 1:     $file_name = $year."/".$month."/".$day."/nfcapd.".$date.$hours.$minutes;
                         break;
                         
-            case 2:     $fileName = $year."/".$month."/".$day."/".$hours."/nfcapd.".$date.$hours.$minutes;
+            case 2:     $file_name = $year."/".$month."/".$day."/".$hours."/nfcapd.".$date.$hours.$minutes;
                         break;
                     
-            default:    $fileName = "nfcapd.".$date.$hours.$minutes;
+            default:    $file_name = "nfcapd.".$date.$hours.$minutes;
                         break;
         }
         
-        return $fileName;
-    }
-    
-    /*
-     * Checks whether the 2nd timestamp is later (in time) than the first timestamp.
-     */ 
-    function isTimeRangeIsPositive ($date1, $hours1, $minutes1, $date2, $hours2, $minutes2) {
-        $result = false;
-
-        // the resulting time stamp is in GMT (instead of GMT+1), but that shouldn't be a problem; only the difference between the time stamps is important
-        if (mktime($hours1, $minutes1, 0, substr($date1, 4, 2), substr($date1, 6, 2), 
-                substr($date1, 0, 4)) <= mktime($hours2, $minutes2, 0, substr($date2, 4, 2), substr($date2, 6, 2), 
-                substr($date2, 0, 4))) {
-            $result = true;     
-        }
-        
-        return $result;
+        return $file_name;
     }
 
     /*
@@ -429,21 +322,21 @@
      *      hours - date in the following format 'HH' (with leading zeros)
      *      minutes - date in the following format 'MM' (with leading zeros)
      */
-    function sourceFilesExist ($profile_data_dir, $source, $date, $hours, $minutes) {
+    function source_files_exist ($profile_data_dir, $source, $date, $hours, $minutes) {
         // Use 'live' profile data if shadow profile has been selected
         if ($_SESSION['SURFmap']['nfsen_profile_type'] === "real") {
-            $actualProfile = $_SESSION['SURFmap']['nfsen_profile'];
-            $actualSource = $source;
+            $profile = $_SESSION['SURFmap']['nfsen_profile'];
+            $source = $source;
         } else {
-            $actualProfile = "live";
-            $actualSource = "*";
+            $profile = "live";
+            $source = "*";
         }
         
         $directory = (substr($profile_data_dir, strlen($profile_data_dir) - 1) === "/") ? $profile_data_dir : $profile_data_dir."/";
-        $directory .= $actualProfile."/".$actualSource."/";
+        $directory .= $profile."/".$source."/";
         
-        $fileName = generateFileName($date, $hours, $minutes);
-        $files = glob($directory.$fileName);
+        $file_name = generate_file_name($date, $hours, $minutes);
+        $files = glob($directory.$file_name);
         
         return (count($files) >= 1 && @file_exists($files[0]));
     }   
