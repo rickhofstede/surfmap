@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "3.0b1 (20130508)";
+     $version = "3.0b2 (20130510)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -907,8 +907,8 @@
 //                 });
 //              console.log($('div.panel_trigger').position());
             if (parent.document.documentElement.clientHeight < 850) {
-                $('div.panel_trigger').css('top', '43px');
-                $('.panel').css('top', '43px');
+                $('div.panel_trigger').css('top', '54px');
+                $('.panel').css('top', '54px');
             } else {
                 $('div.panel_trigger').css('top', '89px');
                 $('.panel').css('top', '89px');
