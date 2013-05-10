@@ -31,7 +31,7 @@
             info_window.close();
                 
             if (event.latLng == undefined) {
-                // When clickRandomLine() is used, a google.maps.LatLng object is passed as the 'event' parameter
+                // When click_random_line() is used, a google.maps.LatLng object is passed as the 'event' parameter
                 info_window.setPosition(event);
             } else {
                 info_window.setPosition(event.latLng);
@@ -380,11 +380,11 @@
         return body.html();
     }
 
-   /*
-    * Returns the SURFmap zoom level of the specified Google Maps zoom level.
-    * Parameters:
-    *     gm_level - the Google Maps zoom level that has to be converted to a SURFmap zoom level
-    */
+    /*
+     * Returns the SURFmap zoom level of the specified Google Maps zoom level.
+     * Parameters:
+     *      gm_level - the Google Maps zoom level that has to be converted to a SURFmap zoom level
+     */
     function get_SM_zoom_level (gm_level) {
         var level = -1;
         
@@ -396,11 +396,11 @@
         return level;
     }
 
-   /*
-    * Returns the Google Maps zoom level of the specified SURFmap zoom level.
-    * Parameters:
-    *     smZoomLevel - the SURFmap zoom level that has to be converted to a Google Maps zoom level
-    */          
+    /*
+     * Returns the Google Maps zoom level of the specified SURFmap zoom level.
+     * Parameters:
+     *     smZoomLevel - the SURFmap zoom level that has to be converted to a Google Maps zoom level
+     */          
     function get_GM_zoom_level (sm_level) {
         if (sm_level == 0) return 2;
         else if (sm_level == 1) return 5;
@@ -408,9 +408,9 @@
         else return 11;
     }
     
-   /*
-    * Initializes the Google Maps map object and adds listeners to it.
-    */
+    /*
+     * Initializes the Google Maps map object and adds listeners to it.
+     */
     function init_map () {
         var map_center = new google.maps.LatLng(
                 parseFloat(session_data['map_center'].substring(0, session_data['map_center'].indexOf(","))),
@@ -503,11 +503,11 @@
         });
     }
     
-   /*
-    * Removes all existing map overlays and adds new ones, based on the old and new zoom levels.
-    * Parameters:
-    *     new_sm_zoom_level - New/current SURFmap zoom level.
-    */  
+    /*
+     * Removes all existing map overlays and adds new ones, based on the old and new zoom levels.
+     * Parameters:
+     *       new_sm_zoom_level - New/current SURFmap zoom level.
+     */  
     function add_map_overlays (new_sm_zoom_level) {
         var start_time = new Date();
         
@@ -529,7 +529,7 @@
     /*
      * Removes existing map overlays.
      * Parameters:
-     *     sm_zoom_level - SURFmap zoom level at which overlays should be removed. If undefined, all overlays are removed.
+     *      sm_zoom_level - SURFmap zoom level at which overlays should be removed. If undefined, all overlays are removed.
      */
     function remove_map_overlays (sm_zoom_level) {
         var start_time = new Date();
@@ -550,6 +550,39 @@
             });
         }
     }
+    
+    /*
+     * Fires a 'click' event on a randomly selected line at the current zoom level.
+     */     
+    function click_random_line () {
+        var zoom_level = get_SM_zoom_level(map.getZoom());
+        var lines_at_level = [];
+        
+        // Collect all line objects at the current zoom level
+        $.each(lines, function (line_index, line) {
+            if (line.level == zoom_level) lines_at_level.push(line);
+        });
+        
+        // Randomly select one line out of the collected lines
+        var selected_line = lines_at_level[Math.floor(Math.random() * lines_at_level.length)];
+        
+        var map_center = new google.maps.LatLng(
+                parseFloat(session_data['map_center'].substring(0, session_data['map_center'].indexOf(","))),
+                parseFloat(session_data['map_center'].substring(session_data['map_center'].indexOf(",") + 1)));
+        
+        // Measures for distance to map center
+        var distance_point1 = Math.abs(selected_line.point1.lat() - map_center.lat()) + Math.abs(selected_line.point1.lng() - map_center.lng());
+        var distance_point2 = Math.abs(selected_line.point2.lat() - map_center.lat()) + Math.abs(selected_line.point2.lng() - map_center.lng());
+        
+        // Calculate which line end point is closest to map center
+        if (distance_point1 < distance_point2) {
+            google.maps.event.trigger(selected_line.obj, 'click', 
+                    new google.maps.LatLng(selected_line.point2.lat(), selected_line.point2.lng())); 
+        } else {
+            google.maps.event.trigger(selected_line.obj, 'click', 
+                    new google.maps.LatLng(selected_line.point1.lat(), selected_line.point1.lng())); 
+        }
+    }    
     
    /*
     * This function zooms the SURFmap map to a defined zoom level.

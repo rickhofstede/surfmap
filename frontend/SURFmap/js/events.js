@@ -30,7 +30,6 @@ $(document).ready(function() {
     $(document).trigger('loading');
             
     $(document).bind('config_loaded', function () {
-        optimize_display();
         init_panel();
         
         /* Retrieve list of active extensions
@@ -49,6 +48,11 @@ $(document).ready(function() {
         
         if (config['log_debug']) {
             log_system_information();
+        }
+        
+        // optimize_display() relies on both 'session_data' and 'config'
+        if (session_data != undefined) {
+            optimize_display();
         }
     });
     $(document).bind('constants_loaded', function () {
@@ -154,6 +158,11 @@ $(document).ready(function() {
         
         if (flow_data == undefined && extensions != undefined) {
             $(document).trigger('load_flow_data');
+        }
+        
+        // optimize_display() relies on both 'session_data' and 'config'
+        if (config != undefined) {
+            optimize_display();
         }
     });
             
@@ -793,6 +802,10 @@ $(document).ready(function() {
         if ($('#loading_dialog').dialog('isOpen')) {
             $('#loading_dialog').dialog('close');
             clearInterval(loading_message_timeout_handle);
+        }
+        
+        if (config['demo_mode']) {
+            click_random_line();
         }
         
         if (config['show_warnings']) {
