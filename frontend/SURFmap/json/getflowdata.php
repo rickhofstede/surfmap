@@ -68,8 +68,9 @@
         foreach ($extension->fields as $field) {
             $field_list .= ";".$field->nfdump_short;
         }
+        unset($field);
     }
-    unset($extension, $field);
+    unset($extension);
     
     $run = "-R nfcapd.".$date1.$hours1.$minutes1.":nfcapd.".$date2.$hours2.$minutes2
             ." -Nq -o \"fmt:".$field_list."\"";
@@ -186,6 +187,20 @@
         $record->packets = intval(trim($line_array[6]));
         $record->octets = intval(trim($line_array[7]));
         $record->flows = intval(trim($line_array[8]));
+        
+        // Index of the field in each nfdump line
+        $field_index = 9;
+        foreach ($extensions as $extension) {
+            foreach ($extension->fields as $field) {
+                // Remove dollar-sign (nfdump output format notation)
+                $key = substr($field->nfdump_short, 1);
+                
+                $record->$key = intval(trim($line_array[$field_index]));
+                $field_index++;
+            }
+            unset($field);
+        }
+        unset($extension);
     
         array_push($result['flow_data'], $record);
     }
@@ -196,15 +211,15 @@
     die();
     
     class FlowRecord {
-        var $ipv4_src;
-        var $ipv4_dst;
-        var $port_src;
-        var $port_dst;
-        var $protocol;
-        var $packets;
-        var $octets;
-        var $duration;
-        var $flows; // is not a NetFlow field, but used later on
+        public $ipv4_src;
+        public $ipv4_dst;
+        public $port_src;
+        public $port_dst;
+        public $protocol;
+        public $packets;
+        public $octets;
+        public $duration;
+        public $flows; // is not a NetFlow field, but used by nfdump for aggregation
     }
 
 ?>

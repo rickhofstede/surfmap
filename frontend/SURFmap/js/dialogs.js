@@ -508,6 +508,14 @@
         
         var field_count = static_field_count + extensions.length;
         
+        // Add extension field names to list of fields
+        $.each(extensions, function (extension_ID, extension) {
+            $.each(this.fields, function (field_ID, field) {
+                // Dollar-sign should be removed from 'nfdump_short' name
+                field_names[field.nfdump_short.substr(1)] = field.full_name;
+            });
+        });
+        
         protocols = [];
         protocols[1] = 'ICMP';
         protocols[2] = 'IGMP';
@@ -515,8 +523,7 @@
         protocols[17] = 'UDP';
         protocols[47] = 'GRE';
         
-        // TODO Add support for extensions
-        
+        // Generate header line
         var body = $('<tbody/>');
         var header_line = $('<tr/>', {'class': 'header'});
         var key_index = 0;

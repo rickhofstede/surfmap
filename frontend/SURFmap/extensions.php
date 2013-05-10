@@ -9,10 +9,12 @@
     
     // Available extensions
     $EX_LOC = new Extension('Location-aware exporting', array(
-        new ExtensionField('Geolocation method', 'Geo_method', '%location_gm'),
-        new ExtensionField('Timestamp', 'Timestamp', '%location_ts'),
-        new ExtensionField('Latitude', 'Lat', '%location_lat'),
-        new ExtensionField('Longitude', 'Lng', '%location_lng'),
+        new ExtensionField('Geolocation method','Geo_method',   '%loc_method'),
+        new ExtensionField('Timestamp',         'Timestamp',    '%loc_timestamp'),
+        new ExtensionField('Latitude (int)',    'Lat (int)',    '%loc_lat_int'),
+        new ExtensionField('Latitude (dec)',    'Lat (lng)',    '%loc_lat_dec'),
+        new ExtensionField('Longitude (int)',   'Lng (int)',    '%loc_lng_int'),
+        new ExtensionField('Longitude (dec)',   'Lng (lng)',    '%loc_lng_dec')
     ));
     
     // Enabled extensions (comma-separated)
