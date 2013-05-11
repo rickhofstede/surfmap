@@ -154,7 +154,7 @@
      * Parameters:
      *      cookie_name - Name of the cookie
      *      key - key of the key-value pair that needs to be stored
-     *      vale - value of the key-value pair that needs to be stored
+     *      value - value of the key-value pair that needs to be stored
      */ 
     function update_cookie_value (cookie_name, key, value) {
         var cookie = $.cookie(cookie_name);
@@ -166,4 +166,23 @@
             cookie[key] = 1;
             $.cookie(cookie_name, cookie);
         }
+    }
+    
+    /*
+     * Checks whether an extension with the specified name is currently active.
+     * Parameters:
+     *      name - Name of the extension (e.g. 'Location-aware exporting')
+     */ 
+    function is_extension_active (name) {
+        var active = false;
+        if (extensions != undefined) {
+            $.each(extensions, function (extension_index, extension) {
+                if (extension.name == name) {
+                    active = true;
+                    return false;
+                }
+            });
+        }
+        
+        return active;
     }

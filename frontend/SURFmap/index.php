@@ -660,7 +660,6 @@
                             // Skip to next marker in case of wrong zoom level
                             if (marker.level != zoom_level_index) return true;
                             
-                            // if (marker.point.lat() == lat && marker.point.lng() == lng) {
                             if (marker.point.equals(new google.maps.LatLng(lat, lng))) {
                                 markers_index = marker_index;
                                 return false;
@@ -723,9 +722,41 @@
                                 }
                             }
                         }
+                    }); // End of source/destination
+                }); // End of zoom levels
+            }); // End of flow data
+            
+            if (is_extension_active('Location-aware exporting')) {
+                var exporter_markers = [];
+                
+                $.each(flow_data, function (flow_index, flow_item) {
+                    var lat = parseFloat(flow_item.loc_lat_int + "." + flow_item.loc_lat_dec);
+                    var lng = parseFloat(flow_item.loc_lng_int + "." + flow_item.loc_lng_dec);
+                    var marker_text = ""; // TODO Fill this
+                    
+                    // Find marker (if it exists)
+                    var markers_index = -1; // -1: marker does not exist, >= 0: marker index in 'markers' array
+                    $.each(exporter_markers, function (marker_index, marker) {
+                        if (marker.point.equals(new google.maps.LatLng(lat, lng))) {
+                            markers_index = marker_index;
+                            return false;
+                        }
                     });
+                    
+                    // Create marker, if necessary
+                    if (markers_index == -1) {
+                        var marker = {};
+                        marker.point = new google.maps.LatLng(lat, lng);
+                        marker.entries = [];
+                        marker.text = marker_text;
+                        exporter_markers.push(marker);
+                        markers_index = exporter_markers.length - 1;
+                    }
                 });
-            });
+                
+                // TODO Merge marker arrays (extension and non-extension)
+                // TODO Add marker to all four zoom levels
+            }
             
             // Initialize marker objects
             $.each(zoom_levels, function (zoom_level_index, zoom_level) {
