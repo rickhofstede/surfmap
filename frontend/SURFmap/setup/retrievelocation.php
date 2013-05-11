@@ -227,7 +227,9 @@
         <div id="config_data" style="display:none;"><?php echo $location; ?></div>
         
         <script type="text/javascript">
-            var ext_IP_NAT = <?php if ($ext_IP_NAT) echo "1"; else echo "0"; ?>;
+            var NAT_IP = "<?php if (isset($NAT_IP)) { echo $NAT_IP; } ?>";
+            var ext_IP = "<?php echo $ext_IP; ?>";
+            var ext_IP_NAT = <?php if ($extIPNAT === true) echo "1"; else echo "0"; ?>;
             var ext_IP_error = "<?php if (isset($ext_IP_error)) echo $ext_IP_error; ?>";
             var ext_IP_country = "<?php echo $ext_IP_country; ?>";
             var ext_IP_region = "<?php echo $ext_IP_region; ?>";
@@ -240,7 +242,7 @@
                 document.getElementById("setup_guidelines").innerHTML += "$MAP_CENTER=\"" + ext_IP_coordinates + "\";<br /><br />";
             }
             
-            if (ext_IP_NAT || ext_IP_error != "") {
+            if ((ext_IP_NAT && (NAT_IP == ext_IP)) || ext_IP_error != "") {
                 document.getElementById("setup_guidelines").style.display = "none";
             } else if (ext_IP_country != "(UNKNOWN)") {
                 var region = (ext_IP_region == "(UNKNOWN)") ? "" : ext_IP_region;
