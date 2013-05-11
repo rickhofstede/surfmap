@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "3.0b2 (20130511)";
+     $version = "3.0b3 (20130511)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
