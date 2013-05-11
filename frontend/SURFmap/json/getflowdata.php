@@ -128,14 +128,16 @@
     // error_log("--> \$cmd_out['nfdump']: ".implode(",", $cmd_out['nfdump']));
     // error_log("--> \$cmd_out['nfdump']: ".implode(",", array_keys($cmd_out['nfdump'])));
             
-    if (isset($cmd_out['nfdump']) && $cmd_out["exit"] > 0) {
-        $result['status'] = 1; // Filter error
-        $result['status_message'] = "Syntax error in flow filter (".$cmd_out['nfdump'][0].")";
+    if (isset($cmd_out['nfdump']) && $cmd_out['exit'] > 0) {
+        $result['status'] = 1;
                 
         if (count($cmd_out['nfdump']) > 0) {
             if ($cmd_out['nfdump'][0] == "Killed") {
-                $result['status'] = 1;
                 $result['status_message'] = "Flow data query process was killed";
+            } else if (strpos($cmd_out['nfdump'][0], 'File not found') !== false) {
+                $result['status_message'] = "Flow data file could not be found (".$cmd_out['nfdump'][0].")";
+            } else {
+                $result['status_message'] = "Syntax error in flow filter (".$cmd_out['nfdump'][0].")";
             }
         }
 
