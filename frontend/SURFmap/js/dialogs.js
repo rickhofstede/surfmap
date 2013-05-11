@@ -32,8 +32,11 @@
             switch (code) {
                 case 1:     message = "You are running Microsoft Internet Explorer. Please note that SURFmap has been optimized for Mozilla Firefox, Google Chrome and Apple Safari.";
                             break;
-                        
-                case 2:     message = "As a consequence of the applied filters, no flow data can be shown. Please specify different filters.";
+                
+                case 2:     message = "The selected time range appears to contain no flow data. Please adjust the time range.";
+                            break;
+                                        
+                case 3:     message = "As a consequence of the applied filters, no flow data can be shown. Please specify different filters.";
                             break;
             
                 default:    message = "An unknown warning occured.";
