@@ -143,14 +143,20 @@
         echo json_encode($result);
         die();
     } else if (isset($_SESSION['error']) && isset($_SESSION['error'][0])) {
-        $result['status'] = 1; // Profile error
+        $result['status'] = 1;
         $result['status_message'] = "Profile error (".$_SESSION['error'][0].")";
         $result['flow_record_count'] = 0;
         echo json_encode($result);
-        die();          
-    } else if (!isset($cmd_out['nfdump']) || sizeof($cmd_out['nfdump']) == 0 || (isset($cmd_out['nfdump'][1]) && $cmd_out['nfdump'][1] == "Empty file list. No files to process")) {
-        $result['status'] = 1; // No flow records error
+        die();
+    } else if (sizeof($cmd_out['nfdump']) == 0) {
+        $result['status'] = 1;
         $result['status_message'] = "No flow records in result set";
+        $result['flow_record_count'] = 0;
+        echo json_encode($result);
+        die();
+    } else if (!isset($cmd_out['nfdump']) || (isset($cmd_out['nfdump'][1]) && $cmd_out['nfdump'][1] == "Empty file list. No files to process")) {
+        $result['status'] = 1;
+        $result['status_message'] = "Unknown error";
         $result['flow_record_count'] = 0;
         echo json_encode($result);
         die();
@@ -160,7 +166,7 @@
     $result['flow_data'] = array();
     foreach ($cmd_out['nfdump'] as $line) {
         if ($line == "No matched flows") {
-            $result['status'] = 1; // No flow records error
+            $result['status'] = 1;
             $result['status_message'] = "No flow records in result set";
             $result['flow_record_count'] = 0;
             echo json_encode($result);

@@ -559,28 +559,30 @@
         var lines_at_level = [];
         
         // Collect all line objects at the current zoom level
-        $.each(lines, function (line_index, line) {
-            if (line.level == zoom_level) lines_at_level.push(line);
-        });
+        if (lines != undefined) {
+            $.each(lines, function (line_index, line) {
+                if (line.level == zoom_level) lines_at_level.push(line);
+            });
         
-        // Randomly select one line out of the collected lines
-        var selected_line = lines_at_level[Math.floor(Math.random() * lines_at_level.length)];
+            // Randomly select one line out of the collected lines
+            var selected_line = lines_at_level[Math.floor(Math.random() * lines_at_level.length)];
         
-        var map_center = new google.maps.LatLng(
-                parseFloat(session_data['map_center'].substring(0, session_data['map_center'].indexOf(","))),
-                parseFloat(session_data['map_center'].substring(session_data['map_center'].indexOf(",") + 1)));
+            var map_center = new google.maps.LatLng(
+                    parseFloat(session_data['map_center'].substring(0, session_data['map_center'].indexOf(","))),
+                    parseFloat(session_data['map_center'].substring(session_data['map_center'].indexOf(",") + 1)));
         
-        // Measures for distance to map center
-        var distance_point1 = Math.abs(selected_line.point1.lat() - map_center.lat()) + Math.abs(selected_line.point1.lng() - map_center.lng());
-        var distance_point2 = Math.abs(selected_line.point2.lat() - map_center.lat()) + Math.abs(selected_line.point2.lng() - map_center.lng());
+            // Measures for distance to map center
+            var distance_point1 = Math.abs(selected_line.point1.lat() - map_center.lat()) + Math.abs(selected_line.point1.lng() - map_center.lng());
+            var distance_point2 = Math.abs(selected_line.point2.lat() - map_center.lat()) + Math.abs(selected_line.point2.lng() - map_center.lng());
         
-        // Calculate which line end point is closest to map center
-        if (distance_point1 < distance_point2) {
-            google.maps.event.trigger(selected_line.obj, 'click', 
-                    new google.maps.LatLng(selected_line.point2.lat(), selected_line.point2.lng())); 
-        } else {
-            google.maps.event.trigger(selected_line.obj, 'click', 
-                    new google.maps.LatLng(selected_line.point1.lat(), selected_line.point1.lng())); 
+            // Calculate which line end point is closest to map center
+            if (distance_point1 < distance_point2) {
+                google.maps.event.trigger(selected_line.obj, 'click', 
+                        new google.maps.LatLng(selected_line.point2.lat(), selected_line.point2.lng())); 
+            } else {
+                google.maps.event.trigger(selected_line.obj, 'click', 
+                        new google.maps.LatLng(selected_line.point1.lat(), selected_line.point1.lng())); 
+            }
         }
     }    
     

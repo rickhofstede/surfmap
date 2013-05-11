@@ -244,16 +244,19 @@ $(document).ready(function() {
             success: function(data) {
                 if (data.status == 0) { // Success
                     $(document).trigger('flow_data_loaded', data);
+                } else if (data.status == 1 && data.status_message == "No flow records in result set") {
+                    $(document).trigger('loaded');
                 } else {
                     show_error(804, data.status_message);
-                    $(document).trigger('loading_cancelled');
+                    $(document).trigger('loaded');
                 }
             }
         });
     });
             
     $(document).bind('flow_data_loaded', function (event, data) {
-        flow_data = data.flow_data;
+        // Flow data can be 'undefined' if an empty flow data set is retrieved
+        flow_data = (data.flow_data == undefined) ? [] : data.flow_data;
         $(document).trigger('load_geolocation_data');
     });
             
@@ -282,7 +285,7 @@ $(document).ready(function() {
                     $(document).trigger('geolocation_data_loaded', data);
                 } else {
                     show_error(805, data.status_message);
-                    $(document).trigger('loading_cancelled');
+                    $(document).trigger('loaded');
                 }
             }
         });
@@ -357,7 +360,7 @@ $(document).ready(function() {
                         $(document).trigger('load_geocoder_data');
                     } else {
                         show_error(814, data.status_message);
-                        $(document).trigger('loading_cancelled');
+                        $(document).trigger('loaded');
                     }
                 }
             });
@@ -452,7 +455,7 @@ $(document).ready(function() {
                         $(document).trigger('geocoder_data_loaded');
                     } else {
                         show_error(806, data.status_message);
-                        $(document).trigger('loading_cancelled');
+                        $(document).trigger('loaded');
                     }
                 }
             });
@@ -595,7 +598,7 @@ $(document).ready(function() {
                             $(document).trigger('geocoding_server_done', data);
                         } else {
                             show_error(808, data.status_message);
-                            $(document).trigger('loading_cancelled');
+                            $(document).trigger('loaded');
                         }
                     }
                 });
@@ -765,7 +768,7 @@ $(document).ready(function() {
                     success: function(data) {
                         if (!data.status == 0) { // Error
                             show_error(809, data.status_message);
-                            $(document).trigger('loading_cancelled');
+                            $(document).trigger('loaded');
                         }
                     }
                 });
@@ -788,16 +791,6 @@ $(document).ready(function() {
         $(document).trigger('loaded');
     });
             
-    $(document).bind('loading_cancelled', function () {
-        if ($('input[type=submit]').prop('disabled') != undefined) {
-            $('input[type=submit]').removeAttr('disabled');
-        }
-        if ($('#loading_dialog').dialog('isOpen')) {
-            $('#loading_dialog').dialog('close');
-            clearInterval(loading_message_timeout_handle);
-        }
-    });
-            
     $(document).bind('loaded', function () {
         if ($('input[type=submit]').prop('disabled') != undefined) {
             $('input[type=submit]').removeAttr('disabled');
@@ -818,7 +811,8 @@ $(document).ready(function() {
                     show_warning(1);
                     update_cookie_value('SURFmap', 'msie', 1);
                 }
-            } else if (flow_data.length == 0) { // No flow records left after filtering
+            }
+            if (flow_data == undefined || flow_data.length == 0) { // No flow records left after filtering
                 show_warning(2);
             }
         }
