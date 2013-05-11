@@ -816,7 +816,7 @@ $(document).ready(function() {
                 }
             }
             if (flow_data == undefined || flow_data.length == 0) { // No flow records left after filtering
-                if (session_data['flow_display_filter'] == "") {
+                if (session_data['flow_display_filter'] == "" && session_data['geo_filter']) {
                     show_warning(2);
                 } else {
                     show_warning(3);

@@ -290,27 +290,38 @@
         $month = substr($date, 4, 2);
         $day = substr($date, 6, 2);
         
+        $file_name = "nfcapd.".$date.$hours.$minutes;
+        
         /*
          Possible layouts:
-         0             no hierachy levels - flat layout
-         1 %Y/%m/%d    year/month/day
-         2 %Y/%m/%d/%H year/month/day/hour
+            0             no hierachy levels - flat layout
+            1 %Y/%m/%d    year/month/day
+            2 %Y/%m/%d/%H year/month/day/hour
+            3 %Y/%W/%u    year/week_of_year/day_of_week
+            4 %Y/%W/%u/%H year/week_of_year/day_of_week/hour
+            5 %Y/%j       year/day-of-year
+            6 %Y/%j/%H    year/day-of-year/hour
+            7 %Y-%m-%d    year-month-day
+            8 %Y-%m-%d/%H year-month-day/hour
         */
         switch(intval($nfsen_subdir_layout)) {
-            case 0:     $file_name = "nfcapd.".$date.$hours.$minutes;
+            case 1:     $path = $year."/".$month."/".$day."/";
                         break;
                         
-            case 1:     $file_name = $year."/".$month."/".$day."/nfcapd.".$date.$hours.$minutes;
+            case 2:     $path = $year."/".$month."/".$day."/".$hours."/";
                         break;
                         
-            case 2:     $file_name = $year."/".$month."/".$day."/".$hours."/nfcapd.".$date.$hours.$minutes;
+            case 7:     $path = $year."-".$month."-".$day."/";
+                        break;
+                        
+            case 8:     $path = $year."-".$month."-".$day."/".$hours."/";
                         break;
                     
-            default:    $file_name = "nfcapd.".$date.$hours.$minutes;
+            default:    $path = "";
                         break;
         }
         
-        return $file_name;
+        return $path.$file_name;
     }
 
     /*
