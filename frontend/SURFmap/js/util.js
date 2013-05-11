@@ -37,12 +37,48 @@
     *       selector2 - ID of the destination date/time selector
     */          
     function copy_date_time_selector (selector1, selector2) {
-        var date = new Date($("#" + selector1).datetimepicker('getDate'));
+        var date = new Date($('#' + selector1).datetimepicker('getDate'));
         
         // Workaround for date/time picker copying, as described here: https://github.com/trentrichardson/jQuery-Timepicker-Addon/issues/280
         for (var i = 0; i < 2; i++) {
-            $("#" + selector2).datetimepicker('setDate', date);
+            $('#' + selector2).datetimepicker('setDate', date);
         }
+        
+        /* The code below is similar to the code executed by the 'close' handler of the date/time pickers */
+        
+        var selector_date, selector_hours, selector_minutes;
+        if (selector2 == 'date_start') {
+            selector_date = "date1";
+            selector_hours = "hours1";
+            selector_minutes = "minutes1";
+        } else {
+            selector_date = "date2";
+            selector_hours = "hours2";
+            selector_minutes = "minutes2";
+        }
+        
+        // We assume the date/time of selector2 to have changed (so no need to check for change)
+        var date_string = date.getFullYear().toString();
+        if (date.getMonth() + 1 < 10) {
+            date_string += "0";
+        }
+        date_string += (date.getMonth() + 1).toString();
+        if (date.getDate() < 10) {
+            date_string += "0";
+        }
+        date_string += date.getDate().toString();
+        
+        var hours_string = (date.getHours() < 10) ? "0" : "";
+        hours_string += date.getHours().toString();
+        
+        var minutes_string = (date.getMinutes() < 10) ? "0" : "";
+        minutes_string += date.getMinutes().toString();
+        
+        var obj = {};
+        obj[selector_date] = date_string;
+        obj[selector_hours] = hours_string;
+        obj[selector_minutes] = minutes_string;
+        $(document).trigger('session_data_changed', obj);
     }
     
     /*

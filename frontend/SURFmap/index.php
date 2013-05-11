@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "3.0b2 (20130510)";
+     $version = "3.0b2 (20130511)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -1057,17 +1057,17 @@
             }
             
             // Initialize source selector (jQuery)
-            $("#nfsensources").multiselect({
+            $('#nfsensources').multiselect({
                 minWidth: 135,
                 header: true,
                 open: function() {
-                    $("div.ui-multiselect-menu").css("left", "");
-                    $("div.ui-multiselect-menu").css("right", "23px");
-                    $("div.ui-multiselect-menu").css("width", "180px");
+                    $('div.ui-multiselect-menu').css('left', '');
+                    $('div.ui-multiselect-menu').css('right', '23px');
+                    $('div.ui-multiselect-menu').css('width', '180px');
                 },
                 close: function() {
                     var selected_nfsen_sources = [];
-                    $("#nfsensources option:selected").each(function() {
+                    $('#nfsensources option:selected').each(function() {
                         selected_nfsen_sources.push($(this).val());
                     });
                     
@@ -1139,16 +1139,10 @@
                         }
                         date_string += new_date_time.getDate().toString();
                         
-                        var hours_string = "";
-                        if (new_date_time.getHours() < 10) {
-                            hours_string += "0";
-                        }
+                        var hours_string = (new_date_time.getHours() < 10) ? "0" : "";
                         hours_string += new_date_time.getHours().toString();
                         
-                        var minutes_string = "";
-                        if (new_date_time.getMinutes() < 10) {
-                            minutes_string += "0";
-                        }
+                        var minutes_string = (new_date_time.getMinutes() < 10) ? "0" : "";
                         minutes_string += new_date_time.getMinutes().toString();
                         
                         var obj = {};
