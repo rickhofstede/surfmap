@@ -242,10 +242,8 @@ $(document).ready(function() {
                 }
             },
             success: function(data) {
-                if (data.status == 0) { // Success
+                if (data.status == 0 || (data.status == 1 && data.status_message == "No flow records in result set")) { // Success
                     $(document).trigger('flow_data_loaded', data);
-                } else if (data.status == 1 && data.status_message == "No flow records in result set") {
-                    $(document).trigger('loaded');
                 } else {
                     show_error(804, data.status_message);
                     $(document).trigger('loaded');
@@ -256,8 +254,13 @@ $(document).ready(function() {
             
     $(document).bind('flow_data_loaded', function (event, data) {
         // Flow data can be 'undefined' if an empty flow data set is retrieved
-        flow_data = (data.flow_data == undefined) ? [] : data.flow_data;
-        $(document).trigger('load_geolocation_data');
+        if (data.flow_data == undefined) {
+            flow_data = [];
+            $(document).trigger('loaded');
+        } else {
+            flow_data = data.flow_data;
+            $(document).trigger('load_geolocation_data');
+        }
     });
             
     $(document).bind('load_geolocation_data', function () {
