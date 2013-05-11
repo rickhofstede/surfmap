@@ -815,8 +815,13 @@ $(document).ready(function() {
                     update_cookie_value('SURFmap', 'msie', 1);
                 }
             }
-            if (flow_data == undefined || flow_data.length == 0) { // No flow records left after filtering
-                if (session_data['flow_display_filter'] == "" && session_data['geo_filter']) {
+            
+            /* Only show the warnings on no data if no error message is currently show (as)
+             * the error message is likely to be related to the fact that no data could be
+             * shown.
+             */
+            if (!$('#error_dialog').dialog('isOpen') && (flow_data == undefined || flow_data.length == 0)) { // No flow records left after filtering
+                if (session_data['flow_display_filter'] == "" && session_data['geo_filter'] == "") {
                     show_warning(2);
                 } else {
                     show_warning(3);
