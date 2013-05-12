@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "3.0b3 (20130511)";
+     $version = "3.0b3 (20130512)";
 
      // Initialize session
      if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
@@ -72,8 +72,6 @@
         var map;
         var geocoder = new google.maps.Geocoder();
         var info_window = new google.maps.InfoWindow();
-        var blue_marker = new google.maps.MarkerImage("images/markers/blue-dot.png", new google.maps.Size(30, 30));
-        var green_marker = new google.maps.MarkerImage("images/markers/green-dot.png", new google.maps.Size(30, 30));
         
         var zoom_levels = {
             0:  'country',
@@ -672,6 +670,7 @@
                             marker.point = new google.maps.LatLng(lat, lng);
                             marker.level = zoom_level_index;
                             marker.entries = [];
+                            marker.extension = undefined; // Name of an extension for which marker is used
                             marker.text = marker_text;
                             markers.push(marker);
                             markers_index = markers.length - 1;
@@ -732,7 +731,7 @@
                 $.each(flow_data, function (flow_index, flow_item) {
                     var lat = parseFloat(flow_item.loc_lat_int + "." + flow_item.loc_lat_dec);
                     var lng = parseFloat(flow_item.loc_lng_int + "." + flow_item.loc_lng_dec);
-                    var marker_text = ""; // TODO Fill this
+                    var marker_text = "Mobile flow exporter"; // TODO Fill this
                     
                     // Find marker (if it exists)
                     var markers_index = -1; // -1: marker does not exist, >= 0: marker index in 'markers' array
@@ -748,14 +747,29 @@
                         var marker = {};
                         marker.point = new google.maps.LatLng(lat, lng);
                         marker.entries = [];
+                        marker.extension = "Location-aware exporting"; // Name of an extension for which marker is used
                         marker.text = marker_text;
                         exporter_markers.push(marker);
                         markers_index = exporter_markers.length - 1;
                     }
+                    
+                    // Create marker entry, if necessary. Otherwise, update (existing) marker entry
+                    // TODO ...
                 });
                 
-                // TODO Merge marker arrays (extension and non-extension)
-                // TODO Add marker to all four zoom levels
+                // Add exporter markers to all four zoom levels
+                var exporter_markers_tmp = [];
+                $.each(zoom_levels, function (zoom_level_index, zoom_level) {
+                    $.each(exporter_markers, function (marker_index, marker) {
+                        var updated_marker = marker;
+                        updated_marker.level = zoom_level_index;
+                        exporter_markers_tmp.push(updated_marker);
+                    });
+                });
+                exporter_markers = exporter_markers_tmp;
+                
+                // Merge marker arrays (extension and non-extension)
+                markers = markers.concat(exporter_markers);
             }
             
             // Initialize marker objects
@@ -764,26 +778,33 @@
                     // Skip marker if it doesn't belong to the current zoom level
                     if (marker.level != zoom_level_index) return true;
                     
-                    var info_window_contents = "<table class=\"flow_info_table\">" + generate_marker_info_window_contents(marker.entries) + "</table>";
+                    // Check whether marker is a default marker or whether it belongs to an extension
+                    if (marker.extension == undefined) {
+                        var info_window_contents = "<table class=\"flow_info_table\">" + generate_marker_info_window_contents(marker.entries) + "</table>";
                     
-                    // Check for internal marker traffic
-                    var internal_traffic = false;
-                    $.each(lines, function (line_index, line) {
-                        // Skip line if it doesn't belong to the current zoom level
-                        if (marker.level != zoom_level_index) return true;
+                        // Check for internal marker traffic
+                        var internal_traffic = false;
+                        $.each(lines, function (line_index, line) {
+                            // Skip line if it doesn't belong to the current zoom level
+                            if (marker.level != zoom_level_index) return true;
                         
-                        // Check for internal traffic 'within' a marker
-                        if (line.point1.equals(line.point2)
-                                && line.point1.equals(marker.point)) {
-                            internal_traffic = true;
-                            return false;
-                        }
-                    });
+                            // Check for internal traffic 'within' a marker
+                            if (line.point1.equals(line.point2)
+                                    && line.point1.equals(marker.point)) {
+                                internal_traffic = true;
+                                return false;
+                            }
+                        });
                     
-                    if (internal_traffic) {
-                        marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents, 'green');
+                        if (internal_traffic) {
+                            marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents, 'green');
+                        } else {
+                            marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents);
+                        }
+                    } else if (marker.extension == "Location-aware exporting") {
+                        var info_window_contents = "Mobile flow exporter"; // TODO
+                        marker.obj = create_marker (marker.point, marker.text, info_window_contents, 'blue');
                     } else {
-                        marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents);
                     }
                 });
             });

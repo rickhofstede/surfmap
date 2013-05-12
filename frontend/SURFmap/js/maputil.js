@@ -133,7 +133,13 @@
                 position: coordinates,
                 title: title
         }
-        if (color == 'green') marker_options['icon'] = green_marker;
+        if (color == 'green') {
+            var green_marker = new google.maps.MarkerImage("images/markers/green-dot.png", new google.maps.Size(30, 30));
+            marker_options['icon'] = green_marker;
+        } else if (color == 'blue') {
+            var blue_marker = new google.maps.MarkerImage("images/markers/blue-dot.png", new google.maps.Size(30, 30));
+            marker_options['icon'] = blue_marker;
+        }
         
         var marker = new google.maps.Marker(marker_options);
 
