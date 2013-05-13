@@ -121,6 +121,14 @@ table.flow_info_table tr.even {
     background-color:   #F0F0F0;
 }
 
+table.flow_info_table tr.even:hover {
+    background-color:   #CCCCCC;
+}
+
+table.flow_info_table tr.odd:hover {
+    background-color:   #CCCCCC;
+}
+
 table.flow_info_table tr.footer td {
     padding-top:        5px;
 }
