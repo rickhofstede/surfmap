@@ -63,7 +63,7 @@
     require_once("../extensions.php");
 
     // Queries
-    $field_list = "%td;%sa;%da;%sp;%dp;%pr;%pkt;%byt;%fl";
+    $field_list = "%ts;%td;%sa;%da;%sp;%dp;%pr;%pkt;%byt;%fl";
     foreach ($extensions as $extension) {
         foreach ($extension->fields as $field) {
             $field_list .= ";".$field->nfdump_short;
@@ -186,18 +186,19 @@
         $line_array = explode(";", $line);
     
         $record = new FlowRecord();
-        $record->duration = floatval(trim($line_array[0]));
-        $record->ipv4_src = trim($line_array[1]);
-        $record->ipv4_dst = trim($line_array[2]);
-        $record->port_src = floatval(trim($line_array[3]));
-        $record->port_dst = floatval(trim($line_array[4]));
-        $record->protocol = intval(trim($line_array[5]));
-        $record->packets = intval(trim($line_array[6]));
-        $record->octets = intval(trim($line_array[7]));
-        $record->flows = intval(trim($line_array[8]));
+        $record->start_time = trim($line_array[0]);
+        $record->duration = floatval(trim($line_array[1]));
+        $record->ipv4_src = trim($line_array[2]);
+        $record->ipv4_dst = trim($line_array[3]);
+        $record->port_src = floatval(trim($line_array[4]));
+        $record->port_dst = floatval(trim($line_array[5]));
+        $record->protocol = intval(trim($line_array[6]));
+        $record->packets = intval(trim($line_array[7]));
+        $record->octets = intval(trim($line_array[8]));
+        $record->flows = intval(trim($line_array[9]));
         
         // Index of the field in each nfdump line
-        $field_index = 9;
+        $field_index = 10;
         foreach ($extensions as $extension) {
             foreach ($extension->fields as $field) {
                 // Remove dollar-sign (nfdump output format notation)
@@ -219,6 +220,8 @@
     die();
     
     class FlowRecord {
+        public $start_time;
+        public $duration;
         public $ipv4_src;
         public $ipv4_dst;
         public $port_src;
@@ -226,7 +229,6 @@
         public $protocol;
         public $packets;
         public $octets;
-        public $duration;
         public $flows; // is not a NetFlow field, but used by nfdump for aggregation
     }
 

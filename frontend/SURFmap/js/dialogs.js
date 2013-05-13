@@ -490,15 +490,16 @@
      */
     function show_flow_details (flow_indices) {
         var field_names = [];
-        field_names['ipv4_src']  = 'Src. address';
-        field_names['ipv4_dst']  = 'Dst. address';
-        field_names['port_src']  = 'Src. port';
-        field_names['port_dst']  = 'Dst. port';
-        field_names['protocol']  = 'Protocol';
-        field_names['packets']   = 'Packets';
-        field_names['octets']    = 'Octets';
-        field_names['duration']  = 'Duration';
-        field_names['flows']     = 'Flows';
+        field_names['start_time']   = 'Start time';
+        field_names['duration']     = 'Duration';
+        field_names['ipv4_src']     = 'Src. address';
+        field_names['ipv4_dst']     = 'Dst. address';
+        field_names['port_src']     = 'Src. port';
+        field_names['port_dst']     = 'Dst. port';
+        field_names['protocol']     = 'Protocol';
+        field_names['packets']      = 'Packets';
+        field_names['octets']       = 'Octets';
+        field_names['flows']        = 'Flows';
         
         var static_field_count;
         if (flow_indices == undefined) { // General 'Flow Details'
