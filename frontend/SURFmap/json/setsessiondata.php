@@ -154,8 +154,7 @@
     // Set refresh
     if (isset($_POST['params']['refresh'])) {
         // Prevent frontend from refreshing page every 5 minutes
-        $_SESSION['SURFmap']['refresh'] = 0;
-        $_SESSION['refresh'] = 0;
+        $_SESSION['SURFmap']['refresh'] = intval($_POST['params']['refresh']);
         $result['session_data']['refresh'] = $_SESSION['SURFmap']['refresh'];
     }
     

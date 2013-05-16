@@ -30,6 +30,13 @@
         die();
     }
     
+    /* If 'update_time_period' is enabled, the time frame (date1, hours1, minutes1,
+     * date2, hours2, minutes2) is updated to the last available timeslot.
+     */
+    if (array_key_exists('update_time_period', $_POST['params'])) {
+        $update_time_period = intval($_POST['params']['update_time_period']);
+    }
+    
     $result = array();
     $result['session_data'] = array();
 
@@ -171,7 +178,8 @@
     }
     
     // Initialize dates and times   
-    if (!isset($_SESSION['SURFmap']['date1']) || !isset($_SESSION['SURFmap']['date2'])) {
+    if ((isset($update_time_period) && $update_time_period == 1)
+            || (!isset($_SESSION['SURFmap']['date1']) || !isset($_SESSION['SURFmap']['date2']))) {
         $latest_date = generate_date_string(5);
         $latest_time = generate_time_string(5);
         $latest_hour = substr($latest_time, 0, 2);

@@ -11,10 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "3.0b3 (20130513)";
-
-     // Initialize session
-     if (!isset($_SESSION['SURFmap'])) $_SESSION['SURFmap'] = array();
+     $version = "3.0b3 (20130516)";
      
 ?>
 <!DOCTYPE html>
@@ -1080,18 +1077,30 @@
             }
             
             // Auto refresh
-            $('#auto-refresh').prop('checked', session_data['refresh'] > 0).click(function (event) {
-                // Trigger refresh immediately when 'auto-refresh' is enabled during current session
+            $('#auto-refresh').prop('checked', session_data['refresh'] == 1).click(function (event) {
                 if ($('#auto-refresh').is(':checked')) {
-                    $(document).trigger('load_flow_data');
+                    $(document).trigger('session_data_changed', { 'refresh': 1 } );
+                    store_session_data_handle = setInterval(function () {
+                        // Wait until all connections to server are closed (and all session data is written to server)
+                        if ($.active == 0) {
+                            clearInterval(store_session_data_handle);
+                            auto_refresh_handle = setInterval(function () {
+                                $(document).trigger('load_session_data', { 'update_time_period': 1 });
+                            }, constants['refresh_interval'] * 1000);
+                    
+                            // Trigger refresh immediately when 'auto-refresh' is enabled during current session
+                            $(document).trigger('load_session_data', { 'update_time_period': 1 });
+                        }
+                    }, 500);
                 } else {
+                    $(document).trigger('session_data_changed', { 'refresh': 0 } );
                     clearInterval(auto_refresh_handle);
                 }
             });
-            if (session_data['refresh'] > 0) {
+            if (session_data['refresh'] == 1) {
                 auto_refresh_handle = setInterval(function () {
-                    $(document).trigger('load_flow_data');
-                }, constants['refresh_interval']);
+                    $(document).trigger('load_session_data', { 'update_time_period': 1 });
+                }, constants['refresh_interval'] * 1000);
             }
             
             // NfSen sources

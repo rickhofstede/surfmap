@@ -23,7 +23,12 @@ $(document).ready(function() {
         autoOpen:   false,
         zIndex:     1000
     });
-            
+    
+    /*      [PHASE 1]                           [PHASE 2]
+     *      config      ->  active_extensions
+     *      constants
+     *      nfsen_config
+     */
     $(document).bind('loading', function () {
         show_loading_message();
     });
@@ -49,18 +54,17 @@ $(document).ready(function() {
         if (config['log_debug']) {
             log_system_information();
         }
-        
-        // optimize_display() relies on both 'session_data' and 'config'
-        if (session_data != undefined) {
-            optimize_display();
-        }
     });
     $(document).bind('constants_loaded', function () {
-        
+        if (config != undefined && constants != undefined && nfsen_config != undefined && extensions != undefined) {
+            $(document).trigger('phase_1_loaded');
+        }
     });
             
     $(document).bind('nfsen_config_loaded', function () {
-        $(document).trigger('load_session_data');
+        if (config != undefined && constants != undefined && nfsen_config != undefined && extensions != undefined) {
+            $(document).trigger('phase_1_loaded');
+        }
     });
     
     $(document).bind('active_extensions_list_loaded', function (event, data) {
@@ -90,10 +94,42 @@ $(document).ready(function() {
             });
         }
         
-        if (flow_data == undefined && session_data != undefined) {
-            $(document).trigger('load_flow_data');
+        if (config != undefined && constants != undefined && nfsen_config != undefined && extensions != undefined) {
+            $(document).trigger('phase_1_loaded');
         }
     });
+    
+    // Fired when all configurations have been loaded (config, constants, nfsen_config and active_extensions)
+    $(document).bind('phase_1_loaded', function () {
+        $(document).trigger('load_session_data');
+    });
+    
+    $(document).bind('load_session_data', function (event, data) {
+        show_loading_message('Loading session data');
+        
+        if (data == undefined) {
+            data = {};
+        }
+        
+        data['nfsen_profile_data_dir'] = nfsen_config['PROFILEDATADIR'];
+        data['nfsen_subdir_layout'] = nfsen_config['SUBDIRLAYOUT'];
+        
+        // Retrieve session data
+        $.ajax({
+            url: 'json/getsessiondata.php',
+            data: { 
+                params: data 
+            },
+            success: function(data) {
+                if (data.status == 0) { // Success
+                    $(document).trigger('session_data_loaded', data.session_data);
+                } else {
+                    show_error(803, data.status_message);
+                }
+            }
+        });
+    });
+    
     $(document).bind('session_data_loaded', function (event, data) {
         session_data = data;
         
@@ -153,39 +189,14 @@ $(document).ready(function() {
             });
         }
         
-        init_map();
+        // If 'map' is undefined, SURFmap has just been started
+        if (map == undefined) {
+            init_map();
+            optimize_display(); // Relies on both 'session_data' and 'config'
+        }
+        
         configure_panel();
-        
-        if (flow_data == undefined && extensions != undefined) {
-            $(document).trigger('load_flow_data');
-        }
-        
-        // optimize_display() relies on both 'session_data' and 'config'
-        if (config != undefined) {
-            optimize_display();
-        }
-    });
-            
-    $(document).bind('load_session_data', function () {
-        show_loading_message('Loading session data');
-                
-        // Retrieve session data
-        $.ajax({
-            url: 'json/getsessiondata.php',
-            data: { 
-                params: { 
-                    'nfsen_profile_data_dir': nfsen_config['PROFILEDATADIR'],
-                    'nfsen_subdir_layout': nfsen_config['SUBDIRLAYOUT']
-                } 
-            },
-            success: function(data) {
-                if (data.status == 0) { // Success
-                    $(document).trigger('session_data_loaded', data.session_data);
-                } else {
-                    show_error(803, data.status_message);
-                }
-            }
-        });
+        $(document).trigger('load_flow_data');
     });
            
     $(document).bind('session_data_changed', function (event, session_params) {
