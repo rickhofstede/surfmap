@@ -363,7 +363,6 @@
         }
         
         function init_lines () {
-            var start_time = new Date();
             lines = [];
             global_line_minima = {
                 'country':  -1,
@@ -599,7 +598,6 @@
         }
         
         function init_markers () {
-            var start_time = new Date();
             markers = [];
             
             $.each(flow_data, function (flow_index, flow_item) {

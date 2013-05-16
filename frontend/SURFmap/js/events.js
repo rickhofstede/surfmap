@@ -25,7 +25,7 @@ $(document).ready(function() {
     });
     
     /*      [PHASE 1]                           [PHASE 2]
-     *      config      ->  active_extensions
+     *      config      ->  active_extensions   load_session
      *      constants
      *      nfsen_config
      */
