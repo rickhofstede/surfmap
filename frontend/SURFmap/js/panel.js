@@ -41,28 +41,6 @@
             $('div.panel_trigger').trigger('click');
         }
         
-        // Auto-refresh
-        $('#auto-refresh').click(function (event) {
-            if ($('#auto-refresh').is(':checked')) {
-                $(document).trigger('session_data_changed', { 'refresh': 1 } );
-                store_session_data_handle = setInterval(function () {
-                    // Wait until all connections to server are closed (and all session data is written to server)
-                    if ($.active == 0) {
-                        clearInterval(store_session_data_handle);
-                        auto_refresh_handle = setInterval(function () {
-                            $(document).trigger('load_session_data', { 'update_time_period': 1 });
-                        }, constants['refresh_interval'] * 1000);
-                
-                        // Trigger refresh immediately when 'auto-refresh' is enabled during current session
-                        $(document).trigger('load_session_data', { 'update_time_period': 1 });
-                    }
-                }, 500);
-            } else {
-                $(document).trigger('session_data_changed', { 'refresh': 0 } );
-                clearInterval(auto_refresh_handle);
-            }
-        });
-        
         // Forbid entering 'new line' in filter input textarea
         $(".filter").keypress(function(event) {
             if (event.keyCode == 13) return false;
@@ -176,6 +154,27 @@
         }
         
         // Auto-refresh
+        $('#auto-refresh').click(function (event) {
+            if ($('#auto-refresh').is(':checked')) {
+                $(document).trigger('session_data_changed', { 'refresh': 1 } );
+                store_session_data_handle = setInterval(function () {
+                    // Wait until all connections to server are closed (and all session data is written to server)
+                    if ($.active == 0) {
+                        clearInterval(store_session_data_handle);
+                        auto_refresh_handle = setInterval(function () {
+                            $(document).trigger('load_session_data', { 'update_time_period': 1 });
+                        }, constants['refresh_interval'] * 1000);
+                
+                        // Trigger refresh immediately when 'auto-refresh' is enabled during current session
+                        $(document).trigger('load_session_data', { 'update_time_period': 1 });
+                    }
+                }, 500);
+            } else {
+                $(document).trigger('session_data_changed', { 'refresh': 0 } );
+                clearInterval(auto_refresh_handle);
+            }
+        });
+        
         if (session_data['refresh'] == 1) {
             $('#auto-refresh').prop('checked', 1);
             auto_refresh_handle = setInterval(function () {
