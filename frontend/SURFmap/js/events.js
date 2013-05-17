@@ -6,7 +6,7 @@
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
  *******************************/
 
-$(document).ready(function() {        
+$(document).ready(function() {
     $('#error_dialog').dialog({
         autoOpen:   false,
         zIndex:     4000
@@ -193,12 +193,14 @@ $(document).ready(function() {
         if (map == undefined) {
             init_map();
             optimize_display(); // Relies on both 'session_data' and 'config'
+            configure_panel();
+        } else {
+            update_panel();
         }
         
-        configure_panel();
         $(document).trigger('load_flow_data');
     });
-           
+    
     $(document).bind('session_data_changed', function (event, session_params) {
         // Add required parameters
         session_params['nfsen_profile_data_dir'] = nfsen_config['PROFILEDATADIR'];
@@ -221,7 +223,7 @@ $(document).ready(function() {
             }
         });
     });
-            
+    
     $(document).bind('load_flow_data', function () {
         show_loading_message('Loading flow data');
         
@@ -262,7 +264,7 @@ $(document).ready(function() {
             }
         });
     });
-            
+    
     $(document).bind('flow_data_loaded', function (event, data) {
         // Flow data can be 'undefined' if an empty flow data set is retrieved
         if (data.flow_data == undefined) {
@@ -273,7 +275,7 @@ $(document).ready(function() {
             $(document).trigger('load_geolocation_data');
         }
     });
-            
+    
     $(document).bind('load_geolocation_data', function () {
         show_loading_message('Loading geolocation data');
                 
@@ -304,7 +306,7 @@ $(document).ready(function() {
             }
         });
     });
-            
+    
     $(document).bind('geolocation_data_loaded', function (event, data) {
         geolocation_data = data.geolocation_data;
         
@@ -380,11 +382,11 @@ $(document).ready(function() {
             });
         }
     });
-            
+    
     $(document).bind('load_geocoder_data', function () {
         if (session_data['use_db']) {
             show_loading_message('Loading geocoder data');
-                
+            
             // Collect all location names
             geocoder_request = [];
             $.each(geolocation_data, function(key, value) {
@@ -410,7 +412,7 @@ $(document).ready(function() {
                     geocoder_request.push(value.country + ";" + value.city);
                 }
             });
-                    
+            
             // Geocoder data
             $.ajax({
                 url: 'json/getgeocoderdata.php',
@@ -441,11 +443,6 @@ $(document).ready(function() {
                                     flow_item.src_city_lat = geocoder_item.lat;
                                     flow_item.src_city_lng = geocoder_item.lng;
                                 }
-                            });
-                                                        
-                            // Destination IP address
-                            $.each(data.geocoder_data, function(geocoder_index, geocoder_item) {
-                                var matched = false;
                                 if (flow_item.dst_country == geocoder_item.request) {
                                     flow_item.dst_country_lat = geocoder_item.lat;
                                     flow_item.dst_country_lng = geocoder_item.lng;
@@ -477,11 +474,11 @@ $(document).ready(function() {
             $(document).trigger('start_geocoding');
         }
     });
-            
+    
     $(document).bind('geocoder_data_loaded', function () {
         $(document).trigger('start_geocoding');
     });
-            
+    
     $(document).bind('start_geocoding', function () {
         show_loading_message('Geocoding');
                 
@@ -557,7 +554,6 @@ $(document).ready(function() {
         
         // If CURL is supported, balance geocoding process between client and server
         var geocoder_request_client = [];
-        
         var allowed_requests_client = 2400;
         var allowed_requests_server = 2400;
         if (session_data['use_db']) {
@@ -624,7 +620,7 @@ $(document).ready(function() {
                 geocoder_request_client = geocoder_request;
             }
         }
-                    
+        
         // Client
         var inter_geocoder_request_time = 250;
         geocoder_data_client = new Object();
@@ -668,20 +664,20 @@ $(document).ready(function() {
             });
         }
     });
-            
+    
     $(document).bind('geocoding_server_done', function (event, data) {
         geocoder_data_server = data;
         if (geocoder_data_client != undefined) {
             $(document).trigger('geocoding_done');
         }
     });
-            
+    
     $(document).bind('geocoding_client_done', function (event) {
         if (session_data['curl_loaded'] && geocoder_data_server != undefined) {
             $(document).trigger('geocoding_done');
         }
     });
-            
+    
     $(document).bind('geocoding_done', function () {
         // Merge successful client and server geocoder data
         var geocoder_data = [];
@@ -695,7 +691,7 @@ $(document).ready(function() {
                 geocoder_data.push(item);
             }
         });
-                
+        
         // Add retrieved geocoder data to flow data
         $.each(flow_data, function(flow_index, flow_item) {
             // Source IP address
@@ -743,7 +739,7 @@ $(document).ready(function() {
                 }
             });
         });
-                
+        
         if (session_data['use_db']) {
             show_loading_message('Storing geocoder data');
                 
@@ -788,10 +784,9 @@ $(document).ready(function() {
                 });
             }
         }
-                
         $(document).trigger('process_map_elements');
     });
-            
+    
     $(document).bind('process_map_elements', function () {
         show_loading_message('Processing map elements');
         
@@ -804,7 +799,7 @@ $(document).ready(function() {
         
         $(document).trigger('loaded');
     });
-            
+    
     $(document).bind('loaded', function () {
         if ($('input[type=submit]').prop('disabled') != undefined) {
             $('input[type=submit]').removeAttr('disabled');

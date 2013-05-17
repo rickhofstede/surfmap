@@ -322,7 +322,7 @@
         var jump_source = $('<a/>', { 'href': 'Javascript:map.setCenter(lines[' + lines_index + '].point1)' }).text('Jump to source marker');
         var jump_destination = $('<a/>', { 'href': 'Javascript:map.setCenter(lines[' + lines_index + '].point2)' }).text('Jump to destination marker');
         
-        footer_contents.append(zoom_in).append(' - ').append(zoom_out).append(' | ')
+        footer_contents.append(zoom_in).append(' - ').append(zoom_out).append(' | ');
         footer_contents.append(quick_zoom_in).append(' - ').append(quick_zoom_out).append(' | ').append(flow_details).append('<br/>');
         footer_contents.append(jump_source).append(' - ').append(jump_destination);
         
@@ -378,7 +378,7 @@
         var quick_zoom_in = $('<a/>', { 'href': 'Javascript:quick_zoom(0)' }).text('Quick Zoom In');
         var quick_zoom_out = $('<a/>', { 'href': 'Javascript:quick_zoom(1)' }).text('Quick Zoom Out');
         
-        footer_contents.append(zoom_in).append(' - ').append(zoom_out).append('<br/>')
+        footer_contents.append(zoom_in).append(' - ').append(zoom_out).append('<br/>');
         footer_contents.append(quick_zoom_in).append(' - ').append(quick_zoom_out);
         
         footer.append(footer_contents);
@@ -515,8 +515,6 @@
      *       new_sm_zoom_level - New/current SURFmap zoom level.
      */  
     function add_map_overlays (new_sm_zoom_level) {
-        var start_time = new Date();
-        
         // Lines
         $.each(lines, function (line_index, line_item) {
             if (line_item.level == new_sm_zoom_level) {
@@ -538,8 +536,6 @@
      *      sm_zoom_level - SURFmap zoom level at which overlays should be removed. If undefined, all overlays are removed.
      */
     function remove_map_overlays (sm_zoom_level) {
-        var start_time = new Date();
-        
         if (lines != undefined) {
             $.each(lines, function (line_index, line_item) {
                 if (sm_zoom_level == undefined || (sm_zoom_level == line_item.level)) {
