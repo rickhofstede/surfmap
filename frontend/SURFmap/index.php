@@ -519,8 +519,46 @@
                         lines[lines_index].entries[entries_index].flows += flow_item.flows;
                         lines[lines_index].entries[entries_index].duration += flow_item.duration;
                     }
-                });
-            });
+                }); // End of zoom_levels
+            }); // End of flow_data
+            
+            if (is_extension_active('Location-aware exporting')) {
+                var exporter_lines = [];
+                
+                $.each(flow_data, function (flow_index, flow_item) {
+                    $.each(zoom_levels, function (zoom_level_index, zoom_level) {
+                        var lat = parseFloat(flow_item.loc_lat_int + "." + flow_item.loc_lat_dec);
+                        var lng = parseFloat(flow_item.loc_lng_int + "." + flow_item.loc_lng_dec);
+                        
+                        // Find line that belongs to current flow record
+                        var lines_index = -1;
+                        $.each(lines, function (line_index, line) {
+                            // Skip line if it doesn't belong to the current zoom level
+                            if (line.level != zoom_level_index) return true;
+                            
+                            if (jQuery.inArray(flow_index, line.associated_flow_indices) != -1) {
+                                lines_index = line_index;
+                                return false;
+                            }
+                        });
+                        
+                        // Change this line from source -> destination to source -> exporter
+                        var dst_point = lines[lines_index].point2;
+                        lines[lines_index].point2 = new google.maps.LatLng(lat, lng);
+                        
+                        // Create new line; exporter -> destination
+                        var line = {};
+                        line.point1 = new google.maps.LatLng(lat, lng);
+                        line.point2 = dst_point;
+                        line.level = lines[lines_index].level;
+                        line.entries = lines[lines_index].entries;
+                        line.associated_flow_indices = lines[lines_index].associated_flow_indices;
+                        exporter_lines.push(line);                        
+                    }); // End of zoom_levels
+                }); // End of flow_data
+                
+                lines = lines.concat(exporter_lines);
+            }
             
             // Determine maxima and sums, both global and per line
             $.each(zoom_levels, function (zoom_level_index, zoom_level) {
@@ -727,46 +765,40 @@
                 var exporter_markers = [];
                 
                 $.each(flow_data, function (flow_index, flow_item) {
-                    var lat = parseFloat(flow_item.loc_lat_int + "." + flow_item.loc_lat_dec);
-                    var lng = parseFloat(flow_item.loc_lng_int + "." + flow_item.loc_lng_dec);
-                    var marker_text = "Mobile flow exporter"; // TODO Fill this
+                    $.each(zoom_levels, function (zoom_level_index, zoom_level) {
+                        var lat = parseFloat(flow_item.loc_lat_int + "." + flow_item.loc_lat_dec);
+                        var lng = parseFloat(flow_item.loc_lng_int + "." + flow_item.loc_lng_dec);
+                        var marker_text = "Mobile flow exporter (Flowoid)"; // TODO Fill this
                     
-                    // Find marker (if it exists)
-                    var markers_index = -1; // -1: marker does not exist, >= 0: marker index in 'markers' array
-                    $.each(exporter_markers, function (marker_index, marker) {
-                        if (marker.point.equals(new google.maps.LatLng(lat, lng))) {
-                            markers_index = marker_index;
-                            return false;
+                        // Find marker (if it exists)
+                        var markers_index = -1; // -1: marker does not exist, >= 0: marker index in 'markers' array
+                        $.each(exporter_markers, function (marker_index, marker) {
+                            // Skip to next marker in case of wrong zoom level
+                            if (marker.level != zoom_level_index) return true;
+                            
+                            if (marker.point.equals(new google.maps.LatLng(lat, lng))) {
+                                markers_index = marker_index;
+                                return false;
+                            }
+                        });
+                    
+                        // Create marker, if necessary
+                        if (markers_index == -1) {
+                            var marker = {};
+                            marker.point = new google.maps.LatLng(lat, lng);
+                            marker.level = zoom_level_index;
+                            marker.entries = [];
+                            marker.extension = "Location-aware exporting"; // Name of an extension for which marker is used
+                            marker.text = marker_text;
+                            exporter_markers.push(marker);
+                            markers_index = exporter_markers.length - 1;
                         }
-                    });
                     
-                    // Create marker, if necessary
-                    if (markers_index == -1) {
-                        var marker = {};
-                        marker.point = new google.maps.LatLng(lat, lng);
-                        marker.entries = [];
-                        marker.extension = "Location-aware exporting"; // Name of an extension for which marker is used
-                        marker.text = marker_text;
-                        exporter_markers.push(marker);
-                        markers_index = exporter_markers.length - 1;
-                    }
-                    
-                    // Create marker entry, if necessary. Otherwise, update (existing) marker entry
-                    // TODO ...
-                });
+                        // Create marker entry, if necessary. Otherwise, update (existing) marker entry
+                        // TODO ...
+                    }); // End of zoom_levels
+                }); // End of flow_data
                 
-                // Add exporter markers to all four zoom levels
-                var exporter_markers_tmp = [];
-                $.each(zoom_levels, function (zoom_level_index, zoom_level) {
-                    $.each(exporter_markers, function (marker_index, marker) {
-                        var updated_marker = marker;
-                        updated_marker.level = zoom_level_index;
-                        exporter_markers_tmp.push(updated_marker);
-                    });
-                });
-                exporter_markers = exporter_markers_tmp;
-                
-                // Merge marker arrays (extension and non-extension)
                 markers = markers.concat(exporter_markers);
             }
             

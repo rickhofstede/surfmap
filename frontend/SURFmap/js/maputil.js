@@ -512,19 +512,19 @@
     /*
      * Removes all existing map overlays and adds new ones, based on the old and new zoom levels.
      * Parameters:
-     *       new_sm_zoom_level - New/current SURFmap zoom level.
+     *       sm_zoom_level - New/current SURFmap zoom level.
      */  
-    function add_map_overlays (new_sm_zoom_level) {
+    function add_map_overlays (sm_zoom_level) {
         // Lines
         $.each(lines, function (line_index, line_item) {
-            if (line_item.level == new_sm_zoom_level) {
+            if (line_item.level == sm_zoom_level) {
                 line_item.obj.setMap(map);
             }
         });
         
         // Markers
         $.each(markers, function (marker_index, marker_item) {
-            if (marker_item.level == new_sm_zoom_level) {
+            if (marker_item.level == sm_zoom_level) {
                 marker_item.obj.setMap(map);
             }
         });
