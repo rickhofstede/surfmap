@@ -97,46 +97,7 @@
             $('#error_dialog').empty();
         
             var message = "";
-            switch (code) {
-                // case 1:     message = "The flow filter you provided does not adhere to the expected syntax.<br /><br /> \
-                //                     <b>Filter</b>: " + flowFilter + "<br /> \
-                //                     <b>Error message</b>: " +  errorMessage + "</br /><br /> \
-                //                     Please check <a href='http://nfdump.sourceforge.net/' style='text-decoration:underline;' target='_blank'>http://nfdump.sourceforge.net/</a> for the filter syntax.";
-                //             break;
-                //         
-                // case 2:     // The first (normal) selected date/time is invalid.
-                //             message = "The selected date/time window (" + originalDate1Window + " " + originalTime1Window + ") does not exist.<br /><br /> \
-                //                     The last available/valid time window will be selected.";
-                //             break;
-                //         
-                // case 3:     // The second (time range) selected date/time is invalid.
-                //             message = "The (second) selected date/time window (" + originalDate2Window + " " + originalTime2Window + ") does not exist.<br /><br /> \
-                //                     The last available/valid time window will be selected.";
-                //             break;
-                //         
-                // case 4:     // The second (time range) selected date/time is invalid.
-                //             message = "Both selected date/time windows (" + originalDate1Window + " " + originalTime1Window + " - " + originalDate2Window + " " + originalTime2Window + ") do not exist.<br /><br /> \
-                //                     The last available/valid time window will be selected.";
-                //             break;
-                //                 
-                // case 5:     message = "No NetFlow data has been found for the selected profile, source and filter. Please change your settings.";
-                //             break;
-                //         
-                // case 6:     message = "You have an error in your configuration. <br /><br /><b>Error message</b>: " +  errorMessage;
-                //             break;
-                //         
-                // case 7:     message = "The geo filter you provided does not adhere to the expected syntax.<br /><br /> \
-                //                     <b>Filter</b>: " + geoFilter + "<br /> \
-                //                     <b>Error message</b>: " +  errorMessage + "</br /><br /> \
-                //                     Please check the SURFmap manual for the filter syntax.";
-                //             break;
-                //             
-                // case 8:     message = "You have killed your flow query. Please select another query.";
-                //             break;
-                //         
-                // case 9:     message = "The NfSen session has not been set properly. Please start SURFmap from the 'Plugins' tab in NfSen.";
-                //             break;
-            
+            switch (code) {            
                 // AJAX/JSON communication error codes
                 case 800:   message = "An error occurred while communicating with your Web server. Check your network connectivity and try again.";
                             break;
@@ -578,26 +539,40 @@
                             field.text(flow_item[key]);
                         }
                     } else if (key == 'location_src') {
-                        var location_string = format_location_name(flow_item['src_country']);
+                        var location_string;
+                        
+                        // We assume the mobile device to have the highest port number of the flow
+                        if (is_extension_active('Location-aware exporting') && flow_item.port_src == Math.max(flow_item.port_src, flow_item.port_dst)) {
+                            location_string = "Mobile flow exporter (Flowoid)";
+                        } else {
+                            location_string = format_location_name(flow_item['src_country']);
                     
-                        if (flow_item['src_region'] != "(UNKNOWN)") {
-                            location_string += ", " + format_location_name(flow_item['src_region']);
-                        }
+                            if (flow_item['src_region'] != "(UNKNOWN)") {
+                                location_string += ", " + format_location_name(flow_item['src_region']);
+                            }
                     
-                        if (flow_item['src_city'] != "(UNKNOWN)") {
-                            location_string += ", " + format_location_name(flow_item['src_city']);
+                            if (flow_item['src_city'] != "(UNKNOWN)") {
+                                location_string += ", " + format_location_name(flow_item['src_city']);
+                            }
                         }
                     
                         field.text(location_string).css('padding-right', '5px');
                     } else if (key == 'location_dst') {
-                        var location_string = format_location_name(flow_item['dst_country']);
+                        var location_string;
+                        
+                        // We assume the mobile device to have the highest port number of the flow
+                        if (is_extension_active('Location-aware exporting') && flow_item.port_dst == Math.max(flow_item.port_src, flow_item.port_dst)) {
+                            location_string = "Mobile flow exporter (Flowoid)";
+                        } else {
+                            location_string = format_location_name(flow_item['dst_country']);
                     
-                        if (flow_item['dst_region'] != "(UNKNOWN)") {
-                            location_string += ", " + format_location_name(flow_item['dst_region']);
-                        }
+                            if (flow_item['dst_region'] != "(UNKNOWN)") {
+                                location_string += ", " + format_location_name(flow_item['dst_region']);
+                            }
                     
-                        if (flow_item['dst_city'] != "(UNKNOWN)") {
-                            location_string += ", " + format_location_name(flow_item['dst_city']);
+                            if (flow_item['dst_city'] != "(UNKNOWN)") {
+                                location_string += ", " + format_location_name(flow_item['dst_city']);
+                            }
                         }
                     
                         field.text(location_string).css('padding-left', '5px');

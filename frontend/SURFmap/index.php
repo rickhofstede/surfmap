@@ -451,6 +451,22 @@
                     // Update flow index association (i.e. index in 'flow_data' array)
                     lines[lines_index].associated_flow_indices.push(flow_index);
                     
+                    // Overite location information if a location-aware exporter has been used
+                    if (is_extension_active('Location-aware exporting')) {
+                        // Mobile flow exporter is source of flow
+                        if (flow_item.port_src == Math.max(flow_item.port_src, flow_item.port_dst)) {
+                            flow_item.src_country = "Mobile flow exporter (Flowoid)";
+                            
+                            if (zoom_level_index == 1) flow_item.src_region = "";
+                            else if (zoom_level_index == 2) flow_item.src_city = "";
+                        } else { // Mobile flow exporter is destination of flow
+                            flow_item.dst_country = "Mobile flow exporter (Flowoid)";
+                            
+                            if (zoom_level_index == 1) flow_item.dst_region = "";
+                            else if (zoom_level_index == 2) flow_item.dst_city = "";
+                        }
+                    }
+                    
                     // Find line entry (if it exists)
                     var entries_index = -1; // -1: entry does not exist, >= 0: entry index in 'entries' array
                     $.each(lines[lines_index].entries, function (entry_index, entry) {
@@ -522,22 +538,6 @@
                             line_entry.dst_text.city = flow_item.dst_city;
                             line_entry.src_text.ip_address = flow_item.ipv4_src;
                             line_entry.dst_text.ip_address = flow_item.ipv4_dst;
-                        }
-                        
-                        // Overite location information if a location-aware exporter has been used
-                        if (is_extension_active('Location-aware exporting')) {
-                            // Mobile flow exporter is source of flow
-                            if (flow_item.port_src == Math.max(flow_item.port_src, flow_item.post_dst)) {
-                                line_entry.src_text.country = "Mobile flow exporter (Flowoid)";
-                                
-                                if (zoom_level_index == 1) line_entry.src_text.region = "";
-                                else if (zoom_level_index == 2) line_entry.src_text.city = "";
-                            } else { // Mobile flow exporter is destination of flow
-                                line_entry.dst_text.country = "Mobile flow exporter (Flowoid)";
-                                
-                                if (zoom_level_index == 1) line_entry.dst_text.region = "";
-                                else if (zoom_level_index == 2) line_entry.dst_text.city = "";
-                            }
                         }
                         
                         // Add line entry to line
