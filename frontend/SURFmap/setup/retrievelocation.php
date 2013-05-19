@@ -229,7 +229,7 @@
         <script type="text/javascript">
             var NAT_IP = "<?php if (isset($NAT_IP)) { echo $NAT_IP; } ?>";
             var ext_IP = "<?php echo $ext_IP; ?>";
-            var ext_IP_NAT = <?php if ($extIPNAT === true) echo "1"; else echo "0"; ?>;
+            var ext_IP_NAT = <?php if ($ext_IP_NAT === true) echo "1"; else echo "0"; ?>;
             var ext_IP_error = "<?php if (isset($ext_IP_error)) echo $ext_IP_error; ?>";
             var ext_IP_country = "<?php echo $ext_IP_country; ?>";
             var ext_IP_region = "<?php echo $ext_IP_region; ?>";
