@@ -368,7 +368,7 @@ div#footer {
 .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
 
 /* MultiSelect (jQuery) */
-.ui-multiselect { padding:3px 0 2px 6px; text-align:left; font-size:7pt; } /* .ui-multiselect { padding:2px 0 2px 4px; text-align:left; } */
+.ui-multiselect { padding: 3px 0 2px 6px; text-align: left; font-size: 8pt; } /* .ui-multiselect { padding:2px 0 2px 4px; text-align:left; } */
 .ui-multiselect span.ui-icon { float:right }
 .ui-multiselect-single .ui-multiselect-checkboxes input { position:absolute !important; top: auto !important; left:-9999px; }
 .ui-multiselect-single .ui-multiselect-checkboxes label { padding:5px !important }
