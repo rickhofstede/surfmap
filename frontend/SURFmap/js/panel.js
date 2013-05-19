@@ -247,8 +247,16 @@
         });
         
         // Initialize date/time pickers
+        var max_date = new Date(
+                session_data['max_date'].substring(0,4),
+                session_data['max_date'].substring(4,6) - 1, // Months are zero-indexed
+                session_data['max_date'].substring(6,8),
+                session_data['max_hours'],
+                session_data['max_minutes'],
+                0 // milliseconds
+        );
         $('.date_time_input').datetimepicker({
-            maxDateTime:    new Date(),
+            maxDateTime:    max_date,
             stepMinute:     5,
             onClose: function(dateText, inst) {
                 var new_date_time = $(this).datetimepicker('getDate');
@@ -349,10 +357,10 @@
          * minutes not to be updated after the first action. See copy_date_time_selector
          * for more details.
          */
-        if ($('#date_start').datetimepicker('getDate') != new_date_1) {
+        if ($('#date_start').datetimepicker('getDate').getTime() != new_date_1.getTime()) {
             $('#date_start').datetimepicker('setDate', new_date_1);
         }
-        if ($('#date_end').datetimepicker('getDate') != new_date_2) {
+        if ($('#date_end').datetimepicker('getDate').getTime() != new_date_2.getTime()) {
             $('#date_end').datetimepicker('setDate', new_date_2);
         }
         
@@ -425,6 +433,18 @@
                 session_data['minutes2'],
                 0 // milliseconds
         );
+        var max_date = new Date(
+                session_data['max_date'].substring(0,4),
+                session_data['max_date'].substring(4,6) - 1, // Months are zero-indexed
+                session_data['max_date'].substring(6,8),
+                session_data['max_hours'],
+                session_data['max_minutes'],
+                0 // milliseconds
+        );
+        
+        // Update 'maxDateTime' properties of date/time selectors
+        $('#date_start').datetimepicker('option', 'maxDateTime', max_date);
+        $('#date_end').datetimepicker('option', 'maxDateTime', max_date);
         
         $('#date_start').datetimepicker('setDate', new_date_1);
         $('#date_end').datetimepicker('setDate', new_date_2);
@@ -433,10 +453,10 @@
          * minutes not to be updated after the first action. See copy_date_time_selector
          * for more details.
          */
-        if ($('#date_start').datetimepicker('getDate') != new_date_1) {
+        if ($('#date_start').datetimepicker('getDate').getTime() != new_date_1.getTime()) {
             $('#date_start').datetimepicker('setDate', new_date_1);
         }
-        if ($('#date_end').datetimepicker('getDate') != new_date_2) {
+        if ($('#date_end').datetimepicker('getDate').getTime() != new_date_2.getTime()) {
             $('#date_end').datetimepicker('setDate', new_date_2);
         }
     }

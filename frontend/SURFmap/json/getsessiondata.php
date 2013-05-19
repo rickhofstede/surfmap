@@ -177,29 +177,34 @@
         $_SESSION['refresh'] = 0;
     }
     
-    // Initialize dates and times   
+    // Initialize dates and times (max_date, max_hours and max_minutes are always updated)
+    $max_date = generate_date_string(5);
+    $max_time = generate_time_string(5);
+    $max_hours = substr($max_time, 0, 2);
+    $max_minutes = substr($max_time, 3, 2);
+        
+    // In case the source files do not exist (yet) for a 5 min. buffer time, create timestamps based on 10 min. buffer time
+    if (!source_files_exist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $max_date, $max_hours, $max_minutes)) {
+        $max_date = generate_date_string(10);
+        $max_time = generate_time_string(10);
+        $max_hours = substr($max_time, 0, 2);
+        $max_minutes = substr($max_time, 3, 2);
+    }
+    
+    $_SESSION['SURFmap']['max_date'] = $max_date;
+    $_SESSION['SURFmap']['max_hours'] = $max_hours;
+    $_SESSION['SURFmap']['max_minutes'] = $max_minutes;
+    
     if ((isset($update_time_period) && $update_time_period == 1)
             || (!isset($_SESSION['SURFmap']['date1']) || !isset($_SESSION['SURFmap']['date2']))) {
-        $latest_date = generate_date_string(5);
-        $latest_time = generate_time_string(5);
-        $latest_hour = substr($latest_time, 0, 2);
-        $latest_minute = substr($latest_time, 3, 2);
-            
-        // In case the source files do not exist (yet) for a 5 min. buffer time, create timestamps based on 10 min. buffer time
-        if (!source_files_exist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $latest_date, $latest_hour, $latest_minute)) {
-            $latest_date = generate_date_string(10);
-            $latest_time = generate_time_string(10);
-            $latest_hour = substr($latest_time, 0, 2);
-            $latest_minute = substr($latest_time, 3, 2);
-        }
+        $_SESSION['SURFmap']['date1'] = $_SESSION['SURFmap']['max_date'];
+        $_SESSION['SURFmap']['date2'] = $_SESSION['SURFmap']['max_date'];
         
-        $_SESSION['SURFmap']['date1'] = $latest_date;
-        $_SESSION['SURFmap']['date2'] = $latest_date;
+        $_SESSION['SURFmap']['hours1'] = $_SESSION['SURFmap']['max_hours'];
+        $_SESSION['SURFmap']['hours2'] = $_SESSION['SURFmap']['max_hours'];
         
-        $_SESSION['SURFmap']['hours1'] = $latest_hour;
-        $_SESSION['SURFmap']['minutes1'] = $latest_minute;
-        $_SESSION['SURFmap']['hours2'] = $latest_hour;
-        $_SESSION['SURFmap']['minutes2'] = $latest_minute;
+        $_SESSION['SURFmap']['minutes1'] = $_SESSION['SURFmap']['max_minutes'];
+        $_SESSION['SURFmap']['minutes2'] = $_SESSION['SURFmap']['max_minutes'];
     }
     
     // Initialize map_center
@@ -351,6 +356,9 @@
     $result['session_data']['nfsen_all_sources'] = $_SESSION['SURFmap']['nfsen_all_sources'];
     $result['session_data']['nfsen_selected_sources'] = $_SESSION['SURFmap']['nfsen_selected_sources'];
     $result['session_data']['refresh'] = $_SESSION['SURFmap']['refresh'];
+    $result['session_data']['max_date'] = $_SESSION['SURFmap']['max_date'];
+    $result['session_data']['max_hours'] = $_SESSION['SURFmap']['max_hours'];
+    $result['session_data']['max_minutes'] = $_SESSION['SURFmap']['max_minutes'];
     $result['session_data']['date1'] = $_SESSION['SURFmap']['date1'];
     $result['session_data']['date2'] = $_SESSION['SURFmap']['date2'];
     $result['session_data']['hours1'] = $_SESSION['SURFmap']['hours1'];
