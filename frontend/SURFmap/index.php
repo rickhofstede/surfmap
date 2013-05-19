@@ -410,6 +410,19 @@
                         point2 = new google.maps.LatLng(flow_item.dst_city_lat, flow_item.dst_city_lng);
                     }
                     
+                    // Overwrite coordinates (point1 or point2) if a location-aware exporter has been used
+                    if (is_extension_active('Location-aware exporting')) {
+                        var lat = parseFloat(flow_item.loc_lat_int + "." + flow_item.loc_lat_dec);
+                        var lng = parseFloat(flow_item.loc_lng_int + "." + flow_item.loc_lng_dec);
+                        
+                        // We assume the mobile device to have the highest port number of the flow
+                        if (flow_item.port_src == Math.max(flow_item.port_src, flow_item.port_dst)) {
+                            point1 = new google.maps.LatLng(lat, lng);
+                        } else {
+                            point2 = new google.maps.LatLng(lat, lng);
+                        }
+                    }
+                    
                     // Find line (if it exists)
                     var lines_index = -1; // -1: line does not exist, >= 0: line index in 'lines' array
                     $.each(lines, function (line_index, line) {
@@ -511,6 +524,22 @@
                             line_entry.dst_text.ip_address = flow_item.ipv4_dst;
                         }
                         
+                        // Overite location information if a location-aware exporter has been used
+                        if (is_extension_active('Location-aware exporting')) {
+                            // Mobile flow exporter is source of flow
+                            if (flow_item.port_src == Math.max(flow_item.port_src, flow_item.post_dst)) {
+                                line_entry.src_text.country = "Mobile flow exporter (Flowoid)";
+                                
+                                if (zoom_level_index == 1) line_entry.src_text.region = "";
+                                else if (zoom_level_index == 2) line_entry.src_text.city = "";
+                            } else { // Mobile flow exporter is destination of flow
+                                line_entry.dst_text.country = "Mobile flow exporter (Flowoid)";
+                                
+                                if (zoom_level_index == 1) line_entry.dst_text.region = "";
+                                else if (zoom_level_index == 2) line_entry.dst_text.city = "";
+                            }
+                        }
+                        
                         // Add line entry to line
                         lines[lines_index].entries.push(line_entry);
                     } else { // Line entry exists
@@ -521,44 +550,6 @@
                     }
                 }); // End of zoom_levels
             }); // End of flow_data
-            
-            if (is_extension_active('Location-aware exporting')) {
-                var exporter_lines = [];
-                
-                $.each(flow_data, function (flow_index, flow_item) {
-                    $.each(zoom_levels, function (zoom_level_index, zoom_level) {
-                        var lat = parseFloat(flow_item.loc_lat_int + "." + flow_item.loc_lat_dec);
-                        var lng = parseFloat(flow_item.loc_lng_int + "." + flow_item.loc_lng_dec);
-                        
-                        // Find line that belongs to current flow record
-                        var lines_index = -1;
-                        $.each(lines, function (line_index, line) {
-                            // Skip line if it doesn't belong to the current zoom level
-                            if (line.level != zoom_level_index) return true;
-                            
-                            if (jQuery.inArray(flow_index, line.associated_flow_indices) != -1) {
-                                lines_index = line_index;
-                                return false;
-                            }
-                        });
-                        
-                        // Change this line from source -> destination to source -> exporter
-                        var dst_point = lines[lines_index].point2;
-                        lines[lines_index].point2 = new google.maps.LatLng(lat, lng);
-                        
-                        // Create new line; exporter -> destination
-                        var line = {};
-                        line.point1 = new google.maps.LatLng(lat, lng);
-                        line.point2 = dst_point;
-                        line.level = lines[lines_index].level;
-                        line.entries = lines[lines_index].entries;
-                        line.associated_flow_indices = lines[lines_index].associated_flow_indices;
-                        exporter_lines.push(line);                        
-                    }); // End of zoom_levels
-                }); // End of flow_data
-                
-                lines = lines.concat(exporter_lines);
-            }
             
             // Determine maxima and sums, both global and per line
             $.each(zoom_levels, function (zoom_level_index, zoom_level) {
@@ -644,48 +635,36 @@
             $.each(flow_data, function (flow_index, flow_item) {
                 $.each(zoom_levels, function (zoom_level_index, zoom_level) {
                     $.each(['src', 'dst'], function () {
+                        // We assume the mobile device to have the highest port number of the flow
+                        var marker_location_aware_export = is_extension_active('Location-aware exporting') && flow_item['port_' + this] == Math.max(flow_item.port_src, flow_item.port_dst);
+                        
                         // Copy flow information to local-scope variables
                         var marker_text, entry_text, lat, lng;
-                        if (zoom_level_index == 0 && this == 'src') { // Country / source
-                            marker_text = flow_item.src_country;
-                            entry_text = flow_item.src_region;
-                            lat = flow_item.src_country_lat;
-                            lng = flow_item.src_country_lng;
-                        } else if (zoom_level_index == 0 && this == 'dst') { // Country / destination
-                            marker_text = flow_item.dst_country;
-                            entry_text = flow_item.dst_region;
-                            lat = flow_item.dst_country_lat;
-                            lng = flow_item.dst_country_lng;
-                        } else if (zoom_level_index == 1 && this == 'src') { // Region / source
-                            marker_text = flow_item.src_country + ", " + flow_item.src_region;
-                            entry_text = flow_item.src_city;
-                            lat = flow_item.src_region_lat;
-                            lng = flow_item.src_region_lng;
-                        } else if (zoom_level_index == 1 && this == 'dst') { // Region / destination
-                            marker_text = flow_item.dst_country + ", " + flow_item.dst_region;
-                            entry_text = flow_item.dst_city;
-                            lat = flow_item.dst_region_lat;
-                            lng = flow_item.dst_region_lng;
-                        } else if (zoom_level_index == 2 && this == 'src') { // City / source
-                            marker_text = flow_item.src_country + ", " + flow_item.src_region + ", " + flow_item.src_city;
-                            entry_text = flow_item.src_city;
-                            lat = flow_item.src_city_lat;
-                            lng = flow_item.src_city_lng;
-                        } else if (zoom_level_index == 2 && this == 'dst') { // City + Host / destination
-                            marker_text = flow_item.dst_country + ", " + flow_item.dst_region + ", " + flow_item.dst_city;
-                            entry_text = flow_item.dst_city;
-                            lat = flow_item.dst_city_lat;
-                            lng = flow_item.dst_city_lng;
-                        } else if (this == 'src') { // Host / source
-                            marker_text = flow_item.src_country + ", " + flow_item.src_region + ", " + flow_item.src_city;
-                            entry_text = flow_item.ipv4_src;
-                            lat = flow_item.src_city_lat;
-                            lng = flow_item.src_city_lng;
-                        } else { // Host / destination
-                            marker_text = flow_item.dst_country + ", " + flow_item.dst_region + ", " + flow_item.dst_city;
-                            entry_text = flow_item.ipv4_dst;
-                            lat = flow_item.dst_city_lat;
-                            lng = flow_item.dst_city_lng;
+                        if (marker_location_aware_export) {
+                            marker_text     = "Mobile flow exporter (Flowoid)";
+                            entry_text      = "";
+                            lat             = parseFloat(flow_item.loc_lat_int + "." + flow_item.loc_lat_dec);
+                            lng             = parseFloat(flow_item.loc_lng_int + "." + flow_item.loc_lng_dec);
+                        } else if (zoom_level_index == 0) { // Country
+                            marker_text     = flow_item[this + '_country'];
+                            entry_text      = flow_item[this + '_region'];
+                            lat             = flow_item[this + '_country_lat'];
+                            lng             = flow_item[this + '_country_lng'];
+                        } else if (zoom_level_index == 1) { // Region
+                            marker_text     = flow_item[this + '_country'] + ", " + flow_item[this + '_region'];
+                            entry_text      = flow_item[this + '_city'];
+                            lat             = flow_item[this + '_region_lat'];
+                            lng             = flow_item[this + '_region_lng'];
+                        } else if (zoom_level_index == 2) { // City
+                            marker_text     = flow_item[this + '_country'] + ", " + flow_item[this + '_region'] + ", " + flow_item[this + '_city'];
+                            entry_text      = flow_item[this + '_city'];
+                            lat             = flow_item[this + '_city_lat'];
+                            lng             = flow_item[this + '_city_lng'];
+                        } else { // Host
+                            marker_text     = flow_item[this + '_country'] + ", " + flow_item[this + '_region'] + ", " + flow_item[this + '_city'];
+                            entry_text      = flow_item['ipv4_' + this];
+                            lat             = flow_item[this + '_city_lat'];
+                            lng             = flow_item[this + '_city_lng'];
                         }
                         
                         // Find marker (if it exists)
@@ -706,7 +685,7 @@
                             marker.point = new google.maps.LatLng(lat, lng);
                             marker.level = zoom_level_index;
                             marker.entries = [];
-                            marker.extension = undefined; // Name of an extension for which marker is used
+                            marker.extension = (marker_location_aware_export) ? "Location-aware exporting" : undefined; // Name of an extension for which marker is used
                             marker.text = marker_text;
                             markers.push(marker);
                             markers_index = markers.length - 1;
@@ -761,47 +740,6 @@
                 }); // End of zoom levels
             }); // End of flow data
             
-            if (is_extension_active('Location-aware exporting')) {
-                var exporter_markers = [];
-                
-                $.each(flow_data, function (flow_index, flow_item) {
-                    $.each(zoom_levels, function (zoom_level_index, zoom_level) {
-                        var lat = parseFloat(flow_item.loc_lat_int + "." + flow_item.loc_lat_dec);
-                        var lng = parseFloat(flow_item.loc_lng_int + "." + flow_item.loc_lng_dec);
-                        var marker_text = "Mobile flow exporter (Flowoid)"; // TODO Fill this
-                    
-                        // Find marker (if it exists)
-                        var markers_index = -1; // -1: marker does not exist, >= 0: marker index in 'markers' array
-                        $.each(exporter_markers, function (marker_index, marker) {
-                            // Skip to next marker in case of wrong zoom level
-                            if (marker.level != zoom_level_index) return true;
-                            
-                            if (marker.point.equals(new google.maps.LatLng(lat, lng))) {
-                                markers_index = marker_index;
-                                return false;
-                            }
-                        });
-                    
-                        // Create marker, if necessary
-                        if (markers_index == -1) {
-                            var marker = {};
-                            marker.point = new google.maps.LatLng(lat, lng);
-                            marker.level = zoom_level_index;
-                            marker.entries = [];
-                            marker.extension = "Location-aware exporting"; // Name of an extension for which marker is used
-                            marker.text = marker_text;
-                            exporter_markers.push(marker);
-                            markers_index = exporter_markers.length - 1;
-                        }
-                    
-                        // Create marker entry, if necessary. Otherwise, update (existing) marker entry
-                        // TODO ...
-                    }); // End of zoom_levels
-                }); // End of flow_data
-                
-                markers = markers.concat(exporter_markers);
-            }
-            
             // Initialize marker objects
             $.each(zoom_levels, function (zoom_level_index, zoom_level) {
                 $.each(markers, function (marker_index, marker) {
@@ -825,14 +763,14 @@
                                 return false;
                             }
                         });
-                    
+                        
                         if (internal_traffic) {
                             marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents, 'green');
                         } else {
                             marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents);
                         }
                     } else if (marker.extension == "Location-aware exporting") {
-                        var info_window_contents = "Mobile flow exporter"; // TODO
+                        var info_window_contents = "Mobile flow exporter (Flowoid)";
                         marker.obj = create_marker (marker.point, marker.text, info_window_contents, 'blue');
                     } else {
                     }
