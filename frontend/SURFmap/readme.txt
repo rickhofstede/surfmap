@@ -49,7 +49,7 @@ check 2.4; for installation verification, check 2.5):
     $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
     
 - Download MaxMind GeoLite City (IPv6) database:
-    $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6.dat.gz
+    $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/GeoLiteCityv6.dat.gz
 
 - Unpack installation packages:
     $ tar zxf SURFmap_v3.0.tar.gz --directory=/var/www/nfsen/plugins/ (this path 
