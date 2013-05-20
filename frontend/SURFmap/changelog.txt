@@ -5,7 +5,7 @@ module (which can be found in the 'setup' folder), in order to verify your SURFm
 
 ---
 
-Release notes [v3.0b4 (20130519)]:
+Release notes [v3.0b4 (20130520)]:
 
 WARNING: Neither the configuration file, nor the database of previous versions is compatible with this release!
 

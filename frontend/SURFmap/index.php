@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "3.0b4 (20130519)";
+     $version = "3.0b4 (20130520)";
      
 ?>
 <!DOCTYPE html>
@@ -693,46 +693,66 @@
                         
                         // Find marker entry (if it exists)
                         var entries_index = -1; // -1: entry does not exist, >= 0: entry index in 'entries' array
-                        if (markers_index != -1) {
-                            $.each(markers[markers_index].entries, function (entry_index, entry) {
-                                if (entry.text == entry_text) {
-                                    entries_index = entry_index;
-                                    return false;
-                                }
-                            });
+                        if (marker_location_aware_export) {
+                            if (markers[markers_index].entries.length == 1) { // Only one entry should be used of markers for mobile flow exporters
+                                entries_index = 0;
+                            }
+                        } else {
+                            if (markers_index != -1) {
+                                $.each(markers[markers_index].entries, function (entry_index, entry) {
+                                    if (entry.text == entry_text) {
+                                        entries_index = entry_index;
+                                        return false;
+                                    }
+                                });
+                            }
                         }
                         
+                    
                         // Create marker entry, if necessary. Otherwise, update (existing) marker entry
                         if (entries_index == -1) {
                             var marker_entry = {};
-                            marker_entry.text = entry_text;
                             
-                            if (zoom_level_index == 3) { // Host
-                                marker_entry.flows = flow_item.flows;
-                            } else { // Country, region, city
-                                marker_entry.hosts = [];
-                                
-                                var host = (this == 'src') ? flow_item.ipv4_src : flow_item.ipv4_dst;
-                                
-                                // Only add hosts if they haven't been accounted yet
-                                if (jQuery.inArray(host, marker_entry.hosts) == -1) { // Destination
-                                    marker_entry.hosts.push(host);
+                            if (marker_location_aware_export) {
+                                marker_entry.lat = lat;
+                                marker_entry.lng = lng;
+                                marker_entry.device_ID = "..."; // flow_item.device_ID;
+                                marker_entry.applications = [];
+                                // marker_entry.applications.push(flow_item.application_ID);
+                            } else {
+                                marker_entry.text = entry_text;
+                        
+                                if (zoom_level_index == 3) { // Host
+                                    marker_entry.flows = flow_item.flows;
+                                } else { // Country, region, city
+                                    marker_entry.hosts = [];
+                            
+                                    var host = (this == 'src') ? flow_item.ipv4_src : flow_item.ipv4_dst;
+                            
+                                    // Only add hosts if they haven't been accounted yet
+                                    if (jQuery.inArray(host, marker_entry.hosts) == -1) { // Destination
+                                        marker_entry.hosts.push(host);
+                                    }
                                 }
                             }
                             
                             // Add marker entry to marker
                             markers[markers_index].entries.push(marker_entry);
                         } else {
-                            var host = (this == 'src') ? flow_item.ipv4_src : flow_item.ipv4_dst;
-                            
-                            if (zoom_level_index == 3) { // Host
-                                if (host == markers[markers_index].entries[entries_index].text) {
-                                    markers[markers_index].entries[entries_index].flows += flow_item.flows;
-                                }
-                            } else { // Country, region, city
-                                // Only add hosts if they haven't been accounted yet
-                                if (jQuery.inArray(host, markers[markers_index].entries[entries_index].hosts) == -1) { // Destination
-                                    markers[markers_index].entries[entries_index].hosts.push(host);
+                            if (marker_location_aware_export) {
+                                // marker_entry.applications.push(flow_item.application_ID);
+                            } else {
+                                var host = (this == 'src') ? flow_item.ipv4_src : flow_item.ipv4_dst;
+                        
+                                if (zoom_level_index == 3) { // Host
+                                    if (host == markers[markers_index].entries[entries_index].text) {
+                                        markers[markers_index].entries[entries_index].flows += flow_item.flows;
+                                    }
+                                } else { // Country, region, city
+                                    // Only add hosts if they haven't been accounted yet
+                                    if (jQuery.inArray(host, markers[markers_index].entries[entries_index].hosts) == -1) { // Destination
+                                        markers[markers_index].entries[entries_index].hosts.push(host);
+                                    }
                                 }
                             }
                         }
@@ -770,7 +790,11 @@
                             marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents);
                         }
                     } else if (marker.extension == "Location-aware exporting") {
-                        var info_window_contents = "Mobile flow exporter (Flowoid)";
+                        var marker_entry = marker.entries.pop();
+                        var info_window_contents = "<b>Mobile flow exporter (Flowoid)</b><br/><br/> \
+                                Location: " + marker_entry.lat + ", " + marker_entry.lng + "<br/> \
+                                Device ID: " + marker_entry.device_ID + "<br/> \
+                                Application IDs: ...";
                         marker.obj = create_marker (marker.point, marker.text, info_window_contents, 'blue');
                     } else {
                     }
