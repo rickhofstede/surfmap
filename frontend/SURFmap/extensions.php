@@ -44,4 +44,18 @@
         }
     }
     
+    function is_extension_active ($name) {
+        global $extensions;
+        $result = false;
+        
+        foreach ($extensions as $extension) {
+            if ($extension->name === $name) {
+                $result = true;
+                break;
+            }
+        }
+        
+        return $result;
+    }
+    
 ?>

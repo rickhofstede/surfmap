@@ -11,7 +11,7 @@
      require_once("config.php");
      require_once("constants.php");
      
-     $version = "3.0b4 (20130520)";
+     $version = "3.0b4 (20130521)";
      
 ?>
 <!DOCTYPE html>
