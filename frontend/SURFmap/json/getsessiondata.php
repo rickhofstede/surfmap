@@ -140,13 +140,14 @@
     $_SESSION['SURFmap']['nfsen_profile_type'] = ($_SESSION['profileinfo']['type'] & 4) > 0 ? "shadow" : "real";
     
     // Initialize nfsen_all_sources
-    if (!isset($_SESSION['SURFmap']['nfsen_all_sources'])) {
-        $_SESSION['SURFmap']['nfsen_all_sources'] = array();
-        foreach ($_SESSION['profileinfo']['channel'] as $source) {
-            array_push($_SESSION['SURFmap']['nfsen_all_sources'], $source['name']);
-        }
-        unset($source);
+    /*  This has to be refreshed on every page load, as the NfSen profile selector
+     * triggers a page load and can change the set of sources per profile.
+     */
+    $_SESSION['SURFmap']['nfsen_all_sources'] = array();
+    foreach ($_SESSION['profileinfo']['channel'] as $source) {
+        array_push($_SESSION['SURFmap']['nfsen_all_sources'], $source['name']);
     }
+    unset($source);
     
     // Initialize nfsen_selected_sources
     if (!isset($_SESSION['SURFmap']['nfsen_selected_sources'])) {

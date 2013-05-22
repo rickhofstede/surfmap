@@ -8,10 +8,8 @@
      *******************************/
      
      header("Content-type: text/html; charset=utf-8");
-     require_once("config.php");
-     require_once("constants.php");
      
-     $version = "3.0b4 (20130521)";
+     $version = "3.0b4 (20130522)";
      
 ?>
 <!DOCTYPE html>
