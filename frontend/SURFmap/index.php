@@ -9,7 +9,7 @@
      
      header("Content-type: text/html; charset=utf-8");
      
-     $version = "3.0b4 (20130522)";
+     $version = "3.0b5 (20130522)";
      
 ?>
 <!DOCTYPE html>

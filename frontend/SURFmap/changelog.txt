@@ -4,7 +4,7 @@ Please check the manual or readme for installation instructions.
 
 ---
 
-Release notes [v3.0b4 (20130521)]:
+Release notes [v3.0b5 (20130522)]:
 
 WARNING: Neither the configuration file, nor the database of previous versions is compatible with this release!
 
