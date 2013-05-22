@@ -1,7 +1,6 @@
 SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 
-Please check the manual or readme for installation instructions. Run the ConfigurationChecker 
-module (which can be found in the 'setup' folder), in order to verify your SURFmap configuration.
+Please check the manual or readme for installation instructions.
 
 ---
 
@@ -15,6 +14,7 @@ WARNING: Neither the configuration file, nor the database of previous versions i
 - [FEATURE] Support for extensions
 
 Release notes [v2.4 stable (20121211)]:
+
 - [FEATURE] Added support for multiple internal domains at multiple geographical locations
 - [FEATURE] Improved support for PHP 5.4
 - [BUGFIX] Fixed a bug that caused several subnet masks not to be processed properly
