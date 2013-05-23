@@ -150,7 +150,22 @@
     unset($source);
     
     // Initialize nfsen_selected_sources
-    if (!isset($_SESSION['SURFmap']['nfsen_selected_sources'])) {
+    if (isset($_SESSION['SURFmap']['nfsen_selected_sources'])) {
+        /* Check whether selected sources are available. Sources can become unavailable
+         * upon profile change, for example. In case a source has been selected for profile
+         * 'X' and the profile is changed to 'Y', then the source may not exist anymore.
+         */
+        $selected_sources = $_SESSION['SURFmap']['nfsen_selected_sources'];
+        foreach ($selected_sources as $source) {
+            if (!in_array($source, $_SESSION['SURFmap']['nfsen_all_sources'])) {
+                unset($selected_sources[array_search($source, $selected_sources)]);
+            }
+        }
+        unset($source);
+        
+        // Replace list of selected sources
+        $_SESSION['SURFmap']['nfsen_selected_sources'] = $selected_sources;
+    } else {
         $_SESSION['SURFmap']['nfsen_selected_sources'] = array();
         if (strlen($config['nfsen_default_sources']) > 0) {
             // Check whether configured default sources exist
@@ -161,14 +176,15 @@
             }
             unset($source);
         }
-
-        /*
-         * If none of the configured default sources was available or no default source
-         * was configured at all, select all available sources.
-         */
-        if (count($_SESSION['SURFmap']['nfsen_selected_sources']) == 0) {
-            $_SESSION['SURFmap']['nfsen_selected_sources'] = $_SESSION['SURFmap']['nfsen_all_sources'];
-        }
+    }
+    /*
+     * Select all available sources in any of the following cases:
+     *      1: None of the configured default sources are available (config.php)
+     *      2: No default sources have been configured at all (config.php)
+     *      3: None of the selected sources is available (frontend)
+     */
+    if (count($_SESSION['SURFmap']['nfsen_selected_sources']) == 0) {
+        $_SESSION['SURFmap']['nfsen_selected_sources'] = $_SESSION['SURFmap']['nfsen_all_sources'];
     }
     
     // Initialize refresh

@@ -101,7 +101,7 @@
     $cmd_opts['type'] = $nfsen_profile_type;
     $cmd_opts['srcselector'] = implode(":", $nfsen_selected_sources);
     $cmd_opts['filter'] = array($nfsen_filter);
-
+    
     $result = array();
 
     if (!isset($_SESSION['profile'])) {
