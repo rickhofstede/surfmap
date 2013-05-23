@@ -143,7 +143,7 @@
     /*  This has to be refreshed on every page load, as the NfSen profile selector
      * triggers a page load and can change the set of sources per profile.
      */
-    $_SESSION['SURFmap']['nfsen_all_sources'] = array();
+    $_SESSION['SURFmap']['nfsen_all_sources'] = array(); // Clear current list
     foreach ($_SESSION['profileinfo']['channel'] as $source) {
         array_push($_SESSION['SURFmap']['nfsen_all_sources'], $source['name']);
     }

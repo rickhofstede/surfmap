@@ -142,9 +142,12 @@
             break;
         }
         
-        $_SESSION['SURFmap']['nfsen_selected_sources'] = array();
+        $_SESSION['SURFmap']['nfsen_selected_sources'] = array(); // Clear current list
         foreach ($_POST['params']['nfsen_selected_sources'] as $source) {
-            array_push($_SESSION['SURFmap']['nfsen_selected_sources'], $source);
+            // Only add source if it exists in the current profile
+            if (in_array($source, $_SESSION['SURFmap']['nfsen_all_sources'])) {
+                array_push($_SESSION['SURFmap']['nfsen_selected_sources'], $source);
+            }
         }
         unset($source);
         
