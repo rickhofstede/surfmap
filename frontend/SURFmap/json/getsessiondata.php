@@ -406,7 +406,7 @@
         $unprocessed_date = date("Ymd");
 
         // If time is in interval [00:00, 00:{$buffer_time}>, the date has to contain the previous day (and eventually month and year)
-        if (date("H") == 00 && date("i") < $bufferTime) {
+        if (date("H") == 00 && date("i") < $buffer_time) {
             $year = substr($unprocessed_date, 0, 4);
             $month = substr($unprocessed_date, 4, 2);
             $day = substr($unprocessed_date, 6, 2);
