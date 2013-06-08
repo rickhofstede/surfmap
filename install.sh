@@ -18,13 +18,13 @@ GEO_DB=GeoLiteCity.dat.gz
 GEOv6_DB=GeoLiteCityv6.dat.gz
 
 err () {
-	echo "ERROR: ${*}"
+	printf "ERROR: ${*}\n"
 	exit 1
 }
 
 err_line () {
     echo "-----"
-	echo "ERROR: ${*}"
+	printf "ERROR: ${*}\n"
 	exit 1
 }
 
@@ -37,11 +37,11 @@ if [ ! -n "$(ps axo command | grep [n]fsend | grep -v nfsend-comm)" ]; then
 	err "NfSen - nfsend not running. Cannot detect nfsen.conf location!"
 fi
 
-NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep [n]fsend | grep -v nfsend-comm | cut -d' ' -f3) | grep libexec | cut -d'"' -f2)
+NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep [n]fsend | grep -v nfsend-comm | cut -d' ' -f3) | grep libexec | cut -d'"' -f2 | head -n 1)
 NFSEN_CONF=$(cat ${NFSEN_LIBEXECDIR}/NfConf.pm | grep \/nfsen.conf | cut -d'"' -f2)
 
 # Parse nfsen.conf file
-cat ${NFSEN_CONF} | grep -v \# | egrep '\$BASEDIR|\$LIBEXECDIR|\$BINDIR|\$HTMLDIR|\$FRONTEND_PLUGINDIR|\$BACKEND_PLUGINDIR|\$WWWGROUP|\$WWWUSER|\$USER' | tr -d ';' | tr -d ' ' | cut -c2- | sed 's,/",",g' > ${NFSEN_VARFILE}
+cat ${NFSEN_CONF} | grep -v \# | egrep '\$BASEDIR|\$BINDIR|\$LIBEXECDIR|\$HTMLDIR|\$FRONTEND_PLUGINDIR|\$BACKEND_PLUGINDIR|\$WWWGROUP|\$WWWUSER|\$USER' | tr -d ';' | tr -d ' ' | cut -c2- | sed 's,/",",g' > ${NFSEN_VARFILE}
 . ${NFSEN_VARFILE}
 rm -rf ${NFSEN_VARFILE}
 
@@ -62,11 +62,11 @@ PHP_MBSTRING=$(php -m | grep 'mbstring' 2> /dev/null)
 PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite$' 2> /dev/null) # The dollar-sign ($) makes sure that 'pdo_sqlite2' is not accepted
 
 if [ "$PHP_CURL" != "curl" ]; then
-    err "The PHP 'cURL' module is missing. Try to install the 'php5-curl' (Ubuntu/Debian) or 'php-curl' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
+    err "The PHP 'cURL' module is missing. Try to install the following packages (depending on your OS): \n\t* php5-curl (Ubuntu/Debian)\n\t* php-curl (RHEL/CentOS, using EPEL) \n\t* Include 'CURL' in the php5-extensions port (FreeBSD)\nDon't forget to restart your Web server after installing the package"
 elif [ "$PHP_MBSTRING" != "mbstring" ]; then
-    err "The PHP 'mbstring' module is missing. Try to install the 'php-mbstring' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
+    err "The PHP 'mbstring' module is missing. Try to install the following packages (depending on your OS): \n\t* php-mbstring (RHEL/CentOS, using EPEL) \n\t* Include 'MBSTRING' in the php5-extensions port (FreeBSD)\nDon't forget to restart your Web server after installing the package"
 elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
-    err "The PHP PDO SQLite v3 module is missing. Try to install the 'php5-sqlite' (Ubuntu/Debian) or 'php-pdo' (RHEL/CentOS, using EPEL) package. Don't forget to restart your Web server after installing the package(s)"
+    err "The PHP PDO SQLite v3 module is missing. Try to install the following packages (depending on your OS): \n\t* php5-sqlite (Ubuntu/Debian)\n\t* php-pdo (RHEL/CentOS, using EPEL) \n\t* Include 'PDO_SQLITE' in the php5-extensions port (FreeBSD)\nDon't forget to restart your Web server after installing the package"
 fi
 
 # Download files from Web
