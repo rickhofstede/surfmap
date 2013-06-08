@@ -59,12 +59,18 @@
                 $('#info_dialog').dialog('close');
             }
             
-            // Close filter input text field, if empty
+            // Hide filter input text fields, if empty
             if ($('#filter_flow_text').is(':visible') && $('#filter_flow_text').val() == "") {
                 $('#filter_flow').trigger('click');
             }
             if ($('#filter_geo_text').is(':visible') && $('#filter_geo_text').val() == "") {
                 $('#filter_geo').trigger('click');
+            }
+            
+            // Show error when IPv6 query is provided
+            if ($('#filter_flow_text').val().indexOf("inet6") >= 0 || $('#filter_flow_text').val().indexOf("ipv6") >= 0) {
+                show_error(995);
+                return false;
             }
             
             if ($("#nfsensources").multiselect("widget").find("input:checked").length == 0) {

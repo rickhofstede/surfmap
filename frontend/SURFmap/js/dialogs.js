@@ -157,6 +157,9 @@
                             break;
             
                 // Client-side-only error codes
+                case 995:   message = "You have specified an IPv6 query. IPv6 is not yet fully supported, but will be in the near future.";
+                            break;
+                        
                 case 996:   message = "You have specified an invalid map center. Please check your configuration.";
                             break;
                             
