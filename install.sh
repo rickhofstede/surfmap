@@ -168,10 +168,9 @@ if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 
 	OLDENTRY=$(grep "$config\['map_center'\]" ${SURFMAP_CONF} | cut -d'"' -f2)
 	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f4,5)
-	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
-		NEWENTRY=""
+	if [ "${NEWENTRY}" != "(UNKNOWN),(UNKNOWN)" ]; then
+		sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 	fi
-	sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 fi
 
 # Enable plugin
