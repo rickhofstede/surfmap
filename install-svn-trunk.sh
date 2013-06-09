@@ -19,12 +19,12 @@ err () {
 echo "SURFmap SVN installation script"
 echo "-------------------------------"
 
-echo "Removing previous SVN trunk snapshot"
-rm -rf SURFmap SURFmap_v*.tar.gz install.sh
-
 if [ ! "$(which svn)" ]; then
 	err "Subversion (SVN) is not installed on your system. Install it first, or download the latest stable version of SURFmap from http://surfmap.sf.net"
 fi
+
+echo "Removing previous SVN trunk snapshot"
+rm -rf SURFmap SURFmap_v*.tar.gz install.sh
 
 echo "Exporting SVN trunk snapshot"
 svn export svn://svn.code.sf.net/p/surfmap/code/trunk SURFmap
