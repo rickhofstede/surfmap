@@ -197,19 +197,15 @@
             $xml = simplexml_load_file($requestURL);
         }
         
-        if (isset($xml->result->geometry->location)) {
+        if (isset($xml->status) && $xml->status == "OVER_QUERY_LIMIT") {
+            time_nanosleep(0, 1000000000);
+            geocode($place);
+        } else if (isset($xml->result->geometry->location)) {
             $lat = $xml->result->geometry->location->lat;
             $lng = $xml->result->geometry->location->lng;
         }
         
-        $status = $xml->status;
-        
-        if ($status == "OVER_QUERY_LIMIT") {
-            time_nanosleep(0, 1000000000);
-            geocode($place);
-        }
-        
-        return ($status == "OK" && isset($lat) && isset($lng)) ? array($lat, $lng) : false;
+        return (isset($xml->status) && $xml->status == "OK" && isset($lat) && isset($lng)) ? array($lat, $lng) : false;
     }
 
 ?>
