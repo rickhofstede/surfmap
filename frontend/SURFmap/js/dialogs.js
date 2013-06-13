@@ -480,7 +480,7 @@
         $.each(extensions, function (extension_ID, extension) {
             $.each(this.fields, function (field_ID, field) {
                 // Dollar-sign should be removed from 'nfdump_short' name
-                field_names[field.nfdump_short.substr(1)] = field.full_name;
+                field_names[field.nfdump_short.substr(1)] = field.short_name;
             });
         });
         
@@ -542,40 +542,26 @@
                             field.text(flow_item[key]);
                         }
                     } else if (key == 'location_src') {
-                        var location_string;
+                        var location_string = format_location_name(flow_item['src_country']);
                         
-                        // We assume the mobile device to have the highest port number of the flow
-                        if (is_extension_active('Location-aware exporting') && flow_item.port_src == Math.max(flow_item.port_src, flow_item.port_dst)) {
-                            location_string = "Mobile flow exporter (Flowoid)";
-                        } else {
-                            location_string = format_location_name(flow_item['src_country']);
-                    
-                            if (flow_item['src_region'] != "(UNKNOWN)") {
-                                location_string += ", " + format_location_name(flow_item['src_region']);
-                            }
-                    
-                            if (flow_item['src_city'] != "(UNKNOWN)") {
-                                location_string += ", " + format_location_name(flow_item['src_city']);
-                            }
+                        if (flow_item['src_region'] != "(UNKNOWN)") {
+                            location_string += ", " + format_location_name(flow_item['src_region']);
+                        }
+                
+                        if (flow_item['src_city'] != "(UNKNOWN)") {
+                            location_string += ", " + format_location_name(flow_item['src_city']);
                         }
                     
                         field.text(location_string).css('padding-right', '5px');
                     } else if (key == 'location_dst') {
-                        var location_string;
-                        
-                        // We assume the mobile device to have the highest port number of the flow
-                        if (is_extension_active('Location-aware exporting') && flow_item.port_dst == Math.max(flow_item.port_src, flow_item.port_dst)) {
-                            location_string = "Mobile flow exporter (Flowoid)";
-                        } else {
-                            location_string = format_location_name(flow_item['dst_country']);
+                        var location_string = format_location_name(flow_item['dst_country']);
                     
-                            if (flow_item['dst_region'] != "(UNKNOWN)") {
-                                location_string += ", " + format_location_name(flow_item['dst_region']);
-                            }
-                    
-                            if (flow_item['dst_city'] != "(UNKNOWN)") {
-                                location_string += ", " + format_location_name(flow_item['dst_city']);
-                            }
+                        if (flow_item['dst_region'] != "(UNKNOWN)") {
+                            location_string += ", " + format_location_name(flow_item['dst_region']);
+                        }
+                
+                        if (flow_item['dst_city'] != "(UNKNOWN)") {
+                            location_string += ", " + format_location_name(flow_item['dst_city']);
                         }
                     
                         field.text(location_string).css('padding-left', '5px');

@@ -44,73 +44,76 @@
             var flow_details_button = $(".flow_info_table a:contains(Flow Details)");
             var lines_index = parseInt(flow_details_button.attr('id').substr(flow_details_button.attr('id').lastIndexOf("-") + 1));
             var associated_flow_indices = lines[lines_index].associated_flow_indices;
-                        
-            // Find IP addresses to be resolved to hostnames
-            var IP_addresses = [];
-            $.each(associated_flow_indices, function () {
-                // Only add IP address if it is not already present
-                if (jQuery.inArray(flow_data[this]['ipv4_src'], IP_addresses) == -1) {
-                    IP_addresses.push(flow_data[this]['ipv4_src']);
-                }
-                if (jQuery.inArray(flow_data[this]['ipv4_dst'], IP_addresses) == -1) {
-                    IP_addresses.push(flow_data[this]['ipv4_dst']);
-                }
-            });
             
-            // Check which IP addresses have already been resolved and remove them from the list
-            var IP_addresses_to_be_removed = [];
-            $.each(IP_addresses, function (address_index, address) {
-                if (resolved_hostnames != undefined) {
-                    $.each(resolved_hostnames, function (index, tuple) {
-                        if (tuple.address == address) {
-                            IP_addresses_to_be_removed.push(address_index);
+            // IP address are only shown at the Host zoom level
+            if (get_SM_zoom_level(map.getZoom()) == 3) {
+                // Find IP addresses to be resolved to hostnames
+                var IP_addresses = [];
+                $.each(associated_flow_indices, function () {
+                    // Only add IP address if it is not already present
+                    if (jQuery.inArray(flow_data[this]['ipv4_src'], IP_addresses) == -1) {
+                        IP_addresses.push(flow_data[this]['ipv4_src']);
+                    }
+                    if (jQuery.inArray(flow_data[this]['ipv4_dst'], IP_addresses) == -1) {
+                        IP_addresses.push(flow_data[this]['ipv4_dst']);
+                    }
+                });
+            
+                // Check which IP addresses have already been resolved and remove them from the list
+                var IP_addresses_to_be_removed = [];
+                $.each(IP_addresses, function (address_index, address) {
+                    if (resolved_hostnames != undefined) {
+                        $.each(resolved_hostnames, function (index, tuple) {
+                            if (tuple.address == address) {
+                                IP_addresses_to_be_removed.push(address_index);
                             
-                            // Add (previously resolved) hostname as tooltip to IP address
-                            $('#map_canvas .flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
+                                // Add (previously resolved) hostname as tooltip to IP address
+                                $('#map_canvas .flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
                             
-                            return false;
+                                return false;
+                            }
+                        });
+                    }
+                });
+            
+                // Perform IP address removal
+                $.each(IP_addresses_to_be_removed, function (address_counter, address_index) {
+                    // Indices need to be compensated for removal
+                    IP_addresses.splice(address_index - address_counter, 1);
+                });
+            
+                // Resolve hostnames
+                if (config['resolve_hostnames'] && IP_addresses.length > 0) {
+                    $.ajax({
+                        url: 'json/resolvehostnames.php',
+                        data: { 
+                            params: IP_addresses
+                        },
+                        success: function(data) {
+                            if (data.status == 0) { // Success
+                                if (resolved_hostnames == undefined) resolved_hostnames = [];
+                            
+                                $.each(data.hostnames, function (index, tuple) {
+                                    resolved_hostnames.push(tuple);
+                                
+                                    // Add hostnames as tooltip to IP addresses
+                                    $('#map_canvas .flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
+                                });
+                            } else {
+                                show_error(815, data.status_message);
+                            }
+                        },
+                        error: function() {
+                            show_error(800);
                         }
                     });
                 }
-            });
             
-            // Perform IP address removal
-            $.each(IP_addresses_to_be_removed, function (address_counter, address_index) {
-                // Indices need to be compensated for removal
-                IP_addresses.splice(address_index - address_counter, 1);
-            });
-            
-            // Resolve hostnames
-            if (config['resolve_hostnames'] && IP_addresses.length > 0) {
-                $.ajax({
-                    url: 'json/resolvehostnames.php',
-                    data: { 
-                        params: IP_addresses
-                    },
-                    success: function(data) {
-                        if (data.status == 0) { // Success
-                            if (resolved_hostnames == undefined) resolved_hostnames = [];
-                            
-                            $.each(data.hostnames, function (index, tuple) {
-                                resolved_hostnames.push(tuple);
-                                
-                                // Add hostnames as tooltip to IP addresses
-                                $('#map_canvas .flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
-                            });
-                        } else {
-                            show_error(815, data.status_message);
-                        }
-                    },
-                    error: function() {
-                        show_error(800);
-                    }
+                // Attach click handler for opening Flow Details
+                flow_details_button.click(function (event) {
+                    show_flow_details(associated_flow_indices);
                 });
             }
-            
-            // Attach click handler for opening Flow Details
-            flow_details_button.click(function (event) {
-                show_flow_details(associated_flow_indices);
-            });
             
             // Make all instances of 'Not available' in information windows italic
             $('.flow_info_table td:contains(Not available)').css('font-style', 'italic');
@@ -149,65 +152,68 @@
             info_window.setContent(text);
             info_window.open(map, marker);
             
-            // Find IP addresses to be resolved to hostnames
-            var IP_addresses = [];
-            $.each($('#map_canvas .flow_info_table td[class*=ip_address]:visible'), function () {
-                // Only add IP address if it is not already present
-                if (jQuery.inArray($(this).text(), IP_addresses) == -1) {
-                    IP_addresses.push($(this).text());
-                }
-            });
+            // IP address are only shown at the Host zoom level
+            if (get_SM_zoom_level(map.getZoom()) == 3) {
+                // Find IP addresses to be resolved to hostnames
+                var IP_addresses = [];
+                $.each($('#map_canvas .flow_info_table td[class*=ip_address]:visible'), function () {
+                    // Only add IP address if it is not already present
+                    if (jQuery.inArray($(this).text(), IP_addresses) == -1) {
+                        IP_addresses.push($(this).text());
+                    }
+                });
             
-            // Check which IP addresses have already been resolved and remove them from the list
-            var IP_addresses_to_be_removed = [];
-            $.each(IP_addresses, function (address_index, address) {
-                if (resolved_hostnames != undefined) {
-                    $.each(resolved_hostnames, function (index, tuple) {
-                        if (tuple.address == address) {
-                            IP_addresses_to_be_removed.push(address_index);
+                // Check which IP addresses have already been resolved and remove them from the list
+                var IP_addresses_to_be_removed = [];
+                $.each(IP_addresses, function (address_index, address) {
+                    if (resolved_hostnames != undefined) {
+                        $.each(resolved_hostnames, function (index, tuple) {
+                            if (tuple.address == address) {
+                                IP_addresses_to_be_removed.push(address_index);
                             
-                            // Add (previously resolved) hostname as tooltip to IP address
-                            $('.flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
+                                // Add (previously resolved) hostname as tooltip to IP address
+                                $('.flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
                             
-                            return false;
+                                return false;
+                            }
+                        });
+                    }
+                });
+            
+                // Perform IP address removal
+                $.each(IP_addresses_to_be_removed, function (address_counter, address_index) {
+                    // Indices need to be compensated for removal
+                    IP_addresses.splice(address_index - address_counter, 1);
+                });
+            
+                // Resolve hostnames
+                if (config['resolve_hostnames'] && IP_addresses.length > 0) {
+                    $.ajax({
+                        url: 'json/resolvehostnames.php',
+                        data: { 
+                            params: IP_addresses
+                        },
+                        success: function(data) {
+                            if (data.status == 0) { // Success
+                                if (resolved_hostnames == undefined) resolved_hostnames = [];
+                            
+                                $.each(data.hostnames, function (index, tuple) {
+                                    resolved_hostnames.push(tuple);
+                                
+                                    // Add hostnames as tooltip to IP addresses
+                                    $('#map_canvas .flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
+                                });
+                            } else {
+                                show_error(815, data.status_message);
+                            }
+                        },
+                        error: function() {
+                            show_error(800);
                         }
                     });
                 }
-            });
-            
-            // Perform IP address removal
-            $.each(IP_addresses_to_be_removed, function (address_counter, address_index) {
-                // Indices need to be compensated for removal
-                IP_addresses.splice(address_index - address_counter, 1);
-            });
-            
-            // Resolve hostnames
-            if (config['resolve_hostnames'] && IP_addresses.length > 0) {
-                $.ajax({
-                    url: 'json/resolvehostnames.php',
-                    data: { 
-                        params: IP_addresses
-                    },
-                    success: function(data) {
-                        if (data.status == 0) { // Success
-                            if (resolved_hostnames == undefined) resolved_hostnames = [];
-                            
-                            $.each(data.hostnames, function (index, tuple) {
-                                resolved_hostnames.push(tuple);
-                                
-                                // Add hostnames as tooltip to IP addresses
-                                $('#map_canvas .flow_info_table td:contains(' + tuple.address + ')').attr('title', tuple.hostname);
-                            });
-                        } else {
-                            show_error(815, data.status_message);
-                        }
-                    },
-                    error: function() {
-                        show_error(800);
-                    }
-                });
             }
-                
+            
             // Make all instances of 'Not available' in information windows italic
             $('.flow_info_table td:contains(Not available)').css('font-style', 'italic');
         });
@@ -450,10 +456,10 @@
                 });
             }
         });
-        google.maps.event.addListener(map, "dragend", function () {
+        google.maps.event.addListener(map, 'dragend', function () {
             $(document).trigger('session_data_changed', { 'map_center': map.getCenter().lat() + "," + map.getCenter().lng() } );
         });
-        google.maps.event.addListener(map, "zoom_changed", function () {
+        google.maps.event.addListener(map, 'zoom_changed', function () {
             $(document).trigger('session_data_changed', { 'zoom_level': map.getZoom() } );
             
             var old_sm_zoom_level = get_SM_zoom_level(session_data['zoom_level']);
@@ -482,7 +488,7 @@
                 }
             }
             
-            google.maps.event.addListenerOnce(map, "idle", function() {
+            google.maps.event.addListenerOnce(map, 'idle', function() {
                 var map_center = new google.maps.LatLng(
                         parseFloat(session_data['map_center'].substring(0, session_data['map_center'].indexOf(","))),
                         parseFloat(session_data['map_center'].substring(session_data['map_center'].indexOf(",") + 1)));
@@ -538,7 +544,7 @@
     function remove_map_overlays (sm_zoom_level) {
         if (lines != undefined) {
             $.each(lines, function (line_index, line_item) {
-                if (sm_zoom_level == undefined || (sm_zoom_level == line_item.level)) {
+                if (sm_zoom_level == undefined || sm_zoom_level == line_item.level) {
                     line_item.obj.setMap(null);
                 }
             });
@@ -546,7 +552,7 @@
         
         if (markers != undefined) {
             $.each(markers, function (marker_index, marker_item) {
-                if (sm_zoom_level == undefined || (sm_zoom_level == marker_item.level)) {
+                if (sm_zoom_level == undefined || sm_zoom_level == marker_item.level) {
                     marker_item.obj.setMap(null);
                 }
             });
