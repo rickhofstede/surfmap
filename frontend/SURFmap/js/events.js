@@ -267,7 +267,7 @@ $(document).ready(function() {
     
     $(document).bind('flow_data_loaded', function (event, data) {
         // Loading data should be stopped if an empty flow data set is retrieved
-        if (data.flow_data.length == 0) {
+        if (data.flow_data == undefined || data.flow_data.length == 0) {
             flow_data = [];
             $(document).trigger('loaded');
         } else {
