@@ -204,7 +204,8 @@
                 // Remove dollar-sign (nfdump output format notation)
                 $key = substr($field->nfdump_short, 1);
                 
-                $record->$key = intval(trim($line_array[$field_index]));
+                // $record->$key = intval(trim($line_array[$field_index]));
+                $record->$key = trim($line_array[$field_index]);
                 $field_index++;
             }
             unset($field);

@@ -108,12 +108,12 @@
                         }
                     });
                 }
-            
-                // Attach click handler for opening Flow Details
-                flow_details_button.click(function (event) {
-                    show_flow_details(associated_flow_indices);
-                });
             }
+            
+            // Attach click handler for opening Flow Details
+            flow_details_button.click(function (event) {
+                show_flow_details(associated_flow_indices);
+            });
             
             // Make all instances of 'Not available' in information windows italic
             $('.flow_info_table td:contains(Not available)').css('font-style', 'italic');
