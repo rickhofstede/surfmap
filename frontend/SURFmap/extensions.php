@@ -14,9 +14,9 @@
         new ExtensionField('Latitude (int)',        'Lat. (int)',   '%loc_lat_int'),
         new ExtensionField('Latitude (dec)',        'Lat. (dec)',   '%loc_lat_dec'),
         new ExtensionField('Longitude (int)',       'Lng. (int)',   '%loc_lng_int'),
-        new ExtensionField('Longitude (dec)',       'Lng. (dec)',   '%loc_lng_dec'),
-        new ExtensionField('Device ID',             'Device ID',    '%loc_device_id'),
-        new ExtensionField('App name',              'App name',     '%loc_app_name')
+        new ExtensionField('Longitude (dec)',       'Lng. (dec)',   '%loc_lng_dec')// ,
+//         new ExtensionField('Device ID',             'Device ID',    '%loc_device_id'),
+//         new ExtensionField('App name',              'App name',     '%loc_app_name')
     ));
     
     // Enabled extensions (comma-separated)

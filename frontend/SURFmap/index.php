@@ -765,10 +765,10 @@
                         }
                     });
                     
-                    if (mobile_exporter) {
-                        marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents, 'blue');
-                    } else if (internal_traffic) {
+                    if (internal_traffic) {
                         marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents, 'green');
+                    } else if (mobile_exporter) {
+                        marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents, 'blue');
                     } else {
                         marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents);
                     }
