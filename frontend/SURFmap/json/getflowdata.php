@@ -173,6 +173,11 @@
             $result['flow_record_count'] = 0;
             echo json_encode($result);
             die();
+        } else if (strlen($line) > 0 && !ctype_digit(substr($line, 0, 1))) { // The additional strlen is just required as ctype_digit returns true for an empty string before PHP 5.1
+            $result['flow_record_count']--;
+            
+            // Line should be skipped in case it is not a flow record (such as nfdump map errors to debug messages).
+            continue;
         }
         
         // Remove unused characters
