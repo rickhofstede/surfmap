@@ -157,9 +157,6 @@
                             break;
             
                 // Client-side-only error codes
-                case 995:   message = "You have specified an IPv6 query. IPv6 is not yet fully supported, but will be in the near future.";
-                            break;
-                        
                 case 996:   message = "You have specified an invalid map center. Please check your configuration.";
                             break;
                             
@@ -456,8 +453,8 @@
         var field_names = [];
         field_names['start_time']   = 'Start time';
         field_names['duration']     = 'Duration';
-        field_names['ipv4_src']     = 'Src. address';
-        field_names['ipv4_dst']     = 'Dst. address';
+        field_names['ip_src']       = 'Src. address';
+        field_names['ip_dst']       = 'Dst. address';
         field_names['port_src']     = 'Src. port';
         field_names['port_dst']     = 'Dst. port';
         field_names['protocol']     = 'Protocol';
@@ -488,8 +485,15 @@
         protocols[1] = 'ICMP';
         protocols[2] = 'IGMP';
         protocols[6] = 'TCP';
+        protocols[8] = 'EGP';
+        protocols[9] = 'IGP';
         protocols[17] = 'UDP';
+        protocols[41] = '6in4';
+        protocols[46] = 'RSVP';
         protocols[47] = 'GRE';
+        protocols[50] = 'ESP';
+        protocols[51] = 'AH';
+        protocols[58] = 'ICMPv6';
         
         // Generate header line
         var body = $('<tbody/>');
@@ -504,9 +508,9 @@
                 element.addClass('right');
             }
             
-            if (key == 'ipv4_src') {
+            if (key == 'ip_src') {
                 element.addClass('src_column');
-            } else if (key == 'ipv4_dst') {
+            } else if (key == 'ip_dst') {
                 element.addClass('dst_column');
             }
             
@@ -528,9 +532,9 @@
                 for (var key in field_names) {
                     var field = $('<td/>');
                 
-                    if (key == 'ipv4_src') {
+                    if (key == 'ip_src') {
                         field.addClass('src_column');
-                    } else if (key == 'ipv4_dst') {
+                    } else if (key == 'ip_dst') {
                         field.addClass('dst_column');
                     }
                 

@@ -56,7 +56,6 @@
 
         $static_filter_broadcast_traffic = "not host 255.255.255.255";
         $static_filter_multicast_traffic = "not net 224.0/4";
-        $static_filter_ipv6_traffic = "not ipv6";
         $static_filters = array();
             
         // ***** 2. Collect filters if needed *****
@@ -68,9 +67,6 @@
         }
         if (strpos($_SESSION['SURFmap']['flow_filter'], $static_filter_multicast_traffic) === false) {
             array_push($static_filters, $static_filter_multicast_traffic);
-        }
-        if (strpos($_SESSION['SURFmap']['flow_filter'], $static_filter_ipv6_traffic) === false) {
-            array_push($static_filters, $static_filter_ipv6_traffic);
         }
 
         $combined_static_filter = "";
@@ -106,11 +102,6 @@
             $_SESSION['SURFmap']['flow_display_filter'] = str_replace($static_filter_multicast_traffic, "", $_SESSION['SURFmap']['flow_display_filter']);
         } else {
             $_SESSION['SURFmap']['flow_display_filter'] = str_replace(" and ".$static_filter_multicast_traffic, "", $_SESSION['SURFmap']['flow_display_filter']);
-        }
-        if (strpos($_SESSION['SURFmap']['flow_display_filter'], $static_filter_ipv6_traffic) === 0) {
-            $_SESSION['SURFmap']['flow_display_filter'] = str_replace($static_filter_ipv6_traffic, "", $_SESSION['SURFmap']['flow_display_filter']);
-        } else {
-            $_SESSION['SURFmap']['flow_display_filter'] = str_replace(" and ".$static_filter_ipv6_traffic, "", $_SESSION['SURFmap']['flow_display_filter']);
         }
         
         $result['session_data']['flow_filter'] = $_SESSION['SURFmap']['flow_filter'];

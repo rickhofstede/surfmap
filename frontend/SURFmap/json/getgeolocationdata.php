@@ -25,6 +25,14 @@
     $result = array();
     $result['geolocation_data'] = array();
     
+    // Open database connections
+    if ($config['geolocation_db'] == "IP2Location") {
+        $db = new ip2location();
+        $db->open("../".$config['ip2location_path']);
+    } else if ($config['geolocation_db'] == "MaxMind") {
+        $db = geoip_open("../".$config['maxmind_path'], GEOIP_STANDARD);
+    } else {}
+    
     foreach ($request as $address) {
         $country = "";
         $region = "";
@@ -55,16 +63,22 @@
         
         if ($country == "" || $region == "" || $city == "") {
             if ($config['geolocation_db'] == "IP2Location") {
-                $GEO_database = new ip2location();
-                $GEO_database->open("../".$config['ip2location_path']);
-                $data = $GEO_database->getAll($address);
-            
-                $country = ($data->countryLong === "-") ? "(UNKNOWN)" : $data->countryLong;
-                $region = ($data->region === "-") ? "(UNKNOWN)" : $data->region;
-                $city = ($data->city === "-") ? "(UNKNOWN)" : $data->city;
+                if (strpos($address, ":") === false) { // IPv4 address
+                    $data = $db->getAll($address);
+                    $country = ($data->countryLong === "-") ? "(UNKNOWN)" : $data->countryLong;
+                    $region = ($data->region === "-") ? "(UNKNOWN)" : $data->region;
+                    $city = ($data->city === "-") ? "(UNKNOWN)" : $data->city;
+                } else { // IPv6 address
+                    $country = "(UNKNOWN)";
+                    $region = "(UNKNOWN)";
+                    $city = "(UNKNOWN)";
+                }
             } else if ($config['geolocation_db'] == "MaxMind") {
-                $GEO_database = geoip_open("../".$config['maxmind_path'], GEOIP_STANDARD);
-                $data = geoip_record_by_addr($GEO_database, $address);
+                if (strpos($address, ":") === false) { // IPv4 address
+                    $data = geoip_record_by_addr($db, $address);
+                } else { // IPv6 address
+                    $data = geoip_record_by_addr_v6($db, $address);
+                }
             
                 $country = (!isset($data->country_name) || $data->country_name === "-") ? "(UNKNOWN)" : strtoupper($data->country_name);
                 $region = (!isset($data->country_code) || !isset($data->region) || 
@@ -82,6 +96,12 @@
         array_push($result['geolocation_data'], array("address" => $address, "country" => $country, "region" => $region, "city" => $city));
     }
     unset($address);
+    
+    // Close database connections
+    if ($config['geolocation_db'] == "MaxMind") {
+        geoip_close($db);
+    }
+    unset($db);
 
     $result['status'] = 0;
     echo json_encode($result);

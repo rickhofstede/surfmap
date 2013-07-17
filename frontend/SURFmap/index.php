@@ -481,8 +481,8 @@
                                 && entry.dst_text.region == flow_item.dst_region
                                 && entry.src_text.city == flow_item.src_city
                                 && entry.dst_text.city == flow_item.dst_city
-                                && entry.src_text.ip_address == flow_item.ipv4_src
-                                && entry.dst_text.ip_address == flow_item.ipv4_dst) {
+                                && entry.src_text.ip_address == flow_item.ip_src
+                                && entry.dst_text.ip_address == flow_item.ip_dst) {
                             entries_index = entry_index;
                             return false;
                         }
@@ -520,8 +520,8 @@
                             line_entry.dst_text.region = flow_item.dst_region;
                             line_entry.src_text.city = flow_item.src_city;
                             line_entry.dst_text.city = flow_item.dst_city;
-                            line_entry.src_text.ip_address = flow_item.ipv4_src;
-                            line_entry.dst_text.ip_address = flow_item.ipv4_dst;
+                            line_entry.src_text.ip_address = flow_item.ip_src;
+                            line_entry.dst_text.ip_address = flow_item.ip_dst;
                         }
                         
                         // Add line entry to line
@@ -710,7 +710,7 @@
                             } else { // Country, region, city
                                 marker_entry.hosts = [];
                         
-                                var host = (this == 'src') ? flow_item.ipv4_src : flow_item.ipv4_dst;
+                                var host = (this == 'src') ? flow_item.ip_src : flow_item.ip_dst;
                         
                                 // Only add hosts if they haven't been accounted yet
                                 if (jQuery.inArray(host, marker_entry.hosts) == -1) { // Destination
@@ -721,7 +721,7 @@
                             // Add marker entry to marker
                             markers[markers_index].entries.push(marker_entry);
                         } else {
-                            var host = (this == 'src') ? flow_item.ipv4_src : flow_item.ipv4_dst;
+                            var host = (this == 'src') ? flow_item.ip_src : flow_item.ip_dst;
                     
                             if (zoom_level_index == 3) { // Host
                                 if (host == markers[markers_index].entries[entries_index].text) {

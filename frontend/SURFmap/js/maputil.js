@@ -51,11 +51,11 @@
                 var IP_addresses = [];
                 $.each(associated_flow_indices, function () {
                     // Only add IP address if it is not already present
-                    if (jQuery.inArray(flow_data[this]['ipv4_src'], IP_addresses) == -1) {
-                        IP_addresses.push(flow_data[this]['ipv4_src']);
+                    if (jQuery.inArray(flow_data[this]['ip_src'], IP_addresses) == -1) {
+                        IP_addresses.push(flow_data[this]['ip_src']);
                     }
-                    if (jQuery.inArray(flow_data[this]['ipv4_dst'], IP_addresses) == -1) {
-                        IP_addresses.push(flow_data[this]['ipv4_dst']);
+                    if (jQuery.inArray(flow_data[this]['ip_dst'], IP_addresses) == -1) {
+                        IP_addresses.push(flow_data[this]['ip_dst']);
                     }
                 });
             

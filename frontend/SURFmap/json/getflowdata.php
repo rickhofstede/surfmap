@@ -73,7 +73,7 @@
     unset($extension);
     
     $run = "-R nfcapd.".$date1.$hours1.$minutes1.":nfcapd.".$date2.$hours2.$minutes2
-            ." -Nq -o \"fmt:".$field_list."\"";
+            ." -Nq -6 -o \"fmt:".$field_list."\"";
     if ($nfsen_option == 0) {
         $run .= " -c ".$flow_record_count;
     } else {
@@ -193,8 +193,8 @@
         $record = new FlowRecord();
         $record->start_time = trim($line_array[0]);
         $record->duration = floatval(trim($line_array[1]));
-        $record->ipv4_src = trim($line_array[2]);
-        $record->ipv4_dst = trim($line_array[3]);
+        $record->ip_src = trim($line_array[2]);
+        $record->ip_dst = trim($line_array[3]);
         $record->port_src = floatval(trim($line_array[4]));
         $record->port_dst = floatval(trim($line_array[5]));
         $record->protocol = intval(trim($line_array[6]));
@@ -228,8 +228,8 @@
     class FlowRecord {
         public $start_time;
         public $duration;
-        public $ipv4_src;
-        public $ipv4_dst;
+        public $ip_src;
+        public $ip_dst;
         public $port_src;
         public $port_dst;
         public $protocol;

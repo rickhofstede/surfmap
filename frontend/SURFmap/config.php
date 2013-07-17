@@ -24,8 +24,9 @@
     $config['nfsen_default_sources'] = ""; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [default: '', example: 'core-router;backup-router']
     
     /* [GeoLocation] */
-    $config['geolocation_db'] = "MaxMind"; // "IP2Location" or "MaxMind" [default: 'MaxMind']
+    $config['geolocation_db'] = "MaxMind"; // "MaxMind" or "IP2Location" [default: 'MaxMind']
     $config['maxmind_path'] = "lib/MaxMind/GeoLiteCity.dat"; // Will be ignored when $config['geolocation_db'] is not set to "MaxMind" [default: 'lib/MaxMind/GeoLiteCity.dat']
+    $config['maxmindv6_path'] = "lib/MaxMind/GeoLiteCityv6.dat"; // Will be ignored when $config['geolocation_db'] is not set to "MaxMind" [default: 'lib/MaxMind/GeoLiteCity.dat']
     $config['ip2location_path'] = "lib/IP2Location/IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE.BIN"; // Will be ignored when $GEOLOCATION_DB is not set to "IP2Location" [default: 'lib/IP2Location/IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE.BIN']
     
     /* [Internal traffic]

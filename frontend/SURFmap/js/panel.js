@@ -67,12 +67,6 @@
                 $('#filter_geo').trigger('click');
             }
             
-            // Show error when IPv6 query is provided
-            if ($('#filter_flow_text').val().indexOf("inet6") >= 0 || $('#filter_flow_text').val().indexOf("ipv6") >= 0) {
-                show_error(995);
-                return false;
-            }
-            
             if ($("#nfsensources").multiselect("widget").find("input:checked").length == 0) {
                 show_error(999);
                 return false;

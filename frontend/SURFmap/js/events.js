@@ -266,7 +266,9 @@ $(document).ready(function() {
     });
     
     $(document).bind('flow_data_loaded', function (event, data) {
-        // Loading data should be stopped if an empty flow data set is retrieved
+        /* Loading data should be stopped if an empty flow data set is retrieved.
+         * The data structure also be undefined in some cases where nfdump returns no data (e.g. 'ipv4 and ipv6').
+         */
         if (data.flow_data == undefined || data.flow_data.length == 0) {
             flow_data = [];
             $(document).trigger('loaded');
@@ -282,11 +284,11 @@ $(document).ready(function() {
         // Collect all IP addresses
         geolocation_request = [];
         $.each(flow_data, function(key, value) {
-            if ($.inArray(value.ipv4_src, geolocation_request) == -1) {
-                geolocation_request.push(value.ipv4_src);
+            if ($.inArray(value.ip_src, geolocation_request) == -1) {
+                geolocation_request.push(value.ip_src);
             }
-            if ($.inArray(value.ipv4_dst, geolocation_request) == -1) {
-                geolocation_request.push(value.ipv4_dst);
+            if ($.inArray(value.ip_dst, geolocation_request) == -1) {
+                geolocation_request.push(value.ip_dst);
             }
         });
         
@@ -314,7 +316,7 @@ $(document).ready(function() {
         $.each(flow_data, function(flow_index, flow_item) {
             // Source address
             $.each(geolocation_data, function(geolocation_index, geolocation_item) {
-                if (flow_item.ipv4_src == geolocation_item.address) {
+                if (flow_item.ip_src == geolocation_item.address) {
                     flow_item.src_country = geolocation_item.country;
                     flow_item.src_region = geolocation_item.region;
                     flow_item.src_city = geolocation_item.city;
@@ -324,7 +326,7 @@ $(document).ready(function() {
                                         
             // Destination address
             $.each(geolocation_data, function(geolocation_index, geolocation_item) {
-                if (flow_item.ipv4_dst == geolocation_item.address) {
+                if (flow_item.ip_dst == geolocation_item.address) {
                     flow_item.dst_country = geolocation_item.country;
                     flow_item.dst_region = geolocation_item.region;
                     flow_item.dst_city = geolocation_item.city;
@@ -538,6 +540,12 @@ $(document).ready(function() {
                     geocoder_request.push(value.country + ";" + value.city);
                 }
             });
+            
+            // Skip further processing here if there are no locations to retrieve geocoder data for
+            if (geocoder_request.length == 0) {
+                $(document).trigger('geocode');
+                return false;
+            }
             
             // Geocoder data
             $.ajax({

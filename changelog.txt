@@ -4,7 +4,20 @@ Please check the manual or readme for installation instructions.
 
 ---
 
-Release notes [v3.1 (20130613)]:
+Release notes [v3.1 dev (20130717)]:
+
+WARNING: The configuration file of older versions is not compatible with this release!
+
+- [FEATURE] IPv6 support
+- [FEATURE] Improved usability of 'Flow Details'
+- [FEATURE] Flow record start times are now shown in 'Flow Details'
+- [FEATURE] Implemented 'Location-aware Exporting' extension
+- [BUGFIX] Fixed a bug that caused 'Flow Details' of line information window to fail to open
+- [BUGFIX] Improved stability when parsing nfdump output
+- [BUGFIX] Fixed a bug that prevented SURFmap from loading completely in situations when there's no geocoder cache data to retrieve
+- [BUGFIX] Fixed a bug that prevented SURFmap from loading completely in case of certain filters that returned no data
+
+Release notes [v3.0 (20130612)]:
 
 WARNING: Neither the configuration file, nor the database of previous versions is compatible with this release!
 
