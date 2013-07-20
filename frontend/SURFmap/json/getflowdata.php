@@ -72,6 +72,15 @@
     }
     unset($extension);
     
+    if (mktime($hours1, $minutes1, 0, substr($date1, 4, 2), substr($date1, 6, 2), substr($date1, 0, 4))
+            > mktime($hours2, $minutes2, 0, substr($date2, 4, 2), substr($date2, 6, 2), substr($date2, 0, 4))) {
+        $result['status'] = 1;
+        $result['status_message'] = "Invalid time range selected";
+        $result['flow_record_count'] = 0;
+        echo json_encode($result);
+        die();
+    }
+    
     $run = "-R nfcapd.".$date1.$hours1.$minutes1.":nfcapd.".$date2.$hours2.$minutes2
             ." -Nq -6 -o \"fmt:".$field_list."\"";
     if ($nfsen_option == 0) {

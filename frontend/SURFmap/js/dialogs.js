@@ -571,6 +571,10 @@
                         field.text(location_string).css('padding-left', '5px');
                     } else if (key == 'packets' || key == 'octets') {
                         field.text(apply_SI_Scale(flow_item[key]));
+                    } else if (key == 'start_time') {
+                        field.text(flow_item[key].substring(0, flow_item[key].lastIndexOf('.') + 2));
+                    } else if (key == 'duration') {
+                        field.text(flow_item[key].toFixed(1));
                     } else {
                         field.text(flow_item[key]);
                     }
@@ -599,8 +603,9 @@
         $('#info_dialog').dialog({
             closeOnEscape: true,
             height: 'auto',
+            maxHeight: $('#map_canvas').height() - 60,
             modal: false,
-            position: 'center',
+            position: { my: 'cemter top', at: 'center top+30px', of: $('#map_canvas') },
             resizable: true,
             title: 'Flow details',
             width: 'auto'

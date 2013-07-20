@@ -652,12 +652,12 @@
                             lng             = flow_item[this + '_city_lng'];
                         } else if (location_aware_export) { // Host
                             marker_text     = flow_item[this + '_country'] + ", " + flow_item[this + '_region'] + ", " + flow_item[this + '_city'];
-                            entry_text      = flow_item['ipv4_' + this];
+                            entry_text      = flow_item['ip_' + this];
                             lat             = flow_item[this + '_host_lat'];
                             lng             = flow_item[this + '_host_lng'];
                         } else { // Host
                             marker_text     = flow_item[this + '_country'] + ", " + flow_item[this + '_region'] + ", " + flow_item[this + '_city'];
-                            entry_text      = flow_item['ipv4_' + this];
+                            entry_text      = flow_item['ip_' + this];
                             lat             = flow_item[this + '_city_lat'];
                             lng             = flow_item[this + '_city_lng'];
                         }
@@ -704,7 +704,7 @@
                         if (entries_index == -1) {
                             var marker_entry = {};
                             marker_entry.text = entry_text;
-                    
+                            console.log(marker_entry.text);
                             if (zoom_level_index == 3) { // Host
                                 marker_entry.flows = flow_item.flows;
                             } else { // Country, region, city
