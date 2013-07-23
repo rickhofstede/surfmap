@@ -102,15 +102,16 @@ echo "Installing SURFmap ${SURFMAP_VER} to ${FRONTEND_PLUGINDIR}/SURFmap"
 cp -r ./${SURFMAP_TMP}/backend/* ${BACKEND_PLUGINDIR}
 cp -r ./${SURFMAP_TMP}/frontend/* ${FRONTEND_PLUGINDIR}
 
-# Unpack geoLocation database
-echo "Installing MaxMind GeoLite City database to ${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind"
-gunzip -c ${GEO_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind/$(basename ${GEO_DB} .gz)
+# Unpack geoLocation databases
+MAXMIND_PATH=${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind
+echo "Installing MaxMind GeoLite City database to ${MAXMIND_PATH}"
+gunzip -c ${GEO_DB} > ${MAXMIND_PATH}/$(basename ${GEO_DB} .gz)
 if [ $? != 0 ]; then
     err_line "The MaxMind GeoLite City database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
 fi
 
-echo "Installing MaxMind GeoLite City (IPv6) database to ${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind"
-gunzip -c ${GEOv6_DB} > ${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind/$(basename ${GEOv6_DB} .gz)
+echo "Installing MaxMind GeoLite City (IPv6) database to ${MAXMIND_PATH}"
+gunzip -c ${GEOv6_DB} > ${MAXMIND_PATH}/$(basename ${GEOv6_DB} .gz)
 if [ $? != 0 ]; then
     err_line "The MaxMind GeoLite City (IPv6) database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
 fi
