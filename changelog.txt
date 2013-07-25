@@ -17,6 +17,7 @@ WARNING: The configuration file of older versions is not compatible with this re
 - [BUGFIX] Fixed a bug that prevented SURFmap from loading completely in situations when there's no geocoder cache data to retrieve
 - [BUGFIX] Fixed a bug that prevented SURFmap from loading completely in case of certain filters that returned no data
 - [BUGFIX] Fixed a bug that prevented SURFmap from loading completely in case of an invalid time range selection present in the session data
+- [BUGFIX] Fixed a bug that could cause (reverse) geocoding to wait endless in case of an OVER_QUERY_LIMIT result from Google Geocoder
 - [BUGFIX] Various minor bugfixes and improvements
 
 Release notes [v3.0 (20130612)]:

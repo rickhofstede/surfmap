@@ -84,7 +84,7 @@
             
             // Check for heavy query
             var period = ($('#date_end').datetimepicker('getDate') - $('#date_start').datetimepicker('getDate')) / 1000;
-            if (config['show_warnings'] && ($("#nfsensources").multiselect("widget").find("input:checked").length > 3
+            if (config['show_warnings'] && ($('#nfsensources').multiselect('widget').find('input:checked').length > 3
                     || (period > 3600 && session_data['nfsen_option'] == 1))) { // 3600 seconds -> 2 hours
                 $('#warning_dialog').empty();
                 var message = "You have selected a potentially heavy query.<br /><br />Are you sure you want to continue?";

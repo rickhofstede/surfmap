@@ -335,12 +335,13 @@ $(document).ready(function() {
             });
         });
         
-        // Apply geo filter
-        show_loading_message('Applying geo filter');
+        // Check whether geo filter should be applied
         if (session_data['geo_filter'] == "") {
             $(document).trigger('reverse_geocode');
         } else {
-            /* New 'flow_data' object that contains only geolocation information. Network
+            show_loading_message('Applying geo filter');
+            
+            /* Creates new 'flow_data' object that contains only geolocation information. Network
              * information has been removed to avoid transmitting superfluous data to server.
              */
             var flow_data_wo_network = [];
@@ -412,7 +413,7 @@ $(document).ready(function() {
         if (reverse_geocoder_request.length > 0) {
             /* We don't check whether we're allowed to (reverse) geocode (because)
              * of limits imposed by Google), since nothing will be shown if
-             * we don't apply reverse geocoding
+             * we don't apply reverse geocoding.
              */
         
             var inter_geocoder_request_time = 250;
@@ -426,8 +427,11 @@ $(document).ready(function() {
             if (geocoder_data_client.reverse_geocoder_data == undefined) {
                 geocoder_data_client.reverse_geocoder_data = [];
             }
-        
-            $.each(reverse_geocoder_request, function(index, item) {
+            
+            var reverse_geocoder_requests = reverse_geocoder_request.length;
+            while (reverse_geocoder_request.length > 0) {
+                var item = reverse_geocoder_request.shift();
+                
                 setTimeout(function () {
                     geocoder.geocode({ 'latLng': item }, function(results, status) {
                         var result = {};
@@ -464,8 +468,9 @@ $(document).ready(function() {
                         }
                     
                         geocoder_data_client.reverse_geocoder_data.push(result);
-                    
-                        if (geocoder_data_client.reverse_geocoder_data.length == reverse_geocoder_request.length) {
+                        
+                        // If ready, start remaining processing
+                        if (geocoder_data_client.reverse_geocoder_data.length == reverse_geocoder_requests) {
                             var reverse_geocoder_data = [];
                             $.each(geocoder_data_client.reverse_geocoder_data, function (index, item) {
                                 if (item.status_message == "OK") {
@@ -504,8 +509,8 @@ $(document).ready(function() {
                             $(document).trigger('load_geocoder_data');
                         }
                     });
-                }, inter_geocoder_request_time * index);
-            });
+                }, inter_geocoder_request_time * reverse_geocoder_request.length);
+            }
         } else {
             $(document).trigger('load_geocoder_data');
         }
@@ -773,7 +778,9 @@ $(document).ready(function() {
         if (geocoder_request_client.length == 0) {
             $(document).trigger('geocoding_client_done');
         } else {
-            $.each(geocoder_request_client, function(index, item) {
+            var client_geocoder_requests = geocoder_request_client.length;
+            while (geocoder_request_client.length > 0) {
+                var item = geocoder_request_client.shift();
                 setTimeout(function () {
                     geocoder.geocode({ 'address': item }, function(results, status) {
                         var result = new Object;
@@ -795,13 +802,14 @@ $(document).ready(function() {
                         }
                         
                         geocoder_data_client.geocoder_data.push(result);
-                            
-                        if (geocoder_data_client.geocoder_data.length == geocoder_request_client.length) {
+                        
+                        // If ready, start remaining processing
+                        if (geocoder_data_client.geocoder_data.length == client_geocoder_requests) {
                             $(document).trigger('geocoding_client_done');
                         }
                     });
-                }, inter_geocoder_request_time * index);
-            });
+                }, geocoder_request_client * geocoder_request_client.length);
+            }
         }
     });
     
