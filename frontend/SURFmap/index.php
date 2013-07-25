@@ -704,7 +704,7 @@
                         if (entries_index == -1) {
                             var marker_entry = {};
                             marker_entry.text = entry_text;
-                            console.log(marker_entry.text);
+                            
                             if (zoom_level_index == 3) { // Host
                                 marker_entry.flows = flow_item.flows;
                             } else { // Country, region, city

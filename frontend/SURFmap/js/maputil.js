@@ -116,8 +116,7 @@
             });
             
             // Make all instances of 'Not available' in information windows italic
-            // $('.flow_info_table td:contains(Not available)').css('font-style', 'italic');
-            $('.flow_info_table td:contains(Not available)').text('');
+            $('.flow_info_table td:contains(Not available)').css('font-style', 'italic');
         });
             
         return line;
