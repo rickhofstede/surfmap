@@ -33,65 +33,72 @@
         unset($key, $value);
     }
     
-    // Used if cURL detects some IPv6-related connectivity problems
-    $IPv6_problem = 0;
+    if (extension_loaded('curl')) {
+        // Used if cURL detects some IPv6-related connectivity problems
+        $IPv6_problem = 0;
     
-    /*
-     * If the found (external) IP address of the server is the localhost
-     * address or a NATed address, try do find it using external resources.
-     */
-    if ($ext_IP_NAT) {
-        $NAT_IP = $ext_IP;
-        try {
-            if (extension_loaded("curl")) {
-                for ($i = 0; $i < 4; $i++) {
-                    $curl_handle = curl_init();
-                    curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
+        /*
+         * If the found (external) IP address of the server is the localhost
+         * address or a NATed address, try do find it using external resources.
+         */
+        if ($ext_IP_NAT) {
+            $NAT_IP = $ext_IP;
+            try {
+                if (extension_loaded('curl')) {
+                    for ($i = 0; $i < 4; $i++) {
+                        $curl_handle = curl_init();
+                        curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
                 
-                    if ($config['use_proxy']) {
-                        curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
-                        curl_setopt($curl_handle, CURLOPT_PROXY, $config['proxy_ip']);
-                        curl_setopt($curl_handle, CURLOPT_PROXYPORT, $config['proxy_port']);
+                        if ($config['use_proxy']) {
+                            curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
+                            curl_setopt($curl_handle, CURLOPT_PROXY, $config['proxy_ip']);
+                            curl_setopt($curl_handle, CURLOPT_PROXYPORT, $config['proxy_port']);
                 
-                        if ($config['proxy_user_authentication']) {
-                            curl_setopt($curl_handle, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
+                            if ($config['proxy_user_authentication']) {
+                                curl_setopt($curl_handle, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
+                            }
                         }
-                    }
                     
-                    if ($IPv6_problem) {
-                        curl_setopt($curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-                    }
+                        if ($IPv6_problem) {
+                            curl_setopt($curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                        }
                     
-                    if ($i % 2 == 0) {
-                        curl_setopt($curl_handle, CURLOPT_URL, "http://surfmap.sourceforge.net/get_ext_ip.php");
-                    } else {
-                        curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/"); 
-                    }
-                    $ext_IP = curl_exec($curl_handle);
+                        if ($i % 2 == 0) {
+                            curl_setopt($curl_handle, CURLOPT_URL, "http://surfmap.sourceforge.net/get_ext_ip.php");
+                        } else {
+                            curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/"); 
+                        }
+                        $ext_IP = curl_exec($curl_handle);
                     
-                    if ($ext_IP === false && curl_error($curl_handle) == "name lookup timed out") {
-                        $IPv6_problem = 1;
-                    }
+                        if ($ext_IP === false && curl_error($curl_handle) == "name lookup timed out") {
+                            $IPv6_problem = 1;
+                        } else if (substr_count($ext_IP, ".") == 3) {
+                            if ($ext_IP == $NAT_IP) {
+                                $ext_IP_NAT = false;
+                            }
+                            break;
+                        }
                     
-                    if (substr_count($ext_IP, ".") == 3) {
-                        if ($ext_IP == $NAT_IP) $ext_IP_NAT = false;
-                        break;
+                        curl_close($curl_handle);
                     }
-                    
-                    curl_close($curl_handle);
                 }
-            }
 
-            /*
-             * If 'substr_count($extIP, ".") != 3' it means that it was not an IP address that was downloaded,
-             * which can be the case when whatismyip.org spawns an error message.
-             */
-            if (substr_count($ext_IP, ".") != 3  || !extension_loaded("curl")) {
-                $ext_IP = $NAT_IP;
-                $ext_IP_error = "Unable to retrieve external IP address";
-            }
-        } catch (Exception $e) {}
+                /*
+                 * If 'substr_count($extIP, ".") != 3' it means that it was not an IP address that was downloaded,
+                 * which can be the case when whatismyip.org spawns an error message.
+                 */
+                if (substr_count($ext_IP, ".") != 3) {
+                    $ext_IP = $NAT_IP;
+                    $ext_IP_error = "Unable to retrieve external IP address";
+                }
+            } catch (Exception $e) {}
+        }
+    } else {
+        $result['status'] = 1;
+        $result['status_message'] = "PHP cURL module is not installed";
+        echo json_encode($result);
+        die();
     }
     
     if ($config['geolocation_db'] == "IP2Location") {
