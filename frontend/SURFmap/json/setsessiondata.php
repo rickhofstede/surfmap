@@ -41,8 +41,8 @@
         // ***** 1. Prepare filters *****
         foreach ($config['internal_domains'] as $key => $value) {
             if (strlen($key) != 0) {
-                $internalDomains = explode(";", $key);
-                foreach ($internalDomains as $domain) {
+                $internal_domains = explode(";", $key);
+                foreach ($internal_domains as $domain) {
                     if (isset($static_filter_internal_domain_traffic)) {
                         $static_filter_internal_domain_traffic .= " and not (src net ".$domain." and dst net ".$domain.")";
                     } else {
@@ -56,6 +56,7 @@
 
         $static_filter_broadcast_traffic = "not host 255.255.255.255";
         $static_filter_multicast_traffic = "not net 224.0/4";
+        $static_filter_ipv6_linklocal_trafic = "not net fe80::/10";
         $static_filters = array();
             
         // ***** 2. Collect filters if needed *****
@@ -68,15 +69,11 @@
         if (strpos($_SESSION['SURFmap']['flow_filter'], $static_filter_multicast_traffic) === false) {
             array_push($static_filters, $static_filter_multicast_traffic);
         }
-
-        $combined_static_filter = "";
-        for ($i = 0; $i < sizeof($static_filters); $i++) {
-            if (strlen($combined_static_filter) == 0) {
-                $combined_static_filter = $static_filters[$i];
-            } else {
-                $combined_static_filter .= " and ".$static_filters[$i];
-            }
+        if (strpos($_SESSION['SURFmap']['flow_filter'], $static_filter_ipv6_linklocal_trafic) === false) {
+            array_push($static_filters, $static_filter_ipv6_linklocal_trafic);
         }
+
+        $combined_static_filter = implode(" and ", $static_filters);
             
         if (sizeof($static_filters) > 0) {
             if ($_SESSION['SURFmap']['flow_filter'] == "") {
@@ -102,6 +99,11 @@
             $_SESSION['SURFmap']['flow_display_filter'] = str_replace($static_filter_multicast_traffic, "", $_SESSION['SURFmap']['flow_display_filter']);
         } else {
             $_SESSION['SURFmap']['flow_display_filter'] = str_replace(" and ".$static_filter_multicast_traffic, "", $_SESSION['SURFmap']['flow_display_filter']);
+        }
+        if (strpos($_SESSION['SURFmap']['flow_display_filter'], $static_filter_ipv6_linklocal_trafic) === 0) {
+            $_SESSION['SURFmap']['flow_display_filter'] = str_replace($static_filter_ipv6_linklocal_trafic, "", $_SESSION['SURFmap']['flow_display_filter']);
+        } else {
+            $_SESSION['SURFmap']['flow_display_filter'] = str_replace(" and ".$static_filter_ipv6_linklocal_trafic, "", $_SESSION['SURFmap']['flow_display_filter']);
         }
         
         $result['session_data']['flow_filter'] = $_SESSION['SURFmap']['flow_filter'];
