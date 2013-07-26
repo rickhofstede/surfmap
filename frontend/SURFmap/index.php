@@ -55,6 +55,9 @@
         var geolocation_data;
         var geocoder_data_server;
         var geocoder_data_client;
+        var geocoder_request_server;
+        var geocoder_request_client;
+        var reverse_geocoder_request;
         var resolved_hostnames;
         
         // Dialog queues

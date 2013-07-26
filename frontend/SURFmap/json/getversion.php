@@ -24,8 +24,7 @@
     }
     
     if (extension_loaded('curl')) {
-        $curl_handle = curl_init();
-        
+        $ch = curl_init();
         $options = array(
                 CURLOPT_URL => 'http://surfmap.sourceforge.net/get_version_number.php',
                 CURLOPT_RETURNTRANSFER => true,
@@ -47,12 +46,17 @@
             }
         }
         
-        curl_setopt_array($curl_handle, $options);
+        curl_setopt_array($ch, $options);
+        $version = curl_exec($ch);
+        if ($version === false && curl_error($ch) == "name lookup timed out") {
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            $version = curl_exec($ch);
+        }
         
-        $version = json_decode(curl_exec($curl_handle), true);
+        curl_close($ch);
+        
+        $version = json_decode($version, true);
         $version = $version['version'];
-        
-        curl_close($curl_handle);
     } else {
         $result['status'] = 1;
         $result['status_message'] = "PHP cURL module is not installed";
