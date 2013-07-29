@@ -30,7 +30,7 @@
     if (extension_loaded('curl')) {
         // Used if cURL detects some IPv6-related connectivity problems
         $IPv6_problem = 0;
-    
+        
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -45,11 +45,11 @@
             curl_setopt($ch, CURLOPT_URL, $url);
         
             if ($IPv6_problem) {
-                curl_setopt($curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
             }
         
             $response = curl_exec($ch);
-            if ($response === false && curl_error($curl_handle) == "name lookup timed out") {
+            if ($response === false && curl_error($ch) == "name lookup timed out") {
                 $IPv6_problem = 1;
             } else {
                 try {
