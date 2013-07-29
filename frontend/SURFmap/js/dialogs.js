@@ -435,9 +435,17 @@
                 text += "...";
             }
             $('#loading_text_lower').text(text);
+            
             if (!$('#loading_text_lower').is('visible')) {
                 $('#loading_dialog').dialog('option', 'height', 115);
                 $('#loading_text_lower').show();
+            }
+            
+            // If the loading text is changed, make sure that the message for long duration is hidden
+            if (!($('#loading_dialog p#loading_text_long').css('display') == "none")) {
+                $('#loading_dialog p#loading_text_long').hide();
+                $('#loading_dialog p#loading_text_upper').show();
+                $('#loading_dialog p#loading_text_lower').show();
             }
         }
     }
