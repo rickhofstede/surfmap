@@ -84,9 +84,9 @@
                 throw new GeoFilterException("Filter value is missing (near '$expression')");
             } else if (is_country_geolocation_operator($geolocationOperator)) {
                 // Check only country names/codes for validity, since only those are standardized in ISO 3166.
-                if (isValidCountryCode($filterValue)) {
-                    $filterValue = getCountryNameFromCode($filterValue);
-                } else if (!isValidCountryName($filterValue)) {
+                if (is_valid_country_code($filterValue)) {
+                    $filterValue = get_country_name_from_code($filterValue);
+                } else if (!is_valid_country_name($filterValue)) {
                     throw new GeoFilterException("Invalid filter value ($filterValue) (near '$expression')");
                 }
             }

@@ -18,7 +18,7 @@
      * Return:
      *      True (boolean), in case it was found. Otherwise, false (boolean).
      */ 
-    function isValidCountryCode ($countryCode) {
+    function is_valid_country_code ($countryCode) {
         global $geoIP;
         
         $countryNumber = -1;
@@ -41,7 +41,7 @@
      * Return:
      *      True (boolean), in case it was found. Otherwise, false (boolean).
      */ 
-    function isValidCountryName ($countryName) {
+    function is_valid_country_name ($countryName) {
         global $geoIP;
         
         foreach ($geoIP->GEOIP_COUNTRY_NAMES as $name) {
@@ -62,7 +62,7 @@
      * Return:
      *      Country name in case it was found. Otherwise, false (boolean).
      */ 
-    function getCountryNameFromCode ($countryCode) {
+    function get_country_name_from_code ($countryCode) {
         global $geoIP;
         
         $countryNumber = -1;

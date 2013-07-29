@@ -844,6 +844,8 @@ $(document).ready(function() {
     });
     
     $(document).bind('geocoding_done', function () {
+        show_loading_message('Processing geocoder data');
+        
         // Merge successful client and server geocoder data
         var geocoder_data = [];
         
