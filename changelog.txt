@@ -4,7 +4,7 @@ Please check the manual or readme for installation instructions.
 
 ---
 
-Release notes [v3.1 dev (20130729)]:
+Release notes [v3.1 dev (20130730)]:
 
 WARNING: The configuration file of older versions is not compatible with this release!
 

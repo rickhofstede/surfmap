@@ -227,10 +227,10 @@
                 <tr>
                     <td style="width:85px">
                         <form>
-                            <input type="radio" name="zoom_level" id="zoom_level_country" onclick="zoom(0, 2)" /><label for="zoom_level_country" class="zoom_level_label clickable">Country</label><br />
-                            <input type="radio" name="zoom_level" id="zoom_level_region" onclick="zoom(0, 5)" /><label for="zoom_level_region" class="zoom_level_label clickable">Region</label><br />
-                            <input type="radio" name="zoom_level" id="zoom_level_city" onclick="zoom(0, 8)" /><label for="zoom_level_city" class="zoom_level_label clickable">City</label><br />
-                            <input type="radio" name="zoom_level" id="zoom_level_host" onclick="zoom(0, 11)" /><label for="zoom_level_host" class="zoom_level_label clickable">Host</label><br />
+                            <input type="radio" name="zoom_level" id="zoom_level_country" /><label for="zoom_level_country" class="zoom_level_label clickable">Country</label><br />
+                            <input type="radio" name="zoom_level" id="zoom_level_region" /><label for="zoom_level_region" class="zoom_level_label clickable">Region</label><br />
+                            <input type="radio" name="zoom_level" id="zoom_level_city" /><label for="zoom_level_city" class="zoom_level_label clickable">City</label><br />
+                            <input type="radio" name="zoom_level" id="zoom_level_host" /><label for="zoom_level_host" class="zoom_level_label clickable">Host</label><br />
                         </form>
                     </td>
                     <td style="vertical-align:bottom">
@@ -310,6 +310,19 @@
     <div id="loading_dialog"></div>
     
     <script type="text/javascript">
+        $('input#zoom_level_country').click(function () {
+            zoom(0, 2);
+        });
+        $('input#zoom_level_region').click(function () {
+            zoom(0, 5);
+        });
+        $('input#zoom_level_city').click(function () {
+            zoom(0, 8);
+        });
+        $('input#zoom_level_host').click(function () {
+            zoom(0, 11);
+        });
+        
        /*
         * Adds missing location information to flow data based on upper layers.
         */
@@ -614,17 +627,6 @@
                     line.obj = create_line (line.point1, line.point2, info_window_contents, color, thickness);
                 });
             });
-            
-            var results = [];
-            results[0] = 0;
-            results[1] = 0;
-            results[2] = 0;
-            results[3] = 0;
-            $.each(zoom_levels, function (zoom_level_index, zoom_level) {
-                $.each(lines, function (line_index, line) {
-                    if (zoom_level_index == line.level) results[zoom_level_index]++;
-                });
-            });
         }
         
         function init_markers () {
@@ -775,17 +777,6 @@
                     } else {
                         marker.obj = create_marker (marker.point, format_location_name(marker.text), info_window_contents);
                     }
-                });
-            });
-            
-            var results = [];
-            results[0] = 0;
-            results[1] = 0;
-            results[2] = 0;
-            results[3] = 0;
-            $.each(zoom_levels, function (zoom_level_index, zoom_level) {
-                $.each(markers, function (marker_index, marker) {
-                    if (zoom_level_index == marker.level) results[zoom_level_index]++;
                 });
             });
         }
