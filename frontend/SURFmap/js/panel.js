@@ -41,8 +41,10 @@
             $('div.panel_trigger').trigger('click');
         }
         
-        // Forbid entering 'new line' in filter input textarea
-        $(".filter").keypress(function(event) {
+        /* Forbid entering 'new line' in filter input textarea. This does, however, not
+         * prevent someone from entering a newline by copy/paste.
+         */
+        $('.filter').keypress(function(event) {
             if (event.keyCode == 13) return false;
         });
         
@@ -59,6 +61,16 @@
                 $('#info_dialog').dialog('close');
             }
             
+            // Remove new lines from filter input fields
+            if ($('#filter_flow_text').val().indexOf('\r') != -1 || $('#filter_flow_text').val().indexOf('\n') != -1) {
+                $('#filter_flow_text').val($('#filter_flow_text').val().replace(/(\r\n|\n|\r)/gm, " ").replace("  ", " "));
+                $('#filter_flow_text').trigger('change');
+            }
+            if ($('#filter_geo_text').val().indexOf('\r') != -1 || $('#filter_geo_text').val().indexOf('\n') != -1) {
+                $('#filter_geo_text').val($('#filter_geo_text').val().replace(/(\r\n|\n|\r)/gm, " ").replace("  ", " "));
+                $('#filter_geo_text').trigger('change');
+            }
+            
             // Hide filter input text fields, if empty
             if ($('#filter_flow_text').is(':visible') && $('#filter_flow_text').val() == "") {
                 $('#filter_flow').trigger('click');
@@ -67,7 +79,7 @@
                 $('#filter_geo').trigger('click');
             }
             
-            if ($("#nfsensources").multiselect("widget").find("input:checked").length == 0) {
+            if ($('#nfsensources').multiselect('widget').find('input:checked').length == 0) {
                 show_error(999);
                 return false;
             }
