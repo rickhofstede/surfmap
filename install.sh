@@ -70,19 +70,25 @@ elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
 fi
 
 # Download files from Web
+if [ $(uname) = "FreeBSD" ]; then
+    RETRIEVE_TOOL="fetch"
+else
+    RETRIEVE_TOOL="wget"
+fi
+
 if [ ! -f  ${SURFMAP_REL} ]; then
 	echo "Downloading SURFmap plugin tar ball - http://surfmap.sf.net/"
-	wget http://downloads.sourceforge.net/project/surfmap/source/${SURFMAP_REL}
+	${RETRIEVE_TOOL} http://downloads.sourceforge.net/project/surfmap/source/${SURFMAP_REL}
 fi
 
 if [ ! -f  ${GEO_DB} ]; then
 	echo "Downloading MaxMind GeoLite City database - http://geolite.maxmind.com"
-	wget http://geolite.maxmind.com/download/geoip/database/${GEO_DB}
+	${RETRIEVE_TOOL} http://geolite.maxmind.com/download/geoip/database/${GEO_DB}
 fi
 
 if [ ! -f  ${GEOv6_DB} ]; then
 	echo "Downloading MaxMind GeoLite City (IPv6) database - http://geolite.maxmind.com"
-	wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/${GEOv6_DB}
+	${RETRIEVE_TOOL} http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/${GEOv6_DB}
 fi
 
 # Backup old SURFmap installation
