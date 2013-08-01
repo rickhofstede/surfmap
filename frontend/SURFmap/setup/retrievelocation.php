@@ -46,32 +46,32 @@
             try {
                 if (extension_loaded('curl')) {
                     for ($i = 0; $i < 4; $i++) {
-                        $curl_handle = curl_init();
-                        curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-                        curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
                 
                         if ($config['use_proxy']) {
-                            curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
-                            curl_setopt($curl_handle, CURLOPT_PROXY, $config['proxy_ip']);
-                            curl_setopt($curl_handle, CURLOPT_PROXYPORT, $config['proxy_port']);
+                            curl_setopt($ch, CURLOPT_PROXYTYPE, $config['proxy_type']);
+                            curl_setopt($ch, CURLOPT_PROXY, $config['proxy_ip']);
+                            curl_setopt($ch, CURLOPT_PROXYPORT, $config['proxy_port']);
                 
                             if ($config['proxy_user_authentication']) {
-                                curl_setopt($curl_handle, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
+                                curl_setopt($ch, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
                             }
                         }
                     
                         if ($IPv6_problem) {
-                            curl_setopt($curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
                         }
                     
                         if ($i % 2 == 0) {
-                            curl_setopt($curl_handle, CURLOPT_URL, "http://surfmap.sourceforge.net/get_ext_ip.php");
+                            curl_setopt($ch, CURLOPT_URL, "http://surfmap.sourceforge.net/get_ext_ip.php");
                         } else {
-                            curl_setopt($curl_handle, CURLOPT_URL, "http://whatismyip.org/"); 
+                            curl_setopt($ch, CURLOPT_URL, "http://whatismyip.org/"); 
                         }
-                        $ext_IP = curl_exec($curl_handle);
+                        $ext_IP = curl_exec($ch);
                     
-                        if ($ext_IP === false && curl_error($curl_handle) == "name lookup timed out") {
+                        if ($ext_IP === false && curl_error($ch) == "name lookup timed out") {
                             $IPv6_problem = 1;
                         } else if (substr_count($ext_IP, ".") == 3) {
                             if ($ext_IP == $NAT_IP) {
@@ -80,7 +80,7 @@
                             break;
                         }
                     
-                        curl_close($curl_handle);
+                        curl_close($ch);
                     }
                 }
 
@@ -173,29 +173,29 @@
         // Prefer cURL over the 'simplexml_load_file' command, for increased stability
         if (extension_loaded("curl")) {
             for ($i = 0; $i < 2; $i++) {
-                $curl_handle = curl_init();
-                curl_setopt($curl_handle, CURLOPT_URL, $requestURL);
-                curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $requestURL);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
             
                 if ($config['use_proxy']) {
-                    curl_setopt($curl_handle, CURLOPT_PROXYTYPE, 'HTTP');
-                    curl_setopt($curl_handle, CURLOPT_PROXY, $config['proxy_ip']);
-                    curl_setopt($curl_handle, CURLOPT_PROXYPORT, $config['proxy_port']);
-            
+                    curl_setopt($ch, CURLOPT_PROXYTYPE, $config['proxy_type']);
+                    curl_setopt($ch, CURLOPT_PROXY, $config['proxy_ip']);
+                    curl_setopt($ch, CURLOPT_PROXYPORT, $config['proxy_port']);
+        
                     if ($config['proxy_user_authentication']) {
-                        curl_setopt($curl_handle, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
+                        curl_setopt($ch, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
                     }
                 }
             
                 if ($IPv6_problem) {
-                    curl_setopt($curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
                 }
                 
-                $result = curl_exec($curl_handle);
+                $result = curl_exec($ch);
                 $xml = simplexml_load_string($result);
                 
-                curl_close($curl_handle);
+                curl_close($ch);
                 
                 // Stop when successful
                 if (isset($xml->result->geometry->location)) break;

@@ -26,7 +26,7 @@
     /* [GeoLocation] */
     $config['geolocation_db'] = "MaxMind"; // "MaxMind" or "IP2Location" [default: 'MaxMind']
     $config['maxmind_path'] = "lib/MaxMind/GeoLiteCity.dat"; // Will be ignored when $config['geolocation_db'] is not set to "MaxMind" [default: 'lib/MaxMind/GeoLiteCity.dat']
-    $config['maxmindv6_path'] = "lib/MaxMind/GeoLiteCityv6.dat"; // Will be ignored when $config['geolocation_db'] is not set to "MaxMind" [default: 'lib/MaxMind/GeoLiteCityv6.dat']
+    $config['maxmindv6_path'] = "lib/MaxMind/GeoLiteCityv6.dat"; // Will be ignored when $config['geolocation_db'] is not set to "MaxMind" [default: 'lib/MaxMind/GeoLiteCity.dat']
     $config['ip2location_path'] = "lib/IP2Location/IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE.BIN"; // Will be ignored when $GEOLOCATION_DB is not set to "IP2Location" [default: 'lib/IP2Location/IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE.BIN']
     
     /* [Internal traffic]
@@ -51,6 +51,7 @@
     
     /* [Proxy] */
     $config['use_proxy'] = 0; // Only enable this setting if your Web server is behind a proxy [default: 0]
+    $config['proxy_type'] = CURLPROXY_HTTP; // Can be either 'CURLPROXY_HTTP' or 'CURLPROXY_SOCKS5' [default: CURLPROXY_HTTP]
     $config['proxy_ip'] = "127.0.0.1"; // IP address of the proxy
     $config['proxy_port'] = 8080; // Port to connect to the proxy [default: 8080]
     $config['proxy_user_authentication'] = 0; // Enable this setting if your proxy requires authentication (username and password) [default: 0]

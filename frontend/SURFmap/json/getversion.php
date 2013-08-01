@@ -37,12 +37,12 @@
         );
         
         if ($config['use_proxy']) {
-            $options[CURLOPT_PROXYTYPE] = 'HTTP';
-            $options[CURLOPT_PROXY] = $PROXY_IP;
-            $options[CURLOPT_PROXYPORT] = $PROXY_PORT;
-        
+            curl_setopt($ch, CURLOPT_PROXYTYPE, $config['proxy_type']);
+            curl_setopt($ch, CURLOPT_PROXY, $config['proxy_ip']);
+            curl_setopt($ch, CURLOPT_PROXYPORT, $config['proxy_port']);
+
             if ($config['proxy_user_authentication']) {
-                $options[CURLOPT_PROXYUSERPWD] = $PROXY_USERNAME_PASSWORD;
+                curl_setopt($ch, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
             }
         }
         

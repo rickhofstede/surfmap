@@ -7,6 +7,7 @@
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
  *****************************************************/
     
+    require_once("../config.php");
     require_once("../constants.php");
     
     header("content-type: application/json");
@@ -36,6 +37,16 @@
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+        
+        if ($config['use_proxy']) {
+            curl_setopt($ch, CURLOPT_PROXYTYPE, $config['proxy_type']);
+            curl_setopt($ch, CURLOPT_PROXY, $config['proxy_ip']);
+            curl_setopt($ch, CURLOPT_PROXYPORT, $config['proxy_port']);
+
+            if ($config['proxy_user_authentication']) {
+                curl_setopt($ch, CURLOPT_PROXYUSERPWD, $config['proxy_username'].":".$config['proxy_password']);
+            }
+        }
     
         while (sizeof($_POST['params']) > 0) {
             $request = array_shift($_POST['params']);
