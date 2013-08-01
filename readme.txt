@@ -34,7 +34,7 @@ check 2.4; for installation verification, check 2.5):
 
 - Install plugin:
     $ ./install.sh
-    $ sudo /data/nfsen/bin/nfsen reload (this path might differ, depending on your setup)
+    $ sudo /data/nfsen/bin/nfsen reload (path might differ, depending on your setup)
 
 2.2) Manual tar ball installation (latest stable)
 
@@ -43,7 +43,7 @@ check 2.4; for installation verification, check 2.5):
     $ cd ~/surfmap
 
 - Download tar ball from SourceForge repository:
-    $ wget http://downloads.sourceforge.net/project/surfmap/source/SURFmap_v3.0.tar.gz
+    $ wget http://downloads.sourceforge.net/project/surfmap/source/SURFmap_v3.1.tar.gz
 
 - Download MaxMind GeoLite City database:
     $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
@@ -52,32 +52,27 @@ check 2.4; for installation verification, check 2.5):
     $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/GeoLiteCityv6.dat.gz
 
 - Unpack installation packages:
-    $ tar zxf SURFmap_v3.0.tar.gz --directory=/var/www/nfsen/plugins/ (this path 
-        might differ, depending on your setup)
-    $ gunzip -c GeoLiteCity.dat.gz > /var/www/nfsen/plugins/SURFmap/MaxMind/GeoLiteCity.dat
+    $ tar zxf SURFmap_v3.1.tar.gz
+    $ cp -r SURFmap/frontend/* /var/www/nfsen/plugins/
         (path might differ, depending on your setup)
-    $ gunzip -c GeoLiteCityv6.dat.gz > /var/www/nfsen/plugins/SURFmap/MaxMind/GeoLiteCityv6.dat
+    $ cp -r SURFmap/backend/* /data/nfsen/plugins/
         (path might differ, depending on your setup)
-
-- Install back-end and front-end plugin files:
-    $ cd /var/www/nfsen/plugins/
-    $ cp SURFmap/setup/backend/SURFmap.pm /data/nfsen/plugins/SURFmap.pm (the last 
-        path might differ, depending on your setup)
-    $ cp SURFmap/setup/frontend/SURFmap.php .
+    $ gunzip -c GeoLiteCity.dat.gz > /var/www/nfsen/plugins/SURFmap/lib/MaxMind/GeoLiteCity.dat
+        (path might differ, depending on your setup)
+    $ gunzip -c GeoLiteCityv6.dat.gz > /var/www/nfsen/plugins/SURFmap/lib/MaxMind/GeoLiteCityv6.dat
+        (path might differ, depending on your setup)
 
 - Configure plugin (config.php):
-    $ vi SURFmap/config.php
-        $NFSEN_CONF="/data/nfsen/etc/nfsen.conf"; (this path might differ, depending on 
-            your setup)
+    $ vi /var/www/nfsen/plugins/SURFmap/config.php
+        $NFSEN_CONF="/data/nfsen/etc/nfsen.conf"; (path might differ, depending on your setup)
 
     -> Get geolocation information for your setup
-        http://[your machine IP]/nfsen/plugins/SURFmap/setup/configurationchecker.php
+        http://[your machine IP]/nfsen/plugins/SURFmap/setup/retrievelocation.php
 
-    -> Update $MAP_CENTER, $INTERNAL_DOMAINS_COUNTRY, $INTERNAL_DOMAINS_REGION, 
-        $INTERNAL_DOMAINS_CITY in config.php
+    -> Update $config['map_center] and $config['internal_domains'] in config.php
 
 - Enable plugin:
-    $ vim /data/nfsen/etc/nfsen.conf (this path might differ, depending on your setup)
+    $ vi /data/nfsen/etc/nfsen.conf (path might differ, depending on your setup)
         [ 'live', 'SURFmap' ],
 
 - Start plugin:
