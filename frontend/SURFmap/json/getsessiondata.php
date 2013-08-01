@@ -272,11 +272,12 @@
     if ($_SESSION['SURFmap']['use_db']) {
         try {
             $db = new PDO("sqlite:../".$constants['cache_db']);
+            $date = date("Y-m-d");
             
             // Client
             $query = "SELECT * FROM geocoder_history_client WHERE date = :date";
             $stmnt = $db->prepare($query);
-            $stmnt->bindParam(":date", date("Y-m-d"));
+            $stmnt->bindParam(":date", $date);
             $query_result = $stmnt->execute();
             
             if (!$query_result) {
@@ -317,7 +318,7 @@
             // Server
             $query = "SELECT * FROM geocoder_history_server WHERE date = :date";
             $stmnt = $db->prepare($query);
-            $stmnt->bindParam(":date", date("Y-m-d"));
+            $stmnt->bindParam(":date", $date);
             $query_result = $stmnt->execute();
             
             if (!$query_result) {
