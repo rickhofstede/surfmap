@@ -64,7 +64,7 @@ check 2.4; for installation verification, check 2.5):
 
 - Configure plugin (config.php):
     $ vi /var/www/nfsen/plugins/SURFmap/config.php
-        $NFSEN_CONF="/data/nfsen/etc/nfsen.conf"; (path might differ, depending on your setup)
+        $config['nfsen_config']="/data/nfsen/etc/nfsen.conf"; (path might differ, depending on your setup)
 
     -> Get geolocation information for your setup
         http://[your machine IP]/nfsen/plugins/SURFmap/setup/retrievelocation.php
