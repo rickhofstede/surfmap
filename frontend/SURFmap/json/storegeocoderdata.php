@@ -46,7 +46,7 @@
                     case 8:     $result['status_message'] = "No write permissions for the database.";
                                 break;
                                 
-                    default:    $result['status_message'] = "Data could not be written to the database (SQLite error: ".$error_info[1].").";
+                    default:    $result['status_message'] = "Data could not be written to the database (error code: ".$error_info[1].", error message: ".$error_info[2].").";
                                 break;
                 }
                 

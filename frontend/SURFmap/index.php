@@ -378,18 +378,6 @@
         
         function init_lines () {
             lines = [];
-            global_line_minima = {
-                'country':  -1,
-                'region':   -1,
-                'city':     -1,
-                'host':     -1
-            }
-            global_line_maxima = {
-                'country':  -1,
-                'region':   -1,
-                'city':     -1,
-                'host':     -1
-            }
             
             $.each(flow_data, function (flow_index, flow_item) {
                 $.each(zoom_levels, function (zoom_level_index, zoom_level) {
@@ -457,7 +445,7 @@
                         var line = {};
                         line.point1 = point1;
                         line.point2 = point2;
-                        line.level = zoom_level_index;
+                        line.level = parseInt(zoom_level_index);
                         line.entries = [];
                         line.associated_flow_indices = [];
                         lines.push(line);
@@ -550,6 +538,19 @@
                     }
                 }); // End of zoom_levels
             }); // End of flow_data
+            
+            global_line_minima = {
+                'country':  -1,
+                'region':   -1,
+                'city':     -1,
+                'host':     -1
+            }
+            global_line_maxima = {
+                'country':  -1,
+                'region':   -1,
+                'city':     -1,
+                'host':     -1
+            }
             
             // Determine maxima and sums, both global and per line
             $.each(zoom_levels, function (zoom_level_index, zoom_level) {

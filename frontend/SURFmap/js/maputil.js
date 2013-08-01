@@ -471,21 +471,8 @@
                 add_map_overlays(new_sm_zoom_level);
                 init_legend();
                 
-                switch (new_sm_zoom_level) {
-                    case 0:     $('#zoom_level_country').prop('checked', true);
-                                break;
-                            
-                    case 1:     $('#zoom_level_region').prop('checked', true);
-                                break;
-                                        
-                    case 2:     $('#zoom_level_city').prop('checked', true);
-                                break;
-                            
-                    case 3:     $('#zoom_level_host').prop('checked', true);
-                                break;
-                                                    
-                    default:    break;
-                }
+                // Select radio button belonging to the current zoom level
+                $('#zoom_level_' + zoom_levels[new_sm_zoom_level]).prop('checked', true);
             }
             
             google.maps.event.addListenerOnce(map, 'idle', function() {
@@ -522,18 +509,18 @@
      */  
     function add_map_overlays (sm_zoom_level) {
         // Lines
-        $.each(lines, function (line_index, line_item) {
-            if (line_item.level == sm_zoom_level) {
-                line_item.obj.setMap(map);
+        for (var i = 0; i < lines.length; i++) {
+            if (lines[i].level == sm_zoom_level) {
+                lines[i].obj.setMap(map);
             }
-        });
+        }
         
         // Markers
-        $.each(markers, function (marker_index, marker_item) {
-            if (marker_item.level == sm_zoom_level) {
-                marker_item.obj.setMap(map);
+        for (var j = 0; j < markers.length; j++) {
+            if (markers[j].level == sm_zoom_level) {
+                markers[j].obj.setMap(map);
             }
-        });
+        }
     }
     
     /*

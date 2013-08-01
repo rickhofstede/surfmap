@@ -201,6 +201,8 @@
     // Set geocoder history
     if (isset($_POST['params']['geocoder_history'])) {
         $db = new PDO("sqlite:../".$constants['cache_db']);
+        $date = date("Y-m-d");
+        
         foreach ($_POST['params']['geocoder_history'] as $geocoding_type => $parameters) {
             try {
                 $requests_success = $_POST['params']['geocoder_history'][$geocoding_type]['requests_success'];
@@ -210,7 +212,7 @@
                 
                 $query = "SELECT * FROM geocoder_history_".$geocoding_type." WHERE date = :date";
                 $stmnt = $db->prepare($query);
-                $stmnt->bindParam(":date", date("Y-m-d"));
+                $stmnt->bindParam(":date", $date);
                 $stmnt->execute();
                 $query_result = $stmnt->fetch(PDO::FETCH_ASSOC);
                 
@@ -219,7 +221,7 @@
                 if ($query_result === false) { // No entry in DB
                     $query = "INSERT INTO geocoder_history_".$geocoding_type." (date, requests_success, requests_error, requests_skipped, requests_blocked) VALUES (:date, :requests_success, :requests_error, :requests_skipped, :requests_blocked)";
                     $stmnt = $db->prepare($query);
-                    $stmnt->bindParam(":date", date("Y-m-d"));
+                    $stmnt->bindParam(":date", $date);
                     $stmnt->bindParam(":requests_success", $requests_success);
                     $stmnt->bindParam(":requests_error", $requests_error);
                     $stmnt->bindParam(":requests_skipped", $requests_skipped);
@@ -228,12 +230,11 @@
                 } else {
                     $query = "UPDATE geocoder_history_".$geocoding_type." SET requests_success = :requests_success, requests_error = :requests_error, requests_skipped = :requests_skipped, requests_blocked = :requests_blocked WHERE date = :date";
                     $stmnt = $db->prepare($query);
-                    $stmnt->bindParam(":date", date("Y-m-d"));
+                    $stmnt->bindParam(":date", $date);
                     $stmnt->bindParam(":requests_success", $requests_success);
                     $stmnt->bindParam(":requests_error", $requests_error);
                     $stmnt->bindParam(":requests_skipped", $requests_skipped);
                     $stmnt->bindParam(":requests_blocked", $requests_blocked);
-                    $stmnt->bindParam(":date", date("Y-m-d"));
                     $query_result = $stmnt->execute();
                 }
                 

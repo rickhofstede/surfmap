@@ -561,6 +561,11 @@ $(document).ready(function() {
                         $.each(flow_data, function(flow_index, flow_item) {
                             // Source IP address
                             $.each(data.geocoder_data, function(geocoder_index, geocoder_item) {
+                                // If item is not found in geocoder database, don't add (invalid) coordinates to flow_data
+                                if (geocoder_item.lat == -1 && geocoder_item.lng == -1) {
+                                    return true;
+                                }
+                                
                                 if (flow_item.src_country == geocoder_item.request) {
                                     flow_item.src_country_lat = parseFloat(geocoder_item.lat);
                                     flow_item.src_country_lng = parseFloat(geocoder_item.lng);
@@ -832,13 +837,13 @@ $(document).ready(function() {
         geocoder_data_server.requests_error = data.requests_error;
         geocoder_data_server.requests_skipped = data.requests_skipped;
         
-        if (geocoder_data_client != undefined && geocoder_data_client.request_count == geocoder_data_client.geocoder_data.length) {
+        if (geocoder_data_client != undefined && geocoder_data_client.request_count == geocoder_data_client.requests_success + geocoder_data_client.requests_error) {
             $(document).trigger('geocoding_done');
         }
     });
     
     $(document).bind('geocoding_client_done', function (event) {
-        if (session_data['curl_loaded'] && geocoder_data_server.request_count == geocoder_data_server.geocoder_data.length) {
+        if (session_data['curl_loaded'] && geocoder_data_server.request_count == geocoder_data_server.requests_success + geocoder_data_server.requests_error) {
             $(document).trigger('geocoding_done');
         }
     });
@@ -851,12 +856,16 @@ $(document).ready(function() {
         
         if (geocoder_data_client.geocoder_data != undefined) {
             $.each(geocoder_data_client.geocoder_data, function (index, item) {
-                geocoder_data.push(item);
+                if (item.lat != null && item.lng != null) {
+                    geocoder_data.push(item);
+                }
             });
         }
         if (geocoder_data_server.geocoder_data != undefined) {
             $.each(geocoder_data_server.geocoder_data, function (index, item) {
-                geocoder_data.push(item);
+                if (item.lat != null && item.lng != null) {
+                    geocoder_data.push(item);
+                }
             });
         }
         
@@ -886,7 +895,6 @@ $(document).ready(function() {
             
             // Destination IP address
             $.each(geocoder_data, function(geocoder_index, geocoder_item) {
-                var matched = false;
                 if (flow_item.dst_country == geocoder_item.request) {
                     flow_item.dst_country_lat = geocoder_item.lat;
                     flow_item.dst_country_lng = geocoder_item.lng;
