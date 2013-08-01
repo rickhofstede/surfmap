@@ -29,6 +29,10 @@ rm -rf SURFmap SURFmap_v*.tar.gz install.sh
 echo "Exporting SVN trunk snapshot"
 svn export svn://svn.code.sf.net/p/surfmap/code/trunk SURFmap
 
+if [ ! -f SURFmap/install.sh ]; then
+    err "Something went wrong while exporting SURFmap from SVN trunk!"
+fi
+
 echo "Updating install script for SVN install"
 cp SURFmap/install.sh .
 
