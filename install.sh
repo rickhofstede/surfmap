@@ -135,8 +135,24 @@ chmod -R g+w ${FRONTEND_PLUGINDIR}/SURFmap/db
 
 # Update plugin configuration file - config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
 echo "Updating plugin configuration file ${SURFMAP_CONF}"
-LINE=$(grep nfsen_config ${SURFMAP_CONF} | awk '{ START=index($0,"="); LENGTH=length($0)-START; print substr($0,START,LENGTH) }' | cut -d"\"" -f2)
-sed -i.tmp "s,$LINE,${NFSEN_CONF},g" ${SURFMAP_CONF}
+OLD_NFSEN_CONF=$(grep nfsen_config ${SURFMAP_CONF} | awk '{ START=index($0,"="); LENGTH=length($0)-START; print substr($0,START,LENGTH) }' | cut -d"\"" -f2)
+sed -i.tmp "s,${OLD_NFSEN_CONF},${NFSEN_CONF},g" ${SURFMAP_CONF}
+
+# Check for proxy and update config.php accordingly
+PROXY=$(env | grep -i http_proxy | awk '{ START=index($0,"=")+1; print substr($0,START) }')
+if [ "$PROXY" != "" ]; then
+    sed -i.tmp "s,config\['use_proxy'\] = 0,config\['use_proxy'\] = 1,g" ${SURFMAP_CONF}
+    
+    PROXY_IP_PORT=$(echo ${PROXY} | awk '{ FROM=index($0,"//")+2; print substr($0,FROM) }')
+    PROXY_IP=$(echo ${PROXY_IP_PORT} | awk '{ TO=index($0,":")-1; print substr($0,0,TO) }')
+    PROXY_PORT=$(echo ${PROXY_IP_PORT} | awk '{ FROM=index($0,":")+1; print substr($0,FROM) }')
+    
+    OLD_PROXY_IP=$(grep "$config\['proxy_ip'\]" ${SURFMAP_CONF} | cut -d'"' -f2)
+    OLD_PROXY_PORT=$(grep "$config\['proxy_port'\]" ${SURFMAP_CONF} | awk '{ FROM=index($0,"=")+2; TO=index($0,";"); print substr($0,FROM,TO-FROM) }')
+    
+    sed -i.tmp "s,${OLD_PROXY_IP},${PROXY_IP},g" ${SURFMAP_CONF}
+    sed -i.tmp "s,${OLD_PROXY_PORT},${PROXY_PORT},g" ${SURFMAP_CONF}
+fi
 
 # Get my location information
 cd ${FRONTEND_PLUGINDIR}/SURFmap/setup

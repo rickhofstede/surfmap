@@ -53,7 +53,7 @@
     $config['use_proxy'] = 0; // Only enable this setting if your Web server is behind a proxy [default: 0]
     $config['proxy_type'] = CURLPROXY_HTTP; // Can be either 'CURLPROXY_HTTP' or 'CURLPROXY_SOCKS5' [default: CURLPROXY_HTTP]
     $config['proxy_ip'] = "127.0.0.1"; // IP address of the proxy
-    $config['proxy_port'] = 8080; // Port to connect to the proxy [default: 8080]
+    $config['proxy_port'] = 8080; // Port to connect to the proxy
     $config['proxy_user_authentication'] = 0; // Enable this setting if your proxy requires authentication (username and password) [default: 0]
     $config['proxy_username'] = "username"; // Username to be used for proxy authentication
     $config['proxy_password'] = "password"; // Password to be used for proxy authentication
