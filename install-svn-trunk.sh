@@ -37,7 +37,7 @@ echo "Updating install script for SVN install"
 cp SURFmap/install.sh .
 
 SURFMAP_VER=$(cat SURFmap/frontend/SURFmap/version.php | grep -m1 \$version | awk '{print $3}' |  cut -d"\"" -f2)
-sed -i "s/SURFMAP_VER=.*/SURFMAP_VER=${SURFMAP_VER}/g" install.sh
+sed -i.tmp "s/SURFMAP_VER=.*/SURFMAP_VER=${SURFMAP_VER}/g" install.sh
 
 echo "Creating SURFmap SVN tar ball"
 tar -czf SURFmap_v${SURFMAP_VER}.tar.gz SURFmap
