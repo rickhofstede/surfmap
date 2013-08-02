@@ -4,7 +4,7 @@ Please check the manual or readme for installation instructions.
 
 ---
 
-Release notes [v3.1 dev (20130801)]:
+Release notes [v3.1 dev (20130802)]:
 
 WARNING: The configuration file of older versions is not compatible with this release!
 
@@ -12,6 +12,7 @@ WARNING: The configuration file of older versions is not compatible with this re
 - [FEATURE] Improved usability and layout of 'Flow Details'
 - [FEATURE] Flow record start times are now shown in 'Flow Details'
 - [FEATURE] Implemented 'Location-aware Exporting' extension
+- [FEATURE] FreeBSD support
 - [BUGFIX] Fixed a bug that caused 'Flow Details' of line information window to fail to open
 - [BUGFIX] Improved stability when parsing nfdump output
 - [BUGFIX] Fixed a bug that prevented SURFmap from loading completely in situations when there's no geocoder cache data to retrieve
