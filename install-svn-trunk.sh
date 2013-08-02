@@ -44,4 +44,3 @@ tar -czf SURFmap_v${SURFMAP_VER}.tar.gz SURFmap
 
 echo "Launching installation script ..."
 ./install.sh
-

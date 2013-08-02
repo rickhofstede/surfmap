@@ -20,13 +20,21 @@ IP addresses of end hosts. For more details, the following resources are availab
 2) Installation instructions
 
 SURFmap can be installed in a variety of ways (for notes on a version upgrade, 
-check 2.4; for installation verification, check 2.5):
+check 2.5; for installation verification, check 2.6):
 
-2.1) Automated tar ball installation (latest stable, recommended)
+2.1) Requirements & dependencies
 
-- Create download directory:
-    $ mkdir -p ~/surfmap
-    $ cd ~/surfmap
+- Linux or *BSD system, having the following installed:
+    * NfSen
+    * PHP 5.2.4 or newer
+    * PHP cURL module
+    * PHP mbstring module
+    * PHP PDO SQLite3 module
+
+- INVEA-TECH's FlowMon Probe (version >= 5.0) (http://www.invea-tech.com/products-and-services/flowmon/flowmon-probes)
+- INVEA-TECH's FlowMon Collector (version >= 5.0) (http://www.invea-tech.com/products-and-services/flowmon/flowmon-collectors)
+
+2.2) Automated tar ball installation (latest stable, recommended)
 
 - Download installation script:
     $ wget http://sourceforge.net/projects/surfmap/files/install.sh/download
@@ -36,11 +44,7 @@ check 2.4; for installation verification, check 2.5):
     $ ./install.sh
     $ sudo /data/nfsen/bin/nfsen reload (path might differ, depending on your setup)
 
-2.2) Manual tar ball installation (latest stable)
-
-- Create download directory:
-    $ mkdir -p ~/surfmap
-    $ cd ~/surfmap
+2.3) Manual tar ball installation (latest stable)
 
 - Download tar ball from SourceForge repository:
     $ wget http://downloads.sourceforge.net/project/surfmap/source/SURFmap_v3.1.tar.gz
@@ -51,8 +55,10 @@ check 2.4; for installation verification, check 2.5):
 - Download MaxMind GeoLite City (IPv6) database:
     $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/GeoLiteCityv6.dat.gz
 
-- Unpack installation packages:
-    $ tar zxf SURFmap_v3.1.tar.gz
+- Unpack installation package:
+    $ tar zxf SURFmap_v3.1.tar.gz --directory=.
+    
+- Install plugin files:
     $ cp -r SURFmap/frontend/* /var/www/nfsen/plugins/
         (path might differ, depending on your setup)
     $ cp -r SURFmap/backend/* /data/nfsen/plugins/
@@ -75,37 +81,33 @@ check 2.4; for installation verification, check 2.5):
     $ vi /data/nfsen/etc/nfsen.conf (path might differ, depending on your setup)
         [ 'live', 'SURFmap' ],
 
+- Check file and directory permissions:
+    - The backend directory (e.g. /data/nfsen/plugins/SURFmap) should (recursively) be owned by the user configured as $USER and group $WWWGROUP in nfsen.conf
+    - The frontend directory (e.g. /var/www/nfsen/plugins/SURFmap) should (recursively) be owned by the group $WWWGROUP in nfsen.conf
+
 - Start plugin:
     $ sudo /etc/init.d/nfsen reload
 
-2.3) SVN trunk installation (latest development version)
+2.4) SVN trunk installation (latest development version)
     $ wget http://svn.code.sf.net/p/surfmap/code/trunk/setup/scripts/install-svn-trunk.sh
     $ chmod +x install-svn-trunk.sh
     $ ./install-svn-trunk.sh
 
-2.4) Upgrading existing installation
+2.5) Upgrading existing installation
 
 When upgrading your SURFmap installation to a newer version, keep in mind that the 
 configuration file (config.php) is not always compatible between the versions. It's 
 therefore very important to update the settings in the configuration file of the 
 version you're upgrading to. Regarding the upgrade, you could use either of the 
 installation methods discussed above. In case you're using a method that's based 
-on an installation script (i.e. 'automated tar ball installation' (2.1) or 'SVN trunk 
-installation' (2.3)) the scripts will automatically archive your existing SURFmap 
+on an installation script (i.e. 'automated tar ball installation' (2.2) or 'SVN trunk 
+installation' (2.4)) the scripts will automatically archive your existing SURFmap 
 installation, including the configuration file. If you're doing a manual 
 installation/upgrade, keep in mind to archive your old installation yourself.
 
 Besides backing up the configuration file, you can save the contents of the GeoCoder 
 cache database. In most cases, this will considerably speed up the flow record 
 visualization after upgrading.
-
-2.5) Installation verification
-
-In order to verify whether SURFmap was configured properly depending on your particular 
-system setup, a "Configuration Checker" has been included in the package. It can be 
-found at the following location:
-
-http://[your machine IP]/nfsen/plugins/SURFmap/setup/configurationchecker.php
 
 3) Using SURFmap
 
