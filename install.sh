@@ -141,6 +141,7 @@ sed -i.tmp "s,${OLD_NFSEN_CONF},${NFSEN_CONF},g" ${SURFMAP_CONF}
 # Check for proxy and update config.php accordingly
 PROXY=$(env | grep -i http_proxy | awk '{ START=index($0,"=")+1; print substr($0,START) }')
 if [ "$PROXY" != "" ]; then
+    echo "HTTP proxy detected"
     sed -i.tmp "s,config\['use_proxy'\] = 0,config\['use_proxy'\] = 1,g" ${SURFMAP_CONF}
     
     PROXY_IP_PORT=$(echo ${PROXY} | awk '{ FROM=index($0,"//")+2; print substr($0,FROM) }')
