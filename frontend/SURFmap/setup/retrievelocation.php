@@ -64,7 +64,7 @@
                             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
                         }
                     
-                        if ($i % 2 == 0) {
+                        if ($i < 3) {
                             curl_setopt($ch, CURLOPT_URL, "http://surfmap.sourceforge.net/get_ext_ip.php");
                         } else {
                             curl_setopt($ch, CURLOPT_URL, "http://whatismyip.org/"); 
@@ -144,12 +144,18 @@
     $ext_IP_region = replace_accented_characters($ext_IP_region);
     $ext_IP_city = replace_accented_characters($ext_IP_city);
     
-    if ($ext_IP_city != "(UNKNOWN)") {
-        $lat_lng = geocode($ext_IP_city);
-    } else if ($ext_IP_region != "(UNKNOWN)") {
-        $lat_lng = geocode($ext_IP_region);
-    } else if ($ext_IP_country != "(UNKNOWN)") {
-        $lat_lng = geocode($ext_IP_country);
+    // No geocoding needed if country is unknown
+    if ($ext_IP_country != "(UNKNOWN)") {
+        $geocode_place = $ext_IP_country;
+        
+        if ($ext_IP_region != "(UNKNOWN)") {
+            $geocode_place .= ", ".$ext_IP_region;
+        }
+        if ($ext_IP_city != "(UNKNOWN)") {
+            $geocode_place .= ", ".$ext_IP_city;
+        }
+        
+        $lat_lng = geocode($geocode_place);
     }
     
     $location = $ext_IP_country.",".$ext_IP_region.",".$ext_IP_city;
@@ -168,7 +174,7 @@
     function geocode($place) {
         global $config, $IPv6_problem;
         
-        $requestURL = "https://maps.google.com/maps/api/geocode/xml?address=" . urlencode($place) ."&sensor=false";
+        $requestURL = "http://maps.google.com/maps/api/geocode/xml?address=".urlencode($place)."&sensor=false";
         
         // Prefer cURL over the 'simplexml_load_file' command, for increased stability
         if (extension_loaded("curl")) {
@@ -242,7 +248,7 @@
 
             // Setup guidelines
             if (ext_IP_coordinates != "") {
-                document.getElementById("setup_guidelines").innerHTML += "$MAP_CENTER=\"" + ext_IP_coordinates + "\";<br /><br />";
+                document.getElementById("setup_guidelines").innerHTML += "$config['map_center']=\"" + ext_IP_coordinates + "\";<br /><br />";
             }
             
             if ((ext_IP_NAT && (NAT_IP == ext_IP)) || ext_IP_error != "") {

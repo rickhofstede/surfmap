@@ -157,17 +157,8 @@ fi
 
 # Get my location information
 cd ${FRONTEND_PLUGINDIR}/SURFmap/setup
-
-i=0
-while true; do
-	MY_LOC=$(php retrievelocation.php | grep config_data | cut -d'>' -f2 | cut -d'<' -f1)
-	echo "Geocoding plugin location - ${MY_LOC}"
-
-	i=$(( i + 1 ))		# check 5 times before giving up
-	if [ ${i} = 5 ] || [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
-		break
-	fi
-done
+MY_LOC=$(php retrievelocation.php | grep config_data | cut -d'>' -f2 | cut -d'<' -f1)
+echo "Geocoding plugin location - ${MY_LOC}"
 
 cd - > /dev/null
 
