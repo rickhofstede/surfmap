@@ -7,6 +7,10 @@
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
  *****************************************************/
     
+    function ReportLog($message) {
+        // Dummy function to avoid PHP errors related to NfSen
+    }
+    
     require_once("../config.php");
     require_once("../constants.php");
     header("content-type: application/json");
@@ -21,6 +25,7 @@
     }
     
     if (isset($_POST['params'])) {
+        $nfsen_html_dir = $_POST['params']['nfsen_html_dir'];
         $nfsen_profile_data_dir = $_POST['params']['nfsen_profile_data_dir'];
         $nfsen_subdir_layout = $_POST['params']['nfsen_subdir_layout'];
     } else {
@@ -357,7 +362,7 @@
             unset($query_result);
         } catch(PDOException $e) {
             $result['status'] = 1;
-            $result['status_message'] = "PHP PDO driver for SQLite 3 is missing";
+            $result['status_message'] = "PHP PDO driver for SQLite3 is missing";
             echo json_encode($result);
             die();
         }
@@ -365,12 +370,15 @@
     
     // Check nfdump version used in backend
     if (!isset($_SESSION['SURFmap']['nfdump_version'])) {
+        require_once($nfsen_html_dir."/conf.php");
+        require_once($nfsen_html_dir."/nfsenutil.php");
+        
         $opts = array(
             'options' => array()
         );
 
-        $out_list = nfsend_query("SURFmap::get_nfdump_version", $opts);
-        unset($_SESSION['nfsend']);
+        $out_list = nfsend_query("SURFmap_dev::get_nfdump_version", $opts);
+        nfsend_disconnect();
         $_SESSION['SURFmap']['nfdump_version'] = $out_list['version'];
     }
     

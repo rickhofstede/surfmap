@@ -43,12 +43,12 @@
             $MaxMind_path = "../".$MaxMind_path;
         }
         
-        if (!@file_exists($MaxMind_path)) {
+        if (@file_exists($MaxMind_path)) {
+            if (!is_readable($MaxMind_path)) {
+                array_push($result['error_codes'], 5);
+            }
+        } else {
             array_push($result['error_codes'], 4);
-        }
-        
-        if (!is_readable($MaxMind_path)) {
-            array_push($result['error_codes'], 5);
         }
     } else if ($config['geolocation_db'] == 'IP2Location') {
         $IP2Location_path = $config['ip2location_path'];

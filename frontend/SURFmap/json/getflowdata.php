@@ -8,7 +8,7 @@
  *****************************************************/
     
     function ReportLog($message) {
-        // dummy function to avoid PHP errors
+        // Dummy function to avoid PHP errors related to NfSen
     }
     
     if (!session_id()) session_start();
@@ -103,7 +103,7 @@
     }
 
     if ($nfsen_option == 0 && $config['order_flow_records_by_start_time'] == 1) {
-        if ($nfdump_version && floatval($nfdump_version) >= 1.6.8) {
+        if ($nfdump_version && floatval($nfdump_version) > 1.6) {
             $run .= " -O tstart";
         } else {
             $run .= " -m";

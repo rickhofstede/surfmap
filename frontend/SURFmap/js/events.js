@@ -111,6 +111,7 @@ $(document).ready(function() {
             data = {};
         }
         
+        data['nfsen_html_dir'] = nfsen_config['HTMLDIR'];
         data['nfsen_profile_data_dir'] = nfsen_config['PROFILEDATADIR'];
         data['nfsen_subdir_layout'] = nfsen_config['SUBDIRLAYOUT'];
         
