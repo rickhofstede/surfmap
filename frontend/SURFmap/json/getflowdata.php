@@ -42,6 +42,7 @@
             default:    break;
         }
         
+        $nfdump_version = $_POST['params']['nfdump_version'];
         $nfsen_html_dir = $_POST['params']['nfsen_html_dir'];
         
         // The 'extensions' parameter is ignored by jQuery (client-side) when it's an empty array
@@ -102,7 +103,11 @@
     }
 
     if ($nfsen_option == 0 && $config['order_flow_records_by_start_time'] == 1) {
-        $run .= " -m";
+        if ($nfdump_version && floatval($nfdump_version) >= 1.6.8) {
+            $run .= " -O tstart";
+        } else {
+            $run .= " -m";
+        }
     }
 
     $cmd_opts['args'] = "-T $run";

@@ -4,7 +4,7 @@ Please check the manual or readme for installation instructions.
 
 ---
 
-Release notes [v3.2 (20130803)]:
+Release notes [v3.2 (20130823)]:
 - [BUGFIX] Improved stability of geocoding process in installation script
 - [BUGFIX] Various minor bugfixes and improvements
 

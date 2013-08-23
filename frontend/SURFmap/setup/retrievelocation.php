@@ -64,10 +64,10 @@
                             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
                         }
                     
-                        if ($i < 3) {
+                        if ($i % 2 == 0) {
                             curl_setopt($ch, CURLOPT_URL, "http://surfmap.sourceforge.net/get_ext_ip.php");
                         } else {
-                            curl_setopt($ch, CURLOPT_URL, "http://whatismyip.org/"); 
+                            curl_setopt($ch, CURLOPT_URL, "http://mijnip.antagonist.nl"); 
                         }
                         $ext_IP = curl_exec($ch);
                     
@@ -86,7 +86,7 @@
 
                 /*
                  * If 'substr_count($extIP, ".") != 3' it means that it was not an IP address that was downloaded,
-                 * which can be the case when whatismyip.org spawns an error message.
+                 * which can be the case when an error has occurred.
                  */
                 if (substr_count($ext_IP, ".") != 3) {
                     $ext_IP = $NAT_IP;

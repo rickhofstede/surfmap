@@ -250,6 +250,7 @@ $(document).ready(function() {
                     'nfsen_profile_type': session_data['nfsen_profile_type'],
                     'nfsen_selected_sources': session_data['nfsen_selected_sources'],
                     'nfsen_stat_order': session_data['nfsen_stat_order'],
+                    'nfdump_version': session_data['nfdump_version'],
                     'nfsen_html_dir': nfsen_config['HTMLDIR'],
                     'extensions': extensions
                 }

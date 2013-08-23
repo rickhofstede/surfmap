@@ -363,6 +363,17 @@
         }
     }
     
+    // Check nfdump version used in backend
+    if (!isset($_SESSION['SURFmap']['nfdump_version'])) {
+        $opts = array(
+            'options' => array()
+        );
+
+        $out_list = nfsend_query("SURFmap::get_nfdump_version", $opts);
+        unset($_SESSION['nfsend']);
+        $_SESSION['SURFmap']['nfdump_version'] = $out_list['version'];
+    }
+    
     $result['session_data']['flow_record_count'] = $_SESSION['SURFmap']['flow_record_count'];
     $result['session_data']['flow_filter'] = $_SESSION['SURFmap']['flow_filter'];
     $result['session_data']['flow_display_filter'] = $_SESSION['SURFmap']['flow_display_filter'];
@@ -387,6 +398,7 @@
     $result['session_data']['zoom_level'] = $_SESSION['SURFmap']['zoom_level'];
     $result['session_data']['curl_loaded'] = $_SESSION['SURFmap']['curl_loaded'];
     $result['session_data']['use_db'] = $_SESSION['SURFmap']['use_db'];
+    $result['session_data']['nfdump_version'] = $_SESSION['SURFmap']['nfdump_version'];
     
     // Not needed, as it is already set above
     // $result['session_data']['geocoder_history'] = ...;
