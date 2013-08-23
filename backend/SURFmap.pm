@@ -16,8 +16,14 @@ our $VERSION = 135;
 our $nfdump_version;
 
 our %cmd_lookup = (
-    'get_nfdump_version'    => \&get_nfdump_version,
+    'get_nfdump_version' => \&get_nfdump_version,
 );
+
+sub log_info {
+    syslog('info', "SURFmap: $_[0]");
+
+    return $_[0];
+}
 
 sub get_nfdump_version {
     my $socket  = shift;
@@ -25,13 +31,8 @@ sub get_nfdump_version {
     
     my %args;
     $args{'version'} = $nfdump_version;
+    
     Nfcomm::socket_send_ok($socket, \%args);
-}
-
-sub log_info {
-    syslog('info', "SURFmap: $_[0]");
-
-    return $_[0];
 }
 
 sub nfdump_version_check {
@@ -53,7 +54,7 @@ sub Init {
     $nfdump_version = nfdump_version_check;
     log_info "Detected nfdump v$nfdump_version";
     
-	return 1;
+    return 1;
 }
 
 1;
