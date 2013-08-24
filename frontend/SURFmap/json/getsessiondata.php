@@ -373,11 +373,8 @@
         require_once($nfsen_html_dir."/conf.php");
         require_once($nfsen_html_dir."/nfsenutil.php");
         
-        $opts = array(
-            'options' => array()
-        );
-
-        $out_list = nfsend_query("SURFmap_dev::get_nfdump_version", $opts);
+        $opts = array();
+        $out_list = nfsend_query("SURFmap::get_nfdump_version", $opts);
         nfsend_disconnect();
         $_SESSION['SURFmap']['nfdump_version'] = $out_list['version'];
     }

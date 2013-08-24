@@ -18,7 +18,7 @@
     <title>SURFmap -- A Network Monitoring Tool Based on the Google Maps API</title>
     <link type="text/css" rel="stylesheet" href="lib/jquery/css/start/jquery-ui-1.10.3.custom.min.css" />
     <link type="text/css" rel="stylesheet" href="css/surfmap.css" />
-    <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false&v=3"></script>
     <script type="text/javascript" src="lib/jquery/js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="lib/jquery/js/jquery-ui-1.10.3.custom.min.js"></script>
     <!-- <script src="https://code.jquery.com/jquery-migrate-1.2.0.js"></script> -->

@@ -1,9 +1,11 @@
 # *******************************
+#
 # SURFmap.pm [SURFmap]
 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
 # University of Twente, The Netherlands
 #
 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
+#
 # *******************************
 
 package SURFmap;
@@ -13,8 +15,15 @@ use warnings;
 
 use SURFmap::Helpers;
 
-our $VERSION = 135;
+our $VERSION = 136;
+our $SURFMAP_VERSION = "3.2";
 our $nfdump_version;
+
+use Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT = qw(
+    nfdump_version
+    );
 
 our %cmd_lookup = (
     'get_nfdump_version' => \&get_nfdump_version,
@@ -42,6 +51,17 @@ sub Init {
     log_info("Detected nfdump v".$nfdump_version);
     
     return 1;
+}
+
+sub run {
+    my $argref       = shift;
+    my $profile      = $$argref{'profile'};
+    my $profilegroup = $$argref{'profilegroup'};
+    my $timeslot     = $$argref{'timeslot'};
+}
+
+sub Cleanup {
+    log_info("Cleanup finished");
 }
 
 1;

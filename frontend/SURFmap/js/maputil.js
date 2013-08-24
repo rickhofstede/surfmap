@@ -424,6 +424,8 @@
      * Initializes the Google Maps map object and adds listeners to it.
      */
     function init_map () {
+        google.maps.visualRefresh = false;
+        
         var map_center = new google.maps.LatLng(
                 parseFloat(session_data['map_center'].substring(0, session_data['map_center'].indexOf(","))),
                 parseFloat(session_data['map_center'].substring(session_data['map_center'].indexOf(",") + 1)));
