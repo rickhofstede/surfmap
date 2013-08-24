@@ -103,7 +103,7 @@
     }
 
     if ($nfsen_option == 0 && $config['order_flow_records_by_start_time'] == 1) {
-        if ($nfdump_version && floatval($nfdump_version) > 1.6) {
+        if ($nfdump_version && intval(str_replace(".", "", $nfdump_version)) >= 168) {
             $run .= " -O tstart";
         } else {
             $run .= " -m";
