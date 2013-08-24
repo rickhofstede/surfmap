@@ -8,9 +8,10 @@
 
 package SURFmap;
 
-use Sys::Syslog;
 use strict;
 use warnings;
+
+use SURFmap::Helpers;
 
 our $VERSION = 135;
 our $nfdump_version;
@@ -18,12 +19,6 @@ our $nfdump_version;
 our %cmd_lookup = (
     'get_nfdump_version' => \&get_nfdump_version,
 );
-
-sub log_info {
-    syslog('info', "SURFmap: $_[0]");
-
-    return $_[0];
-}
 
 sub get_nfdump_version {
     my $socket  = shift;
@@ -35,14 +30,6 @@ sub get_nfdump_version {
     Nfcomm::socket_send_ok($socket, \%args);
 }
 
-sub nfdump_version_check {
-    my $cmd = "$NfConf::PREFIX/nfdump -V";
-    my $full_version = qx($cmd);
-    (my $version, my $patchlevel) = $full_version =~ /nfdump: Version: ([\.0-9]+)((p[0-9]+)?)/;
-    
-    return $version;
-}  
-
 #
 # The Init function is called when the plugin is loaded. It's purpose is to give the plugin 
 # the possibility to initialize itself. The plugin should return 1 for success or 0 for 
@@ -51,8 +38,8 @@ sub nfdump_version_check {
 #
 sub Init {
     # nfdump version check
-    $nfdump_version = nfdump_version_check;
-    log_info "Detected nfdump v$nfdump_version";
+    $nfdump_version = nfdump_version_check();
+    log_info("Detected nfdump v".$nfdump_version);
     
     return 1;
 }
