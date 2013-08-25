@@ -16,7 +16,7 @@ use warnings;
 use SURFmap::Helpers;
 
 our $VERSION = 136;
-our $SURFMAP_VERSION = "3.2";
+our $SURFMAP_VERSION = "3.1.2";
 our $nfdump_version;
 
 use Exporter;
@@ -26,8 +26,19 @@ our @EXPORT = qw(
     );
 
 our %cmd_lookup = (
-    'get_nfdump_version' => \&get_nfdump_version,
+    'get_backend_version'   => \&get_backend_version,
+    'get_nfdump_version'    => \&get_nfdump_version,
 );
+
+sub get_backend_version {
+    my $socket  = shift;
+    my $opts    = shift;
+    
+    my %args;
+    $args{'version'} = $SURFMAP_VERSION;
+    
+    Nfcomm::socket_send_ok($socket, \%args);
+}
 
 sub get_nfdump_version {
     my $socket  = shift;

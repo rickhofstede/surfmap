@@ -704,7 +704,6 @@
                                 }
                             });
                         }
-                        
                     
                         // Create marker entry, if necessary. Otherwise, update (existing) marker entry
                         if (entries_index == -1) {
@@ -749,6 +748,32 @@
                 $.each(markers, function (marker_index, marker) {
                     // Skip marker if it doesn't belong to the current zoom level
                     if (marker.level != zoom_level_index) return true;
+                    
+                    // Sort marker entries (descending)
+                    var old_entries = marker.entries; // Make copy of entries
+                    marker.entries = []; // Reset marker.entries
+                    while (old_entries.length > 0) {
+                        var new_entry = old_entries.pop();
+                        
+                        // If marker.entries is empty, there is no need to compare anything
+                        if (marker.entries.length == 0) {
+                            marker.entries.push(new_entry);
+                            continue;
+                        }
+                        
+                        var new_comp_value = (zoom_level_index == 3) ? new_entry.flows : new_entry.hosts.length;
+                        $.each(marker.entries, function (entry_index, entry) {
+                            var comp_value = (zoom_level_index == 3) ? entry.flows : entry.hosts.length;
+                            if (new_comp_value >= comp_value) {
+                                marker.entries.splice(entry_index, 0, new_entry);
+                                return false;
+                            }
+                            
+                            if (entry_index == marker.entries.length - 1) {
+                                marker.entries.push(new_entry);
+                            }
+                        });
+                    }
                     
                     // Check whether marker is a default marker or whether it belongs to an extension
                     var info_window_contents = "<table class=\"flow_info_table\">" + generate_marker_info_window_contents(marker.entries) + "</table>";

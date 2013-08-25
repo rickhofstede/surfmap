@@ -254,9 +254,16 @@
             var throughput = entry.octets / entry.duration;
             if (throughput == 'Infinity') throughput = 'Not available';
             body_line.append($('<td/>').text(format_throughput(throughput)));
+            
+            // Add thin line between entries (necessary because entries consist of multiple lines)
+            if (entry_index > 0) {
+                body_line.find('td').css('border-top', 'thin solid #CCCCCC');
+            }
+            
             body.append(body_line);
             
             if (!(entry.src_text.region == undefined && entry.dst_text.region == undefined)) {
+                line_class = (line_class == 'odd') ? 'even' : 'odd';
                 body_line = $('<tr/>', {'class': line_class});
                 
                 if (entry.src_text.region == undefined) {
@@ -276,6 +283,7 @@
             }
             
             if (!(entry.src_text.city == undefined && entry.dst_text.city == undefined)) {
+                line_class = (line_class == 'odd') ? 'even' : 'odd';
                 body_line = $('<tr/>', {'class': line_class});
                 
                 if (entry.src_text.city == undefined) {
@@ -295,6 +303,7 @@
             }
             
             if (!(entry.src_text.ip_address == undefined && entry.dst_text.ip_address == undefined)) {
+                line_class = (line_class == 'odd') ? 'even' : 'odd';
                 body_line = $('<tr/>', {'class': line_class});
                 
                 if (entry.src_text.ip_address == undefined) {

@@ -4,7 +4,9 @@ Please check the manual or readme for installation instructions.
 
 ---
 
-Release notes [v3.2 (20130823)]:
+Release notes [v3.1.1 (20130825)]:
+- [FEATURE] Marker information windows are now sorted
+- [BUGFIX] Google Maps visual refresh is temporarily disabled
 - [BUGFIX] Improved stability of geocoding process in installation script
 - [BUGFIX] Various minor bugfixes and improvements
 
