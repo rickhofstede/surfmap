@@ -138,9 +138,6 @@
                 case 812:   message = "Could not retrieve last used version number.";
                             break;
                         
-                case 812:   message = "Could not update last used version number.";
-                            break;
-                        
                 case 813:   message = "Could not load configuration (constants).";
                             break;
                         
@@ -153,7 +150,7 @@
                 case 816:   message = "Could not write to syslog.";
                             break;
                             
-                case 817:   message = "Could not store misc values.";
+                case 817:   message = "Could not store misc value(s).";
                             break;
             
                 // Client-side-only error codes
@@ -275,13 +272,17 @@
                             // Check if current 
                             if (current_version.indexOf('b') == -1) { // Current version is stable
                                 // Beta number can be ignored
-                                if (pre_letter > current_version) result = 1;
+                                if (pre_letter > current_version) {
+                                    result = 1;
+                                }
                             } else { // Current version is beta
                                 var current_letter_pos = current_version.indexOf('b');
                                 var current_pre_letter = current_version.substring(0, current_letter_pos);
                                 var current_beta = current_version.substring(current_letter_pos + 1);
                                 
-                                if (pre_letter > current_pre_letter || (pre_letter == current_pre_letter && beta > current_beta)) result = 1;
+                                if (pre_letter > current_pre_letter || (pre_letter == current_pre_letter && beta > current_beta)) {
+                                    result = 1;
+                                }
                             }
                         }
                         
@@ -427,7 +428,7 @@
                 }, 10000);
         }
         
-        if (text == '' || text == undefined) {
+        if (text === '' || text == undefined) {
             $('#loading_dialog').dialog('option', 'height', 90);
             $('#loading_text_lower').hide();
         } else {

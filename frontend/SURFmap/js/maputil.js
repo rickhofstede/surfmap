@@ -23,7 +23,7 @@
             strokeColor: color,
             strokeOpacity: 0.7,
             strokeWeight: weight
-        }
+        };
         var line = new google.maps.Polyline(lineOptions);
             
         google.maps.event.addListener(line, "click", function(event) {
@@ -42,7 +42,7 @@
             
             // Find index of line that has been clicked
             var flow_details_button = $(".flow_info_table a:contains(Flow Details)");
-            var lines_index = parseInt(flow_details_button.attr('id').substr(flow_details_button.attr('id').lastIndexOf("-") + 1));
+            var lines_index = parseInt(flow_details_button.attr('id').substr(flow_details_button.attr('id').lastIndexOf("-") + 1), 10);
             var associated_flow_indices = lines[lines_index].associated_flow_indices;
             
             // IP address are only shown at the Host zoom level
@@ -91,7 +91,9 @@
                         },
                         success: function(data) {
                             if (data.status == 0) { // Success
-                                if (resolved_hostnames == undefined) resolved_hostnames = [];
+                                if (resolved_hostnames == undefined) {
+                                    resolved_hostnames = [];
+                                }
                             
                                 $.each(data.hostnames, function (index, tuple) {
                                     resolved_hostnames.push(tuple);
@@ -135,7 +137,7 @@
         var marker_options = {
                 position: coordinates,
                 title: title
-        }
+        };
         if (color == 'green') {
             var green_marker = new google.maps.MarkerImage("images/markers/green-dot.png", new google.maps.Size(30, 30));
             marker_options['icon'] = green_marker;
@@ -195,7 +197,9 @@
                         },
                         success: function(data) {
                             if (data.status == 0) { // Success
-                                if (resolved_hostnames == undefined) resolved_hostnames = [];
+                                if (resolved_hostnames == undefined) {
+                                    resolved_hostnames = [];
+                                }
                             
                                 $.each(data.hostnames, function (index, tuple) {
                                     resolved_hostnames.push(tuple);
@@ -252,7 +256,9 @@
             body_line.append($('<td/>').text(apply_SI_Scale(entry.octets)));
             
             var throughput = entry.octets / entry.duration;
-            if (throughput == 'Infinity') throughput = 'Not available';
+            if (throughput == 'Infinity') {
+                throughput = 'Not available';
+            }
             body_line.append($('<td/>').text(format_throughput(throughput)));
             
             // Add thin line between entries (necessary because entries consist of multiple lines)
@@ -409,10 +415,15 @@
     function get_SM_zoom_level (gm_level) {
         var level = -1;
         
-        if (gm_level <= 4) level = 0;                           // Country: 2-4
-        else if (gm_level >= 5 && gm_level <= 7) level = 1;     // Region: 5-7
-        else if (gm_level >= 8 && gm_level <= 10) level = 2;    // City: 8-10
-        else if (gm_level >= 11 && gm_level <= 13) level = 3;   // Host: 11-13
+        if (gm_level <= 4) {
+            level = 0;  // Country: 2-4
+        } else if (gm_level >= 5 && gm_level <= 7) {
+            level = 1;  // Region: 5-7
+        } else if (gm_level >= 8 && gm_level <= 10) {
+            level = 2;  // City: 8-10
+        } else if (gm_level >= 11 && gm_level <= 13) {
+            level = 3;  // Host: 11-13
+        }
         
         return level;
     }
@@ -420,13 +431,18 @@
     /*
      * Returns the Google Maps zoom level of the specified SURFmap zoom level.
      * Parameters:
-     *     smZoomLevel - the SURFmap zoom level that has to be converted to a Google Maps zoom level
+     *     sm_level - the SURFmap zoom level that has to be converted to a Google Maps zoom level
      */          
     function get_GM_zoom_level (sm_level) {
-        if (sm_level == 0) return 2;
-        else if (sm_level == 1) return 5;
-        else if (sm_level == 2) return 8;
-        else return 11;
+        if (sm_level == 0) { // Country
+            return 2;
+        } else if (sm_level == 1) { // Region
+            return 5;
+        } else if (sm_level == 2) { // City
+            return 8;
+        } else { // Host
+            return 11;
+        }
     }
     
     /*
@@ -507,7 +523,9 @@
                      * change its center again to the actual configured map center.
                      * When called in demo mode, when a random line is clicked by SURFmap, map.getCenter() can be undefined.
                      */
-                    if (map.getCenter().equals(map_center_wo_gray)) map.setCenter(map_center);
+                    if (map.getCenter().equals(map_center_wo_gray)) {
+                        map.setCenter(map_center);
+                    }
                 }
             });
         });
@@ -567,7 +585,9 @@
         // Collect all line objects at the current zoom level
         if (lines != undefined) {
             $.each(lines, function (line_index, line) {
-                if (line.level == zoom_level) lines_at_level.push(line);
+                if (line.level == zoom_level) {
+                    lines_at_level.push(line);
+                }
             });
         
             // Randomly select one line out of the collected lines

@@ -12,7 +12,9 @@
      */
     function init_panel () {
         // Since no menu panel is shown in demo mode, further processing can be skipped
-        if (config['demo_mode']) return;
+        if (config['demo_mode']) {
+            return;
+        }
         
         $('div.panel_trigger').click(function () {
             $('.panel').toggle('slow');
@@ -45,7 +47,9 @@
          * prevent someone from entering a newline by copy/paste.
          */
         $('.filter').keypress(function(event) {
-            if (event.keyCode == 13) return false;
+            if (event.keyCode == 13) {
+                return false;
+            }
         });
         
         // On submit
@@ -72,10 +76,10 @@
             }
             
             // Hide filter input text fields, if empty
-            if ($('#filter_flow_text').is(':visible') && $('#filter_flow_text').val() == "") {
+            if ($('#filter_flow_text').is(':visible') && $('#filter_flow_text').val() === "") {
                 $('#filter_flow').trigger('click');
             }
-            if ($('#filter_geo_text').is(':visible') && $('#filter_geo_text').val() == "") {
+            if ($('#filter_geo_text').is(':visible') && $('#filter_geo_text').val() === "") {
                 $('#filter_geo').trigger('click');
             }
             
@@ -284,11 +288,11 @@
                 }
                 
                 // If date and/or time has changed
-                if (new_date_time.getFullYear() != parseInt(session_data[selector_date].substring(0,4))
-                        || new_date_time.getMonth() != parseInt(session_data[selector_date].substring(4,6)) - 1 // Months are zero-indexed
-                        || new_date_time.getDate() != parseInt(session_data[selector_date].substring(6,8))
-                        || new_date_time.getHours() != parseInt(session_data[selector_hours])
-                        || new_date_time.getMinutes() != parseInt(session_data[selector_minutes])) {
+                if (new_date_time.getFullYear() != parseInt(session_data[selector_date].substring(0,4), 10)
+                        || new_date_time.getMonth() != parseInt(session_data[selector_date].substring(4,6), 10) - 1 // Months are zero-indexed
+                        || new_date_time.getDate() != parseInt(session_data[selector_date].substring(6,8), 10)
+                        || new_date_time.getHours() != parseInt(session_data[selector_hours], 10)
+                        || new_date_time.getMinutes() != parseInt(session_data[selector_minutes], 10)) {
                     var date_string = new_date_time.getFullYear().toString();
                     if (new_date_time.getMonth() + 1 < 10) {
                         date_string += "0";
@@ -333,14 +337,18 @@
                     return obj;
                 },
                 options: function(tp_inst, obj, unit, opts, val) {
-                    if(typeof(opts) == 'string' && val !== undefined)
-                            return obj.find('.ui-timepicker-input').spinner(opts, val);
-                    return obj.find('.ui-timepicker-input').spinner(opts);
+                    if(typeof(opts) == 'string' && val !== undefined) {
+                        return obj.find('.ui-timepicker-input').spinner(opts, val);
+                    } else {
+                        return obj.find('.ui-timepicker-input').spinner(opts);
+                    }
                 },
                 value: function(tp_inst, obj, unit, val) {
-                    if(val !== undefined)
+                    if(val !== undefined) {
                         return obj.find('.ui-timepicker-input').spinner('value', val);
-                    return obj.find('.ui-timepicker-input').spinner('value');
+                    } else {
+                        return obj.find('.ui-timepicker-input').spinner('value');
+                    }
                 }
             }
         });
@@ -378,8 +386,8 @@
         
         // Initialize flow record count
         $('#flow_record_count_input').val(session_data['flow_record_count'].toString()).change(function () {
-            if (parseInt($('#flow_record_count_input').val()) != session_data['flow_record_count']) {
-                $(document).trigger('session_data_changed', { 'flow_record_count': parseInt($('#flow_record_count_input').val()) } );
+            if (parseInt($('#flow_record_count_input').val(), 10) != session_data['flow_record_count']) {
+                $(document).trigger('session_data_changed', { 'flow_record_count': parseInt($('#flow_record_count_input').val(), 10) } );
             }
         });
         
@@ -404,11 +412,11 @@
         });
         
         // Show filter input fields when filter is set
-        if (session_data['flow_display_filter'] != '') {
+        if (session_data['flow_display_filter'] !== '') {
             $('#filter_flow_text').val(session_data['flow_display_filter']);
             $('#filter_flow').trigger('click');
         }
-        if (session_data['geo_filter'] != '') {
+        if (session_data['geo_filter'] !== '') {
             $('#filter_geo_text').val(session_data['geo_filter']);
             $('#filter_geo').trigger('click');
         }

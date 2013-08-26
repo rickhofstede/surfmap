@@ -91,11 +91,13 @@
     function format_location_name (name) {
         var name = name.toLowerCase();
         
-         // Many geolocation databases use 'NETHERLANDS' instead of 'THE NETHERLANDS'
-         if (name == 'netherlands') name = 'the netherlands';
+        // Many geolocation databases use 'NETHERLANDS' instead of 'THE NETHERLANDS'
+        if (name == 'netherlands') {
+            name = 'the netherlands';
+        }
         
         var result = "";
-        if (name == "-" || name == "" || name == " " || name.indexOf("nknown") != -1) {
+        if (name == "-" || name === "" || name == " " || name.indexOf("nknown") != -1) {
             result = "Not available";
         } else {
             for (var i = 0; i < name.length; i++) {

@@ -82,12 +82,12 @@
             'country':  -1,
             'region':   -1,
             'city':     -1
-        }
+        };
         var global_line_maxima = {
             'country':  -1,
             'region':   -1,
             'city':     -1
-        }
+        };
         
         jQuery.ajaxSetup({
             cache: false,
@@ -100,14 +100,14 @@
             ajax_error = 1;
             $(document).trigger('loading_cancelled');
             
-            if (jqXHR.status === 0) {
+            if (jqXHR.status == 0) {
                 // show_error(800, "Could not connect to the server. Please check your network connectivity.");
             } else if (jqXHR.status == 404) {
                 show_error(800, "The requested page could not be found (HTTP 404).");
             } else if (jqXHR.status == 500) {
                 show_error(800, "Internal server error (HTTP 500).");
             } else if (exception === 'parsererror') {
-                show_error(800, "The requested JSON document could not be parsed.");;
+                show_error(800, "The requested JSON document could not be parsed.");
             } else if (exception === 'timeout') {
                 show_error(800, "Timeout error.");
             } else if (exception === 'abort') {
@@ -431,7 +431,9 @@
                     var lines_index = -1; // -1: line does not exist, >= 0: line index in 'lines' array
                     $.each(lines, function (line_index, line) {
                         // Skip line if it doesn't belong to the current zoom level
-                        if (line.level != zoom_level_index) return true;
+                        if (line.level != zoom_level_index) {
+                            return true;
+                        }
                         
                         if ((line.point1.equals(point1) && line.point2.equals(point2))
                                 || (line.point1.equals(point2) && line.point2.equals(point1))) {
@@ -445,7 +447,7 @@
                         var line = {};
                         line.point1 = point1;
                         line.point2 = point2;
-                        line.level = parseInt(zoom_level_index);
+                        line.level = parseInt(zoom_level_index, 10);
                         line.entries = [];
                         line.associated_flow_indices = [];
                         lines.push(line);
@@ -544,19 +546,21 @@
                 'region':   -1,
                 'city':     -1,
                 'host':     -1
-            }
+            };
             global_line_maxima = {
                 'country':  -1,
                 'region':   -1,
                 'city':     -1,
                 'host':     -1
-            }
+            };
             
             // Determine maxima and sums, both global and per line
             $.each(zoom_levels, function (zoom_level_index, zoom_level) {
                 $.each(lines, function (line_index, line) {
                     // Skip line if it doesn't belong to the current zoom level
-                    if (line.level != zoom_level_index) return true;
+                    if (line.level != zoom_level_index) {
+                        return true;
+                    }
                     
                     // Skip line if internal and that traffic should not be considered (setting in config.php)
                     if (config['ignore_marker_internal_traffic_in_line_color_classification'] &&
@@ -608,7 +612,9 @@
                 
                 $.each(lines, function (line_index, line) {
                     // Skip line if it doesn't belong to the current zoom level
-                    if (line.level != zoom_level_index) return true;
+                    if (line.level != zoom_level_index) {
+                        return true;
+                    }
                     
                     var line_sum;
                     if (session_data['nfsen_option'] == 0 || session_data['nfsen_stat_order'] == 0) { // Flows
@@ -620,7 +626,9 @@
                     }
                     
                     var ratio = (line_sum - global_line_minima[zoom_level]) / (global_line_maxima[zoom_level] - global_line_minima[zoom_level]);
-                    if (isNaN(ratio)) ratio = 0.75;
+                    if (isNaN(ratio)) {
+                        ratio = 0.75;
+                    }
                     
                     var color = jQuery.Color({ hue: (1 - ratio) * 120, saturation: 0.7, lightness: 0.5, alpha: 1 }).toHexString();
                     var thickness = Math.max((ratio + 1) * 3, 1.5);
@@ -668,13 +676,17 @@
                             lng             = flow_item[this + '_city_lng'];
                         }
                         
-                        if (location_aware_export) marker_text += " (Flowoid)";
+                        if (location_aware_export) {
+                            marker_text += " (Flowoid)";
+                        }
                         
                         // Find marker (if it exists)
                         var markers_index = -1; // -1: marker does not exist, >= 0: marker index in 'markers' array
                         $.each(markers, function (marker_index, marker) {
                             // Skip to next marker in case of wrong zoom level
-                            if (marker.level != zoom_level_index) return true;
+                            if (marker.level != zoom_level_index) {
+                                return true;
+                            }
                             
                             if (marker.point.equals(new google.maps.LatLng(lat, lng))) {
                                 markers_index = marker_index;
@@ -747,7 +759,9 @@
             $.each(zoom_levels, function (zoom_level_index, zoom_level) {
                 $.each(markers, function (marker_index, marker) {
                     // Skip marker if it doesn't belong to the current zoom level
-                    if (marker.level != zoom_level_index) return true;
+                    if (marker.level != zoom_level_index) {
+                        return true;
+                    }
                     
                     // Sort marker entries (descending)
                     var old_entries = marker.entries; // Make copy of entries
@@ -783,7 +797,9 @@
                     var mobile_exporter = false;
                     $.each(lines, function (line_index, line) {
                         // Skip line if it doesn't belong to the current zoom level
-                        if (marker.level != zoom_level_index) return true;
+                        if (marker.level != zoom_level_index) {
+                            return true;
+                        }
                     
                         // Check for internal traffic 'within' a marker
                         if (line.point1.equals(line.point2)
@@ -819,7 +835,7 @@
              * http://brondsema.net/blog/index.php/2007/06/06/100_height_iframe
              */
             if ($("meta[http-equiv='X-UA-Compatible'][content='IE=edge']").length > 0 // Check whether the problematic meta-tag has been set
-                    && $.browser.msie && parseInt($.browser.version) >= 8) {
+                    && $.browser.msie && parseInt($.browser.version, 10) >= 8) {
                 parent.document.getElementById("surfmapParentIFrame").style.height = client_height +"px";
             }
             
@@ -856,7 +872,9 @@
         
         function init_legend () {
             // Since no legend is shown in demo mode, further processing can be skipped
-            if (config['demo_mode']) return;
+            if (config['demo_mode']) {
+                return;
+            }
             
             if (session_data['nfsen_option'] == 0) {
                 $('#legend_description').text("Flows:");
@@ -916,13 +934,13 @@
                 
                 // If 'max < 1000', min is also < 1000 and therefore SI scales will not apply
                 if (max < 1000) {
-                    min = parseInt(min);
-                    mid = parseInt(mid);
-                    max = parseInt(max);
+                    min = parseInt(min, 10);
+                    mid = parseInt(mid, 10);
+                    max = parseInt(max, 10);
                 } else {
-                    min = apply_SI_Scale(parseInt(min));
-                    mid = apply_SI_Scale(parseInt(mid));
-                    max = apply_SI_Scale(parseInt(max));
+                    min = apply_SI_Scale(parseInt(min, 10));
+                    mid = apply_SI_Scale(parseInt(mid, 10));
+                    max = apply_SI_Scale(parseInt(max, 10));
                 }
                 
                 $('#legend_scale_text_left').text(min);
@@ -968,6 +986,7 @@
                             break;
                             
                 default:    description = "Unknown error code (" + error_code + ").";
+                            break;
             }
             
             return description;
@@ -1032,7 +1051,7 @@
                 "PHP loaded extensions:  <?php echo implode(', ', get_loaded_extensions()); ?>",
                 "CLient Web browser: " + navigator.userAgent,
                 "CLient Web browser cookies enabled: " + navigator.cookieEnabled
-            ]
+            ];
             
             $.ajax({
                 url: 'json/writetosyslog.php',
@@ -1043,7 +1062,7 @@
                     }
                 },
                 success: function(data) {
-                    if (data.status != 0) { // Failure
+                    if (data.status !== 0) { // Failure
                         show_error(816, data.status_message);
                     }
                 }

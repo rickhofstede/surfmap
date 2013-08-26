@@ -74,7 +74,9 @@ $(document).ready(function() {
             var extension_list = "";
             
             $.each(extensions, function (index, extension) {
-                if (extension_list != "") extension_list += ", ";
+                if (extension_list !== "") {
+                    extension_list += ", ";
+                }
                 extension_list += extension.name;
             });
             
@@ -87,7 +89,7 @@ $(document).ready(function() {
                     }
                 },
                 success: function(data) {
-                    if (data.status != 0) { // Failure
+                    if (data.status !== 0) { // Failure
                         show_error(816, data.status_message);
                     }
                 }
@@ -172,7 +174,7 @@ $(document).ready(function() {
                 "zoom_level: " + session_data['zoom_level'],
                 "curl_loaded: " + session_data['curl_loaded'],
                 "use_db: " + session_data['use_db']
-            ]
+            ];
             
             $.ajax({
                 url: 'json/writetosyslog.php',
@@ -183,7 +185,7 @@ $(document).ready(function() {
                     }
                 },
                 success: function(data) {
-                    if (data.status != 0) { // Failure
+                    if (data.status !== 0) { // Failure
                         show_error(816, data.status_message);
                     }
                 }
@@ -338,7 +340,7 @@ $(document).ready(function() {
         });
         
         // Check whether geo filter should be applied
-        if (session_data['geo_filter'] == "") {
+        if (session_data['geo_filter'] === "") {
             $(document).trigger('prepare_reverse_geocode');
         } else {
             show_loading_message('Applying geo filter');
@@ -474,7 +476,7 @@ $(document).ready(function() {
                     }
                     
                     // If ready, start remaining processing
-                    if (geocoder_data_client.reverse_request_count = geocoder_data_client.requests_success + geocoder_data_client.requests_error) {
+                    if (geocoder_data_client.reverse_request_count == geocoder_data_client.requests_success + geocoder_data_client.requests_error) {
                         var reverse_geocoder_data = [];
                         $.each(geocoder_data_client.reverse_geocoder_data, function (index, item) {
                             reverse_geocoder_data.push(item);
@@ -858,14 +860,14 @@ $(document).ready(function() {
         
         if (geocoder_data_client.geocoder_data != undefined) {
             $.each(geocoder_data_client.geocoder_data, function (index, item) {
-                if (item.lat != null && item.lng != null) {
+                if (item.lat !== null && item.lng !== null) {
                     geocoder_data.push(item);
                 }
             });
         }
         if (geocoder_data_server.geocoder_data != undefined) {
             $.each(geocoder_data_server.geocoder_data, function (index, item) {
-                if (item.lat != null && item.lng != null) {
+                if (item.lat !== null && item.lng !== null) {
                     geocoder_data.push(item);
                 }
             });
@@ -924,30 +926,30 @@ $(document).ready(function() {
             var geocoder_history = {};
             geocoder_history['client'] = {};
             geocoder_history['client'].requests_success = geocoder_data_client.requests_success
-                    + parseInt(session_data['geocoder_history']['client'].requests_success);
+                    + parseInt(session_data['geocoder_history']['client'].requests_success, 10);
             geocoder_history['client'].requests_blocked = geocoder_data_client.requests_blocked
-                    + parseInt(session_data['geocoder_history']['client'].requests_blocked);
+                    + parseInt(session_data['geocoder_history']['client'].requests_blocked, 10);
             geocoder_history['client'].requests_error = geocoder_data_client.requests_error
-                    + parseInt(session_data['geocoder_history']['client'].requests_error);
+                    + parseInt(session_data['geocoder_history']['client'].requests_error, 10);
             geocoder_history['client'].requests_skipped = geocoder_data_client.requests_skipped
-                    + parseInt(session_data['geocoder_history']['client'].requests_skipped);
+                    + parseInt(session_data['geocoder_history']['client'].requests_skipped, 10);
                 
             // Only send geocoder history for server-based geocoding if it has been used
             if (geocoder_data_server != undefined) {
                 geocoder_history['server'] = {};
                 geocoder_history['server'].requests_success = geocoder_data_server.requests_success
-                        + parseInt(session_data['geocoder_history']['server'].requests_success);
+                        + parseInt(session_data['geocoder_history']['server'].requests_success, 10);
                 geocoder_history['server'].requests_blocked = geocoder_data_server.requests_blocked
-                        + parseInt(session_data['geocoder_history']['server'].requests_blocked);
+                        + parseInt(session_data['geocoder_history']['server'].requests_blocked, 10);
                 geocoder_history['server'].requests_error = geocoder_data_server.requests_error
-                        + parseInt(session_data['geocoder_history']['server'].requests_error);
+                        + parseInt(session_data['geocoder_history']['server'].requests_error, 10);
                 geocoder_history['server'].requests_skipped = geocoder_data_server.requests_skipped
-                        + parseInt(session_data['geocoder_history']['server'].requests_skipped);
+                        + parseInt(session_data['geocoder_history']['server'].requests_skipped, 10);
             }
                 
             $(document).trigger('session_data_changed', { 'geocoder_history': geocoder_history } );
                     
-            if (geocoder_data.length != 0) {
+            if (geocoder_data.length !== 0) {
                 $.ajax({
                     url: 'json/storegeocoderdata.php',
                     data: {
@@ -1005,7 +1007,7 @@ $(document).ready(function() {
              * shown.
              */
             if (!$('#error_dialog').dialog('isOpen') && (flow_data == undefined || flow_data.length == 0)) { // No flow records left after filtering
-                if (session_data['flow_display_filter'] == "" && session_data['geo_filter'] == "") {
+                if (session_data['flow_display_filter'] === "" && session_data['geo_filter'] === "") {
                     show_warning(2);
                 } else {
                     show_warning(3);
