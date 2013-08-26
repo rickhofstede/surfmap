@@ -8,7 +8,7 @@ Release notes [v3.1.1 (20130826)]:
 - [FEATURE] Marker information windows are now sorted
 - [BUGFIX] Google Maps visual refresh is temporarily disabled
 - [BUGFIX] Improved stability of geocoding process in installation script
-- [BUGFIX] Fixed nfdump deprecation messages when -m was used for sorting flow data
+- [BUGFIX] Fixed nfdump deprecation messages when -m is used for sorting flow data
 - [BUGFIX] Various minor bugfixes and improvements
 
 Release notes [v3.1 (20130802)]:
