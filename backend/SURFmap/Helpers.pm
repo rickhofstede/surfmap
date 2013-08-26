@@ -1,4 +1,4 @@
-# *******************************
+################################################################
 #
 # Helpers.pm [SURFmap]
 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
@@ -6,7 +6,7 @@
 #
 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
 #
-# *******************************
+################################################################
 
 package SURFmap::Helpers;
 

@@ -1,4 +1,4 @@
-# *******************************
+################################################################
 #
 # SURFmap.pm [SURFmap]
 # Author: Rick Hofstede <r.j.hofstede@utwente.nl>
@@ -6,7 +6,7 @@
 #
 # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
 #
-# *******************************
+################################################################
 
 package SURFmap;
 
@@ -16,7 +16,7 @@ use warnings;
 use SURFmap::Helpers;
 
 our $VERSION = 136;
-our $SURFMAP_VERSION = "3.1.2";
+our $SURFMAP_VERSION = "3.1.1";
 our $nfdump_version;
 
 use Exporter;

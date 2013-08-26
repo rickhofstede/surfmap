@@ -288,7 +288,7 @@
                         if (result == 0) { // Up-to-date
                             update_result.attr('src', 'images/check.gif').attr('title', 'SURFmap is up-to-date.');
                         } else { // Never version available
-                            update_result.attr('src', 'images/information.gif').attr('title', 'A newer version of SURFmap is available for download at http://surfmap.sf.net/.');
+                            update_result.attr('src', 'images/information.gif').attr('title', 'A newer version of SURFmap (' + data.version + ') is available for download at http://surfmap.sf.net/.');
                         }
                     } else {
                         // No error message should be shown here
