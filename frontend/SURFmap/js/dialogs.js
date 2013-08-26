@@ -30,7 +30,7 @@
         
             var message = "";
             switch (code) {
-                case 1:     message = "You are running Microsoft Internet Explorer. Please note that SURFmap has been optimized for Mozilla Firefox, Google Chrome and Apple Safari.";
+                case 1:     message = "You are running an old version of Microsoft Internet Explorer (< v10). Please note that SURFmap has been optimized for Mozilla Firefox, Google Chrome and Apple Safari.";
                             break;
                 
                 case 2:     message = "The selected time range appears to contain no flow data. Please adjust the time range.";

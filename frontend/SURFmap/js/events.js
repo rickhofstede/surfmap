@@ -994,11 +994,11 @@ $(document).ready(function() {
         }
         
         if (config['show_warnings']) {
-            if ($.browser.msie) { // IE is used
-                var cookie_value = get_cookie_value('SURFmap', 'msie');
+            if ($.browser.msie && parseInt($.browser.version, 10) < 10) { // Old IE is used (< v10)
+                var cookie_value = get_cookie_value('SURFmap', 'msie_old');
                 if (cookie_value == undefined || cookie_value == 0) {
                     show_warning(1);
-                    update_cookie_value('SURFmap', 'msie', 1);
+                    update_cookie_value('SURFmap', 'msie_old', 1);
                 }
             }
             

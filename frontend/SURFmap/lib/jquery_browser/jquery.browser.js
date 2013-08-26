@@ -1,3 +1,18 @@
+/*!
+ * jQuery Browser Plugin v0.0.2
+ * https://github.com/gabceb/jquery-browser-plugin
+ *
+ * Original jquery-browser code Copyright 2005, 2013 jQuery Foundation, Inc. and other contributors
+ * http://jquery.org/license
+ *
+ * Modifications Copyright 2013 Gabriel Cebrian
+ * https://github.com/gabceb
+ *
+ * Released under the MIT license
+ *
+ * Date: 2013-07-29T17:23:27-07:00
+ */
+
 (function( jQuery, window, undefined ) {
 "use strict";
  
@@ -6,10 +21,12 @@ var matched, browser;
 jQuery.uaMatch = function( ua ) {
   ua = ua.toLowerCase();
  
-	var match = /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
+	var match = /(opr)[\/]([\w.]+)/.exec( ua ) || 
+		/(chrome)[ \/]([\w.]+)/.exec( ua ) ||
 		/(webkit)[ \/]([\w.]+)/.exec( ua ) ||
 		/(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
 		/(msie) ([\w.]+)/.exec( ua ) ||
+		ua.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec( ua ) ||
 		ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
 		[];
 
@@ -37,11 +54,23 @@ if ( matched.platform) {
 	browser[ matched.platform ] = true
 }
  
-// Chrome is Webkit, but Webkit is also Safari.
-if ( browser.chrome ) {
+// Chrome and Opera 15+ are Webkit, but Webkit is also Safari.
+if ( browser.chrome || browser.opr) {
 	browser.webkit = true;
 } else if ( browser.webkit ) {
 	browser.safari = true;
+}
+
+// IE11 has a new token so we will assign it msie to avoid breaking changes
+if (browser.rv)
+{
+	browser.msie = true;
+}
+
+// Opera 15+ are identified as opr
+if (browser.opr)
+{
+	browser.opera = true;
 }
  
 jQuery.browser = browser;
