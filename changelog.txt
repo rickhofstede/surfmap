@@ -4,12 +4,15 @@ Please check the manual or readme for installation instructions.
 
 ---
 
+Release notes [v3.2 (20130827)]:
+- [BUGFIX] Various minor bug fixes and improvements
+
 Release notes [v3.1.1 (20130826)]:
 - [FEATURE] Marker information windows are now sorted
 - [BUGFIX] Google Maps visual refresh is temporarily disabled
 - [BUGFIX] Improved stability of geocoding process in installation script
 - [BUGFIX] Fixed nfdump deprecation messages when -m is used for sorting flow data
-- [BUGFIX] Various minor bugfixes and improvements
+- [BUGFIX] Various minor bug fixes and improvements
 
 Release notes [v3.1 (20130802)]:
 
@@ -27,7 +30,7 @@ WARNING: The configuration file of older versions is not compatible with this re
 - [BUGFIX] Fixed a bug that prevented SURFmap from loading completely in case of an invalid time range selection present in the session data
 - [BUGFIX] Fixed a bug that could cause (reverse) geocoding to wait endless in case of an OVER_QUERY_LIMIT result from Google Geocoder
 - [BUGFIX] Improved stability when using a proxy
-- [BUGFIX] Various minor bugfixes and improvements
+- [BUGFIX] Various minor bug fixes and improvements
 
 Release notes [v3.0 (20130612)]:
 
@@ -101,7 +104,7 @@ WARNING: The configuration file of previous versions is not compatible with this
 - [BUGFIX] Improved compatibility with Internet Explorer 8 + 9
 - [BUGFIX] Improved stability when handling NfSen shadow profiles
 - [BUGFIX] Improved layout on Linux systems
-- [BUGFIX] Numerous bugfixes and improvements
+- [BUGFIX] Numerous bug fixes and improvements
 
 Release notes [20111024]:
 
@@ -121,7 +124,7 @@ WARNING: Please check the manual for installation instructions (Chapter 2.1).
 - [FEATURE] Marker information window show flow details now as well
 - [FEATURE] Updated MaxMind plugin to v1.9
 - [BUGFIX] Greatly improved overall stability in case of empty data sets, erroneous filter, etc.
-- [BUGFIX] Many bugfixes and improvements
+- [BUGFIX] Many bug fixes and improvements
 
 Release notes [20110929]:
 - [BUGFIX] Fixed an issue in the ConfigurationChecker, which caused checking procedures to fail when the PHP module 'mysql' was not available on the system
@@ -138,13 +141,13 @@ Release notes [20110923]:
 Release notes [20110916]:
 - [FEATURE] Updated jQuery to v1.6.2
 - [FEATURE] Updated jQuery UI to v1.8.16
-- [BUGFIX] Minor bugfixes and improvements
+- [BUGFIX] Minor bug fixes and improvements
 
 Release notes [20110603]:
 - [FEATURE] Migrated the geocoded cache DB from MySQL to SQLite. Please run the ConfigurationChecker module to verify your settings, before running SURFmap
 - [FEATURE] Migrated Google Maps API to v3
 - [FEATURE] Updated jQuery UI to v1.8.13
-- [BUGFIX] Minor bugfixes and improvements
+- [BUGFIX] Minor bug fixes and improvements
 
 Release notes [20110508]:
 - [FEATURE] Made the default amount of flow records to be selected configurable ($DEFAULT_FLOW_RECORD_COUNT)
@@ -152,13 +155,13 @@ Release notes [20110508]:
 - [FEATURE] Improved support for dynamic map sizes. If you change the 'SCREEN_WIDTH' setting, make sure to adapt the iFrame sizes in SURFmap.php as well (see Chapter 2.1.2 of the manual)
 - [FEATURE] Updated jQuery UI to v1.8.12
 - [BUGFIX] Fixed an issue in the ConfigurationChecker module, which caused the verification of nfcapd source file existence not to complete successfully
-- [BUGFIX] Minor bugfixes and improvements
+- [BUGFIX] Minor bug fixes and improvements
 
 Release notes [20110402]:
 - [FEATURE] Added support for the MaxMind GeoLite geolocation service. Please check the SURFmap manual for more details
 - [FEATURE] Improved support for special characters in location names
 - [BUGFIX] Fixed a bug which could cause incorrect or missing drawings of lines and markers
-- [BUGFIX] Minor bugfixes and improvements 
+- [BUGFIX] Minor bug fixes and improvements 
 
 Release notes [20110328]:
 - [FEATURE] Added more lines to debug logging
@@ -180,7 +183,7 @@ Release notes [20110314]:
 - [BUGFIX] Fixed an issue which caused the zoom level table not to show the current zoom level anymore
 - [BUGFIX] Fixed an issue which made it impossible to switch from NfSen's 'List Flows' option to NfSen's 'StatTopN' option
 - [BUGFIX] Made several stability improvements for the ConfigurationChecker module
-- [BUGFIX] Minor bugfixes and improvements
+- [BUGFIX] Minor bug fixes and improvements
 
 Release notes [20110306]:
 - [FEATURE] Added an option to change the default Google Maps map's center position
@@ -193,7 +196,7 @@ Release notes [20110306]:
 - [FEATURE] Improved AJAX handling
 - [BUGFIX] Fixed a problem with SURFmap's advanced mode when using MySQL as the NetFlow data information source
 - [BUGFIX] Removed the 'REFRESH_INTERVAL' setting until a better solution has been found
-- [BUGFIX] Minor bugfixes and improvements
+- [BUGFIX] Minor bug fixes and improvements
 
 Release notes [20110204]:
 - [FEATURE] Added support for the definition of multiple internal domains
