@@ -700,11 +700,15 @@
                             marker.point = new google.maps.LatLng(lat, lng);
                             marker.level = zoom_level_index;
                             marker.entries = [];
+                            marker.associated_flow_indices = [];
                             marker.extension = (location_aware_export) ? 'Location-aware exporting' : undefined;
                             marker.text = marker_text;
                             markers.push(marker);
                             markers_index = markers.length - 1;
                         }
+                        
+                        // Update flow index association (i.e. index in 'flow_data' array)
+                        markers[markers_index].associated_flow_indices.push(flow_index);
                         
                         // Find marker entry (if it exists)
                         var entries_index = -1; // -1: entry does not exist, >= 0: entry index in 'entries' array
@@ -790,7 +794,7 @@
                     }
                     
                     // Check whether marker is a default marker or whether it belongs to an extension
-                    var info_window_contents = "<table class=\"flow_info_table\">" + generate_marker_info_window_contents(marker.entries) + "</table>";
+                    var info_window_contents = "<table class=\"flow_info_table\">" + generate_marker_info_window_contents(marker_index, marker.entries) + "</table>";
                 
                     // Check for 1) internal marker traffic and 2) whether marker belongs to a mobile flow exporter
                     var internal_traffic = false;

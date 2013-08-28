@@ -26,7 +26,7 @@
         };
         var line = new google.maps.Polyline(lineOptions);
             
-        google.maps.event.addListener(line, "click", function(event) {
+        google.maps.event.addListener(line, 'click', function(event) {
             map.setCenter(event.latLng);
             info_window.close();
                 
@@ -41,7 +41,7 @@
             info_window.open(map);
             
             // Find index of line that has been clicked
-            var flow_details_button = $(".flow_info_table a:contains(Flow Details)");
+            var flow_details_button = $('.flow_info_table a:contains(Flow Details)');
             var lines_index = parseInt(flow_details_button.attr('id').substr(flow_details_button.attr('id').lastIndexOf("-") + 1), 10);
             var associated_flow_indices = lines[lines_index].associated_flow_indices;
             
@@ -148,11 +148,17 @@
         
         var marker = new google.maps.Marker(marker_options);
 
-        google.maps.event.addListener(marker, "click", function(event) {
+        google.maps.event.addListener(marker, 'click', function(event) {
             map.setCenter(event.latLng);
             info_window.close();
             info_window.setContent(text);
             info_window.open(map, marker);
+            
+            // Find index of marker that has been clicked
+            var flow_details_button = $('.flow_info_table a:contains(Flow Details)');
+            var markers_index = parseInt(flow_details_button.attr('id').substr(flow_details_button.attr('id').lastIndexOf("-") + 1), 10);
+            var associated_flow_indices = markers[markers_index].associated_flow_indices;
+            
             
             // IP address are only shown at the Host zoom level
             if (get_SM_zoom_level(map.getZoom()) == 3) {
@@ -217,6 +223,11 @@
                     });
                 }
             }
+            
+            // Attach click handler for opening Flow Details
+            flow_details_button.click(function (event) {
+                show_flow_details(associated_flow_indices);
+            });
             
             // Make all instances of 'Not available' in information windows italic
             $('.flow_info_table td:contains(Not available)').css('font-style', 'italic');
@@ -356,10 +367,11 @@
      * Generates the HTML (table) code for a marker, based on the specified
      * marker entries.
      * Parameters:
+     *     markers_index - index of marker in 'markers' array
      *     marker_entries - entry data structure, of which the contents need to
      *         be included in the information window
      */ 
-    function generate_marker_info_window_contents (marker_entries) {
+    function generate_marker_info_window_contents (markers_index, marker_entries) {
         var body = $('<tbody/>');
         var header_line = $('<tr/>', {'class': 'header'});
         
@@ -398,8 +410,9 @@
         var zoom_out = $('<a/>', { 'href': 'Javascript:zoom(1)' }).text('Zoom Out');
         var quick_zoom_in = $('<a/>', { 'href': 'Javascript:quick_zoom(0)' }).text('Quick Zoom In');
         var quick_zoom_out = $('<a/>', { 'href': 'Javascript:quick_zoom(1)' }).text('Quick Zoom Out');
+        var flow_details = $('<a/>', { 'id': 'flow_details markers_index-' + markers_index, 'href': 'Javascript:' }).text('Flow Details'); // Click handler is attached in create_line when info_window is opened
         
-        footer_contents.append(zoom_in).append(' - ').append(zoom_out).append('<br/>');
+        footer_contents.append(zoom_in).append(' - ').append(zoom_out).append(' | ').append(flow_details).append('<br/>');
         footer_contents.append(quick_zoom_in).append(' - ').append(quick_zoom_out);
         
         footer.append(footer_contents);
