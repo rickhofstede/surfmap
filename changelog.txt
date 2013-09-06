@@ -5,6 +5,7 @@ Please check the manual or readme for installation instructions.
 ---
 
 Release notes [v3.2 (20130828)]:
+- [FEATURE] 'Flow Details' are now also available in marker information windows
 - [BUGFIX] Various minor bug fixes and improvements
 
 Release notes [v3.1.1 (20130826)]:
