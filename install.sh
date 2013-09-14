@@ -208,4 +208,4 @@ else
 fi
 
 echo "-----"
-echo "Please restart/reload NfSen to finish installation (e.g. sudo ${BINDIR}/nfsen reload)"
+echo "Please restart/reload NfSen to finish installation (e.g., sudo ${BINDIR}/nfsen reload)"
