@@ -193,7 +193,7 @@
 </head>
 <body>
     <div id="header">
-        <span id="logo"><a href="http://www.utwente.nl/en" target="_blank"><img src="images/UT_Logo.png" alt="University of Twente"/></a></span>
+        <span id="logo"><a href="http://www.utwente.nl/en" target="_blank"><img src="img/UT_Logo.png" alt="University of Twente"/></a></span>
         <div id="header_line">&nbsp;</div>
         <div id="header_text">
             <p><span>SURFmap</span><br>A network monitoring tool based on the Google Maps API</p>

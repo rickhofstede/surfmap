@@ -272,7 +272,7 @@ div.panel_trigger {
     color:              #FFFFFF;
     padding:            15px 10px 15px 35px;
     font-weight:        700;
-    background:         #333333 url(../images/plus.png) 15% 55% no-repeat;
+    background:         #333333 url(../img/plus.png) 15% 55% no-repeat;
     border:             1px solid #444444;
     border-radius:      20px 0px 0px 20px;
     display:            block;
@@ -294,7 +294,7 @@ div.panel_trigger:hover {
     color:              #FFFFFF;
     padding:            15px 10px 15px 45px;
     font-weight:        700;
-    background:         #222222 url(../images/plus.png) 15% 55% no-repeat;
+    background:         #222222 url(../img/plus.png) 15% 55% no-repeat;
     border:             1px solid #444444;
     border-radius:      20px 0px 0px 20px;
     display:            block;
@@ -308,7 +308,7 @@ div.panel_trigger:hover {
 }
 
 div.active.panel_trigger {
-    background:#222222 url(../images/minus.png) 15% 55% no-repeat;
+    background:#222222 url(../img/minus.png) 15% 55% no-repeat;
 }
 
 .panel_section_title {

@@ -287,9 +287,9 @@
                         }
                         
                         if (result == 0) { // Up-to-date
-                            update_result.attr('src', 'images/check.gif').attr('title', 'SURFmap is up-to-date.');
+                            update_result.attr('src', 'img/check.gif').attr('title', 'SURFmap is up-to-date.');
                         } else { // Never version available
-                            update_result.attr('src', 'images/information.gif').attr('title', 'A newer version of SURFmap (' + data.version + ') is available for download at http://surfmap.sf.net/.');
+                            update_result.attr('src', 'img/information.gif').attr('title', 'A newer version of SURFmap (' + data.version + ') is available for download at http://surfmap.sf.net/.');
                         }
                     } else {
                         // No error message should be shown here
@@ -305,9 +305,9 @@
                 'width':    '90px'
             });
             if (config['geolocation_db'] == "IP2Location") {
-                logo.attr('src', 'images/ip2location.gif').attr('alt', 'IP2Location');
+                logo.attr('src', 'img/ip2location.gif').attr('alt', 'IP2Location');
             } else if (config['geolocation_db'] == "MaxMind") {
-                logo.attr('src', 'images/maxmind.png').attr('alt', 'MaxMind');
+                logo.attr('src', 'img/maxmind.png').attr('alt', 'MaxMind');
             }
             footer.append(logo);
             
@@ -383,7 +383,7 @@
     function show_loading_message (text) {
         if (!$('#loading_dialog').dialog('isOpen')) {
             $('#loading_dialog').html("<div id='processing' style='text-align:center; clear:both;'> \
-                    <img src='images/load.gif' alt='Loading SURFmap'><br /> \
+                    <img src='img/load.gif' alt='Loading SURFmap'><br /> \
                     <div style='font-size:8pt; margin-top:15px;'> \
                     <p id='loading_text_upper'>Loading...</p> \
                     <p id='loading_text_lower'></p> \
