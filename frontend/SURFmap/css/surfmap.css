@@ -13,7 +13,7 @@ html {
 body {
     height:         	90%;
     margin:         	10px;
-    font-family:    	Verdana;
+    font-family:    	Roboto, Verdana;
 	font-size:			10pt;
 }
 
@@ -31,7 +31,7 @@ input[type=text], textarea {
     border-width:   	1px;
     border-style:   	solid;
     border-color:   	black;
-    font-size:      	11px;
+    font-size:      	8pt;
 }
 
 label.zoom_level_label {
@@ -39,7 +39,7 @@ label.zoom_level_label {
 }
 
 textarea.filter {
-    font-size:      	11px;
+/*    font-size:          11px;*/
     margin-top:     	2px;
     display:        	none;
 }
@@ -113,7 +113,7 @@ div#legend div#legend_scale span#legend_scale_text_right {
 
 table.flow_info_table {
     border-spacing:     0;
-    font-size:          8pt;
+    font-size:          9pt;
     text-align:         center;
 }
 
@@ -134,6 +134,7 @@ table.flow_info_table tr.footer td {
 }
 
 table.flow_info_table tr.footer td a {
+    font-size:          9pt;
     margin-left:        3px;
     margin-right:       3px;
 }
@@ -141,16 +142,19 @@ table.flow_info_table tr.footer td a {
 table.flow_info_table th {
     border-bottom:      1.5px solid #6678b1;
     color:              #1482AF;
+    font-weight:        normal;
     padding-left:       7px;
     padding-right:      7px;
 }
 
 table.flow_info_table th.left {
     padding-left:       0;
+    text-align:         left;
 }
 
 table.flow_info_table th.right {
     padding-right:      0;
+    text-align:         right;
 }
 
 table.flow_info_table .src_column {
@@ -172,7 +176,7 @@ table.flow_info_table th.dst_column {
 }
 
 table.flow_info_table td.dst_column {
-    padding-left:      5px;
+    padding-left:       5px;
 }
 
 table.flow_info_table td {
@@ -187,18 +191,27 @@ table#help td.help_item {
 }
 
 .clickable {
-    cursor:         pointer;
+    cursor:             pointer;
+}
+
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .date_time_input { 
-    width:          120px;
-    padding:        2px 0px 2px 5px;
-    float:          right;
+    width:              120px;
+    padding:            2px 0px 2px 5px;
+    float:              right;
 }
 
 /* --------------------- */
 
-/* remove label borders in IE6 because IE6 does not support transparency */
+/* Remove label borders in IE6, since IE6 does not support transparency */
 * html .ui-multiselect-checkboxes label { border:none }
 
 /* jQuery */
@@ -220,6 +233,7 @@ table#help td.help_item {
 }
 
 .ui-widget {
+    font-family:    Roboto, Verdana;
     font-size:      8pt;
 }
 

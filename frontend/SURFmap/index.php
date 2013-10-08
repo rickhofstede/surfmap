@@ -196,7 +196,7 @@
         <span id="logo"><a href="http://www.utwente.nl/en" target="_blank"><img src="images/UT_Logo.png" alt="University of Twente"/></a></span>
         <div id="header_line">&nbsp;</div>
         <div id="header_text">
-            <p><span style="font-weight: bold;">SURFmap</span><br>A network monitoring tool based on the Google Maps API</p>
+            <p><span>SURFmap</span><br>A network monitoring tool based on the Google Maps API</p>
         </div>
     </div>
     <div id="error_messages" class="ui-state-error ui-corner-all" style="display:none;"></div>
@@ -279,7 +279,7 @@
                     <span style="width:127px; float:right;"><input type="text" id="flow_record_count_input" style="width:35px; padding:2px 0px 2px 0px; text-align:center;" maxlength="4"><label for="flow_record_count_input"> flows</label><span>
                 </div><br />
                 <div style="margin-top:15px; width:195px;">
-                    <div class="filter_label clickable" id="filter_flow" title="Show flow filter">
+                    <div class="filter_label clickable unselectable" id="filter_flow" title="Show flow filter">
                         <div class="ui-state-default ui-corner-all no-icon-background" style="float:left;">
                             <span class="ui-icon filter_label_icon ui-icon-triangle-1-e"></span>
                         </div>
@@ -288,7 +288,7 @@
                     <textarea class="filter" id="filter_flow_text" rows="2" cols="26"></textarea>
                 </div><br />
                 <div style="width:195px;">
-                    <div class="filter_label clickable" id="filter_geo" title="Show geo filter">
+                    <div class="filter_label clickable unselectable" id="filter_geo" title="Show geo filter">
                         <div class="ui-state-default ui-corner-all no-icon-background" style="float:left;">
                             <span class="ui-icon filter_label_icon ui-icon-triangle-1-e"></span>
                         </div>

@@ -513,7 +513,7 @@
             
             if (key_index == 0) { // First field
                 element.addClass('left');
-            } else if (key_index == field_count - 1) { // Last field
+            } else if (key_index == field_count) { // Last field
                 element.addClass('right');
             }
             
