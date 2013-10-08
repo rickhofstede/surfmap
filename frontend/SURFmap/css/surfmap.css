@@ -217,11 +217,9 @@ table#help td.help_item {
 
 /* jQuery */
 .ui-dialog .ui-button {
-    font-size:      8pt;
-}
-.ui-dialog-title {
     font-size:      9pt;
 }
+
 .dialog_no_title .ui-dialog-titlebar { 
     display:        none;
 }
