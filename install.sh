@@ -37,7 +37,7 @@ if [ ! -n "$(ps axo command | grep [n]fsend | grep -v nfsend-comm)" ]; then
 	err "NfSen - nfsend not running. Cannot detect nfsen.conf location!"
 fi
 
-NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep [n]fsend | grep -v nfsend-comm | cut -d' ' -f3) | grep libexec | cut -d'"' -f2 | head -n 1)
+NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep [n]fsend | grep -v nfsend-comm | awk '{print $NF}') | grep libexec | cut -d'"' -f2 | head -n 1)
 NFSEN_CONF=$(cat ${NFSEN_LIBEXECDIR}/NfConf.pm | grep \/nfsen.conf | cut -d'"' -f2)
 
 # Parse nfsen.conf file
