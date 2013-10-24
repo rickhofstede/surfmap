@@ -254,35 +254,34 @@
                     if (data.status == 0) { // Success
                         var result = 0; // 0: up-to-date, 1: never version available
                         
-                        if (data.version.indexOf('b') == -1) { // Retrieved version is stable
-                            var current_letter_pos = current_version.indexOf('b'); // Character position of 'b', or '-1' of neither of them
-                            var current_pre_letter = current_version.substring(0, current_letter_pos); // Version number that comes before 'b'
+                        var current_beta = (current_version.indexOf('b') != -1);
+                        var latest_beta = (data.version.indexOf('b') != -1);
+                        
+                        // Extract everything that comes before the 'b' in case of a beta version
+                        var current_pre_letter = (current_beta) ? current_version.substring(0, current_version.indexOf('b')) : current_version;
+                        var latest_pre_letter = (latest_beta) ? data.version.substring(0, data.version.indexOf('b')) : data.version;
+                        
+                        // Remove dots from version numbers
+                        current_pre_letter = parseInt(current_pre_letter.replace(/\./g, ""));
+                        latest_pre_letter = parseInt(latest_pre_letter.replace(/\./g, ""));
+                        
+                        // Make sure both version numbers have the same structure (i.e., major.minor.patchlevel)
+                        if (current_pre_letter < 100) {
+                            current_pre_letter *= 10;
+                        }
+                        if (latest_pre_letter < 100) {
+                            latest_pre_letter *= 10;
+                        }
+                        
+                        if (latest_pre_letter > current_pre_letter) {
+                            result = 1;
+                        } else if (latest_pre_letter == current_pre_letter && current_beta && latest_beta) {
+                            // Check whether beta numbers are different
+                            var current_beta_number = parseInt(current_version.substring(current_version.indexOf('b') + 1));
+                            var latest_beta_number = parseInt(data.version.substring(data.version.indexOf('b') + 1));
                             
-                            if (data.version > current_version) {
+                            if (latest_beta_number > current_beta_number) {
                                 result = 1;
-                            } else if (data.version >= current_pre_letter && current_version.indexOf('b') != -1) {
-                                // Example situation: From v3.0b1 to v3.0 or from v3.0b1 to v3.0.1
-                                result = 1;
-                            }
-                        } else { // Retrieved version is beta
-                            var letter_pos = data.version.indexOf('b'); // Character position of 'b', or '-1' of neither of them
-                            var pre_letter = data.version.substring(0, letter_pos); // Version number that comes before 'b'
-                            var beta = data.version.substring(letter_pos + 1); // Beta number
-                            
-                            // Check if current 
-                            if (current_version.indexOf('b') == -1) { // Current version is stable
-                                // Beta number can be ignored
-                                if (pre_letter > current_version) {
-                                    result = 1;
-                                }
-                            } else { // Current version is beta
-                                var current_letter_pos = current_version.indexOf('b');
-                                var current_pre_letter = current_version.substring(0, current_letter_pos);
-                                var current_beta = current_version.substring(current_letter_pos + 1);
-                                
-                                if (pre_letter > current_pre_letter || (pre_letter == current_pre_letter && beta > current_beta)) {
-                                    result = 1;
-                                }
                             }
                         }
                         
