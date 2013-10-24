@@ -139,7 +139,7 @@
                 title: title
         };
         if (color == 'green') {
-            var green_marker = new google.maps.MarkerImage("img/markers/green-dot.png", new google.maps.Size(30, 30));
+            var green_marker = new google.maps.MarkerImage("img/markers/green-dot.png", new google.maps.Size(22, 40));
             marker_options['icon'] = green_marker;
         } else if (color == 'blue') {
             var blue_marker = new google.maps.MarkerImage("img/markers/blue-dot.png", new google.maps.Size(30, 30));
