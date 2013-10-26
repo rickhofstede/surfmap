@@ -4,7 +4,7 @@ Please check the manual or readme for installation instructions.
 
 ---
 
-Release notes [v3.1.2 (20131024)]:
+Release notes [v3.2 (20131026)]:
 - [FEATURE] 'Flow Details' are now also available in marker information windows
 - [FEATURE] Added support for Google Maps v3 Visual Refresh
 - [BUGFIX] Various minor bug fixes and improvements

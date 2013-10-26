@@ -7,6 +7,6 @@
      # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
      *******************************/
     
-    $version = "3.1.2 (20131008)";
+    $version = "3.2 (20131026)";
     
 ?>
