@@ -1,7 +1,6 @@
 SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 
 Please check the manual or readme for installation instructions.
-
 ---
 
 Release notes [v3.2 (20131026)]:
