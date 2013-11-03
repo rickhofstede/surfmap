@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Simple script to install SURFmap plugin.
+# Simple script to install SURFmap.
 #
 # Copyright (C) 2013 INVEA-TECH a.s.
 # Author(s): 	Rick Hofstede   <r.j.hofstede@utwente.nl>
@@ -37,7 +37,7 @@ if [ ! -n "$(ps axo command | grep [n]fsend | grep -v nfsend-comm)" ]; then
 	err "NfSen - nfsend not running. Cannot detect nfsen.conf location!"
 fi
 
-NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep [n]fsend | grep -v nfsend-comm | awk '{print $NF}') | grep libexec | cut -d'"' -f2 | head -n 1)
+NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep -vE "(nfsend-comm|grep)" | grep -Eo "[^ ]+nfsend") | grep libexec | cut -d'"' -f2 | head -n 1)
 NFSEN_CONF=$(cat ${NFSEN_LIBEXECDIR}/NfConf.pm | grep \/nfsen.conf | cut -d'"' -f2)
 
 # Parse nfsen.conf file

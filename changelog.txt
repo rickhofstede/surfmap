@@ -3,6 +3,9 @@ SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 Please check the manual or readme for installation instructions.
 ---
 
+Release notes [v3.2.1 (20131103)]:
+- [BUGFIX] Various minor bug fixes and improvements
+
 Release notes [v3.2 (20131026)]:
 - [FEATURE] 'Flow Details' are now also available in marker information windows
 - [FEATURE] Added support for Google Maps v3 Visual Refresh

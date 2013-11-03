@@ -16,7 +16,7 @@ use warnings;
 use SURFmap::Helpers;
 
 our $VERSION = 136;
-our $SURFMAP_VERSION = "3.2";
+our $SURFMAP_VERSION = "3.2.1";
 our $nfdump_version;
 
 use Exporter;
