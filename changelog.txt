@@ -4,6 +4,7 @@ Please check the manual or readme for installation instructions.
 ---
 
 Release notes [v3.2.1 (20131103)]:
+- [BUGFIX] Fixed a problem that caused the frontend to stop loading when NfSen was installed in a non-default location
 - [BUGFIX] Various minor bug fixes and improvements
 
 Release notes [v3.2 (20131026)]:
