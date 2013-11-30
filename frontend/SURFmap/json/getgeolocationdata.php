@@ -106,17 +106,5 @@
     $result['status'] = 0;
     echo json_encode($result);
     die();
-    
-    function fix_comma_separated_name ($name) {
-        $result = $name;
-        $comma_position = strpos($name, ",");
-    
-        if ($comma_position !== false) {
-            $result = substr($name, $comma_position + 2); // +2 to remove trailing white space
-            $result .= " ".substr($name, 0, $comma_position);
-        }
-    
-        return $result;
-    }
 
 ?>

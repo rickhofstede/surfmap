@@ -140,9 +140,9 @@
         $ext_IP_city = "(UNKNOWN)";
     }
     
-    $ext_IP_country = replace_accented_characters($ext_IP_country);
-    $ext_IP_region = replace_accented_characters($ext_IP_region);
-    $ext_IP_city = replace_accented_characters($ext_IP_city);
+    $ext_IP_country = fix_comma_separated_name(utf8_encode($ext_IP_country));
+    $ext_IP_region = fix_comma_separated_name(utf8_encode($ext_IP_region));
+    $ext_IP_city = fix_comma_separated_name(utf8_encode($ext_IP_city));
     
     // No geocoding needed if country is unknown
     if ($ext_IP_country != "(UNKNOWN)") {

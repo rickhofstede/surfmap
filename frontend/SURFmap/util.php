@@ -7,6 +7,18 @@
      # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
      *******************************/
     
+    function fix_comma_separated_name ($name) {
+        $result = $name;
+        $comma_position = strpos($name, ",");
+    
+        if ($comma_position !== false) { # Comma found
+            $result = substr($name, $comma_position + 2); // +2 to remove trailing white space
+            $result .= " ".substr($name, 0, $comma_position);
+        }
+    
+        return $result;
+    }
+    
     /*
      * Checks whether the specified IPv4 address belongs to the specified IP
      * address range (net).
