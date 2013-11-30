@@ -14,6 +14,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>SURFmap -- A Network Monitoring Tool Based on the Google Maps API</title>
     <link type="text/css" rel="stylesheet" href="lib/jquery/css/start/jquery-ui-1.10.3.custom.min.css" />

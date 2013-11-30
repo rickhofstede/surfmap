@@ -860,14 +860,14 @@ $(document).ready(function() {
         
         if (geocoder_data_client.geocoder_data != undefined) {
             $.each(geocoder_data_client.geocoder_data, function (index, item) {
-                if (item.lat !== null && item.lng !== null) {
+                if (item.lat != undefined && item.lng != undefined && item.lat !== null && item.lng !== null) {
                     geocoder_data.push(item);
                 }
             });
         }
         if (geocoder_data_server.geocoder_data != undefined) {
             $.each(geocoder_data_server.geocoder_data, function (index, item) {
-                if (item.lat !== null && item.lng !== null) {
+                if (item.lat != undefined && item.lng != undefined && item.lat !== null && item.lng !== null) {
                     geocoder_data.push(item);
                 }
             });

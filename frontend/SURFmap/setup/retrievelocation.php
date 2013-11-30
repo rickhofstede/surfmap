@@ -23,7 +23,7 @@
             $internal_domain_nets = explode(";", $key);
             
             foreach($internal_domain_nets as $subnet) {
-                if (ip_address_belongs_to_net($ext_IP, $subnet)) {
+                if (ip_address_in_net($ext_IP, $subnet)) {
                     $ext_IP_NAT = true;
                     break;
                 }

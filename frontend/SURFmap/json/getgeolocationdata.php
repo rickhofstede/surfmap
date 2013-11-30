@@ -47,7 +47,7 @@
              */
             $internal_address = false;
             foreach ($internal_domain_networks as $subnet) {
-                if (ip_address_belongs_to_net($address, $subnet)) {
+                if (ip_address_in_net($address, $subnet)) {
                     $country = ($value['country'] === "") ? "(UNKNOWN)" : strtoupper($value['country']);
                     $region = ($value['region'] === "") ? "(UNKNOWN)" : strtoupper($value['region']);
                     $city = ($value['city'] === "") ? "(UNKNOWN)" : strtoupper($value['city']);
@@ -89,11 +89,11 @@
             }
         }
         
-        $country = fix_comma_separated_name(replace_accented_characters(utf8_encode($country)));
-        $region = fix_comma_separated_name(replace_accented_characters(utf8_encode($region)));
-        $city = fix_comma_separated_name(replace_accented_characters(utf8_encode($city)));
+        $country = fix_comma_separated_name(utf8_encode($country));
+        $region = fix_comma_separated_name(utf8_encode($region));
+        $city = fix_comma_separated_name(utf8_encode($city));
         
-        array_push($result['geolocation_data'], array("address" => $address, "country" => $country, "region" => $region, "city" => $city));
+        array_push($result['geolocation_data'], array('address' => $address, 'country' => $country, 'region' => $region, 'city' => $city));
     }
     unset($address);
     
