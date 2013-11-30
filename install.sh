@@ -1,31 +1,34 @@
 #!/bin/sh
+
+#########################################################
 #
-# Simple script to install SURFmap.
+# Installation script for SURFmap.
 #
 # Copyright (C) 2013 INVEA-TECH a.s.
-# Author(s): 	Rick Hofstede   <r.j.hofstede@utwente.nl>
+# Author(s):    Rick Hofstede   <r.j.hofstede@utwente.nl>
 #               Pavel Celeda    <celeda@invea-tech.com>
 #
 # LICENSE TERMS - 3-clause BSD license
 #
 # $Id$
 #
+#########################################################
 
-SURFMAP_VER=3.2
+SURFMAP_VER=3.2.1
 SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
 SURFMAP_TMP=SURFmap_tmp
 GEO_DB=GeoLiteCity.dat.gz
 GEOv6_DB=GeoLiteCityv6.dat.gz
 
 err () {
-	printf "ERROR: ${*}\n"
-	exit 1
+    printf "ERROR: ${*}\n"
+    exit 1
 }
 
 err_line () {
     echo "-----"
-	printf "ERROR: ${*}\n"
-	exit 1
+    printf "ERROR: ${*}\n"
+    exit 1
 }
 
 echo "SURFmap installation script"
@@ -34,7 +37,7 @@ echo "---------------------------"
 # Discover NfSen configuration
 NFSEN_VARFILE=/tmp/nfsen-tmp.conf
 if [ ! -n "$(ps axo command | grep [n]fsend | grep -v nfsend-comm)" ]; then
-	err "NfSen - nfsend not running. Cannot detect nfsen.conf location!"
+    err "NfSen - nfsend not running. Cannot detect nfsen.conf location!"
 fi
 
 NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep -vE "(nfsend-comm|grep)" | grep -Eo "[^ ]+nfsend") | grep libexec | cut -d'"' -f2 | head -n 1)
@@ -47,13 +50,13 @@ rm -rf ${NFSEN_VARFILE}
 
 SURFMAP_CONF=${FRONTEND_PLUGINDIR}/SURFmap/config.php
 
-# Check permissions to install SURFmap plugin - you must be ${USER} or root
+# Check permissions to install SURFmap - you must be ${USER} or root
 if [ "$(id -u)" != "$(id -u ${USER})" ] && [ "$(id -u)" != "0" ]; then
-	err "You do not have sufficient permissions to install SURFmap on this machine!"
+    err "You do not have sufficient permissions to install SURFmap on this machine!"
 fi
 
 if [ "$(id -u)" = "$(id -u ${USER})" ]; then
-	WWWUSER=${USER}		# we are installing as normal user
+    WWWUSER=${USER}     # we are installing as normal user
 fi
 
 # Check available PHP modules
@@ -70,36 +73,41 @@ elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
 fi
 
 # Download files from Web
-if [ $(uname) = "FreeBSD" ]; then
+if [ $(uname) = "FreeBSD" -o $(uname) = "OpenBSD" ]; then
     RETRIEVE_TOOL="fetch"
 else
     RETRIEVE_TOOL="wget"
 fi
 
 if [ ! -f  ${SURFMAP_REL} ]; then
-	echo "Downloading SURFmap plugin tar ball - http://surfmap.sf.net/"
-	${RETRIEVE_TOOL} http://downloads.sourceforge.net/project/surfmap/source/${SURFMAP_REL}
+    echo "Downloading SURFmap tar ball - http://surfmap.sf.net/"
+    ${RETRIEVE_TOOL} http://downloads.sourceforge.net/project/surfmap/source/${SURFMAP_REL}
 fi
 
 if [ ! -f  ${GEO_DB} ]; then
-	echo "Downloading MaxMind GeoLite City database - http://geolite.maxmind.com"
-	${RETRIEVE_TOOL} http://geolite.maxmind.com/download/geoip/database/${GEO_DB}
+    echo "Downloading MaxMind GeoLite City database - http://geolite.maxmind.com"
+    ${RETRIEVE_TOOL} http://geolite.maxmind.com/download/geoip/database/${GEO_DB}
 fi
 
 if [ ! -f  ${GEOv6_DB} ]; then
-	echo "Downloading MaxMind GeoLite City (IPv6) database - http://geolite.maxmind.com"
-	${RETRIEVE_TOOL} http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/${GEOv6_DB}
+    echo "Downloading MaxMind GeoLite City (IPv6) database - http://geolite.maxmind.com"
+    ${RETRIEVE_TOOL} http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/${GEOv6_DB}
 fi
 
 # Backup old SURFmap installation
+SURFMAP_BACKUPDIR_FRONTEND=${FRONTEND_PLUGINDIR}/SURFmap-$(date +%s)
+SURFMAP_BACKUPDIR_BACKEND=${BACKEND_PLUGINDIR}/SURFmap-$(date +%s)
 if [ -d ${FRONTEND_PLUGINDIR}/SURFmap ]; then
-	SURFMAP_BACKUPDIR=${FRONTEND_PLUGINDIR}/SURFmap-$(date +%s)
-	echo "Backuping old SURFmap installation to ${SURFMAP_BACKUPDIR}"
-	mv ${FRONTEND_PLUGINDIR}/SURFmap ${SURFMAP_BACKUPDIR}
+    echo "Backing up existing SURFmap (frontend) installation to ${SURFMAP_BACKUPDIR_FRONTEND}"
+    mv ${FRONTEND_PLUGINDIR}/SURFmap ${SURFMAP_BACKUPDIR_FRONTEND}
+fi
+if [ -d ${BACKEND_PLUGINDIR}/SURFmap ]; then
+    echo "Backing up existing SURFmap (backend) installation to ${SURFMAP_BACKUPDIR_BACKEND}"
+    mv ${BACKEND_PLUGINDIR}/SURFmap ${SURFMAP_BACKUPDIR_BACKEND}
 fi
 
 # Unpack SURFmap
-echo "Unpacking files"
+echo "Unpacking files..."
 tar zxf ${SURFMAP_REL} --directory=.
 mv SURFmap ${SURFMAP_TMP}
 
@@ -126,6 +134,23 @@ fi
 rm -rf ${SURFMAP_TMP}
 rm -rf ${GEO_DB}
 rm -rf ${GEOv6_DB}
+
+# Check whether an old SURFmap version was found and ask whether frontend configuration and data structures should be retained
+if [ -d ${SURFMAP_BACKUPDIR_FRONTEND} -a -d ${SURFMAP_BACKUPDIR_BACKEND} ]; then
+    OLD_SURFMAP_VER=$(cat ${SURFMAP_BACKUPDIR_FRONTEND}/version.php | grep -m1 \$version | awk '{print $3}' |  cut -d"\"" -f2)
+    if [ ${OLD_SURFMAP_VER} = ${SURFMAP_VER} ]; then
+        while true; do
+            read -p "Do you wish to keep the frontend configuration and data structures from your previous installation [y,n] (default: y)? " input
+            case $input in
+                [Nn]* ) break;;
+                * )     echo "Copying backend configuration and data structures from previous installation..."
+                        cp ${SURFMAP_BACKUPDIR_FRONTEND}/config.php ${FRONTEND_PLUGINDIR}/SURFmap/;
+                        cp ${SURFMAP_BACKUPDIR_FRONTEND}/db/* ${FRONTEND_PLUGINDIR}/SURFmap/db/;
+                        break;;
+            esac
+        done
+    fi
+fi
 
 # Set permissions - owner and group
 echo "Setting plugin file permissions - user \"${USER}\" and group \"${WWWGROUP}\""
@@ -164,28 +189,28 @@ cd - > /dev/null
 
 # Fill my location in plugin configuration file
 if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
-	OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f6)
-	sed -i.tmp "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
+    OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f6)
+    sed -i.tmp "s/${OLDENTRY}/$(echo ${MY_LOC} | cut -d',' -f1)/g" ${SURFMAP_CONF}
 
-	OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f10)
-	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f2)
-	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
-		NEWENTRY=""
-	fi
-	sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
+    OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f10)
+    NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f2)
+    if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
+        NEWENTRY=""
+    fi
+    sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 
-	OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f14)
-	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f3)
-	if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
-		NEWENTRY=""
-	fi
-	sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
+    OLDENTRY=$(sed -e "/$config\['internal_domains'\] = array/,/);/!d" ${SURFMAP_CONF} | grep '=>' | cut -d'"' -f14)
+    NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f3)
+    if [ "${NEWENTRY}" = "(UNKNOWN)" ]; then
+        NEWENTRY=""
+    fi
+    sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
 
-	OLDENTRY=$(grep "$config\['map_center'\]" ${SURFMAP_CONF} | cut -d'"' -f2)
-	NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f4,5)
-	if [ "${NEWENTRY}" != "(UNKNOWN),(UNKNOWN)" ]; then
-		sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
-	fi
+    OLDENTRY=$(grep "$config\['map_center'\]" ${SURFMAP_CONF} | cut -d'"' -f2)
+    NEWENTRY=$(echo ${MY_LOC} | cut -d',' -f4,5)
+    if [ "${NEWENTRY}" != "(UNKNOWN),(UNKNOWN)" ]; then
+        sed -i.tmp "s/${OLDENTRY}/${NEWENTRY}/g" ${SURFMAP_CONF}
+    fi
 fi
 
 # Enable plugin
@@ -193,18 +218,29 @@ echo "Updating NfSen configuration file ${NFSEN_CONF}"
 
 OLDENTRY=$(grep \@plugins ${NFSEN_CONF})
 
-# Check whether we are running Linux of BSD (BSD sed does not support inserting new lines (\n))
-if [ $(uname) = "Linux" ]; then
-    # Linux
-    sed -i.tmp "/SURFmap/d" ${NFSEN_CONF}
-    sed -i.tmp "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' \],/g" ${NFSEN_CONF}
+if grep "SURFmap" ${NFSEN_CONF} > /dev/null; then
+    echo "Found 'SURFmap' in ${NFSEN_CONF}; assuming it is already configured"
 else
-    # Something else (we assume *BSD)
-    if grep "SURFmap" ${NFSEN_CONF} > /dev/null; then
-        echo "Found 'SURFmap' in ${NFSEN_CONF}, assuming it is already configured"
-    else
-        sed -i.tmp "s/${OLDENTRY}/${OLDENTRY}\ \[ 'live', 'SURFmap' \],/g" ${NFSEN_CONF}
+    # Check whether we are running Linux of BSD (BSD sed does not support inserting new lines (\n))
+    if [ $(uname) = "Linux" ]; then
+        sed -i.tmp "/SURFmap/d" ${NFSEN_CONF}
+        sed -i.tmp "s/${OLDENTRY}/${OLDENTRY}\n    \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
+    else # Something else (we assume *BSD)
+        sed -i.tmp "s/${OLDENTRY}/${OLDENTRY}\ \[ 'live', 'SURFmap' ],/g" ${NFSEN_CONF}
     fi
+fi
+
+# Check whether an old SURFmap version was found and ask whether the backup of that version should be removed
+if [ -d ${SURFMAP_BACKUPDIR_FRONTEND} -a -d ${SURFMAP_BACKUPDIR_BACKEND} ]; then
+    while true; do
+        read -p "Do you wish to remove the backup of your previous SURFmap installation [y,n] (default: n)? " input
+        case $input in
+            [Yy]* ) echo "Removing backup of previous installation..."
+                    rm -rf ${SURFMAP_BACKUPDIR_FRONTEND} ${SURFMAP_BACKUPDIR_BACKEND}; 
+                    break;;
+            * )     break;;
+        esac
+    done
 fi
 
 echo "-----"

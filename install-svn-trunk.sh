@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Simple script to install SURFmap plugin from SVN.
+# Script for installing SURFmap from SVN trunk repository.
 #
 # Copyright (C) 2013 INVEA-TECH a.s.
 # Author(s): 	Rick Hofstede   <r.j.hofstede@utwente.nl>
@@ -12,7 +12,7 @@
 #
 
 err () {
-	echo "ERROR: ${*}"
+	echo "ERROR: ${*}\n"
 	exit 1
 }
 
