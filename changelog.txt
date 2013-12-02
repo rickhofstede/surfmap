@@ -3,7 +3,7 @@ SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 Please check the manual or readme for installation instructions.
 ---
 
-Release notes [v3.2.1 (20131130)]:
+Release notes [v3.2.1 (20131202)]:
 - [BUGFIX] Fixed a problem that caused the frontend to stop loading when NfSen was installed in a non-default location
 - [BUGFIX] Fixed a problem that caused an error message to be shown while SURFmap was caching geocoder requests
 - [BUGFIX] Various minor bug fixes and improvements
