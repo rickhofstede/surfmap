@@ -214,13 +214,13 @@ if [ "${MY_LOC}" != "(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN),(UNKNOWN)" ]; then
 fi
 
 # Enable plugin
-echo "Updating NfSen configuration file ${NFSEN_CONF}"
-
 OLDENTRY=$(grep \@plugins ${NFSEN_CONF})
 
 if grep "SURFmap" ${NFSEN_CONF} > /dev/null; then
     echo "Found 'SURFmap' in ${NFSEN_CONF}; assuming it is already configured"
 else
+    echo "Updating NfSen configuration file ${NFSEN_CONF}"
+    
     # Check whether we are running Linux of BSD (BSD sed does not support inserting new lines (\n))
     if [ $(uname) = "Linux" ]; then
         sed -i.tmp "/SURFmap/d" ${NFSEN_CONF}
