@@ -137,8 +137,8 @@ rm -rf ${GEOv6_DB}
 
 # Check whether an old SURFmap version was found and ask whether frontend configuration and data structures should be retained
 if [ -d ${SURFMAP_BACKUPDIR_FRONTEND} -a -d ${SURFMAP_BACKUPDIR_BACKEND} ]; then
-    OLD_SURFMAP_VER=$(cat ${SURFMAP_BACKUPDIR_FRONTEND}/version.php | grep -m1 \$version | awk '{print $3}' |  cut -d"\"" -f2)
-    if [ ${OLD_SURFMAP_VER} = ${SURFMAP_VER} ]; then
+    OLD_VER=$(cat ${SURFMAP_BACKUPDIR_FRONTEND}/version.php | grep -m1 \$version | awk '{print $3}' |  cut -d"\"" -f2)
+    if [ ${OLD_VER} = ${SURFMAP_VER} ]; then
         while true; do
             read -p "Do you wish to keep the frontend configuration and data structures from your previous installation [y,n] (default: y)? " input
             case $input in
