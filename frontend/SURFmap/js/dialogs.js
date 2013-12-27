@@ -213,7 +213,7 @@
                     Included third-party software: \
                     <ul> \
                         <li><a href=\"http://www.erichynds.com/jquery/jquery-ui-multiselect-widget/\" target=\"_blank\" style=\"text-decoration:underline;\">jQuery UI MultiSelect Widget</a> / Eric Hynds</li> \
-                        <li><a href=\"http://trentrichardson.com/examples/timepicker/\" target=\"_blank\" style=\"text-decoration:underline;\">jQuery UI Datepicker</a> / Trent Richardson</li> \
+                        <li><a href=\"http://trentrichardson.com/examples/timepicker/\" target=\"_blank\" style=\"text-decoration:underline;\">jQuery UI Timepicker</a> / Trent Richardson</li> \
                         <li><a href="https://github.com/gabceb/jquery-browser-plugin" target="_blank" style=\"text-decoration:underline;\">jQuery Browser</a></li> \
                         <li><a href="https://github.com/carhartl/jquery-cookie" target="_blank" style=\"text-decoration:underline;\">jQuery.cookie</a> / Klaus Hartl</li> \
                         <li><a href="https://github.com/douglascrockford/JSON-js" target="_blank" style=\"text-decoration:underline;\">JSON-js</a> / Douglas Crockford</li> \

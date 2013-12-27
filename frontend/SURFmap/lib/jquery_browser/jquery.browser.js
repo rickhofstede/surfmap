@@ -1,5 +1,5 @@
 /*!
- * jQuery Browser Plugin v0.0.2
+ * jQuery Browser Plugin v0.0.5
  * https://github.com/gabceb/jquery-browser-plugin
  *
  * Original jquery-browser code Copyright 2005, 2013 jQuery Foundation, Inc. and other contributors
@@ -15,14 +15,15 @@
 
 (function( jQuery, window, undefined ) {
 "use strict";
- 
+
 var matched, browser;
- 
+
 jQuery.uaMatch = function( ua ) {
   ua = ua.toLowerCase();
- 
-	var match = /(opr)[\/]([\w.]+)/.exec( ua ) || 
+
+	var match = /(opr)[\/]([\w.]+)/.exec( ua ) ||
 		/(chrome)[ \/]([\w.]+)/.exec( ua ) ||
+		/(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(ua) ||
 		/(webkit)[ \/]([\w.]+)/.exec( ua ) ||
 		/(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
 		/(msie) ([\w.]+)/.exec( ua ) ||
@@ -33,46 +34,60 @@ jQuery.uaMatch = function( ua ) {
 	var platform_match = /(ipad)/.exec( ua ) ||
 		/(iphone)/.exec( ua ) ||
 		/(android)/.exec( ua ) ||
+		/(windows phone)/.exec(ua) ||
+		/(win)/.exec( ua ) ||
+		/(mac)/.exec( ua ) ||
+		/(linux)/.exec( ua ) ||
 		[];
- 
+
 	return {
-		browser: match[ 1 ] || "",
+		browser: match[ 3 ] || match[ 1 ] || "",
 		version: match[ 2 ] || "0",
 		platform: platform_match[0] || ""
 	};
 };
- 
+
 matched = jQuery.uaMatch( window.navigator.userAgent );
 browser = {};
- 
+
 if ( matched.browser ) {
 	browser[ matched.browser ] = true;
 	browser.version = matched.version;
+    browser.versionNumber = parseFloat(matched.version, 10);
 }
 
-if ( matched.platform) {
-	browser[ matched.platform ] = true
+if ( matched.platform ) {
+	browser[ matched.platform ] = true;
 }
- 
-// Chrome and Opera 15+ are Webkit, but Webkit is also Safari.
-if ( browser.chrome || browser.opr) {
+
+// Chrome, Opera 15+ and Safari are webkit based browsers
+if ( browser.chrome || browser.opr || browser.safari ) {
 	browser.webkit = true;
-} else if ( browser.webkit ) {
-	browser.safari = true;
 }
 
 // IE11 has a new token so we will assign it msie to avoid breaking changes
-if (browser.rv)
+if ( browser.rv )
 {
-	browser.msie = true;
+	var ie = 'msie';
+
+	matched.browser = ie;
+	browser[ie] = true;
 }
 
 // Opera 15+ are identified as opr
-if (browser.opr)
+if ( browser.opr )
 {
-	browser.opera = true;
+	var opera = 'opera';
+
+	matched.browser = opera;
+	browser[opera] = true;
 }
- 
+
+// Assign the name and platform variable
+browser.name = matched.browser;
+browser.platform = matched.platform;
+
+
 jQuery.browser = browser;
- 
+
 })( jQuery, window );
