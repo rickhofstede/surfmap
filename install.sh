@@ -14,7 +14,7 @@
 #
 #########################################################
 
-SURFMAP_VER=3.2.1
+SURFMAP_VER=3.2.2
 SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
 SURFMAP_TMP=SURFmap_tmp
 GEO_DB=GeoLiteCity.dat.gz
