@@ -7,18 +7,25 @@
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
  *****************************************************/
     
+    if (!function_exists('ReportLog')) {
+    	function ReportLog() {
+    	    // dummy function to avoid PHP errors
+    	}
+    }
+    
     require_once("../config.php");
     require_once("../constants.php");
+    require_once("../util.php");
+    require_once("../../../conf.php");
+    require_once("../../../nfsenutil.php");
+    
     header("content-type: application/json");
 
     if (!session_id()) session_start();
     
-    if (isset($_POST['params'])) {
-        $nfsen_profile_data_dir = $_POST['params']['nfsen_profile_data_dir'];
-        $nfsen_subdir_layout = $_POST['params']['nfsen_subdir_layout'];
-    } else {
+    if (!isset($_SESSION['profileinfo'])) {
         $result['status'] = 1;
-        $result['status_message'] = "No parameters provided";
+        $result['status_message'] = "NfSen profile not initialized";
         echo json_encode($result);
         die();
     }
@@ -154,9 +161,13 @@
         $result['session_data']['refresh'] = $_SESSION['SURFmap']['refresh'];
     }
     
+    $out_list = nfsend_query("SURFmap::get_nfsen_profiledatadir", array());
+    $nfsen_profile_data_dir = $out_list['nfsen_profiledatadir'];
+    unset($out_list);
+    
     // Set dates and times (1)
     if (isset($_POST['params']['date1']) || isset($_POST['params']['hours1']) || isset($_POST['params']['minutes1'])) {
-        if (source_files_exist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $_POST['params']['date1'], $_POST['params']['hours1'], $_POST['params']['minutes1'])) {
+        if (nfcapd_files_exist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $_POST['params']['date1'], $_POST['params']['hours1'], $_POST['params']['minutes1'])) {
             $_SESSION['SURFmap']['date1'] = $_POST['params']['date1'];
             $_SESSION['SURFmap']['hours1'] = $_POST['params']['hours1'];
             $_SESSION['SURFmap']['minutes1'] = $_POST['params']['minutes1'];
@@ -169,7 +180,7 @@
     
     // Set dates and times (2)
     if (isset($_POST['params']['date2']) || isset($_POST['params']['hours2']) || isset($_POST['params']['minutes2'])) {
-        if (source_files_exist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $_POST['params']['date2'], $_POST['params']['hours2'], $_POST['params']['minutes2'])) {
+        if (nfcapd_files_exist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $_POST['params']['date2'], $_POST['params']['hours2'], $_POST['params']['minutes2'])) {
             $_SESSION['SURFmap']['date2'] = $_POST['params']['date2'];
             $_SESSION['SURFmap']['hours2'] = $_POST['params']['hours2'];
             $_SESSION['SURFmap']['minutes2'] = $_POST['params']['minutes2'];
@@ -268,84 +279,9 @@
         }
     }
     
-    echo json_encode($result);
-    die();
+    nfsend_disconnect();
     
-    /*
-     * Generates a file name based on the specified file name format (in config.php)
-     * and the specified parameters.
-     * Parameters:
-     *      date - Date for the file name (should be of the following format: yyyyMMdd)
-     *      hours - Hours for the file name (should be of the following format: hh)
-     *      minutes - Minutes for the file name (should be of the following format: mm)
-     */
-    function generate_file_name ($date, $hours, $minutes) {
-        global $nfsen_subdir_layout;
-        
-        $year = substr($date, 0, 4);
-        $month = substr($date, 4, 2);
-        $day = substr($date, 6, 2);
-        
-        $file_name = "nfcapd.".$date.$hours.$minutes;
-        
-        /*
-         Possible layouts:
-            0             no hierachy levels - flat layout
-            1 %Y/%m/%d    year/month/day
-            2 %Y/%m/%d/%H year/month/day/hour
-            3 %Y/%W/%u    year/week_of_year/day_of_week
-            4 %Y/%W/%u/%H year/week_of_year/day_of_week/hour
-            5 %Y/%j       year/day-of-year
-            6 %Y/%j/%H    year/day-of-year/hour
-            7 %Y-%m-%d    year-month-day
-            8 %Y-%m-%d/%H year-month-day/hour
-        */
-        switch(intval($nfsen_subdir_layout)) {
-            case 1:     $path = $year."/".$month."/".$day."/";
-                        break;
-                        
-            case 2:     $path = $year."/".$month."/".$day."/".$hours."/";
-                        break;
-                        
-            case 7:     $path = $year."-".$month."-".$day."/";
-                        break;
-                        
-            case 8:     $path = $year."-".$month."-".$day."/".$hours."/";
-                        break;
-                    
-            default:    $path = "";
-                        break;
-        }
-        
-        return $path.$file_name;
-    }
-
-    /*
-     * Verify whether the source files for the specified time window(s) exist.
-     * Parameters:
-     *      profile_data_dir - directory containing NfSen profile/source data
-     *      source - name of the NfSen source
-     *      date - date in the following format 'YYYYMMDD'
-     *      hours - date in the following format 'HH' (with leading zeros)
-     *      minutes - date in the following format 'MM' (with leading zeros)
-     */
-    function source_files_exist ($profile_data_dir, $source, $date, $hours, $minutes) {
-        // Use 'live' profile data if shadow profile has been selected
-        if ($_SESSION['SURFmap']['nfsen_profile_type'] === "real") {
-            $profile = $_SESSION['SURFmap']['nfsen_profile'];
-            $source = $source;
-        } else {
-            $profile = "live";
-            $source = "*";
-        }
-        
-        $directory = (substr($profile_data_dir, strlen($profile_data_dir) - 1) === "/") ? $profile_data_dir : $profile_data_dir."/";
-        $directory .= $profile."/".$source."/";
-        
-        $file_name = generate_file_name($date, $hours, $minutes);
-        $files = glob($directory.$file_name);
-        
-        return (count($files) >= 1 && @file_exists($files[0]));
-    }   
+    echo json_encode($result);
+    die(); 
 
 ?>

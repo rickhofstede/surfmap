@@ -7,12 +7,18 @@
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
  *****************************************************/
     
-    function ReportLog($message) {
-        // Dummy function to avoid PHP errors related to NfSen
+    if (!function_exists('ReportLog')) {
+    	function ReportLog() {
+    	    // dummy function to avoid PHP errors
+    	}
     }
     
     require_once("../config.php");
     require_once("../constants.php");
+    require_once("../util.php");
+    require_once("../../../conf.php");
+    require_once("../../../nfsenutil.php");
+    
     header("content-type: application/json");
 
     if (!session_id()) session_start();
@@ -24,21 +30,10 @@
         die();
     }
     
-    if (isset($_POST['params'])) {
-        $nfsen_html_dir = $_POST['params']['nfsen_html_dir'];
-        $nfsen_profile_data_dir = $_POST['params']['nfsen_profile_data_dir'];
-        $nfsen_subdir_layout = $_POST['params']['nfsen_subdir_layout'];
-    } else {
-        $result['status'] = 1;
-        $result['status_message'] = "No parameters provided";
-        echo json_encode($result);
-        die();
-    }
-    
     /* If 'update_time_period' is enabled, the time frame (date1, hours1, minutes1,
      * date2, hours2, minutes2) is updated to the last available timeslot.
      */
-    if (array_key_exists('update_time_period', $_POST['params'])) {
+    if (isset($_POST['params']) && array_key_exists('update_time_period', $_POST['params'])) {
         $update_time_period = intval($_POST['params']['update_time_period']);
     }
     
@@ -204,9 +199,13 @@
     $max_time = generate_time_string(5);
     $max_hours = substr($max_time, 0, 2);
     $max_minutes = substr($max_time, 3, 2);
-        
+    
+    $out_list = nfsend_query("SURFmap::get_nfsen_profiledatadir", array());
+    $nfsen_profile_data_dir = $out_list['nfsen_profiledatadir'];
+    unset($out_list);
+    
     // In case the source files do not exist (yet) for a 5 min. buffer time, create timestamps based on 10 min. buffer time
-    if (!source_files_exist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $max_date, $max_hours, $max_minutes)) {
+    if (!nfcapd_files_exist($nfsen_profile_data_dir, $_SESSION['SURFmap']['nfsen_selected_sources'][0], $max_date, $max_hours, $max_minutes)) {
         $max_date = generate_date_string(10);
         $max_time = generate_time_string(10);
         $max_hours = substr($max_time, 0, 2);
@@ -370,13 +369,9 @@
     
     // Check nfdump version used in backend
     if (!isset($_SESSION['SURFmap']['nfdump_version'])) {
-        require_once($nfsen_html_dir."/conf.php");
-        require_once($nfsen_html_dir."/nfsenutil.php");
-        
-        $opts = array();
-        $out_list = nfsend_query("SURFmap::get_nfdump_version", $opts);
-        nfsend_disconnect();
-        $_SESSION['SURFmap']['nfdump_version'] = $out_list['version'];
+        $out_list = nfsend_query("SURFmap::get_nfdump_version", array());
+        $_SESSION['SURFmap']['nfdump_version'] = $out_list['nfdump_version'];
+        unset($out_list);
     }
     
     $result['session_data']['flow_record_count'] = $_SESSION['SURFmap']['flow_record_count'];
@@ -407,6 +402,8 @@
     
     // Not needed, as it is already set above
     // $result['session_data']['geocoder_history'] = ...;
+    
+    nfsend_disconnect();
     
     $result['status'] = 0;
     echo json_encode($result);
@@ -488,83 +485,6 @@
         if (strlen($minutes) < 2) $minutes = "0".$minutes;
 
         return $hours.":".$minutes;
-    }
-    
-    /*
-     * Generates a file name based on the specified file name format (in config.php)
-     * and the specified parameters.
-     * Parameters:
-     *      date - Date for the file name (should be of the following format: yyyyMMdd)
-     *      hours - Hours for the file name (should be of the following format: hh)
-     *      minutes - Minutes for the file name (should be of the following format: mm)
-     */
-    function generate_file_name ($date, $hours, $minutes) {
-        global $nfsen_subdir_layout;
-        
-        $year = substr($date, 0, 4);
-        $month = substr($date, 4, 2);
-        $day = substr($date, 6, 2);
-        
-        $file_name = "nfcapd.".$date.$hours.$minutes;
-        
-        /*
-         Possible layouts:
-            0             no hierachy levels - flat layout
-            1 %Y/%m/%d    year/month/day
-            2 %Y/%m/%d/%H year/month/day/hour
-            3 %Y/%W/%u    year/week_of_year/day_of_week
-            4 %Y/%W/%u/%H year/week_of_year/day_of_week/hour
-            5 %Y/%j       year/day-of-year
-            6 %Y/%j/%H    year/day-of-year/hour
-            7 %Y-%m-%d    year-month-day
-            8 %Y-%m-%d/%H year-month-day/hour
-        */
-        switch(intval($nfsen_subdir_layout)) {
-            case 1:     $path = $year."/".$month."/".$day."/";
-                        break;
-                        
-            case 2:     $path = $year."/".$month."/".$day."/".$hours."/";
-                        break;
-                        
-            case 7:     $path = $year."-".$month."-".$day."/";
-                        break;
-                        
-            case 8:     $path = $year."-".$month."-".$day."/".$hours."/";
-                        break;
-                    
-            default:    $path = "";
-                        break;
-        }
-        
-        return $path.$file_name;
-    }
-    
-    /*
-     * Verify whether the source files for the specified time window(s) exist.
-     * Parameters:
-     *      profile_data_dir - directory containing NfSen profile/source data
-     *      source - name of the NfSen source
-     *      date - date in the following format 'YYYYMMDD'
-     *      hours - date in the following format 'HH' (with leading zeros)
-     *      minutes - date in the following format 'MM' (with leading zeros)
-     */
-    function source_files_exist ($profile_data_dir, $source, $date, $hours, $minutes) {
-        // Use 'live' profile data if shadow profile has been selected
-        if ($_SESSION['SURFmap']['nfsen_profile_type'] === "real") {
-            $profile = $_SESSION['SURFmap']['nfsen_profile'];
-            $source = $source;
-        } else {
-            $profile = "live";
-            $source = "*";
-        }
-        
-        $directory = (substr($profile_data_dir, strlen($profile_data_dir) - 1) === "/") ? $profile_data_dir : $profile_data_dir."/";
-        $directory .= $profile."/".$source."/";
-        
-        $file_name = generate_file_name($date, $hours, $minutes);
-        $files = glob($directory.$file_name);
-        
-        return (count($files) >= 1 && @file_exists($files[0]));
     } 
 
 ?>

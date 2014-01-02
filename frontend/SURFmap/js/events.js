@@ -27,7 +27,6 @@ $(document).ready(function() {
     /*      [PHASE 1]                           [PHASE 2]
      *      config      ->  active_extensions   load_session
      *      constants
-     *      nfsen_config
      */
     $(document).bind('loading', function () {
         show_loading_message();
@@ -56,13 +55,7 @@ $(document).ready(function() {
         }
     });
     $(document).bind('constants_loaded', function () {
-        if (config != undefined && constants != undefined && nfsen_config != undefined && extensions != undefined) {
-            $(document).trigger('phase_1_loaded');
-        }
-    });
-            
-    $(document).bind('nfsen_config_loaded', function () {
-        if (config != undefined && constants != undefined && nfsen_config != undefined && extensions != undefined) {
+        if (config != undefined && constants != undefined && extensions != undefined) {
             $(document).trigger('phase_1_loaded');
         }
     });
@@ -96,12 +89,12 @@ $(document).ready(function() {
             });
         }
         
-        if (config != undefined && constants != undefined && nfsen_config != undefined && extensions != undefined) {
+        if (config != undefined && constants != undefined && extensions != undefined) {
             $(document).trigger('phase_1_loaded');
         }
     });
     
-    // Fired when all configurations have been loaded (config, constants, nfsen_config and active_extensions)
+    // Fired when all configurations have been loaded (config, constants and active_extensions)
     $(document).bind('phase_1_loaded', function () {
         $(document).trigger('load_session_data');
     });
@@ -112,10 +105,6 @@ $(document).ready(function() {
         if (data == undefined) {
             data = {};
         }
-        
-        data['nfsen_html_dir'] = nfsen_config['HTMLDIR'];
-        data['nfsen_profile_data_dir'] = nfsen_config['PROFILEDATADIR'];
-        data['nfsen_subdir_layout'] = nfsen_config['SUBDIRLAYOUT'];
         
         // Retrieve session data
         $.ajax({
@@ -205,10 +194,6 @@ $(document).ready(function() {
     });
     
     $(document).bind('session_data_changed', function (event, session_params) {
-        // Add required parameters
-        session_params['nfsen_profile_data_dir'] = nfsen_config['PROFILEDATADIR'];
-        session_params['nfsen_subdir_layout'] = nfsen_config['SUBDIRLAYOUT'];
-        
         $.ajax({
             url: 'json/setsessiondata.php',
             data: { 
@@ -253,8 +238,6 @@ $(document).ready(function() {
                     'nfsen_profile_type': session_data['nfsen_profile_type'],
                     'nfsen_selected_sources': session_data['nfsen_selected_sources'],
                     'nfsen_stat_order': session_data['nfsen_stat_order'],
-                    'nfdump_version': session_data['nfdump_version'],
-                    'nfsen_html_dir': nfsen_config['HTMLDIR'],
                     'extensions': extensions
                 }
             },

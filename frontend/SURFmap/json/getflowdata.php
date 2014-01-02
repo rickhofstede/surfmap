@@ -7,12 +7,20 @@
  # LICENSE TERMS: 3-clause BSD license (outlined in license.html)
  *****************************************************/
     
-    function ReportLog($message) {
-        // Dummy function to avoid PHP errors related to NfSen
+    if (!function_exists('ReportLog')) {
+    	function ReportLog() {
+    	    // dummy function to avoid PHP errors
+    	}
     }
     
-    if (!session_id()) session_start();
+    require_once("../config.php");
+    require_once("../extensions.php");
+    require_once("../../../conf.php");
+    require_once("../../../nfsenutil.php");
+    
     header("content-type: application/json");
+    
+    if (!session_id()) session_start();
     
     if (isset($_POST['params'])) {
         $date1 = $_POST['params']['date1'];
@@ -42,9 +50,6 @@
             default:    break;
         }
         
-        $nfdump_version = $_POST['params']['nfdump_version'];
-        $nfsen_html_dir = $_POST['params']['nfsen_html_dir'];
-        
         // The 'extensions' parameter is ignored by jQuery (client-side) when it's an empty array
         if (isset($_POST['params']['extensions'])) {
             $extensions = $_POST['params']['extensions'];
@@ -57,11 +62,6 @@
         echo json_encode($result);
         die();
     }
-
-    require_once($nfsen_html_dir."/conf.php");
-    require_once($nfsen_html_dir."/nfsenutil.php");
-    require_once("../config.php");
-    require_once("../extensions.php");
 
     // Queries
     $field_list = "%ts;%td;%sa;%da;%sp;%dp;%pr;%pkt;%byt;%fl";
@@ -101,9 +101,9 @@
         }
         $run .= " -n ".$flow_record_count." -s record/".$nfsen_stat_order;
     }
-
+    
     if ($nfsen_option == 0 && $config['order_flow_records_by_start_time'] == 1) {
-        if ($nfdump_version && intval(str_replace(".", "", $nfdump_version)) >= 168) {
+        if ($_SESSION['SURFmap']['nfdump_version'] && intval(str_replace(".", "", $nfdump_version)) >= 168) {
             $run .= " -O tstart";
         } else {
             $run .= " -m";
@@ -128,7 +128,6 @@
 
     // Execute NfSen query
     $cmd_out = nfsend_query("run-nfdump", $cmd_opts);
-    nfsend_disconnect();
     $result['query'] = "nfdump ".$cmd_out['arg'];
     
     /* For debugging nfdump-related errors */
@@ -234,6 +233,8 @@
         array_push($result['flow_data'], $record);
     }
     unset($line);
+    
+    nfsend_disconnect();
     
     $result['status'] = 0;
     echo json_encode($result);

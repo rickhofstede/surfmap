@@ -1,6 +1,6 @@
 SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 
-Version:    3.2.2
+Version:    3.2.3
 Author:     Rick Hofstede, University of Twente <r.j.hofstede@utwente.nl>
 
 --
@@ -69,9 +69,6 @@ check 2.5; for installation verification, check 2.6):
         (path might differ, depending on your setup)
 
 - Configure plugin (config.php):
-    $ vi /var/www/nfsen/plugins/SURFmap/config.php
-        $config['nfsen_config']="/data/nfsen/etc/nfsen.conf"; (path might differ, depending on your setup)
-
     -> Get geolocation information for your setup
         http://[your machine IP]/nfsen/plugins/SURFmap/setup/retrievelocation.php
 

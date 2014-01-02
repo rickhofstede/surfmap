@@ -43,7 +43,6 @@
         var config;
         var constants;
         var extensions;
-        var nfsen_config;
         var session_data;
         
         // Handles for Javascript setTimeout and setInterval
@@ -118,19 +117,6 @@
             }
         });
         
-        // Retrieve config
-        $.ajax({
-            url: 'json/getconfig.php',
-            success: function(data) {
-                if (data.status == 0) { // Success
-                    config = data.config;
-                    $(document).trigger('config_loaded');
-                } else {
-                    show_error(801, data.status_message);
-                }
-            }
-        });
-        
         // Retrieve constants
         $.ajax({
             url: 'json/getconstants.php',
@@ -144,15 +130,15 @@
             }
         });
         
-        // Retrieve NfSen config
+        // Retrieve config
         $.ajax({
-            url: 'json/getnfsenconfig.php',
+            url: 'json/getconfig.php',
             success: function(data) {
                 if (data.status == 0) { // Success
-                    nfsen_config = data.config;
-                    $(document).trigger('nfsen_config_loaded');
+                    config = data.config;
+                    $(document).trigger('config_loaded');
                 } else {
-                    show_error(802, data.status_message);
+                    show_error(801, data.status_message);
                 }
             }
         });

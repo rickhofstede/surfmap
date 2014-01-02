@@ -13,7 +13,8 @@ package SURFmap;
 use strict;
 use warnings;
 
-use SURFmap::Helpers;
+use SURFmap::RPC;
+use SURFmap::Utils;
 
 our $VERSION = 136;
 our $SURFMAP_VERSION = "3.2.2";
@@ -23,32 +24,13 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(
     nfdump_version
-    );
-
-our %cmd_lookup = (
-    'get_backend_version'   => \&get_backend_version,
-    'get_nfdump_version'    => \&get_nfdump_version,
 );
 
-sub get_backend_version {
-    my $socket  = shift;
-    my $opts    = shift;
-    
-    my %args;
-    $args{'version'} = $SURFMAP_VERSION;
-    
-    Nfcomm::socket_send_ok($socket, \%args);
-}
-
-sub get_nfdump_version {
-    my $socket  = shift;
-    my $opts    = shift;
-    
-    my %args;
-    $args{'version'} = $nfdump_version;
-    
-    Nfcomm::socket_send_ok($socket, \%args);
-}
+our %cmd_lookup = (
+    'get_backend_version'       => \&get_backend_version,
+    'get_nfdump_version'        => \&get_nfdump_version,
+    'get_nfsen_profiledatadir'  => \&get_nfsen_profiledatadir
+);
 
 #
 # The Init function is called when the plugin is loaded. It's purpose is to give the plugin 

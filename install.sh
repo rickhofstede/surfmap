@@ -14,7 +14,7 @@
 #
 #########################################################
 
-SURFMAP_VER=3.2.2
+SURFMAP_VER=3.2.3
 SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
 SURFMAP_TMP=SURFmap_tmp
 GEO_DB=GeoLiteCity.dat.gz
@@ -160,8 +160,6 @@ chmod -R g+w ${FRONTEND_PLUGINDIR}/SURFmap/db
 
 # Update plugin configuration file - config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
 echo "Updating plugin configuration file ${SURFMAP_CONF}"
-OLD_NFSEN_CONF=$(grep nfsen_config ${SURFMAP_CONF} | awk '{ START=index($0,"="); LENGTH=length($0)-START; print substr($0,START,LENGTH) }' | cut -d"\"" -f2)
-sed -i.tmp "s,${OLD_NFSEN_CONF},${NFSEN_CONF},g" ${SURFMAP_CONF}
 
 # Check for proxy and update config.php accordingly
 PROXY=$(env | grep -i http_proxy | awk '{ START=index($0,"=")+1; print substr($0,START) }')

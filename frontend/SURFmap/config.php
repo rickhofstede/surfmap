@@ -20,7 +20,6 @@
     $config['order_flow_records_by_start_time'] = 0; // Order flow records by their start time - 0: no, 1: yes [default: 0]
     
     /* [NfSen] */
-    $config['nfsen_config'] = "/data/nfsen/etc/nfsen.conf"; // Path to NfSen configuration file [example: '/data/nfsen/etc/nfsen.conf']
     $config['nfsen_default_sources'] = ""; // NfSen sources which should be selected by default, if available. Separate multiple sources by a semicolon [default: '', example: 'core-router;backup-router']
     
     /* [GeoLocation] */

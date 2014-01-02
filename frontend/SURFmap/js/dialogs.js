@@ -105,8 +105,8 @@
                 case 801:   message = "Could not load configuration.";
                             break;
                         
-                case 802:   message = "Could not load NfSen configuration.";
-                            break;
+                // case 802:   message = "Could not load NfSen configuration.";
+                //             break;
                         
                 case 803:   message = "Could not load session data.";
                             break;
