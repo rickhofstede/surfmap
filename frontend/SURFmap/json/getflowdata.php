@@ -37,19 +37,6 @@
         $nfsen_profile_type = $_POST['params']['nfsen_profile_type'];
         $nfsen_selected_sources = $_POST['params']['nfsen_selected_sources'];
         
-        switch (intval($_POST['params']['nfsen_stat_order'])) {
-            case 0:     $nfsen_stat_order = "flows";
-                        break;
-                        
-            case 1:     $nfsen_stat_order = "packets";
-                        break;
-                        
-            case 2:     $nfsen_stat_order = "bytes";
-                        break;
-                        
-            default:    break;
-        }
-        
         // The 'extensions' parameter is ignored by jQuery (client-side) when it's an empty array
         if (isset($_POST['params']['extensions'])) {
             $extensions = $_POST['params']['extensions'];
@@ -87,7 +74,7 @@
     if ($nfsen_option == 0) {
         $run .= " -c ".$flow_record_count;
     } else {
-        switch ($nfsen_stat_order) {
+        switch (intval($_POST['params']['nfsen_stat_order'])) {
             case 0:     $nfsen_stat_order = "flows";
                         break;
                         

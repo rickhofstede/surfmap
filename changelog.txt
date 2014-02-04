@@ -4,6 +4,7 @@ Please check the manual or readme for installation instructions.
 ---
 
 Release notes [v3.2.3 (20140102)]:
+- [BUGFIX] Fixed a problem that caused the ordering in Stat Top N mode to always be based on ‘Flows’
 - [BUGFIX] Various minor bug fixes and improvements
 
 Release notes [v3.2.2 (20131227)]:
