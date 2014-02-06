@@ -73,6 +73,8 @@
                     $region = "(UNKNOWN)";
                     $city = "(UNKNOWN)";
                 }
+                
+                // IP2Location does not feature continent information
             } else if ($config['geolocation_db'] == "MaxMind") {
                 if (strpos($address, ":") === false) { // IPv4 address
                     $data = geoip_record_by_addr($db, $address);
@@ -86,6 +88,11 @@
                         !array_key_exists($data->region, $GEOIP_REGION_NAME[$data->country_code]) || 
                         $GEOIP_REGION_NAME[$data->country_code][$data->region] === "") ? "(UNKNOWN)" : strtoupper($GEOIP_REGION_NAME[$data->country_code][$data->region]);
                 $city = (!isset($data->city) || $data->city === "-") ? "(UNKNOWN)" : strtoupper($data->city);
+                $continent_code = (!isset($data->continent_code) || $data->continent_code === "-") ? "(UNKNOWN)" : strtoupper($data->continent_code);
+            } else {
+                $country = "(UNKNOWN)";
+                $region = "(UNKNOWN)";
+                $city = "(UNKNOWN)";
             }
         }
         
@@ -93,7 +100,27 @@
         $region = fix_comma_separated_name(utf8_encode($region));
         $city = fix_comma_separated_name(utf8_encode($city));
         
-        array_push($result['geolocation_data'], array('address' => $address, 'country' => $country, 'region' => $region, 'city' => $city));
+        if (isset($continent_code)) {
+            if ($continent_code === "Afrika") {
+                $continent = "Afrika";
+            } else if ($continent_code === "AS") {
+                $continent = "Asia";
+            } else if ($continent_code === "EU") {
+                $continent = "Europe";
+            } else if ($continent_code === "NA") {
+                $continent = "North-America";
+            } else if ($continent_code === "SA") {
+                $continent = "South-America";
+            } else if ($continent_code === "OC") {
+                $continent = "Ocenania";
+            }
+            
+            $continent = strtoupper($continent);
+        } else {
+            $continent = "(UNKNOWN)";
+        }
+        
+        array_push($result['geolocation_data'], array('address' => $address, 'continent' => $continent, 'country' => $country, 'region' => $region, 'city' => $city));
     }
     unset($address);
     

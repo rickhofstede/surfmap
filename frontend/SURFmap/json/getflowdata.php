@@ -103,6 +103,13 @@
     $cmd_opts['srcselector'] = implode(":", $nfsen_selected_sources);
     $cmd_opts['filter'] = array($nfsen_filter);
     
+    /* For debugging nfdump-related errors */
+    // error_log("cmd_opts args: ".$cmd_opts['args']);
+    // error_log("cmd_opts profile: ".$cmd_opts['profile']);
+    // error_log("cmd_opts type: ".$cmd_opts['type']);
+    // error_log("cmd_opts srcselector: ".$cmd_opts['srcselector']);
+    // error_log("cmd_opts filter: ".$nfsen_filter);
+    
     $result = array();
 
     if (!isset($_SESSION['profile'])) {
@@ -150,13 +157,13 @@
         $result['flow_record_count'] = 0;
         echo json_encode($result);
         die();
-    } else if (sizeof($cmd_out['nfdump']) == 0) {
+    } else if (!isset($cmd_out['nfdump']) || sizeof($cmd_out['nfdump']) == 0) {
         $result['status'] = 1;
         $result['status_message'] = "No flow records in result set";
         $result['flow_record_count'] = 0;
         echo json_encode($result);
         die();
-    } else if (!isset($cmd_out['nfdump']) || (isset($cmd_out['nfdump'][1]) && $cmd_out['nfdump'][1] == "Empty file list. No files to process")) {
+    } else if (isset($cmd_out['nfdump'][1]) && $cmd_out['nfdump'][1] == "Empty file list. No files to process") {
         $result['status'] = 1;
         $result['status_message'] = "Unknown error";
         $result['flow_record_count'] = 0;

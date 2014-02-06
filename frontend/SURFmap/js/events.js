@@ -304,6 +304,7 @@ $(document).ready(function() {
             // Source address
             $.each(geolocation_data, function(geolocation_index, geolocation_item) {
                 if (flow_item.ip_src == geolocation_item.address) {
+                    flow_item.src_continent = geolocation_item.continent;
                     flow_item.src_country = geolocation_item.country;
                     flow_item.src_region = geolocation_item.region;
                     flow_item.src_city = geolocation_item.city;
@@ -314,6 +315,7 @@ $(document).ready(function() {
             // Destination address
             $.each(geolocation_data, function(geolocation_index, geolocation_item) {
                 if (flow_item.ip_dst == geolocation_item.address) {
+                    flow_item.dst_continent = geolocation_item.continent;
                     flow_item.dst_country = geolocation_item.country;
                     flow_item.dst_region = geolocation_item.region;
                     flow_item.dst_city = geolocation_item.city;
@@ -507,26 +509,27 @@ $(document).ready(function() {
             // Collect all location names
             geocoder_request = [];
             $.each(geolocation_data, function(key, value) {
-                if ($.inArray(value.country, geocoder_request) == -1
+                var continent_str = (value.continent != "(UNKNOWN)") ? ";" + value.continent : "";
+                if ($.inArray(value.country + continent_str, geocoder_request) == -1
                         && value.country != "(UNKNOWN)") {
-                    geocoder_request.push(value.country);
+                    geocoder_request.push(value.country + continent_str);
                 }
-                if ($.inArray(value.country + ";" + value.region, geocoder_request) == -1
+                if ($.inArray(value.country + ";" + value.region + continent_str, geocoder_request) == -1
                         && value.country != "(UNKNOWN)"
                         && value.region != "(UNKNOWN)") {
-                    geocoder_request.push(value.country + ";" + value.region);
+                    geocoder_request.push(value.country + ";" + value.region + continent_str);
                 }
-                if ($.inArray(value.country + ";" + value.region + ";" + value.city, geocoder_request) == -1
+                if ($.inArray(value.country + ";" + value.region + ";" + value.city + continent_str, geocoder_request) == -1
                         && value.country != "(UNKNOWN)"
                         && value.region != "(UNKNOWN)"
                         && value.city != "(UNKNOWN)") {
-                    geocoder_request.push(value.country + ";" + value.region + ";" + value.city);
+                    geocoder_request.push(value.country + ";" + value.region + ";" + value.city + continent_str);
                 }
-                if ($.inArray(value.country + ";" + value.city, geocoder_request) == -1
+                if ($.inArray(value.country + ";" + value.city + continent_str, geocoder_request) == -1
                         && value.country != "(UNKNOWN)"
                         && value.region == "(UNKNOWN)"
                         && value.city != "(UNKNOWN)") {
-                    geocoder_request.push(value.country + ";" + value.city);
+                    geocoder_request.push(value.country + ";" + value.city + continent_str);
                 }
             });
             
@@ -553,37 +556,42 @@ $(document).ready(function() {
                                     return true;
                                 }
                                 
-                                if (flow_item.src_country == geocoder_item.request) {
+                                // Source
+                                var src_continent_str = (flow_item.src_continent != "(UNKNOWN)") ? ";" + flow_item.src_continent : "";
+                                if (flow_item.src_country + src_continent_str == geocoder_item.request) {
                                     flow_item.src_country_lat = parseFloat(geocoder_item.lat);
                                     flow_item.src_country_lng = parseFloat(geocoder_item.lng);
                                 }
-                                if (flow_item.src_country + ";" + flow_item.src_region == geocoder_item.request) {
+                                if (flow_item.src_country + ";" + flow_item.src_region + src_continent_str == geocoder_item.request) {
                                     flow_item.src_region_lat = parseFloat(geocoder_item.lat);
                                     flow_item.src_region_lng = parseFloat(geocoder_item.lng);
                                 }
-                                if (flow_item.src_country + ";" + flow_item.src_region + ";" + flow_item.src_city == geocoder_item.request) {
+                                if (flow_item.src_country + ";" + flow_item.src_region + ";" + flow_item.src_city + src_continent_str == geocoder_item.request) {
                                     flow_item.src_city_lat = parseFloat(geocoder_item.lat);
                                     flow_item.src_city_lng = parseFloat(geocoder_item.lng);
                                 }
-                                if (flow_item.src_country + ";" + flow_item.src_city == geocoder_item.request) {
+                                if (flow_item.src_country + ";" + flow_item.src_city + src_continent_str == geocoder_item.request) {
                                     flow_item.src_region_lat = parseFloat(geocoder_item.lat);
                                     flow_item.src_region_lng = parseFloat(geocoder_item.lng);
                                     flow_item.src_city_lat = parseFloat(geocoder_item.lat);
                                     flow_item.src_city_lng = parseFloat(geocoder_item.lng);
                                 }
-                                if (flow_item.dst_country == geocoder_item.request) {
+                                
+                                // Destination
+                                var dst_continent_str = (flow_item.dst_continent != "(UNKNOWN)") ? ";" + flow_item.dst_continent : "";
+                                if (flow_item.dst_country + dst_continent_str == geocoder_item.request) {
                                     flow_item.dst_country_lat = parseFloat(geocoder_item.lat);
                                     flow_item.dst_country_lng = parseFloat(geocoder_item.lng);
                                 }
-                                if (flow_item.dst_country + ";" + flow_item.dst_region == geocoder_item.request) {
+                                if (flow_item.dst_country + ";" + flow_item.dst_region + dst_continent_str == geocoder_item.request) {
                                     flow_item.dst_region_lat = parseFloat(geocoder_item.lat);
                                     flow_item.dst_region_lng = parseFloat(geocoder_item.lng);
                                 }
-                                if (flow_item.dst_country + ";" + flow_item.dst_region + ";" + flow_item.dst_city == geocoder_item.request) {
+                                if (flow_item.dst_country + ";" + flow_item.dst_region + ";" + flow_item.dst_city + dst_continent_str == geocoder_item.request) {
                                     flow_item.dst_city_lat = parseFloat(geocoder_item.lat);
                                     flow_item.dst_city_lng = parseFloat(geocoder_item.lng);
                                 }
-                                if (flow_item.dst_country + ";" + flow_item.dst_city == geocoder_item.request) {
+                                if (flow_item.dst_country + ";" + flow_item.dst_city + dst_continent_str == geocoder_item.request) {
                                     flow_item.dst_region_lat = parseFloat(geocoder_item.lat);
                                     flow_item.dst_region_lng = parseFloat(geocoder_item.lng);
                                     flow_item.dst_city_lat = parseFloat(geocoder_item.lat);
@@ -620,65 +628,67 @@ $(document).ready(function() {
             /* Coordinates are undefined or '-1' if not found in geolocation database */
             
             /* Source */
+            var src_continent_str = (this.src_continent != "(UNKNOWN)") ? ";" + this.src_continent : "";
             if ((this.src_country_lat == -1 && this.src_country_lng == -1
                     || this.src_country_lat == undefined && this.src_country_lng == undefined)
                     && this.src_country != "(UNKNOWN)"
-                    && $.inArray(this.src_country, geocoder_request) == -1) {
-                geocoder_request.push(this.src_country);
+                    && $.inArray(this.src_country + src_continent_str, geocoder_request) == -1) {
+                geocoder_request.push(this.src_country + src_continent_str);
             }
             if ((this.src_region_lat == -1 && this.src_region_lng == -1
                     || this.src_region_lat == undefined && this.src_region_lng == undefined)
                     && this.src_country != "(UNKNOWN)"
                     && this.src_region != "(UNKNOWN)"
-                    && $.inArray(this.src_country + ";" + this.src_region, geocoder_request) == -1) {
-                geocoder_request.push(this.src_country + ";" + this.src_region);
+                    && $.inArray(this.src_country + ";" + this.src_region + src_continent_str, geocoder_request) == -1) {
+                geocoder_request.push(this.src_country + ";" + this.src_region + src_continent_str);
             }
             if ((this.src_city_lat == -1 && this.src_city_lng == -1
                     || this.src_city_lat == undefined && this.src_city_lng == undefined)
                     && this.src_country != "(UNKNOWN)"
                     && this.src_region != "(UNKNOWN)"
                     && this.src_city != "(UNKNOWN)"
-                    && $.inArray(this.src_country + ";" + this.src_region + ";" + this.src_city, geocoder_request) == -1) {
-                geocoder_request.push(this.src_country + ";" + this.src_region + ";" + this.src_city);
+                    && $.inArray(this.src_country + ";" + this.src_region + ";" + this.src_city + src_continent_str, geocoder_request) == -1) {
+                geocoder_request.push(this.src_country + ";" + this.src_region + ";" + this.src_city + src_continent_str);
             }
             if ((this.src_city_lat == -1 && this.src_city_lng == -1
                     || this.src_city_lat == undefined && this.src_city_lng == undefined)
                     && this.src_country != "(UNKNOWN)"
                     && this.src_region == "(UNKNOWN)"
                     && this.src_city != "(UNKNOWN)"
-                    && $.inArray(this.src_country + ";" + this.src_city, geocoder_request) == -1) {
-                geocoder_request.push(this.src_country + ";" + this.src_city);
+                    && $.inArray(this.src_country + ";" + this.src_city + src_continent_str, geocoder_request) == -1) {
+                geocoder_request.push(this.src_country + ";" + this.src_city + src_continent_str);
             }
                     
             /* Destination */
+            var dst_continent_str = (this.dst_continent) ? ";" + this.dst_continent : "";
             if ((this.dst_country_lat == -1 && this.dst_country_lng == -1
                     || this.dst_country_lat == undefined && this.dst_country_lng == undefined)
                     && this.dst_country != "(UNKNOWN)"
-                    && $.inArray(this.dst_country, geocoder_request) == -1) {
-                geocoder_request.push(this.dst_country);
+                    && $.inArray(this.dst_country + dst_continent_str, geocoder_request) == -1) {
+                geocoder_request.push(this.dst_country + dst_continent_str);
             }
             if ((this.dst_region_lat == -1 && this.dst_region_lng == -1
                     || this.dst_region_lat == undefined && this.dst_region_lng == undefined)
                     && this.dst_country != "(UNKNOWN)"
                     && this.dst_region != "(UNKNOWN)"
-                    && $.inArray(this.dst_country + ";" + this.dst_region, geocoder_request) == -1) {
-                geocoder_request.push(this.dst_country + ";" + this.dst_region);
+                    && $.inArray(this.dst_country + ";" + this.dst_region + dst_continent_str, geocoder_request) == -1) {
+                geocoder_request.push(this.dst_country + ";" + this.dst_region + dst_continent_str);
             }
             if ((this.dst_city_lat == -1 && this.dst_city_lng == -1
                     || this.dst_city_lat == undefined && this.dst_city_lng == undefined)
                     && this.dst_country != "(UNKNOWN)"
                     && this.dst_region != "(UNKNOWN)"
                     && this.dst_city != "(UNKNOWN)"
-                    && $.inArray(this.dst_country + ";" + this.dst_region + ";" + this.dst_city, geocoder_request) == -1) {
-                geocoder_request.push(this.dst_country + ";" + this.dst_region + ";" + this.dst_city);
+                    && $.inArray(this.dst_country + ";" + this.dst_region + ";" + this.dst_city + dst_continent_str, geocoder_request) == -1) {
+                geocoder_request.push(this.dst_country + ";" + this.dst_region + ";" + this.dst_city + dst_continent_str);
             }
             if ((this.dst_city_lat == -1 && this.dst_city_lng == -1
                     || this.dst_city_lat == undefined && this.dst_city_lng == undefined)
                     && this.dst_country != "(UNKNOWN)"
                     && this.dst_region == "(UNKNOWN)"
                     && this.dst_city != "(UNKNOWN)"
-                    && $.inArray(this.dst_country + ";" + this.dst_city, geocoder_request) == -1) {
-                geocoder_request.push(this.dst_country + ";" + this.dst_city);
+                    && $.inArray(this.dst_country + ";" + this.dst_city + dst_continent_str, geocoder_request) == -1) {
+                geocoder_request.push(this.dst_country + ";" + this.dst_city + dst_continent_str);
             }
         });
         
@@ -859,20 +869,21 @@ $(document).ready(function() {
         // Add retrieved geocoder data to flow data
         $.each(flow_data, function(flow_index, flow_item) {        
             // Source IP address
+            var src_continent_str = (flow_item.src_continent != "(UNKNOWN)") ? ";" + flow_item.src_continent : "";
             $.each(geocoder_data, function(geocoder_index, geocoder_item) {
-                if (flow_item.src_country == geocoder_item.request) {
+                if (flow_item.src_country + src_continent_str == geocoder_item.request) {
                     flow_item.src_country_lat = geocoder_item.lat;
                     flow_item.src_country_lng = geocoder_item.lng;
                 }
-                if (flow_item.src_country + ";" + flow_item.src_region == geocoder_item.request) {
+                if (flow_item.src_country + ";" + flow_item.src_region + src_continent_str == geocoder_item.request) {
                     flow_item.src_region_lat = geocoder_item.lat;
                     flow_item.src_region_lng = geocoder_item.lng;
                 }
-                if (flow_item.src_country + ";" + flow_item.src_region + ";" + flow_item.src_city == geocoder_item.request) {
+                if (flow_item.src_country + ";" + flow_item.src_region + ";" + flow_item.src_city + src_continent_str == geocoder_item.request) {
                     flow_item.src_city_lat = geocoder_item.lat;
                     flow_item.src_city_lng = geocoder_item.lng;
                 }
-                if (flow_item.src_country + ";" + flow_item.src_city == geocoder_item.request) {
+                if (flow_item.src_country + ";" + flow_item.src_city + src_continent_str == geocoder_item.request) {
                     flow_item.src_region_lat = geocoder_item.lat;
                     flow_item.src_region_lng = geocoder_item.lng;
                     flow_item.src_city_lat = geocoder_item.lat;
@@ -881,20 +892,21 @@ $(document).ready(function() {
             });
             
             // Destination IP address
+            var dst_continent_str = (flow_item.dst_continent != "(UNKNOWN)") ? ";" + flow_item.dst_continent : "";
             $.each(geocoder_data, function(geocoder_index, geocoder_item) {
-                if (flow_item.dst_country == geocoder_item.request) {
+                if (flow_item.dst_country + dst_continent_str == geocoder_item.request) {
                     flow_item.dst_country_lat = geocoder_item.lat;
                     flow_item.dst_country_lng = geocoder_item.lng;
                 }
-                if (flow_item.dst_country + ";" + flow_item.dst_region == geocoder_item.request) {
+                if (flow_item.dst_country + ";" + flow_item.dst_region + dst_continent_str == geocoder_item.request) {
                     flow_item.dst_region_lat = geocoder_item.lat;
                     flow_item.dst_region_lng = geocoder_item.lng;
                 }
-                if (flow_item.dst_country + ";" + flow_item.dst_region + ";" + flow_item.dst_city == geocoder_item.request) {
+                if (flow_item.dst_country + ";" + flow_item.dst_region + ";" + flow_item.dst_city + dst_continent_str == geocoder_item.request) {
                     flow_item.dst_city_lat = geocoder_item.lat;
                     flow_item.dst_city_lng = geocoder_item.lng;
                 }
-                if (flow_item.dst_country + ";" + flow_item.dst_city == geocoder_item.request) {
+                if (flow_item.dst_country + ";" + flow_item.dst_city + dst_continent_str == geocoder_item.request) {
                     flow_item.dst_region_lat = geocoder_item.lat;
                     flow_item.dst_region_lng = geocoder_item.lng;
                     flow_item.dst_city_lat = geocoder_item.lat;

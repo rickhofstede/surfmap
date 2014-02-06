@@ -272,7 +272,7 @@
                 unset($query_result, $row);
             } catch(PDOException $e) {
                 $result['status'] = 1;
-                $result['status_message'] = "A PHP PDO driver has occurred";
+                $result['status_message'] = "A PHP PDO driver error has occurred ".$e->getMessage().")";
                 echo json_encode($result);
                 die();
             }

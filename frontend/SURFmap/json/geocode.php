@@ -50,7 +50,6 @@
     
         while (sizeof($_POST['params']) > 0) {
             $request = array_shift($_POST['params']);
-        
             $formatted_request = str_replace(" ", "+", urlencode($request));
             $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$formatted_request."&sensor=false";
             curl_setopt($ch, CURLOPT_URL, $url);
