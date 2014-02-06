@@ -17,11 +17,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>SURFmap -- A Network Monitoring Tool Based on the Google Maps API</title>
-    <link type="text/css" rel="stylesheet" href="lib/jquery/css/start/jquery-ui-1.10.3.custom.min.css" />
+    <link type="text/css" rel="stylesheet" href="lib/jquery/css/start/jquery-ui-1.10.4.custom.min.css" />
     <link type="text/css" rel="stylesheet" href="css/surfmap.css" />
     <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false&v=3"></script>
     <script type="text/javascript" src="lib/jquery/js/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="lib/jquery/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script type="text/javascript" src="lib/jquery/js/jquery-ui-1.10.4.custom.min.js"></script>
     <!-- <script src="https://code.jquery.com/jquery-migrate-1.2.0.js"></script> -->
     <script type="text/javascript" src="lib/jquery_browser/jquery.browser.js"></script> <!-- https://github.com/gabceb/jquery-browser-plugin -->
     <script type="text/javascript" src="lib/json2/json2.js"></script> <!-- https://github.com/carhartl/jquery-cookie -->
@@ -272,7 +272,7 @@
                         </div>
                         <span class="filter_label_text disable-select" style="float:left;">Flow filter</span><br />
                     </div>
-                    <textarea class="filter" id="filter_flow_text" rows="2" cols="26"></textarea>
+                    <textarea class="filter" id="filter_flow_text" rows="3" cols="26"></textarea>
                 </div><br />
                 <div style="width:195px;">
                     <div class="filter_label clickable unselectable" id="filter_geo" title="Show geo filter">
@@ -281,7 +281,7 @@
                         </div>
                         <span class="filter_label_text disable-select" style="float:left;">Geo filter</span><br />
                     </div>
-                    <textarea class="filter" id="filter_geo_text" rows="2" cols="26"></textarea>
+                    <textarea class="filter" id="filter_geo_text" rows="3" cols="26"></textarea>
                 </div><br />
                 <div style="text-align:center; width:195px;">
                     <input type="submit" name="submit" value="Load data" />
