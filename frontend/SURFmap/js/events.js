@@ -32,7 +32,20 @@ $(document).ready(function() {
         show_loading_message();
     });
     $(document).trigger('loading');
-            
+    
+    // Retrieve constants
+    $.ajax({
+        url: 'json/getconstants.php',
+        success: function(data) {
+            if (data.status == 0) { // Success
+                constants = data.constants;
+                $(document).trigger('constants_loaded');
+            } else {
+                show_error(813, data.status_message);
+            }
+        }
+    });
+    
     $(document).bind('config_loaded', function () {
         init_panel();
         
@@ -54,6 +67,20 @@ $(document).ready(function() {
             log_system_information();
         }
     });
+    
+    // Retrieve config
+    $.ajax({
+        url: 'json/getconfig.php',
+        success: function(data) {
+            if (data.status == 0) { // Success
+                config = data.config;
+                $(document).trigger('config_loaded');
+            } else {
+                show_error(801, data.status_message);
+            }
+        }
+    });
+    
     $(document).bind('constants_loaded', function () {
         if (config != undefined && constants != undefined && extensions != undefined) {
             $(document).trigger('phase_1_loaded');
@@ -238,6 +265,7 @@ $(document).ready(function() {
                     'nfsen_profile_type': session_data['nfsen_profile_type'],
                     'nfsen_selected_sources': session_data['nfsen_selected_sources'],
                     'nfsen_stat_order': session_data['nfsen_stat_order'],
+                    'aggregation_fields': session_data['aggregation_fields'],
                     'extensions': extensions
                 }
             },

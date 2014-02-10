@@ -36,6 +36,7 @@
         $nfsen_profile = $_POST['params']['nfsen_profile'];
         $nfsen_profile_type = $_POST['params']['nfsen_profile_type'];
         $nfsen_selected_sources = $_POST['params']['nfsen_selected_sources'];
+        $aggregation_fields = $_POST['params']['aggregation_fields'];
         
         // The 'extensions' parameter is ignored by jQuery (client-side) when it's an empty array
         if (isset($_POST['params']['extensions'])) {
@@ -89,12 +90,35 @@
         $run .= " -n ".$flow_record_count." -s record/".$nfsen_stat_order;
     }
     
+    // Sorting by flow record start time
     if ($nfsen_option == 0 && $config['order_flow_records_by_start_time'] == 1) {
         if ($_SESSION['SURFmap']['nfdump_version'] && intval(str_replace(".", "", $nfdump_version)) >= 168) {
             $run .= " -O tstart";
         } else {
             $run .= " -m";
         }
+    }
+    
+    // Aggregation fields
+    $selected_aggregation_fields = array();
+    foreach ($aggregation_fields as $key => $value) {
+        $value = intval($value);
+        if ($value === 1) {
+            $formatted_aggregation_field = $key;
+            
+            // Remove 'aggr_'
+            $formatted_aggregation_field = str_replace("aggr_", "", $formatted_aggregation_field);
+            
+            // Remove underscores
+            $formatted_aggregation_field = str_replace("_", "", $formatted_aggregation_field);
+            
+            array_push($selected_aggregation_fields, $formatted_aggregation_field);
+        }
+    }
+    
+    if (sizeof($selected_aggregation_fields) > 0) {
+        $aggregation_fields_string = "-A ".implode(",", $selected_aggregation_fields);
+        $run .= " -A ".implode(",", $selected_aggregation_fields);
     }
 
     $cmd_opts['args'] = "-T $run";

@@ -387,7 +387,51 @@
         // Initialize flow record count
         $('#flow_record_count_input').val(session_data['flow_record_count'].toString()).change(function () {
             if (parseInt($('#flow_record_count_input').val(), 10) != session_data['flow_record_count']) {
-                $(document).trigger('session_data_changed', { 'flow_record_count': parseInt($('#flow_record_count_input').val(), 10) } );
+                $(document).trigger('session_data_changed', {
+                    'flow_record_count': parseInt($('#flow_record_count_input').val(), 10)
+                });
+            }
+        });
+        
+        // Initialize aggregation fields
+        $.each($('table#aggregation_fields input:checkbox'), function () {
+            var field_name = $(this).attr('name');
+            
+            // Check pre-selected aggregation fields
+            $(this).attr('checked', session_data['aggregation_fields'][field_name] == 1);
+            
+            // Handler for click-event
+            $(this).click(function () {
+                var update = {
+                    'aggregation_fields':   {}
+                };
+                
+                update['aggregation_fields'][field_name] = ($(this).is(':checked')) ? 1 : 0;
+                $(document).trigger('session_data_changed', update);
+            });
+        });
+        $('#aggregation_label').click(function(event) {
+            var icon;
+            if (event.target.id == 'aggregation_label_text') {
+                icon = $(this).parent().find('span:first');
+            } else if (event.target.id.indexOf('aggregation_label') != -1) {
+                icon = $(this).find('span:first');
+            }
+            icon.toggleClass('ui-icon-triangle-1-e').toggleClass('ui-icon-triangle-1-s');
+            
+            var aggregation_fields = $('table#aggregation_fields');
+            if (icon.hasClass('ui-icon-triangle-1-s')) {
+                aggregation_fields.show();
+            } else {
+                aggregation_fields.hide();
+            }
+        });
+        
+        // Show aggregation fields only if at least one field is selected
+        $.each(session_data['aggregation_fields'], function (key, value) {
+            if (value == 1) {
+                $('#aggregation_label').trigger('click');
+                return false;
             }
         });
         
@@ -396,8 +440,6 @@
             var icon;
             if (event.target.className == 'filter_label_text') {
                 icon = $(this).parent().find('span:first');
-            } else if (event.target.className == 'filter_label_text') {
-                icon = $(this).prev().find('span:first');
             } else if (event.target.className.indexOf('filter_label') != -1) {
                 icon = $(this).find('span:first');
             }

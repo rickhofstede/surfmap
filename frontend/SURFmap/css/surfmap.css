@@ -38,6 +38,11 @@ label.zoom_level_label {
     margin-left:        2px;
 }
 
+table#aggregation_fields {
+    display:            none;
+    width:              200px;
+}
+
 textarea.filter {
     margin-top:         2px;
     display:            none;

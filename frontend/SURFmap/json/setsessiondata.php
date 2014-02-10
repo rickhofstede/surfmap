@@ -40,6 +40,15 @@
         $result['session_data']['flow_record_count'] = $_SESSION['SURFmap']['flow_record_count'];
     }
     
+    // Initialize aggregation fields
+    if (isset($_POST['params']['aggregation_fields'])) {
+        foreach ($_POST['params']['aggregation_fields'] as $key => $value) {
+            $_SESSION['SURFmap']['aggregation_fields'][$key] = intval($value);
+        }
+        
+        $result['session_data']['aggregation_fields'] = $_SESSION['SURFmap']['aggregation_fields'];
+    }
+    
     // Set flow_filter & flow_display_filter
     // No need to check for $_POST['params']['flow_filter'] since only flow_display_filter is sent by frontend
     if (isset($_POST['params']['flow_display_filter'])) {

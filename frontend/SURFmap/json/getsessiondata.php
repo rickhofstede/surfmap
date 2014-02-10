@@ -45,6 +45,15 @@
         $_SESSION['SURFmap']['flow_record_count'] = $config['default_flow_record_count'];
     }
     
+    // Initialize aggregation fields
+    if (!isset($_SESSION['SURFmap']['aggregation_fields'])) {
+        $_SESSION['SURFmap']['aggregation_fields']['aggr_src_ip'] = 0;
+        $_SESSION['SURFmap']['aggregation_fields']['aggr_dst_ip'] = 0;
+        $_SESSION['SURFmap']['aggregation_fields']['aggr_src_port'] = 0;
+        $_SESSION['SURFmap']['aggregation_fields']['aggr_dst_port'] = 0;
+        $_SESSION['SURFmap']['aggregation_fields']['aggr_proto'] = 0;
+    }
+    
     // Initialize flow_filter
     if (!isset($_SESSION['SURFmap']['flow_filter']) || !isset($_SESSION['SURFmap']['flow_display_filter'])) {
         $_SESSION['SURFmap']['flow_filter'] = '';
@@ -375,6 +384,7 @@
     }
     
     $result['session_data']['flow_record_count'] = $_SESSION['SURFmap']['flow_record_count'];
+    $result['session_data']['aggregation_fields'] = $_SESSION['SURFmap']['aggregation_fields'];
     $result['session_data']['flow_filter'] = $_SESSION['SURFmap']['flow_filter'];
     $result['session_data']['flow_display_filter'] = $_SESSION['SURFmap']['flow_display_filter'];
     $result['session_data']['geo_filter'] = $_SESSION['SURFmap']['geo_filter'];

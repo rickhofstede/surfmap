@@ -100,7 +100,7 @@
         $region = fix_comma_separated_name(utf8_encode($region));
         $city = fix_comma_separated_name(utf8_encode($city));
         
-        if (isset($continent_code)) {
+        if (isset($continent_code) && $continent_code !== "(UNKNOWN)") {
             if ($continent_code === "Afrika") {
                 $continent = "Afrika";
             } else if ($continent_code === "AS") {

@@ -22,7 +22,7 @@
     <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false&v=3"></script>
     <script type="text/javascript" src="lib/jquery/js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="lib/jquery/js/jquery-ui-1.10.4.custom.min.js"></script>
-    <!-- <script src="https://code.jquery.com/jquery-migrate-1.2.0.js"></script> -->
+    <!-- <script src="https://code.jquery.com/jquery-migrate-1.2.1.js"></script> -->
     <script type="text/javascript" src="lib/jquery_browser/jquery.browser.js"></script> <!-- https://github.com/gabceb/jquery-browser-plugin -->
     <script type="text/javascript" src="lib/json2/json2.js"></script> <!-- https://github.com/carhartl/jquery-cookie -->
     <script type="text/javascript" src="lib/jquery_cookie/jquery.cookie.js"></script> <!-- https://github.com/carhartl/jquery-cookie -->
@@ -114,32 +114,6 @@
                 show_error(800, "The AJAX request has been aborted.");
             } else {
                 show_error(800);
-            }
-        });
-        
-        // Retrieve constants
-        $.ajax({
-            url: 'json/getconstants.php',
-            success: function(data) {
-                if (data.status == 0) { // Success
-                    constants = data.constants;
-                    $(document).trigger('constants_loaded');
-                } else {
-                    show_error(813, data.status_message);
-                }
-            }
-        });
-        
-        // Retrieve config
-        $.ajax({
-            url: 'json/getconfig.php',
-            success: function(data) {
-                if (data.status == 0) { // Success
-                    config = data.config;
-                    $(document).trigger('config_loaded');
-                } else {
-                    show_error(801, data.status_message);
-                }
             }
         });
         
@@ -261,11 +235,51 @@
                         <span class="ui-icon ui-icon-arrowthick-1-e" title="Copy 'begin' time to here" onclick="copy_date_time_selector('date_start', 'date_end');"></span>
                     </div>
                 </div><br />
+                
+                <!-- Limit to -->
                 <div style="margin-top:10px; width:195px;">
                     <span style="float:left; margin-top:3px;">Limit to</span>
                     <span style="width:127px; float:right;"><input type="text" id="flow_record_count_input" style="width:35px; padding:2px 0px 2px 0px; text-align:center;" maxlength="4"><label for="flow_record_count_input"> flows</label><span>
                 </div><br />
-                <div style="margin-top:15px; width:195px;">
+                
+                <!-- Aggregation fields -->
+                <div style="margin-top:10px; width:195px;">
+                    <div class="clickable unselectable" id="aggregation_label" title="Show aggregation options">
+                        <div class="ui-state-default ui-corner-all no-icon-background" style="float:left;">
+                            <span class="ui-icon filter_label_icon ui-icon-triangle-1-e"></span>
+                        </div>
+                        <span class="disable-select" id="aggregation_label_text" style="float:left;">Aggregation</span><br />
+                    </div>
+                    <table id="aggregation_fields">
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="aggr_src_ip" id="aggr_src_ip" />
+                                <label for="aggr_src_ip">srcIP</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="aggr_dst_ip" id="aggr_dst_ip" />
+                                <label for="aggr_dst_ip">dstIP</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="aggr_src_port" id="aggr_src_port" />
+                                <label for="aggr_src_port">srcPort</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="aggr_dst_port" id="aggr_dst_port" />
+                                <label for="aggr_dst_port">dstPort</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="aggr_proto" id="aggr_proto" />
+                                <label for="aggr_proto">proto</label>
+                            </td>
+                        </tr>
+                    </table>
+                </div><br />
+                
+                <!-- Flow filter -->
+                <div style="width:195px;">
                     <div class="filter_label clickable unselectable" id="filter_flow" title="Show flow filter">
                         <div class="ui-state-default ui-corner-all no-icon-background" style="float:left;">
                             <span class="ui-icon filter_label_icon ui-icon-triangle-1-e"></span>
@@ -274,6 +288,8 @@
                     </div>
                     <textarea class="filter" id="filter_flow_text" rows="3" cols="26"></textarea>
                 </div><br />
+                
+                <!-- Geo filter -->
                 <div style="width:195px;">
                     <div class="filter_label clickable unselectable" id="filter_geo" title="Show geo filter">
                         <div class="ui-state-default ui-corner-all no-icon-background" style="float:left;">
