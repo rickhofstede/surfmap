@@ -1,6 +1,6 @@
 SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 
-Version:    3.2.3
+Version:    3.3
 Author:     Rick Hofstede, University of Twente <r.j.hofstede@utwente.nl>
 
 --
@@ -28,6 +28,7 @@ check 2.5; for installation verification, check 2.6):
     * NfSen
     * PHP 5.2.4 or newer
     * PHP cURL module
+    * PHP JSON module
     * PHP mbstring module
     * PHP PDO SQLite3 module
 

@@ -14,7 +14,7 @@
 #
 #########################################################
 
-SURFMAP_VER=3.2.3
+SURFMAP_VER=3.3
 SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
 SURFMAP_TMP=SURFmap_tmp
 GEO_DB=GeoLiteCity.dat.gz
@@ -61,11 +61,14 @@ fi
 
 # Check available PHP modules
 PHP_CURL=$(php -m | grep 'curl' 2> /dev/null)
+PHP_JSON=$(php -m | grep 'json' 2> /dev/null)
 PHP_MBSTRING=$(php -m | grep 'mbstring' 2> /dev/null)
 PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite$' 2> /dev/null) # The dollar-sign ($) makes sure that 'pdo_sqlite2' is not accepted
 
 if [ "$PHP_CURL" != "curl" ]; then
     err "The PHP 'cURL' module is missing. Try to install the following packages (depending on your OS): \n\t* php5-curl (Ubuntu/Debian)\n\t* php-curl (RHEL/CentOS, using EPEL) \n\t* Include 'CURL' in the php5-extensions port (FreeBSD)\nDon't forget to restart your Web server after installing the package"
+elif [ "$PHP_JSON" != "json" ]; then
+    err "The PHP 'JSON' module is missing.\nDon't forget to restart your Web server after installing the package"
 elif [ "$PHP_MBSTRING" != "mbstring" ]; then
     err "The PHP 'mbstring' module is missing. Try to install the following packages (depending on your OS): \n\t* php-mbstring (RHEL/CentOS, using EPEL) \n\t* Include 'MBSTRING' in the php5-extensions port (FreeBSD)\nDon't forget to restart your Web server after installing the package"
 elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
