@@ -41,23 +41,23 @@
                 if (strcasecmp($outerExpression, "not") === 0) {
                     $currentLogicNegationOperator = true;
                 } else if (isset($currentLogicNegationOperator) && $currentLogicNegationOperator === true) {
-                    $result = perform_logic_negation(evaluateGeoFilter($object, $outerExpression));
+                    $result = perform_logic_negation(eval_geo_filter($object, $outerExpression));
                     $currentLogicNegationOperator = null;
                 } else if (in_arrayi($outerExpression, $logicOperators)) { // logic operator
                     $currentLogicOperator = $outerExpression;
                 } else if (isset($result)) { // second or later element of outer expression; $currentLogicOperator should therefore be set
                     if (strcasecmp($currentLogicOperator, "and") === 0) {
                         // If the first result in an 'and' operation is false, evaluation of the second expression can be skipped
-                        if ($result) $result = perform_logic_AND(array($result, evaluateGeoFilter($object, $outerExpression)));
+                        if ($result) $result = perform_logic_AND(array($result, eval_geo_filter($object, $outerExpression)));
                     } else if (strcasecmp($currentLogicOperator, "or") === 0) { // logic OR
                         // If the first result in an 'or' operation is true, evaluation of the second expression can be skipped
-                        if ($result === true) $result = perform_logic_OR(array($result, evaluateGeoFilter($object, $outerExpression)));
+                        if ($result === true) $result = perform_logic_OR(array($result, eval_geo_filter($object, $outerExpression)));
                     } else {
                         throw new GeoFilterException("Logic operator (and/or) is missing (near '$outerExpression')");
                     }
                     $currentLogicOperator = null;
                 } else { // first element of outer expression
-                    $result = evaluateGeoFilter($object, $outerExpression);
+                    $result = eval_geo_filter($object, $outerExpression);
                 }
             }
             unset($outerExpression);
