@@ -221,20 +221,37 @@
         $max_minutes = substr($max_time, 3, 2);
     }
     
-    $_SESSION['SURFmap']['max_date'] = $max_date;
-    $_SESSION['SURFmap']['max_hours'] = $max_hours;
-    $_SESSION['SURFmap']['max_minutes'] = $max_minutes;
-    
-    if ((isset($update_time_period) && $update_time_period == 1)
-            || (!isset($_SESSION['SURFmap']['date1']) || !isset($_SESSION['SURFmap']['date2']))) {
-        $_SESSION['SURFmap']['date1'] = $_SESSION['SURFmap']['max_date'];
-        $_SESSION['SURFmap']['date2'] = $_SESSION['SURFmap']['max_date'];
+    $_SESSION['SURFmap']['max_date']        = $max_date;
+    $_SESSION['SURFmap']['max_hours']       = $max_hours;
+    $_SESSION['SURFmap']['max_minutes']     = $max_minutes;
+
+    if (!isset($_SESSION['SURFmap']['date1']) || !isset($_SESSION['SURFmap']['date2'])) {
+        $_SESSION['SURFmap']['date1']       = $_SESSION['SURFmap']['max_date'];
+        $_SESSION['SURFmap']['date2']       = $_SESSION['SURFmap']['max_date'];
         
-        $_SESSION['SURFmap']['hours1'] = $_SESSION['SURFmap']['max_hours'];
-        $_SESSION['SURFmap']['hours2'] = $_SESSION['SURFmap']['max_hours'];
+        $_SESSION['SURFmap']['hours1']      = $_SESSION['SURFmap']['max_hours'];
+        $_SESSION['SURFmap']['hours2']      = $_SESSION['SURFmap']['max_hours'];
         
-        $_SESSION['SURFmap']['minutes1'] = $_SESSION['SURFmap']['max_minutes'];
-        $_SESSION['SURFmap']['minutes2'] = $_SESSION['SURFmap']['max_minutes'];
+        $_SESSION['SURFmap']['minutes1']    = $_SESSION['SURFmap']['max_minutes'];
+        $_SESSION['SURFmap']['minutes2']    = $_SESSION['SURFmap']['max_minutes'];
+    } elseif (isset($update_time_period) && $update_time_period == 1) {
+        $date_time_1_UNIX = date_time_string_to_UNIX($_SESSION['SURFmap']['date1'].$_SESSION['SURFmap']['hours1'].$_SESSION['SURFmap']['minutes1']);
+        $date_time_2_UNIX = date_time_string_to_UNIX($_SESSION['SURFmap']['date2'].$_SESSION['SURFmap']['hours2'].$_SESSION['SURFmap']['minutes2']);
+        $delta_time = $date_time_2_UNIX - $date_time_1_UNIX;
+        
+        $max_date_time_UNIX = date_time_string_to_UNIX($_SESSION['SURFmap']['max_date'].$_SESSION['SURFmap']['max_hours'].$_SESSION['SURFmap']['max_minutes']);
+
+        # Update time window end time to latest available
+        $_SESSION['SURFmap']['date2']       = $_SESSION['SURFmap']['max_date'];
+        $_SESSION['SURFmap']['hours2']      = $_SESSION['SURFmap']['max_hours'];
+        $_SESSION['SURFmap']['minutes2']    = $_SESSION['SURFmap']['max_minutes'];
+
+        # Update time window start time to 'time window end time' minus the original time window length
+        $_SESSION['SURFmap']['date1']       = date("Ymd", $max_date_time_UNIX - $delta_time);
+        $_SESSION['SURFmap']['hours1']      = date("H", $max_date_time_UNIX - $delta_time);
+        $_SESSION['SURFmap']['minutes1']    = date("i", $max_date_time_UNIX - $delta_time);
+    } else {
+        # Do nothing
     }
     
     // Initialize map_center
@@ -420,12 +437,11 @@
     die();
     
     /*
-     * Generates a date String (yyyymmdd) from either 1) a date selector in the
-     * SURFmap interface, or 2) the last available date for which an nfcapd dump
-     * file is available on the file system.
+     * Generates a date String (yyyymmdd) based on the last available date for which
+     * an nfcapd dump file is available on the file system.
      * Parameters:
      *      buffer_time - buffer time between the real time and the most recent
-     *                      profile update, in minutes (default: 5)
+     *                      profile update, in minutes
      */
     function generate_date_string ($buffer_time) {
         $unprocessed_date = date("Ymd");
@@ -468,12 +484,11 @@
     }
 
     /*
-     * Generates a time String (hhmm) from either 1) a time selector in the
-     * SURFmap interface, or 2) the last available time for which an nfcapd dump
-     * file is available on the file system.
+     * Generates a time String (HHMM) based on the last available date for which
+     * an nfcapd dump file is available on the file system.
      * Parameters:
      *      buffer_time - buffer time between the real time and the most recent
-     *                      profile update, in minutes (default: 5)
+     *                      profile update, in minutes
      */
     function generate_time_string ($buffer_time) {
         $hours = date("H");
@@ -495,6 +510,21 @@
         if (strlen($minutes) < 2) $minutes = "0".$minutes;
 
         return $hours.":".$minutes;
-    } 
+    }
+
+    /*
+     * Converts a typical SURFmap date-time String (yyyymmddHHMM) to a UNIX timestamp.
+     * Parameters:
+     *      date_time_string - String to be converted (yyyymmddHHMM)
+     */
+    function date_time_string_to_UNIX ($date_time_string) {
+        $year       = substr($date_time_string, 0, 4);
+        $month      = substr($date_time_string, 4, 2);
+        $day        = substr($date_time_string, 6, 2);
+        $hours      = substr($date_time_string, 8, 2);
+        $minutes    = substr($date_time_string, 10, 2);
+
+        return strtotime("${year}-${month}-${day} ${hours}:${minutes}");
+    }
 
 ?>

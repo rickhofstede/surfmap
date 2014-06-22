@@ -8,6 +8,7 @@ Release notes [v3.3 (20140616)]:
 - [FEATURE] Continent names are now considered in the geocoding process, to deal properly with places that have identical names, such as ‘New York’ and ‘Georgia’
 - [BUGFIX]  Fixed a problem that caused the ordering in Stat Top N mode to always be based on ‘Flows’
 - [BUGFIX]  Fixed a problem that caused the GeoFilter to fail to execute
+- [BUGFIX]  Fixed a problem that caused auto-refresh to ignore time window settings made in menu panel
 - [BUGFIX]  Various minor bug fixes and improvements
 
 Release notes [v3.2.2 (20131227)]:
