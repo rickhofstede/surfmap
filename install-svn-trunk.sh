@@ -12,8 +12,8 @@
 #
 
 err () {
-	echo "ERROR: ${*}\n"
-	exit 1
+    printf "ERROR: ${*}\n"
+    exit 1
 }
 
 echo "SURFmap SVN installation script"

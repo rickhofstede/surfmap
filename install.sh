@@ -16,7 +16,7 @@
 
 SURFMAP_VER=3.3
 SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
-SURFMAP_TMP=SURFmap_tmp
+TMP_DIR=SURFmap
 GEO_DB=GeoLiteCity.dat.gz
 GEOv6_DB=GeoLiteCityv6.dat.gz
 
@@ -31,17 +31,67 @@ err_line () {
     exit 1
 }
 
+FRONTEND_ONLY=0             # Install/update frontend only
+BACKEND_ONLY=0              # Install/update backend only
+NFSEN_CONF_OVERWRITE=""     # Overwrite path to nfsen.conf (i.e., don't determine path automatically)
+
+# http://wiki.bash-hackers.org/howto/getopts_tutorial
+while getopts ":fbn:" opt; do
+    case $opt in
+        f)
+            FRONTEND_ONLY=1
+            ;;
+        b)
+            BACKEND_ONLY=1
+            ;;
+        n)
+            NFSEN_CONF_OVERWRITE=$OPTARG
+            ;;
+        \?)
+            err "Invalid option: -$OPTARG"
+            exit 1
+            ;;
+        :)
+            err "Option -$OPTARG requires an argument. Exiting..."
+            exit 1
+            ;;
+    esac
+done
+
+if [ $FRONTEND_ONLY = 1 -a $BACKEND_ONLY = 1 ]; then
+    err "You have specified two excluding options (-f and -b)."
+fi
+
+# Determine (based on combination of input parameters) whether frontend has to be installed
+if [ $FRONTEND_ONLY = 1 ] || [ $FRONTEND_ONLY = 0 -a $BACKEND_ONLY = 0 ]; then
+    INSTALL_FRONTEND=1
+else
+    INSTALL_FRONTEND=0
+fi
+
+# Determine (based on combination of input parameters) whether backend has to be installed
+if [ $BACKEND_ONLY = 1 ] || [ $FRONTEND_ONLY = 0 -a $BACKEND_ONLY = 0 ]; then
+    INSTALL_BACKEND=1
+else
+    INSTALL_BACKEND=0
+fi
+
 echo "SURFmap installation script"
 echo "---------------------------"
 
 # Discover NfSen configuration
 NFSEN_VARFILE=/tmp/nfsen-tmp.conf
 if [ ! -n "$(ps axo command | grep [n]fsend | grep -v nfsend-comm)" ]; then
-    err "NfSen - nfsend not running. Cannot detect nfsen.conf location!"
+    err "NfSen - nfsend not running; cannot detect nfsen.conf location. Exiting..."
 fi
 
 NFSEN_LIBEXECDIR=$(cat $(ps axo command= | grep -vE "(nfsend-comm|grep)" | grep -Eo "[^ ]+nfsend") | grep libexec | cut -d'"' -f2 | head -n 1)
-NFSEN_CONF=$(cat ${NFSEN_LIBEXECDIR}/NfConf.pm | grep \/nfsen.conf | cut -d'"' -f2)
+
+if [ -z "${NFSEN_CONF_OVERWRITE}" ]; then
+    NFSEN_CONF=$(cat ${NFSEN_LIBEXECDIR}/NfConf.pm | grep \/nfsen.conf | cut -d'"' -f2)
+else
+    NFSEN_CONF=$NFSEN_CONF_OVERWRITE
+fi
 
 # Parse nfsen.conf file
 cat ${NFSEN_CONF} | grep -v \# | egrep '\$BASEDIR|\$BINDIR|\$LIBEXECDIR|\$HTMLDIR|\$FRONTEND_PLUGINDIR|\$BACKEND_PLUGINDIR|\$WWWGROUP|\$WWWUSER|\$USER' | tr -d ';' | tr -d ' ' | cut -c2- | sed 's,/",",g' > ${NFSEN_VARFILE}
@@ -59,22 +109,6 @@ if [ "$(id -u)" = "$(id -u ${USER})" ]; then
     WWWUSER=${USER}     # we are installing as normal user
 fi
 
-# Check available PHP modules
-PHP_CURL=$(php -m | grep 'curl' 2> /dev/null)
-PHP_JSON=$(php -m | grep 'json' 2> /dev/null)
-PHP_MBSTRING=$(php -m | grep 'mbstring' 2> /dev/null)
-PHP_PDOSQLITE=$(php -m | grep 'pdo_sqlite$' 2> /dev/null) # The dollar-sign ($) makes sure that 'pdo_sqlite2' is not accepted
-
-if [ "$PHP_CURL" != "curl" ]; then
-    err "The PHP 'cURL' module is missing. Try to install the following packages (depending on your OS): \n\t* php5-curl (Ubuntu/Debian)\n\t* php-curl (RHEL/CentOS, using EPEL) \n\t* Include 'CURL' in the php5-extensions port (FreeBSD)\nDon't forget to restart your Web server after installing the package"
-elif [ "$PHP_JSON" != "json" ]; then
-    err "The PHP 'JSON' module is missing.\nDon't forget to restart your Web server after installing the package"
-elif [ "$PHP_MBSTRING" != "mbstring" ]; then
-    err "The PHP 'mbstring' module is missing. Try to install the following packages (depending on your OS): \n\t* php-mbstring (RHEL/CentOS, using EPEL) \n\t* Include 'MBSTRING' in the php5-extensions port (FreeBSD)\nDon't forget to restart your Web server after installing the package"
-elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
-    err "The PHP PDO SQLite v3 module is missing. Try to install the following packages (depending on your OS): \n\t* php5-sqlite (Ubuntu/Debian)\n\t* php-pdo (RHEL/CentOS, using EPEL) \n\t* Include 'PDO_SQLITE' in the php5-extensions port (FreeBSD)\nDon't forget to restart your Web server after installing the package"
-fi
-
 # Download files from Web
 if [ $(uname) = "FreeBSD" -o $(uname) = "OpenBSD" ]; then
     RETRIEVE_TOOL="fetch"
@@ -87,59 +121,97 @@ if [ ! -f  ${SURFMAP_REL} ]; then
     ${RETRIEVE_TOOL} http://downloads.sourceforge.net/project/surfmap/source/${SURFMAP_REL}
 fi
 
-if [ ! -f  ${GEO_DB} ]; then
-    echo "Downloading MaxMind GeoLite City database - http://geolite.maxmind.com"
-    ${RETRIEVE_TOOL} http://geolite.maxmind.com/download/geoip/database/${GEO_DB}
+# Move one directory-level up, if necessary, to be consistent with the case in which the tar-ball is unpacked (else-clause)
+if [ -f install.sh ]; then
+    cd ..
 fi
 
-if [ ! -f  ${GEOv6_DB} ]; then
+# Unpack SURFmap
+if [ -d ${TMP_DIR} ]; then
+    echo "Extracted SURFmap files found in $(pwd)/${TMP_DIR}"
+else
+    echo "Unpacking files..."
+    tar zxf ${SURFmap_REL} --directory=.
+    mv SURFmap ${TMP_DIR}
+fi
+
+# Check PHP dependencies
+PHP_JSON=$(php -m | grep 'json' 2> /dev/null)
+PHP_MBSTRING=$(php -m 2> /dev/null | grep 'mbstring')
+PHP_PDOSQLITE=$(php -m 2> /dev/null | grep 'pdo_sqlite$') # The dollar-sign ($) makes sure that 'pdo_sqlite2' is not accepted
+PHP_SOCKETS=$(php -m 2> /dev/null | grep '^sockets$')
+PHP_XML=$(php -m 2> /dev/null | grep '^xml$')
+
+if [ "$PHP_JSON" != "json" ]; then
+    err "The PHP 'JSON' module is missing.\nDon't forget to restart your Web server after installing the package."
+elif [ "$PHP_MBSTRING" != "mbstring" ]; then
+    err "The PHP 'mbstring' module is missing.\nDon't forget to restart your Web server after installing the package."
+elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
+    err "The PHP PDO SQLite v3 module is missing.\nDon't forget to restart your Web server after installing the package."
+elif [ "$PHP_SOCKETS" != "sockets" ]; then
+    err "The PHP 'sockets' module is missing.\nDon't forget to restart your Web server after installing the package."
+elif [ "$PHP_XML" != "xml" ]; then
+    err "The PHP 'xml' module is missing.\nDon't forget to restart your Web server after installing the package."
+fi
+
+if [ ! -f ${GEO_DB} ]; then
+    echo "Downloading MaxMind GeoLite City database - http://geolite.maxmind.com"
+    ${RETRIEVE_TOOL} -q http://geolite.maxmind.com/download/geoip/database/${GEO_DB}
+    if [ $? != 0 ]; then
+        err_line "The MaxMind GeoLite City database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later."
+    fi
+fi
+
+if [ ! -f ${GEOv6_DB} ]; then
     echo "Downloading MaxMind GeoLite City (IPv6) database - http://geolite.maxmind.com"
-    ${RETRIEVE_TOOL} http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/${GEOv6_DB}
+    ${RETRIEVE_TOOL} -q http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/${GEOv6_DB}
+    if [ $? != 0 ]; then
+        err_line "The MaxMind GeoLite City (IPv6) database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later."
+    fi
 fi
 
 # Backup old SURFmap installation
 SURFMAP_BACKUPDIR_FRONTEND=${FRONTEND_PLUGINDIR}/SURFmap-$(date +%s)
 SURFMAP_BACKUPDIR_BACKEND=${BACKEND_PLUGINDIR}/SURFmap-$(date +%s)
-if [ -d ${FRONTEND_PLUGINDIR}/SURFmap ]; then
+if [ $INSTALL_FRONTEND = 1 -a -d ${FRONTEND_PLUGINDIR}/SURFmap ]; then
     echo "Backing up existing SURFmap (frontend) installation to ${SURFMAP_BACKUPDIR_FRONTEND}"
     mv ${FRONTEND_PLUGINDIR}/SURFmap ${SURFMAP_BACKUPDIR_FRONTEND}
 fi
-if [ -d ${BACKEND_PLUGINDIR}/SURFmap ]; then
+if [ $INSTALL_BACKEND = 1 -a -d ${BACKEND_PLUGINDIR}/SURFmap ]; then
     echo "Backing up existing SURFmap (backend) installation to ${SURFMAP_BACKUPDIR_BACKEND}"
     mv ${BACKEND_PLUGINDIR}/SURFmap ${SURFMAP_BACKUPDIR_BACKEND}
 fi
 
-# Unpack SURFmap
-echo "Unpacking files..."
-tar zxf ${SURFMAP_REL} --directory=.
-mv SURFmap ${SURFMAP_TMP}
-
 # Install backend and frontend plugin files
 echo "Installing SURFmap ${SURFMAP_VER} to ${FRONTEND_PLUGINDIR}/SURFmap"
-cp -r ./${SURFMAP_TMP}/backend/* ${BACKEND_PLUGINDIR}
-cp -r ./${SURFMAP_TMP}/frontend/* ${FRONTEND_PLUGINDIR}
+if [ $INSTALL_FRONTEND = 1 ]; then
+    cp -r ./${TMP_DIR}/frontend/* ${FRONTEND_PLUGINDIR}
+fi
+if [ $INSTALL_BACKEND = 1 ]; then
+    cp -r ./${TMP_DIR}/backend/* ${BACKEND_PLUGINDIR}
+fi
 
 # Unpack geoLocation databases
 MAXMIND_PATH=${FRONTEND_PLUGINDIR}/SURFmap/lib/MaxMind
 echo "Installing MaxMind GeoLite City database to ${MAXMIND_PATH}"
 gunzip -c ${GEO_DB} > ${MAXMIND_PATH}/$(basename ${GEO_DB} .gz)
 if [ $? != 0 ]; then
-    err_line "The MaxMind GeoLite City database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
+    err_line "The MaxMind GeoLite City database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later."
 fi
 
 echo "Installing MaxMind GeoLite City (IPv6) database to ${MAXMIND_PATH}"
 gunzip -c ${GEOv6_DB} > ${MAXMIND_PATH}/$(basename ${GEOv6_DB} .gz)
 if [ $? != 0 ]; then
-    err_line "The MaxMind GeoLite City (IPv6) database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later"
+    err_line "The MaxMind GeoLite City (IPv6) database has not been downloaded successfully. You may have been graylisted by MaxMind because of subsequent download retries. Please try again later."
 fi
 
 # Deleting temporary files
-rm -rf ${SURFMAP_TMP}
+# rm -rf ${TMP_DIR}
 rm -rf ${GEO_DB}
 rm -rf ${GEOv6_DB}
 
 # Check whether an old SURFmap version was found and ask whether frontend configuration and data structures should be retained
-if [ -d ${SURFMAP_BACKUPDIR_FRONTEND} -a -d ${SURFMAP_BACKUPDIR_BACKEND} ]; then
+if [ $INSTALL_FRONTEND = 1 -a -d ${SURFMAP_BACKUPDIR_FRONTEND} ]; then
     OLD_VER=$(cat ${SURFMAP_BACKUPDIR_FRONTEND}/version.php | grep -m1 \$version | awk '{print $3}' |  cut -d"\"" -f2)
     if [ ${OLD_VER} = ${SURFMAP_VER} ]; then
         while true; do
@@ -157,9 +229,13 @@ fi
 
 # Set permissions - owner and group
 echo "Setting plugin file permissions - user \"${USER}\" and group \"${WWWGROUP}\""
-chown -R ${USER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap*
-chown -R ${USER}:${WWWGROUP} ${BACKEND_PLUGINDIR}/SURFmap*
-chmod -R g+w ${FRONTEND_PLUGINDIR}/SURFmap/db
+if [ $INSTALL_FRONTEND = 1 ]; then
+    chown -R ${USER}:${WWWGROUP} ${FRONTEND_PLUGINDIR}/SURFmap*
+    chmod -R g+w ${FRONTEND_PLUGINDIR}/SURFmap/db
+fi
+if [ $INSTALL_BACKEND = 1 ]; then
+    chown -R ${USER}:${WWWGROUP} ${BACKEND_PLUGINDIR}/SURFmap*
+fi
 
 # Update plugin configuration file - config.php. We use ',' as sed delimiter instead of escaping all '/' to '\/'.
 echo "Updating plugin configuration file ${SURFMAP_CONF}"
