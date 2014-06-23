@@ -234,6 +234,13 @@ $(document).ready(function() {
                     });
                 } else {
                     show_error(807, data.status_message);
+
+                    // In case a date/time value has been selected in the menu panel for which no nfcapd files are present, the session
+                    // data will not be updated (setsessiondata.php). The menu panel values must however also be reverted to their previous settings.
+                    if (session_params.hasOwnProperty('date1') || session_params.hasOwnProperty('hours1') || session_params.hasOwnProperty('minutes1')
+                            || session_params.hasOwnProperty('date2') || session_params.hasOwnProperty('hours2') || session_params.hasOwnProperty('minutes2')) {
+                        update_panel();
+                    }
                 }
             }
         });

@@ -184,6 +184,9 @@
             $result['session_data']['date1'] = $_SESSION['SURFmap']['date1'];
             $result['session_data']['hours1'] = $_SESSION['SURFmap']['hours1'];
             $result['session_data']['minutes1'] = $_SESSION['SURFmap']['minutes1'];
+        } else {
+            $result['status'] = 1;
+            $result['status_message'] = "No flow data files could be found matching the selected 'begin' timeslot. Reverting 'begin' timeslot.";
         }
     }
     
@@ -197,6 +200,9 @@
             $result['session_data']['date2'] = $_SESSION['SURFmap']['date2'];
             $result['session_data']['hours2'] = $_SESSION['SURFmap']['hours2'];
             $result['session_data']['minutes2'] = $_SESSION['SURFmap']['minutes2'];
+        } else {
+            $result['status'] = 1;
+            $result['status_message'] = "No flow data files could be found matching the selected 'end' timeslot. Reverting 'end' timeslot.";
         }
     }
     
