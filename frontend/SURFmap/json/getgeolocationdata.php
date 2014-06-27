@@ -83,10 +83,11 @@
                 }
             
                 $country = (!isset($data->country_name) || $data->country_name === "-") ? "(UNKNOWN)" : strtoupper($data->country_name);
-                $region = (!isset($data->country_code) || !isset($data->region) || 
-                        !array_key_exists($data->country_code, $GEOIP_REGION_NAME) || 
-                        !array_key_exists($data->region, $GEOIP_REGION_NAME[$data->country_code]) || 
-                        $GEOIP_REGION_NAME[$data->country_code][$data->region] === "") ? "(UNKNOWN)" : strtoupper($GEOIP_REGION_NAME[$data->country_code][$data->region]);
+                $region = (!isset($data->country_code)
+                        || !isset($data->region)
+                        || !array_key_exists($data->country_code, $GEOIP_REGION_NAME)
+                        || !array_key_exists($data->region, $GEOIP_REGION_NAME[$data->country_code])
+                        || $GEOIP_REGION_NAME[$data->country_code][$data->region] === "") ? "(UNKNOWN)" : strtoupper($GEOIP_REGION_NAME[$data->country_code][$data->region]);
                 $city = (!isset($data->city) || $data->city === "-") ? "(UNKNOWN)" : strtoupper($data->city);
                 $continent_code = (!isset($data->continent_code) || $data->continent_code === "-") ? "(UNKNOWN)" : strtoupper($data->continent_code);
             } else {
@@ -121,6 +122,7 @@
         }
         
         array_push($result['geolocation_data'], array('address' => $address, 'continent' => $continent, 'country' => $country, 'region' => $region, 'city' => $city));
+        unset($continent_code, $continent);
     }
     unset($address);
     
