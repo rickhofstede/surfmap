@@ -17,7 +17,7 @@ use SURFmap::RPC;
 use SURFmap::Utils;
 
 our $VERSION = 136;
-our $SURFMAP_VERSION = "3.2.2";
+our $SURFMAP_VERSION = "3.3";
 our $nfdump_version;
 
 use Exporter;
