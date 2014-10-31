@@ -14,8 +14,8 @@
 #
 #########################################################
 
-SURFMAP_VER=3.3
-SURFMAP_REL=SURFmap_v${SURFMAP_VER}.tar.gz
+VERSION=3.3.1
+SURFMAP_REL=SURFmap_v${VERSION}.tar.gz
 TMP_DIR=SURFmap
 GEO_DB=GeoLiteCity.dat.gz
 GEOv6_DB=GeoLiteCityv6.dat.gz
@@ -79,6 +79,28 @@ fi
 echo "SURFmap installation script"
 echo "---------------------------"
 
+# Check PHP dependencies
+PHP_CURL=$(php -m | grep 'curl' 2> /dev/null)
+PHP_JSON=$(php -m | grep 'json' 2> /dev/null)
+PHP_MBSTRING=$(php -m 2> /dev/null | grep 'mbstring')
+PHP_PDOSQLITE=$(php -m 2> /dev/null | grep 'pdo_sqlite$') # The dollar-sign ($) makes sure that 'pdo_sqlite2' is not accepted
+PHP_SOCKETS=$(php -m 2> /dev/null | grep '^sockets$')
+PHP_XML=$(php -m 2> /dev/null | grep '^xml$')
+
+if [ "$PHP_CURL" != "curl" ]; then
+    err "The PHP 'CURL' module is missing.\nDon't forget to restart your Web server after installing the package."
+elif [ "$PHP_JSON" != "json" ]; then
+    err "The PHP 'JSON' module is missing.\nDon't forget to restart your Web server after installing the package."
+elif [ "$PHP_MBSTRING" != "mbstring" ]; then
+    err "The PHP 'mbstring' module is missing.\nDon't forget to restart your Web server after installing the package."
+elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
+    err "The PHP PDO SQLite v3 module is missing.\nDon't forget to restart your Web server after installing the package."
+elif [ "$PHP_SOCKETS" != "sockets" ]; then
+    err "The PHP 'sockets' module is missing.\nDon't forget to restart your Web server after installing the package."
+elif [ "$PHP_XML" != "xml" ]; then
+    err "The PHP 'xml' module is missing.\nDon't forget to restart your Web server after installing the package."
+fi
+
 # Discover NfSen configuration
 NFSEN_VARFILE=/tmp/nfsen-tmp.conf
 if [ ! -n "$(ps axo command | grep [n]fsend | grep -v nfsend-comm)" ]; then
@@ -116,42 +138,30 @@ else
     RETRIEVE_TOOL="wget"
 fi
 
-if [ ! -f  ${SURFMAP_REL} ]; then
+if [ ! -f ${SURFMAP_REL} ]; then
     echo "Downloading SURFmap tar ball - http://surfmap.sf.net/"
-    ${RETRIEVE_TOOL} http://downloads.sourceforge.net/project/surfmap/source/${SURFMAP_REL}
-fi
+    ${RETRIEVE_TOOL} -q http://downloads.sourceforge.net/project/surfmap/source/${SURFMAP_REL}
 
-# Move one directory-level up, if necessary, to be consistent with the case in which the tar-ball is unpacked (else-clause)
-if [ -f install.sh ]; then
-    cd ..
+    if [ ! -f ${SURFMAP_REL} ]; then
+        err "Could not download SURFmap tar ball; please check whether the version (v${VERSION}) is still available for download"
+    fi
 fi
 
 # Unpack SURFmap
 if [ -d ${TMP_DIR} ]; then
+    # Assume tar-ball was already extracted before
     echo "Extracted SURFmap files found in $(pwd)/${TMP_DIR}"
+elif [ -d backend -a -d frontend ]; then
+    # Assume tar-ball was already extracted before and we're already inside the 'SURFmap' directory
+    # Move one directory-level up, if necessary, to be consistent with the IF and ELSE clauses
+    cd ..
 else
     echo "Unpacking files..."
-    tar zxf ${SURFmap_REL} --directory=.
-    mv SURFmap ${TMP_DIR}
-fi
+    tar zxf ${SURFMAP_REL} --directory=.
 
-# Check PHP dependencies
-PHP_JSON=$(php -m | grep 'json' 2> /dev/null)
-PHP_MBSTRING=$(php -m 2> /dev/null | grep 'mbstring')
-PHP_PDOSQLITE=$(php -m 2> /dev/null | grep 'pdo_sqlite$') # The dollar-sign ($) makes sure that 'pdo_sqlite2' is not accepted
-PHP_SOCKETS=$(php -m 2> /dev/null | grep '^sockets$')
-PHP_XML=$(php -m 2> /dev/null | grep '^xml$')
-
-if [ "$PHP_JSON" != "json" ]; then
-    err "The PHP 'JSON' module is missing.\nDon't forget to restart your Web server after installing the package."
-elif [ "$PHP_MBSTRING" != "mbstring" ]; then
-    err "The PHP 'mbstring' module is missing.\nDon't forget to restart your Web server after installing the package."
-elif [ "$PHP_PDOSQLITE" != "pdo_sqlite" ]; then
-    err "The PHP PDO SQLite v3 module is missing.\nDon't forget to restart your Web server after installing the package."
-elif [ "$PHP_SOCKETS" != "sockets" ]; then
-    err "The PHP 'sockets' module is missing.\nDon't forget to restart your Web server after installing the package."
-elif [ "$PHP_XML" != "xml" ]; then
-    err "The PHP 'xml' module is missing.\nDon't forget to restart your Web server after installing the package."
+    if [ ! -d ${TMP_DIR} ]; then
+        mv SURFmap ${TMP_DIR}
+    fi
 fi
 
 if [ ! -f ${GEO_DB} ]; then
@@ -183,7 +193,7 @@ if [ $INSTALL_BACKEND = 1 -a -d ${BACKEND_PLUGINDIR}/SURFmap ]; then
 fi
 
 # Install backend and frontend plugin files
-echo "Installing SURFmap ${SURFMAP_VER} to ${FRONTEND_PLUGINDIR}/SURFmap"
+echo "Installing SURFmap ${VERSION} to ${FRONTEND_PLUGINDIR}/SURFmap"
 if [ $INSTALL_FRONTEND = 1 ]; then
     cp -r ./${TMP_DIR}/frontend/* ${FRONTEND_PLUGINDIR}
 fi
@@ -206,14 +216,13 @@ if [ $? != 0 ]; then
 fi
 
 # Deleting temporary files
-# rm -rf ${TMP_DIR}
 rm -rf ${GEO_DB}
 rm -rf ${GEOv6_DB}
 
 # Check whether an old SURFmap version was found and ask whether frontend configuration and data structures should be retained
 if [ $INSTALL_FRONTEND = 1 -a -d ${SURFMAP_BACKUPDIR_FRONTEND} ]; then
     OLD_VER=$(cat ${SURFMAP_BACKUPDIR_FRONTEND}/version.php | grep -m1 \$version | awk '{print $3}' |  cut -d"\"" -f2)
-    if [ ${OLD_VER} = ${SURFMAP_VER} ]; then
+    if [ ${OLD_VER} = ${VERSION} ]; then
         while true; do
             read -p "Do you wish to keep the frontend configuration and data structures from your previous installation [y,n] (default: y)? " input
             case $input in

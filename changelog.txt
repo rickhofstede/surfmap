@@ -3,6 +3,11 @@ SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 Please check the manual or readme for installation instructions.
 ---
 
+Release notes [v3.3.1 (20141030)]:
+- [BUGFIX]  Fixed installation script for situations in which SURFmap was installed using a pre-fetched install.sh
+- [BUGFIX]  Fixed multiple installation script issues in situations where SURFmap was installed from a ‘SURFmap/SURFmap/‘ directory
+- [BUGFIX]  Installation script now checks for presence of PHP CURL module
+
 Release notes [v3.3 (20140919)]:
 - [FEATURE] Aggregation in queries is now supported
 - [FEATURE] Continent names are now considered in the geocoding process, to deal properly with places that have identical names, such as ‘New York’ and ‘Georgia’
