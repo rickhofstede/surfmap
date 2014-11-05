@@ -1,6 +1,6 @@
 SURFmap -- A Network Monitoring Tool Based on the Google Maps API
 
-Version:    3.3
+Version:    3.3.1
 Author:     Rick Hofstede, University of Twente <r.j.hofstede@utwente.nl>
 
 --
@@ -28,16 +28,14 @@ check 2.5; for installation verification, check 2.6):
     * NfSen
     * PHP 5.2.4 or newer
     * PHP cURL module
+    * PHP JSON module
     * PHP mbstring module
     * PHP PDO SQLite3 module
-
-- INVEA-TECH's FlowMon Probe (version >= 5.0) (http://www.invea-tech.com/products-and-services/flowmon/flowmon-probes)
-- INVEA-TECH's FlowMon Collector (version >= 5.0) (http://www.invea-tech.com/products-and-services/flowmon/flowmon-collectors)
 
 2.2) Automated tar ball installation (latest stable, recommended)
 
 - Download installation script:
-    $ wget http://sourceforge.net/projects/surfmap/files/install.sh/download
+    $ wget http://sourceforge.net/projects/surfmap/files/install.sh
     $ chmod +x install.sh
 
 - Install plugin:
@@ -47,7 +45,7 @@ check 2.5; for installation verification, check 2.6):
 2.3) Manual tar ball installation (latest stable)
 
 - Download tar ball from SourceForge repository:
-    $ wget http://downloads.sourceforge.net/project/surfmap/source/SURFmap_v3.1.tar.gz
+    $ wget http://downloads.sourceforge.net/project/surfmap/source/SURFmap_v3.3.1.tar.gz
 
 - Download MaxMind GeoLite City database:
     $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
@@ -56,7 +54,7 @@ check 2.5; for installation verification, check 2.6):
     $ wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCityv6-beta/GeoLiteCityv6.dat.gz
 
 - Unpack installation package:
-    $ tar zxf SURFmap_v3.1.tar.gz --directory=.
+    $ tar zxf SURFmap_v3.3.1.tar.gz --directory=.
     
 - Install plugin files:
     $ cp -r SURFmap/frontend/* /var/www/nfsen/plugins/
